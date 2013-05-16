@@ -26,6 +26,9 @@ https://www.udacity.com/course/cs253
 To understand GAE and Go I think this tutorial should help us: 
 https://developers.google.com/appengine/docs/go/gettingstarted/
 
+Some Go tutorials:
+http://golangtutorials.blogspot.fr/2011/05/table-of-contents.html
+
 
 ###Code guidelines:
 
