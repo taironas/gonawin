@@ -19,6 +19,7 @@ const mainHTML = `
 <b>Contributors:</b>
 <ul>
 <li>Santiago (sar)</li>
+<li>Carlos (cab)</li>
 </body>
 </html>
 `
