@@ -20,6 +20,7 @@ const mainHTML = `
 <ul>
 <li>Santiago (sar)</li>
 <li>Carlos (cab)</li>
+<li>Remy (rej)</li>
 </body>
 </html>
 `
