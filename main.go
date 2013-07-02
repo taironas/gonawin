@@ -10,21 +10,7 @@ func init(){
 	http.HandleFunc("/", mainHandler)
 }
 
-var mainTemplate = template.Must(template.New("Main").Parse(mainHTML))
-
-const mainHTML = `
-<html>
-<body>
-<h2>hello purple-wing in Go!</h2>
-<b>Contributors:</b>
-<ul>
-<li>Santiago (sar)</li>
-<li>Carlos (cab)</li>
-<li>Remy (rej)</li>
-</body>
-</html>
-`
-
+var mainTemplate = template.Must(template.New("tmpl_index").ParseFiles("templates/index.html"))
 
 func mainHandler(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
