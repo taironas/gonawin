@@ -3,21 +3,26 @@ package hello
 import (
 	"html/template"
 	"net/http"
-	"appengine"
+	"controllers"
+	"models"
+	"helpers"
 )
 
 func init(){
 	http.HandleFunc("/", mainHandler)
+	http.HandleFunc("/auth", controllers.Auth)
+	http.HandleFunc("/oauth2callback", controllers.AuthCallback)
+	http.HandleFunc("/logout", controllers.Logout)
 }
 
-var mainTemplate = template.Must(template.New("tmpl_index").ParseFiles("templates/index.html"))
-
 func mainHandler(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	c.Infof("pw: mainHandler")
-	c.Infof("pw: Requested URL: %v", r.URL)
+	renderHomePage(w)
+}
 
-	if err := mainTemplate.Execute(w, nil); err != nil{
+func renderHomePage(w http.ResponseWriter) {
+	funcs := template.FuncMap{"LoggedIn": helpers.LoggedIn}
+	mainTemplate := template.Must(template.New("tmpl_index").Funcs(funcs).ParseFiles("templates/index.html"))
+	if err := mainTemplate.Execute(w, models.CurrentUser); err != nil{
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
