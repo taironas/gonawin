@@ -1,0 +1,30 @@
+{{define "tmpl_main"}}
+<div class="header">
+  <ul class="nav nav-pills pull-right">
+    <li class="active"><a href="/">Home</a></li>
+    {{if LoggedIn}}
+    <li><a href="/logout">Logout</a></li>
+    {{end}}
+  </ul>
+  <h3 class="muted">purple-wing</h3>
+</div>
+<hr>
+<div class="jumbotron">
+  {{if LoggedIn}}
+  <h1>hello {{.User.Name}}, welcome on purple-wing!</h1>
+  {{else}}
+  <h1>Welcome on purple-wing</h1>
+  <a href="/auth" class="btn btn-large btn-success">Sign in</a>
+  {{end}}
+</div>
+<h4>Main page</h4>
+<p>{{.Msg}}</p>
+<hr>
+<br>
+<b>Contributors:</b>
+<ul>
+  <li>Santiago (sar)</li>
+  <li>Carlos (cab)</li>
+  <li>Remy (rej)</li>
+</ul>
+{{end}}
