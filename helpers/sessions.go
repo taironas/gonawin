@@ -14,39 +14,20 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package models
+package helpers
 
 import (
-	"net/http"
-	"io/ioutil"
-	"encoding/json"
+	"models"
 )
 
-type GoogleUser struct {
-	Id string
-	Email string
-	Name string
-	GivenName string
-	FamilyName string
+func UserAuthorized(u *models.GoogleUser) bool {
+	return u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com"
 }
 
-var CurrentUser *GoogleUser = nil
+func LoggedIn() bool {
+	return models.CurrentUser != nil
+}
 
-func FetchUserInfo(r *http.Request, c *http.Client) (*GoogleUser, error) {
-	// Make the request.
-	request, err := c.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
-	
-	if err != nil {
-		return nil, err
-	}
-
-	if userInfo, err := ioutil.ReadAll(request.Body); err == nil {
-		var u *GoogleUser
-
-		if err := json.Unmarshal(userInfo, &u); err == nil {
-			return u, err
-		}	
-	}
-
-	return nil, err
+func Logout() {
+	models.CurrentUser = nil
 }
