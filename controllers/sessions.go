@@ -23,8 +23,8 @@ import (
 	"fmt"
 	"code.google.com/p/goauth2/oauth"
 	
-	"helpers"
-	"models"
+	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/models"
 )
 
 const (

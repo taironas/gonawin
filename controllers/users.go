@@ -21,7 +21,7 @@ import (
 	"appengine"
 	"net/http"
 	"html/template"
-	"helpers"
+	"github.com/santiaago/purple-wing/helpers"
 )
 
 // Data struct holds the data for the template

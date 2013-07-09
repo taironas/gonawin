@@ -20,9 +20,9 @@ import (
 	"bytes"
 	"html/template"
 	"net/http"
-	"controllers"
-	"models"
-	"helpers"
+	"github.com/santiaago/purple-wing/controllers"
+	"github.com/santiaago/purple-wing/models"
+	"github.com/santiaago/purple-wing/helpers"
 	"appengine"
 )
 

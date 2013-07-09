@@ -17,7 +17,7 @@
 package helpers
 
 import (
-	"models"
+	"github.com/santiaago/purple-wing/models"
 )
 
 func UserAuthorized(u *models.GoogleUser) bool {
