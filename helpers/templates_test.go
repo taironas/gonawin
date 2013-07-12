@@ -16,6 +16,6 @@
 
 package helpers
 
-/*import (
+import (
 	"testing"
-)*/
+)

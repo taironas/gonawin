@@ -23,11 +23,3 @@ import (
 func TestUserAuthorized(t *testing.T) {
 	t.Fatalf("Not implemented")
 }
-
-func TestLoggedIn(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
-
-func TestLogout(t *testing.T) {
-	t.Fatalf("Not implemented")
-}

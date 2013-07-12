@@ -17,17 +17,9 @@
 package helpers
 
 import (
-	"github.com/santiaago/purple-wing/models"
+	"models"
 )
 
-func UserAuthorized(u *models.GoogleUser) bool {
-	return u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com"
-}
-
-func LoggedIn() bool {
-	return models.CurrentUser != nil
-}
-
-func Logout() {
-	models.CurrentUser = nil
+func IsAuthorized(ui *models.GPlusUserInfo) bool {
+	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
 }

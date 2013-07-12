@@ -20,9 +20,19 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"time"
+	"appengine"
+	"appengine/datastore"
 )
 
-type GoogleUser struct {
+type User struct {
+	Id int64
+	Email string
+	Username string
+	Created time.Time
+}
+
+type GPlusUserInfo struct {
 	Id string
 	Email string
 	Name string
@@ -30,9 +40,37 @@ type GoogleUser struct {
 	FamilyName string
 }
 
-var CurrentUser *GoogleUser = nil
+func Create(r *http.Request, email string, username string) *User {
+	c := appengine.NewContext(r)
+	// create new user
+	userId, _, _ := datastore.AllocateIDs(c, "User", nil, 1)
+	key := datastore.NewKey(c, "User", "", userId, nil)
 
-func FetchUserInfo(r *http.Request, c *http.Client) (*GoogleUser, error) {
+	user := &User{ userId, email, username, time.Now() }
+
+	_, err := datastore.Put(c, key, user)
+	if err != nil {
+		c.Errorf("Create: %q", err)
+	}
+
+	return user;
+}
+
+func Find(r *http.Request, email string) *User {
+	c := appengine.NewContext(r)
+	
+	q := datastore.NewQuery("User").Filter("Email =", email)
+	
+	var users []*User
+	
+	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
+		return users[0]
+	}
+	
+	return nil
+}
+
+func FetchUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error) {
 	// Make the request.
 	request, err := c.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
 	
@@ -40,11 +78,11 @@ func FetchUserInfo(r *http.Request, c *http.Client) (*GoogleUser, error) {
 		return nil, err
 	}
 
-	if userInfo, err := ioutil.ReadAll(request.Body); err == nil {
-		var u *GoogleUser
+	if body, err := ioutil.ReadAll(request.Body); err == nil {
+		var ui *GPlusUserInfo
 
-		if err := json.Unmarshal(userInfo, &u); err == nil {
-			return u, err
+		if err := json.Unmarshal(body, &ui); err == nil {
+			return ui, err
 		}	
 	}
 

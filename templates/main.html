@@ -11,13 +11,13 @@
 <hr>
 <div class="jumbotron">
   {{if LoggedIn}}
-  <h1>hello {{.User.Name}}, welcome on purple-wing!</h1>
+  <h1>hello {{.User.Username}}, welcome on purple-wing!</h1>
   {{else}}
   <h1>Welcome on purple-wing</h1>
   <a href="/auth" class="btn btn-large btn-success">Sign in</a>
   {{end}}
 </div>
-<h4>Main page</h4>
+<h4>Home page</h4>
 <p>{{.Msg}}</p>
 <hr>
 <br>

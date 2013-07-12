@@ -23,9 +23,11 @@ import (
 	"fmt"
 	"code.google.com/p/goauth2/oauth"
 	
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/models"
+	"helpers"
+	"models"
 )
+
+var CurrentUser *models.User = nil
 
 const (
         // Created at http://code.google.com/apis/console, these identify
@@ -52,7 +54,6 @@ func Auth(w http.ResponseWriter, r *http.Request){
 }
 
 func AuthCallback(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth.Transport{
@@ -62,20 +63,31 @@ func AuthCallback(w http.ResponseWriter, r *http.Request){
 			},
 	}
 	
-	if _, err := t.Exchange(code); err != nil {
-		c.Debugf("Exchange: %q", err)
-	}
-	user, _ := models.FetchUserInfo(r, t.Client())
+	var userInfo *models.GPlusUserInfo
 	
-	if helpers.UserAuthorized(user) {
-		models.CurrentUser = user
+	if _, err := t.Exchange(code); err == nil {
+		userInfo, _ = models.FetchUserInfo(r, t.Client())
+	}
+	if helpers.IsAuthorized(userInfo) {
+		var user *models.User
+		// find user
+		if user = models.Find(r, userInfo.Email); user == nil {
+			// create user if it does not exist
+			user = models.Create(r, userInfo.Email, userInfo.Name)
+			
+			CurrentUser = user
+		}
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func Logout(w http.ResponseWriter, r *http.Request){
-	helpers.Logout()
+	CurrentUser = nil
 	
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func LoggedIn() bool {
+	return CurrentUser != nil
 }

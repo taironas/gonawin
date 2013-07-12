@@ -21,38 +21,12 @@ import (
 	"appengine"
 	"net/http"
 	"html/template"
-	"github.com/santiaago/purple-wing/helpers"
+	"helpers"
 )
 
-// Data struct holds the data for the template
-type data struct{
-	Msg string
-}
-
-// writeProfile executes the index  template.
-func renderProfile(c appengine.Context, w http.ResponseWriter, content helpers.Content){
-	tmpl, err := template.ParseFiles("templates/index.html", 
-		"templates/container.html",
-		"templates/header.html",
-		"templates/footer.html",
-		"templates/scripts.html" )
-	if err != nil{
-		print ("error in parse files")
-		print (err.Error())
-	}
-	c.Infof("ok parse files\n")
-
-	err = tmpl.ExecuteTemplate(w,"tmpl_index",content)
-	if err != nil{
-		c.Errorf("error in execute template")
-		c.Errorf(err.Error())
-	}
-	c.Infof("ok execute template\n")
-}
-
-func ProfileHandler(w http.ResponseWriter, r *http.Request){
+func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	c.Infof("pw: profileHandler")
+	c.Infof("pw: Show")
 	c.Infof("pw: Requested URL: %v", r.URL)
 	
 	c.Infof("pw: preparing data")
@@ -73,6 +47,30 @@ func ProfileHandler(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: %v",err.Error())
 	}
 	c.Infof("pw: calling renderProfile()")
-	renderProfile(c, w, helpers.Content{template.HTML(profile)})
+	renderUser(c, w, helpers.Content{template.HTML(profile)})
 	c.Infof("pw: profile handler done!")
+}
+
+func Edit(w http.ResponseWriter, r *http.Request){
+}
+
+// writeProfile executes the index  template.
+func renderUser(c appengine.Context, w http.ResponseWriter, content helpers.Content){
+	tmpl, err := template.ParseFiles("templates/index.html", 
+		"templates/container.html",
+		"templates/header.html",
+		"templates/footer.html",
+		"templates/scripts.html" )
+	if err != nil{
+		print ("error in parse files")
+		print (err.Error())
+	}
+	c.Infof("ok parse files\n")
+
+	err = tmpl.ExecuteTemplate(w,"tmpl_index",content)
+	if err != nil{
+		c.Errorf("error in execute template")
+		c.Errorf(err.Error())
+	}
+	c.Infof("ok execute template\n")
 }

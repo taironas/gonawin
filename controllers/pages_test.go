@@ -20,18 +20,6 @@ import (
 	"testing"
 )
 
-func TestAuth(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
-
-func TestAuthCallback(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
-
-func TestLoggedIn(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
-
-func TestLogout(t *testing.T) {
+func TestHome(t *testing.T) {
 	t.Fatalf("Not implemented")
 }
