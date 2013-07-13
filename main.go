@@ -14,12 +14,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package hello
+package pw
 
 import (
 	"net/http"
 	
-	"controllers"
+	"github.com/santiaago/purple-wing/controllers"
 )
 
 func init(){
@@ -29,5 +29,6 @@ func init(){
 	http.HandleFunc("/oauth2callback", controllers.AuthCallback)
 	http.HandleFunc("/logout", controllers.Logout)	
 	/* user */
-	http.HandleFunc("/profile", controllers.Show)
+	http.HandleFunc("/users/1", controllers.Show)
+	http.HandleFunc("/users/1/edit", controllers.Edit)
 }

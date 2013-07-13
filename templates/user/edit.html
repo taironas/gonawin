@@ -1,0 +1,30 @@
+{{define "tmpl_user_edit"}}
+<div class="page-header">
+	<h1>Edit User</h1>
+</div>
+<form accept-charset="UTF-8" action="/users/{{.Id}}" class="form-horizontal" method="post">
+	<div class="control-group">
+		<label class="control-label" for="user_id">Id</label>
+		<div class="controls">
+			<input class="text_field" id="user_id" name="Id" size="30" type="text" value="{{.Id}}" readonly="readonly"/>
+		</div>
+	</div>
+  	<div class="control-group">
+		<label class="control-label" for="task_email">Content</label>
+		<div class="controls">
+	  		<input class="text_field" id="user_email" name="Email" size="30" type="text" value="{{.Email}}" readonly="readonly"/>
+		</div>
+  	</div>
+  	<div class="control-group">
+  			<label class="control-label" for="task_username">Content</label>
+  			<div class="controls">
+  		  		<input class="text_field" id="user_username" name="Username" size="30" type="text" value="{{.Username}}" />
+  			</div>
+  	  	</div>
+
+  	<div class="form-actions">
+		<input class="btn btn-primary" name="commit" type="submit" value="Update User" />
+		<a href="/users/{{.Id}}" class="btn">Cancel</a>
+  	</div>
+</form>
+{{end}}

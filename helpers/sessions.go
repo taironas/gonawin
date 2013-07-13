@@ -17,7 +17,7 @@
 package helpers
 
 import (
-	"models"
+	"github.com/santiaago/purple-wing/models"
 )
 
 func IsAuthorized(ui *models.GPlusUserInfo) bool {

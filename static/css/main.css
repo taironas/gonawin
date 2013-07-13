@@ -13,6 +13,10 @@ body {
 	margin: 30px 0;
 }
 
+.footer p {
+	text-align: center;
+}
+
 .jumbotron {
 	margin: 60px 0;
 	text-align: center;

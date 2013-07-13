@@ -1,0 +1,19 @@
+{{define "tmpl_user_show"}}
+<div class="page-header">
+	<h1>User</h1>
+</div>
+
+<dl class="dl-horizontal">
+	<dt><strong>Id:</strong></dt>
+	<dd>{{.Id}}</dd>
+	<dt><strong>Username:</strong></dt>
+	<dd>{{.Username}}</dd>
+	<dt><strong>Email:</strong></dt>
+	<dd>{{.Email}}</dd>
+</dl>
+
+<div class="form-actions">
+	<a href="/users/{{.Id}}/edit" class="btn"><span>Edit</span></a>
+	<a href="/users/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
+</div>
+{{end}}

@@ -21,56 +21,61 @@ import (
 	"appengine"
 	"net/http"
 	"html/template"
-	"helpers"
+	"time"
+	
+	"github.com/santiaago/purple-wing/models"
+	"github.com/santiaago/purple-wing/helpers"
 )
 
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	c.Infof("pw: Show")
-	c.Infof("pw: Requested URL: %v", r.URL)
 	
-	c.Infof("pw: preparing data")
-	data := data{Msg: "hello profile handler"}
+	t, err := template.ParseFiles("templates/user/show.html")
 	
-	c.Infof("pw: data ready")
-	
-	c.Infof("pw: preparing profile template")
-	t, err := template.ParseFiles("templates/profile.html")
+	user := models.User{ 1, "test@example.com", "John Doe", time.Now() }
 
-	c.Infof("pw: executing profile template in standalone")
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_profile", data)
-	profile := buf.Bytes()
+	err = t.ExecuteTemplate(&buf,"tmpl_user_show", user)
+	show := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error in parse template profile")
-		c.Errorf("pw: %v",err.Error())
+		c.Errorf("pw: error in parse template user_show: %q", err)
 	}
-	c.Infof("pw: calling renderProfile()")
-	renderUser(c, w, helpers.Content{template.HTML(profile)})
-	c.Infof("pw: profile handler done!")
+
+	renderUser(c, w, helpers.Content{template.HTML(show)})
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	t, err := template.ParseFiles("templates/user/edit.html")
+
+	user := models.User{ 1, "test@example.com", "John Doe", time.Now() }
+
+	var buf bytes.Buffer
+	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
+	show := buf.Bytes()
+
+	if err != nil{
+		c.Errorf("pw: error in parse template user_edit: %q", err)
+	}
+
+	renderUser(c, w, helpers.Content{template.HTML(show)})
 }
 
-// writeProfile executes the index  template.
-func renderUser(c appengine.Context, w http.ResponseWriter, content helpers.Content){
-	tmpl, err := template.ParseFiles("templates/index.html", 
-		"templates/container.html",
-		"templates/header.html",
-		"templates/footer.html",
-		"templates/scripts.html" )
+// renderShowUser executes the user show/edit template.
+func renderUser(c appengine.Context, w http.ResponseWriter, content helpers.Content) {
+	tmpl, err := template.ParseFiles("templates/layout/application.html", 
+									 "templates/layout/container.html",
+									 "templates/layout/header.html",
+									 "templates/layout/footer.html",
+									 "templates/layout/scripts.html" )
 	if err != nil{
-		print ("error in parse files")
-		print (err.Error())
+		c.Errorf("error in parse files: %q", err)
 	}
-	c.Infof("ok parse files\n")
 
-	err = tmpl.ExecuteTemplate(w,"tmpl_index",content)
+	err = tmpl.ExecuteTemplate(w,"tmpl_application",content)
 	if err != nil{
-		c.Errorf("error in execute template")
-		c.Errorf(err.Error())
+		c.Errorf("error in execute template: %q", err)
 	}
-	c.Infof("ok execute template\n")
 }
