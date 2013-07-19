@@ -18,17 +18,21 @@ package pw
 
 import (
 	"net/http"
-	
+	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/controllers"
 )
 
 func init(){
-	http.HandleFunc("/", controllers.Home)
+	h := new(helpers.RegexpHandler)
+
+	h.HandleFunc("/", controllers.Home)
 	/* session */
-	http.HandleFunc("/auth", controllers.Auth)
-	http.HandleFunc("/oauth2callback", controllers.AuthCallback)
-	http.HandleFunc("/logout", controllers.Logout)	
+	h.HandleFunc("/auth/?", controllers.Auth)
+	h.HandleFunc("/oauth2callback/?", controllers.AuthCallback)
+	h.HandleFunc("/logout/?", controllers.Logout)	
 	/* user */
-	http.HandleFunc("/users/1", controllers.Show)
-	http.HandleFunc("/users/1/edit", controllers.Edit)
+	h.HandleFunc("/users/[0-9]+/?", controllers.Show)
+	h.HandleFunc("/users/[0-9]+/edit/?", controllers.Edit)
+
+	http.Handle("/", h)
 }
