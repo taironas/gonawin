@@ -38,28 +38,10 @@ func Home(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  main: %q", err)
 	}
-
-	renderMain(c, w, helpers.Content{template.HTML(main)}, funcs)
-}
-
-// renderMain executes the main template.
-// c is a Content type
-// funcs are the functions needed for the main template
-func renderMain(c appengine.Context, 
-	w http.ResponseWriter, 
-	content helpers.Content, 
-	funcs template.FuncMap){
-
-	tmpl := template.Must(template.New("renderMain").
-		Funcs(funcs).
-		ParseFiles(	"templates/layout/application.html",
-					"templates/layout/header.html",
-					"templates/layout/container.html",
-					"templates/layout/footer.html",
-					"templates/layout/scripts.html"))
-
-	err := tmpl.ExecuteTemplate(w,"tmpl_application",content)
+	err = helpers.Render(c, w, main, funcs, "renderMain")
+	
 	if err != nil{
-		c.Errorf("error in execute template: %q", err)
+		c.Errorf("pw: error when calling Render from helpers: %q", err)
 	}
+
 }

@@ -17,7 +17,11 @@
 package helpers
 
 import (
+	"bytes"
+	"net/http"
 	"html/template"
+
+	"appengine"
 )
 
 // Content struct holds the parts to merge multiple templates.
@@ -25,3 +29,39 @@ import (
 type Content struct{
 	ContainerHTML template.HTML 
 }
+
+func Render(c appengine.Context, 
+	w http.ResponseWriter, 
+	dynamicTemplate bytes,
+	funcs template.FuncMap,
+	name string) error{
+
+	tmpl := template.Must(template.New(name).
+		Funcs(funcs).
+		ParseFiles("templates/layout/application.html",
+		"templates/layout/header.html",
+		"templates/layout/container.html",
+		"templates/layout/footer.html",
+		"templates/layout/scripts.html"))
+	
+	err := tmpl.ExecuteTemplate(w,"tmpl_application",Content{template.HTML(dynamicTemplate)})
+	if err != nil{
+		c.Errorf("error in execute template: %q", err)
+		return err
+	}
+	return nil
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

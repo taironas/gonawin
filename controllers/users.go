@@ -43,7 +43,11 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_show: %q", err)
 	}
 
-	renderUser(c, w, helpers.Content{template.HTML(show)})
+	err = helpers.Render(c, w, show, nil, "renderUserShow")
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers: %q", err)
+	}
+
 }
 
 func UserEdit(w http.ResponseWriter, r *http.Request){
@@ -55,28 +59,15 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
-	show := buf.Bytes()
+	edit := buf.Bytes()
 
 	if err != nil{
 		c.Errorf("pw: error in parse template user_edit: %q", err)
 	}
 
-	renderUser(c, w, helpers.Content{template.HTML(show)})
-}
-
-// renderShowUser executes the user show/edit template.
-func renderUser(c appengine.Context, w http.ResponseWriter, content helpers.Content) {
-	tmpl, err := template.ParseFiles("templates/layout/application.html", 
-									 "templates/layout/container.html",
-									 "templates/layout/header.html",
-									 "templates/layout/footer.html",
-									 "templates/layout/scripts.html" )
+	err = helpers.Render(c, w, edit, nil, "renderUserEdit")
 	if err != nil{
-		c.Errorf("error in parse files: %q", err)
+		c.Errorf("pw: error when calling Render from helpers: %q", err)
 	}
 
-	err = tmpl.ExecuteTemplate(w,"tmpl_application",content)
-	if err != nil{
-		c.Errorf("error in execute template: %q", err)
-	}
 }

@@ -31,29 +31,29 @@ var CurrentUser *models.User = nil
 
 // Set up a configuration.
 func config(host string) *oauth.Config{
-		return &oauth.Config{
-			ClientId:     CLIENT_ID,
-			ClientSecret: CLIENT_SECRET,
-			Scope:        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-			AuthURL:      "https://accounts.google.com/o/oauth2/auth",
-			TokenURL:     "https://accounts.google.com/o/oauth2/token",
-			RedirectURL:  fmt.Sprintf("http://%s/oauth2callback", host),
-		}
+	return &oauth.Config{
+		ClientId:     CLIENT_ID,
+		ClientSecret: CLIENT_SECRET,
+		Scope:        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
+		TokenURL:     "https://accounts.google.com/o/oauth2/token",
+		RedirectURL:  fmt.Sprintf("http://%s/oauth2callback", host),
+	}
 }
 
 func SessionAuth(w http.ResponseWriter, r *http.Request){
 	url := config(r.Host).AuthCodeURL(r.URL.RawQuery)
-    http.Redirect(w, r, url, http.StatusFound)
+	http.Redirect(w, r, url, http.StatusFound)
 }
 
 func SessionAuthCallback(w http.ResponseWriter, r *http.Request){
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth.Transport{
-			Config: config(r.Host),
-			Transport: &urlfetch.Transport{
-					Context: appengine.NewContext(r),
-			},
+		Config: config(r.Host),
+		Transport: &urlfetch.Transport{
+			Context: appengine.NewContext(r),
+		},
 	}
 	
 	var userInfo *models.GPlusUserInfo
