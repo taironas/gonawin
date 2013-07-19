@@ -41,12 +41,12 @@ func config(host string) *oauth.Config{
 		}
 }
 
-func Auth(w http.ResponseWriter, r *http.Request){
+func SessionAuth(w http.ResponseWriter, r *http.Request){
 	url := config(r.Host).AuthCodeURL(r.URL.RawQuery)
     http.Redirect(w, r, url, http.StatusFound)
 }
 
-func AuthCallback(w http.ResponseWriter, r *http.Request){
+func SessionAuthCallback(w http.ResponseWriter, r *http.Request){
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth.Transport{
@@ -60,7 +60,7 @@ func AuthCallback(w http.ResponseWriter, r *http.Request){
 	
 	if _, err := t.Exchange(code); err == nil {
 		userInfo, _ = models.FetchUserInfo(r, t.Client())
-	}
+	}
 	if helpers.IsAuthorized(userInfo) {
 		var user *models.User
 		// find user
@@ -75,7 +75,7 @@ func AuthCallback(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func Logout(w http.ResponseWriter, r *http.Request){
+func SessionLogout(w http.ResponseWriter, r *http.Request){
 	CurrentUser = nil
 	
 	http.Redirect(w, r, "/", http.StatusFound)

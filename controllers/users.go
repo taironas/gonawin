@@ -18,16 +18,17 @@ package controllers
 
 import (
 	"bytes"
-	"appengine"
-	"net/http"
 	"html/template"
+	"net/http"
 	"time"
-	
-	"github.com/santiaago/purple-wing/models"
+
+	"appengine"	
+
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/models"
 )
 
-func Show(w http.ResponseWriter, r *http.Request){
+func UserShow(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	t, err := template.ParseFiles("templates/user/show.html")
@@ -45,7 +46,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	renderUser(c, w, helpers.Content{template.HTML(show)})
 }
 
-func Edit(w http.ResponseWriter, r *http.Request){
+func UserEdit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	t, err := template.ParseFiles("templates/user/edit.html")
