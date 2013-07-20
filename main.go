@@ -25,17 +25,20 @@ import (
 
 func init(){
 	h := new(helpers.RegexpHandler)
-	/* usual pages*/
+	// usual pages
 	h.HandleFunc("/", controllers.Home)
 	//h.HandleFunc("/", controllers.About)
 	//h.HandleFunc("/", controllers.Contact)
-	/* session */
+	// session
 	h.HandleFunc("/auth/?", controllers.SessionAuth)
 	h.HandleFunc("/oauth2callback/?", controllers.SessionAuthCallback)
 	h.HandleFunc("/logout/?", controllers.SessionLogout)	
-	/* user */
+	// user
 	h.HandleFunc("/users/[0-9]+/?", controllers.UserShow)
 	h.HandleFunc("/users/[0-9]+/edit/?", controllers.UserEdit)
+	// admin
+	h.HandleFunc("/a/?", controllers.AdminShow)
+	h.HandleFunc("/a/users/?", controllers.AdminUsers)
 
 	http.Handle("/", h)
 }

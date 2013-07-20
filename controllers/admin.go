@@ -28,45 +28,48 @@ import (
 	"github.com/santiaago/purple-wing/models"
 )
 
-func UserShow(w http.ResponseWriter, r *http.Request){
+func AdminShow(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	t, err := template.ParseFiles("templates/user/show.html",
-	"templates/user/info.html")
+	t, err := template.ParseFiles("templates/admin/show.html")
 	
-	user := models.User{ 1, "test@example.com", "John Doe", time.Now() }
-
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_user_show", user)
+	err = t.ExecuteTemplate(&buf,"tmpl_admin_show", nil)
 	show := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error in parse template user_show: %q", err)
+		c.Errorf("pw: error in parse template admin_show: %q", err)
 	}
 
-	err = helpers.Render(c, w, show, nil, "renderUserShow")
+	err = helpers.Render(c, w, show, nil, "renderAdminShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %q", err)
 	}
 
 }
 
-func UserEdit(w http.ResponseWriter, r *http.Request){
+func AdminUsers(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
+	
+	t, err := template.ParseFiles("templates/admin/users.html",
+		"templates/user/info.html")
 
-	t, err := template.ParseFiles("templates/user/edit.html")
-
-	user := models.User{ 1, "test@example.com", "John Doe", time.Now() }
+	// sample of users
+	user1 := models.User{ 1, "test1@example.com", "John Doe 1", time.Now() }
+	user2 := models.User{ 1, "test2@example.com", "John Doe 2", time.Now() }
+	user3 := models.User{ 1, "test3@example.com", "John Doe 3", time.Now() }
+	users := [] models.User{user1, user2, user3}
+	// end samlpe of users
 
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
-	edit := buf.Bytes()
-
+	err = t.ExecuteTemplate(&buf,"tmpl_admin_users_show", users)
+	show := buf.Bytes()
+	
 	if err != nil{
-		c.Errorf("pw: error in parse template user_edit: %q", err)
+		c.Errorf("pw: error in parse template admin_users_show: %q", err)
 	}
 
-	err = helpers.Render(c, w, edit, nil, "renderUserEdit")
+	err = helpers.Render(c, w, show, nil, "renderAdminUsersShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %q", err)
 	}
