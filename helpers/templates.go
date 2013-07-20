@@ -17,7 +17,6 @@
 package helpers
 
 import (
-	"bytes"
 	"net/http"
 	"html/template"
 
@@ -32,7 +31,7 @@ type Content struct{
 
 func Render(c appengine.Context, 
 	w http.ResponseWriter, 
-	dynamicTemplate bytes,
+	dynamicTemplate []byte,
 	funcs template.FuncMap,
 	name string) error{
 
