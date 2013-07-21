@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"html/template"
 	"bytes"
+	"fmt"
+	
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/models"
@@ -14,6 +16,11 @@ import (
 type data struct{
 	User *models.User
 	Msg string
+}
+
+//temporary main handler: for landing page
+func TempHome(w http.ResponseWriter, r *http.Request){
+	fmt.Fprint(w, "Hello, purple wing!")
 }
 
 //main handler: for home page
