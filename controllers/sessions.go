@@ -27,8 +27,6 @@ import (
 	"github.com/santiaago/purple-wing/models"
 )
 
-var CurrentUser *models.User = nil
-
 // Set up a configuration.
 func config(host string) *oauth.Config{
 	return &oauth.Config{
@@ -66,21 +64,26 @@ func SessionAuthCallback(w http.ResponseWriter, r *http.Request){
 		// find user
 		if user = models.Find(r, userInfo.Email); user == nil {
 			// create user if it does not exist
-			user = models.Create(r, userInfo.Email, userInfo.Name)
-			
-			CurrentUser = user
+			user = models.Create(r, userInfo.Email, userInfo.Name, helpers.GenerateAuthKey())
 		}
+		// set 'auth' cookie
+		helpers.SetAuthCookie(w, user.Auth)
+		// store in memcache auth key in memcache
+		helpers.StoreAuthKey(r, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func SessionLogout(w http.ResponseWriter, r *http.Request){
-	CurrentUser = nil
-	
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func LoggedIn() bool {
-	return CurrentUser != nil
+func LoggedIn(r *http.Request) bool {
+	if auth := helpers.GetAuthCookie(r); len(auth) > 0 {
+		if uid := helpers.FetchAuthKey(r, auth); len(uid) > 0 {
+			
+		}
+	}
+	return false
 }

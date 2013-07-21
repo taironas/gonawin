@@ -17,9 +17,66 @@
 package helpers
 
 import (
+    "net/http"
+    "io"
+    "fmt"
+    "crypto/rand"
+    
+    "appengine"
+    "appengine/memcache"
+    
 	"github.com/santiaago/purple-wing/models"
 )
 
 func IsAuthorized(ui *models.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
+}
+
+func StoreAuthKey(r *http.Request, uid int64, auth string) {
+    c := appengine.NewContext(r)
+    
+    item := &memcache.Item{
+        Key:   "auth:"+auth,
+        Value: []byte(fmt.Sprintf("%d", uid)),
+    }
+    // Set the item, unconditionally
+    if err := memcache.Set(c, item); err != nil {
+        c.Errorf("pw: error setting item: %v", err)
+    }
+}
+
+func FetchAuthKey(r *http.Request, auth string) string {
+    c := appengine.NewContext(r)
+
+    // Get the item from the memcache
+    if item, err := memcache.Get(c, "auth:"+auth); err == nil {
+        return string(item.Value)
+    } 
+    
+    return ""
+}
+
+func SetAuthCookie(w http.ResponseWriter, auth string) {
+    cookie := &http.Cookie{ 
+        Name: "auth", 
+        Value: auth, 
+        Path: "/", 
+    }
+    http.SetCookie(w, cookie)
+}
+
+func GetAuthCookie(r *http.Request) string {
+    if cookie, err := r.Cookie("auth"); err == nil {
+        return cookie.Value
+    }
+
+    return ""
+}
+
+func GenerateAuthKey() string {
+    b := make([]byte, 32)
+    if _, err := io.ReadFull(rand.Reader, b); err != nil {
+        return ""
+    }
+    return string(b)
 }

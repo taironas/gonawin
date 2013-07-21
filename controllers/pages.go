@@ -28,7 +28,7 @@ func Home(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	data := data{
-		CurrentUser,		
+		nil,		
 		"Home handler",
 	}
 	
@@ -43,12 +43,12 @@ func Home(w http.ResponseWriter, r *http.Request){
 	main := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error executing template  main: %q", err)
+		c.Errorf("pw: error executing template  main: %v", err)
 	}
 	err = helpers.Render(c, w, main, funcs, "renderMain")
 	
 	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %q", err)
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
 
 }

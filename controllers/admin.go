@@ -38,12 +38,12 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 	show := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error in parse template admin_show: %q", err)
+		c.Errorf("pw: error in parse template admin_show: %v", err)
 	}
 
 	err = helpers.Render(c, w, show, nil, "renderAdminShow")
 	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %q", err)
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
 
 }
@@ -55,9 +55,9 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 		"templates/user/info.html")
 
 	// sample of users
-	user1 := models.User{ 1, "test1@example.com", "John Doe 1", time.Now() }
-	user2 := models.User{ 1, "test2@example.com", "John Doe 2", time.Now() }
-	user3 := models.User{ 1, "test3@example.com", "John Doe 3", time.Now() }
+	user1 := models.User{ 1, "test1@example.com", "John Doe 1", "", time.Now() }
+	user2 := models.User{ 1, "test2@example.com", "John Doe 2", "", time.Now() }
+	user3 := models.User{ 1, "test3@example.com", "John Doe 3", "", time.Now() }
 	users := [] models.User{user1, user2, user3}
 	// end samlpe of users
 
@@ -66,12 +66,12 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	show := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error in parse template admin_users_show: %q", err)
+		c.Errorf("pw: error in parse template admin_users_show: %v", err)
 	}
 
 	err = helpers.Render(c, w, show, nil, "renderAdminUsersShow")
 	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %q", err)
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
 
 }

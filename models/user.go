@@ -29,6 +29,7 @@ type User struct {
 	Id int64
 	Email string
 	Username string
+	Auth string
 	Created time.Time
 }
 
@@ -40,17 +41,17 @@ type GPlusUserInfo struct {
 	FamilyName string
 }
 
-func Create(r *http.Request, email string, username string) *User {
+func Create(r *http.Request, email string, username string, auth string) *User {
 	c := appengine.NewContext(r)
 	// create new user
 	userId, _, _ := datastore.AllocateIDs(c, "User", nil, 1)
 	key := datastore.NewKey(c, "User", "", userId, nil)
 
-	user := &User{ userId, email, username, time.Now() }
+	user := &User{ userId, email, username, auth, time.Now() }
 
 	_, err := datastore.Put(c, key, user)
 	if err != nil {
-		c.Errorf("Create: %q", err)
+		c.Errorf("Create: %v", err)
 	}
 
 	return user;
