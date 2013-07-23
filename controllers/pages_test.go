@@ -18,8 +18,37 @@ package controllers
 
 import (
 	"testing"
+	"net/http"
+	"appengine/urlfetch"
+	"github.com/rjourde/appenginetesting"
 )
 
 func TestHome(t *testing.T) {
-	t.Fatalf("Not implemented")
+	get(t, "http://localhost:8080", "/")
+}
+
+func get(t *testing.T, baseUrl string, path string) {
+	request, err := http.NewRequest("GET", baseUrl+path, nil)
+	if err != nil {
+		t.Fatalf("Error in 'NewRequest': %q", err)
+	}
+	
+	makeRequest(t, request)
+}
+
+func makeRequest(t *testing.T, r *http.Request) {
+	c, err := appenginetesting.NewContext(nil)
+	if err != nil {
+		t.Fatalf("Error in 'NewContext': %q", err)
+	}
+	
+    client := urlfetch.Client(c)
+	response, err := client.Do(r)
+	if err != nil {
+		t.Fatalf("Error in 'Do': %q", err)
+	}
+	
+	if response.StatusCode != 200 {
+		t.Fatalf("GET " + r.URL.Path + "is not a success")
+	}
 }

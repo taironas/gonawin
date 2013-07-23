@@ -29,7 +29,7 @@ type User struct {
 	Id int64
 	Email string
 	Username string
-	Auth string
+	Auth []byte
 	Created time.Time
 }
 
@@ -41,7 +41,7 @@ type GPlusUserInfo struct {
 	FamilyName string
 }
 
-func Create(r *http.Request, email string, username string, auth string) *User {
+func Create(r *http.Request, email string, username string, auth []byte) *User {
 	c := appengine.NewContext(r)
 	// create new user
 	userId, _, _ := datastore.AllocateIDs(c, "User", nil, 1)
@@ -57,14 +57,12 @@ func Create(r *http.Request, email string, username string, auth string) *User {
 	return user;
 }
 
-func Find(r *http.Request, email string) *User {
-	c := appengine.NewContext(r)
-	
-	q := datastore.NewQuery("User").Filter("Email =", email)
+func Find(r *http.Request, filter string, value interface{}) *User {
+	q := datastore.NewQuery("User").Filter(filter + " =", value)
 	
 	var users []*User
 	
-	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
+	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
 		return users[0]
 	}
 	

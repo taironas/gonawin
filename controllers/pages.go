@@ -28,11 +28,13 @@ func Home(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	data := data{
-		nil,		
+		helpers.CurrentUser(r),		
 		"Home handler",
 	}
 	
-	funcs := template.FuncMap{"LoggedIn": LoggedIn}
+	funcs := template.FuncMap{
+		"LoggedIn": func() bool { return LoggedIn(r) },
+	}
 	
 	t := template.Must(template.New("tmpl_main").
 		Funcs(funcs).

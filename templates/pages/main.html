@@ -3,7 +3,7 @@
   <ul class="nav nav-pills pull-right">
     <li class="active"><a href="/">Home</a></li>
     {{if LoggedIn}}
-    <li><a href="/logout">Logout</a></li>
+    <li><a href="/m/logout">Logout</a></li>
     {{end}}
   </ul>
   <h3 class="muted">purple-wing</h3>
@@ -14,7 +14,7 @@
   <h1>hello {{.User.Username}}, welcome on purple-wing!</h1>
   {{else}}
   <h1>Welcome on purple-wing</h1>
-  <a href="/auth" class="btn btn-large btn-success">Sign in</a>
+  <a href="/m/auth" class="btn btn-large btn-success">Sign in</a>
   {{end}}
 </div>
 <h4>Home page</h4>

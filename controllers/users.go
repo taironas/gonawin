@@ -34,7 +34,7 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 	t, err := template.ParseFiles("templates/user/show.html",
 	"templates/user/info.html")
 	
-	user := models.User{ 1, "test@example.com", "John Doe", "", time.Now() }
+	user := models.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
 
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_user_show", user)
@@ -56,7 +56,7 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 
 	t, err := template.ParseFiles("templates/user/edit.html")
 
-	user := models.User{ 1, "test@example.com", "John Doe", "", time.Now() }
+	user := models.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
 
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)

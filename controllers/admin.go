@@ -55,9 +55,9 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 		"templates/user/info.html")
 
 	// sample of users
-	user1 := models.User{ 1, "test1@example.com", "John Doe 1", "", time.Now() }
-	user2 := models.User{ 1, "test2@example.com", "John Doe 2", "", time.Now() }
-	user3 := models.User{ 1, "test3@example.com", "John Doe 3", "", time.Now() }
+	user1 := models.User{ 1, "test1@example.com", "John Doe 1", nil, time.Now() }
+	user2 := models.User{ 1, "test2@example.com", "John Doe 2", nil, time.Now() }
+	user3 := models.User{ 1, "test3@example.com", "John Doe 3", nil, time.Now() }
 	users := [] models.User{user1, user2, user3}
 	// end samlpe of users
 

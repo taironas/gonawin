@@ -21,6 +21,7 @@ import (
     "io"
     "fmt"
     "crypto/rand"
+	"strconv"
     
     "appengine"
     "appengine/memcache"
@@ -32,11 +33,11 @@ func IsAuthorized(ui *models.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
 }
 
-func StoreAuthKey(r *http.Request, uid int64, auth string) {
+func StoreAuthKey(r *http.Request, uid int64, auth []byte) {
     c := appengine.NewContext(r)
-    
-    item := &memcache.Item{
-        Key:   "auth:"+auth,
+	
+	item := &memcache.Item{
+        Key:   fmt.Sprintf("auth:%x", auth),
         Value: []byte(fmt.Sprintf("%d", uid)),
     }
     // Set the item, unconditionally
@@ -45,38 +46,49 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
     }
 }
 
-func FetchAuthKey(r *http.Request, auth string) string {
+func fetchAuthKey(r *http.Request, auth string) string {
     c := appengine.NewContext(r)
 
     // Get the item from the memcache
     if item, err := memcache.Get(c, "auth:"+auth); err == nil {
-        return string(item.Value)
+        return fmt.Sprintf("%s", item.Value)
     } 
     
     return ""
 }
 
-func SetAuthCookie(w http.ResponseWriter, auth string) {
-    cookie := &http.Cookie{ 
+func SetAuthCookie(w http.ResponseWriter, auth []byte) {
+	cookie := &http.Cookie{ 
         Name: "auth", 
-        Value: auth, 
-        Path: "/", 
+        Value: fmt.Sprintf("%x", auth), 
+        Path: "/m",
     }
     http.SetCookie(w, cookie)
 }
 
 func GetAuthCookie(r *http.Request) string {
-    if cookie, err := r.Cookie("auth"); err == nil {
+	if cookie, err := r.Cookie("auth"); err == nil {
         return cookie.Value
     }
-
+	
     return ""
 }
 
-func GenerateAuthKey() string {
-    b := make([]byte, 32)
+func GenerateAuthKey() []byte {
+    b := make([]byte, 16)
     if _, err := io.ReadFull(rand.Reader, b); err != nil {
-        return ""
+        return nil
     }
-    return string(b)
+    return b
+}
+
+func CurrentUser(r *http.Request) *models.User {
+	if auth := GetAuthCookie(r); len(auth) > 0 {
+		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
+			userId, _ := strconv.ParseInt(uid, 10, 64)
+			return models.Find(r, "Id", userId)
+		}
+	}
+	
+	return nil
 }
