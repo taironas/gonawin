@@ -83,6 +83,8 @@ func SessionAuthCallback(w http.ResponseWriter, r *http.Request){
 }
 
 func SessionLogout(w http.ResponseWriter, r *http.Request){
+	helpers.ClearAuthCookie(w)
+	
 	http.Redirect(w, r, root, http.StatusFound)
 }
 

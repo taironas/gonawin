@@ -22,6 +22,7 @@ import (
     "fmt"
     "crypto/rand"
 	"strconv"
+	"time"
     
     "appengine"
     "appengine/memcache"
@@ -72,6 +73,14 @@ func GetAuthCookie(r *http.Request) string {
     }
 	
     return ""
+}
+
+func ClearAuthCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    "auth",
+		Path:    "/m",
+		Expires: time.Now(),
+	})
 }
 
 func GenerateAuthKey() []byte {
