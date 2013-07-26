@@ -25,7 +25,7 @@ import (
 	"code.google.com/p/goauth2/oauth"
 	
 	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/models"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const root string = "/m"
@@ -61,17 +61,17 @@ func SessionAuthCallback(w http.ResponseWriter, r *http.Request){
 		},
 	}
 	
-	var userInfo *models.GPlusUserInfo
+	var userInfo *usermdl.GPlusUserInfo
 	
 	if _, err := t.Exchange(code); err == nil {
-		userInfo, _ = models.FetchUserInfo(r, t.Client())
+		userInfo, _ = usermdl.FetchUserInfo(r, t.Client())
 	}
 	if helpers.IsAuthorized(userInfo) {
-		var user *models.User
+		var user *usermdl.User
 		// find user
-		if user = models.Find(r, "Email", userInfo.Email); user == nil {
+		if user = usermdl.Find(r, "Email", userInfo.Email); user == nil {
 			// create user if it does not exist
-			user = models.Create(r, userInfo.Email, userInfo.Name, helpers.GenerateAuthKey())
+			user = usermdl.Create(r, userInfo.Email, userInfo.Name, helpers.GenerateAuthKey())
 		}
 		// set 'auth' cookie
 		helpers.SetAuthCookie(w, user.Auth)

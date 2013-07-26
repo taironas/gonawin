@@ -27,10 +27,10 @@ import (
     "appengine"
     "appengine/memcache"
     
-	"github.com/santiaago/purple-wing/models"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func IsAuthorized(ui *models.GPlusUserInfo) bool {
+func IsAuthorized(ui *usermdl.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
 }
 
@@ -91,11 +91,11 @@ func GenerateAuthKey() []byte {
     return b
 }
 
-func CurrentUser(r *http.Request) *models.User {
+func CurrentUser(r *http.Request) *usermdl.User {
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
 			userId, _ := strconv.ParseInt(uid, 10, 64)
-			return models.Find(r, "Id", userId)
+			return usermdl.Find(r, "Id", userId)
 		}
 	}
 	

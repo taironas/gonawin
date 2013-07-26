@@ -1,4 +1,4 @@
-{{define "tmpl_user_show"}}
+{{define "tmpl_team_index"}}
 <div class="navigation">
   <ul class="nav nav-pills pull-right">
     <li class="active"><a href="/m">Home</a></li>
@@ -11,13 +11,25 @@
 </div>
 <hr>
 <div class="page-header">
-	<h1>User</h1>
+	<h1>Teams</h1>
 </div>
 
-{{template "tmpl_user_info" .}}
-
-<div class="form-actions">
-	<a href="/m/users/{{.Id}}/edit" class="btn"><span>Edit</span></a>
-	<a href="/m/users/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
-</div>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Id</th>
+			<th>Name</th>
+			<th>Admin Id</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{range .}}
+		<tr>
+			<td>{{.Id}}</td>
+			<td>{{.Name}}</td>
+			<td>{{.AdminId}}</td>
+		</tr>
+		{{end}}
+	</tbody>
+</table>
 {{end}}
