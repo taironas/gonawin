@@ -1,0 +1,33 @@
+{{define "tmpl_team_new"}}
+<div class="navigation">
+  <ul class="nav nav-pills pull-right">
+    <li class="active"><a href="/m">Home</a></li>
+    {{if LoggedIn}}
+		<li><a href="/m/users/1">Profile</a></li>
+		<li><a href="/m/logout">Logout</a></li>
+    {{end}}
+  </ul>
+  <h3 class="muted">purple-wing</h3>
+</div>
+<hr>
+<div class="page-header">
+	<h1>New Team</h1>
+</div>
+{{if len .Error}}
+	<div class="alert alert-error">
+		{{.Error}}.
+	</div>
+{{end}}
+<form accept-charset="UTF-8" action="/m/teams/new" class="form-horizontal" method="post">
+  	<div class="control-group">
+		<label class="control-label" for="team_name">Name</label>
+		<div class="controls">
+	  		<input class="text_field" id="team_name" name="Name" size="30" type="text" value="{{.Name}}"/>
+		</div>
+  	</div>
+  	<div class="form-actions">
+		<input class="btn btn-primary" name="commit" type="submit" value="Create Team" />
+		<a href="/m/teams" class="btn">Cancel</a>
+  	</div>
+</form>
+{{end}}

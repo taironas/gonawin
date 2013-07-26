@@ -42,6 +42,7 @@ func init(){
 	h.HandleFunc("/m/a/users/?", controllers.AdminUsers)
 	// team
 	h.HandleFunc("/m/teams/?", controllers.TeamIndex)
+	h.HandleFunc("/m/teams/new/?", controllers.TeamNew)
 	h.HandleFunc("/m/teams/[0-9]+/?", controllers.TeamShow)
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", controllers.TeamEdit)
 

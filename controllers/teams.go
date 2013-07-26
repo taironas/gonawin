@@ -28,6 +28,11 @@ import (
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
+type Form struct {
+	Name string
+	Error string
+}
+
 func TeamIndex(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -50,6 +55,48 @@ func TeamIndex(w http.ResponseWriter, r *http.Request){
 	}
 
 	err = helpers.Render(c, w, index, nil, "renderTeamIndex")
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
+	}
+}
+
+func TeamNew(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	funcs := template.FuncMap{
+		"LoggedIn": func() bool { return LoggedIn(r) },
+	}
+	
+	t := template.Must(template.New("tmpl_team_new").
+		Funcs(funcs).
+		ParseFiles("templates/team/new.html"))
+	
+	var form Form
+	if r.Method == "GET" {
+		form.Name = ""
+		form.Error = ""
+	} else if r.Method == "POST" {
+		form.Name = r.FormValue("Name")
+		
+		if len(form.Name) <= 0 {
+			form.Error = "'Name' field cannot be empty"
+		} else {
+			team := teammdl.Create(r, form.Name, helpers.CurrentUser(r).Id)
+			
+			// redirect to the newly created team page
+			http.Redirect(w, r, "/m/teams/"+string(team.Id), http.StatusFound)
+		}
+	}
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf,"tmpl_team_new", form)
+	edit := buf.Bytes()
+
+	if err != nil{
+		c.Errorf("pw: error in parse template team_new: %v", err)
+	}
+
+	err = helpers.Render(c, w, edit, nil, "renderTeamNew")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
