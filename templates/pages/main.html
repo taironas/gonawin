@@ -1,15 +1,4 @@
 {{define "tmpl_main"}}
-<div class="navigation">
-  <ul class="nav nav-pills pull-right">
-    <li class="active"><a href="/m">Home</a></li>
-    {{if LoggedIn}}
-		<li><a href="/m/users/{{.User.Id}}">Profile</a></li>
-		<li><a href="/m/logout">Logout</a></li>
-    {{end}}
-  </ul>
-  <h3 class="muted">purple-wing</h3>
-</div>
-<hr>
 <div class="jumbotron">
   {{if LoggedIn}}
   <h1>hello {{.User.Username}}, welcome on purple-wing!</h1>

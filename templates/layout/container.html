@@ -1,5 +1,6 @@
 {{define "tmpl_container"}}
 <div class="container">
+  {{template "tmpl_nav" .UserData}}
   {{.ContainerHTML}}
   <br>
   {{template "tmpl_footer"}}

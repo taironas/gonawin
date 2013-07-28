@@ -33,6 +33,7 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
+		"Profile": func() bool {return true},
 	}
 	
 	t := template.Must(template.New("tmpl_user_show").
@@ -40,6 +41,8 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/user/show.html", "templates/user/info.html"))
 	
 	user := usermdl.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
+	
+	userdata := helpers.UserData{&user,}
 	
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf,"tmpl_user_show", user)
@@ -49,7 +52,7 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_show: %v", err)
 	}
 
-	err = helpers.Render(c, w, show, nil, "renderUserShow")
+	err = helpers.Render(c, w, show, funcs, userdata, "renderUserShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -60,6 +63,7 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
+		"Profile": func() bool {return true},
 	}
 	
 	t := template.Must(template.New("tmpl_user_show").
@@ -67,6 +71,8 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/user/show.html", "templates/user/edit.html"))
 
 	user := usermdl.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
+	
+	userdata := helpers.UserData{&user,}
 
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
@@ -76,7 +82,7 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_edit: %v", err)
 	}
 
-	err = helpers.Render(c, w, edit, nil, "renderUserEdit")
+	err = helpers.Render(c, w, edit, funcs, userdata, "renderUserEdit")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

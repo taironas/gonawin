@@ -47,9 +47,12 @@ func Home(w http.ResponseWriter, r *http.Request){
 		helpers.CurrentUser(r),		
 		"Home handler",
 	}
+
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
 	
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
+		"Home": func() bool {return true},
 	}
 	
 	t := template.Must(template.New("tmpl_main").
@@ -63,10 +66,81 @@ func Home(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  main: %v", err)
 	}
-	err = helpers.Render(c, w, main, funcs, "renderMain")
+	err = helpers.Render(c, w, main, funcs, userdata, "renderMain")
 	
 	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
+		c.Errorf("pw: error when calling Render from helpers in Home Handler: %v", err)
 	}
 
+}
+
+//about handler: for about page
+func About(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	data := data{
+		helpers.CurrentUser(r),		
+		"About handler",
+	}
+
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+	
+	funcs := template.FuncMap{
+		"LoggedIn": func() bool { return LoggedIn(r) },
+		"About": func() bool {return true},
+	}
+	
+	t := template.Must(template.New("tmpl_about").
+		Funcs(funcs).
+		ParseFiles("templates/pages/about.html"))
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf,"tmpl_about", data)
+	main := buf.Bytes()
+	
+	if err != nil{
+		c.Errorf("pw: error executing template  about: %v", err)
+	}
+	err = helpers.Render(c, w, main, funcs, userdata, "renderAbout")
+	
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers in About Handler: %v", err)
+	}
+}
+
+
+//contact handler: for contact page
+func Contact(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	data := data{
+		helpers.CurrentUser(r),		
+		"Contact handler",
+	}
+
+	userdata := helpers.UserData{
+		helpers.CurrentUser(r),
+	}
+	
+	funcs := template.FuncMap{
+		"LoggedIn": func() bool { return LoggedIn(r) },
+		"Contact": func() bool {return true},
+	}
+	
+	t := template.Must(template.New("tmpl_contact").
+		Funcs(funcs).
+		ParseFiles("templates/pages/contact.html"))
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf,"tmpl_contact", data)
+	main := buf.Bytes()
+	
+	if err != nil{
+		c.Errorf("pw: error executing template  contact: %v", err)
+	}
+	err = helpers.Render(c, w, main, funcs, userdata, "renderContact")
+	
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers in Contact Handler: %v", err)
+	}
 }

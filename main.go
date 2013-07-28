@@ -27,9 +27,9 @@ func init(){
 	h := new(helpers.RegexpHandler)
 	// usual pages
 	h.HandleFunc("/", controllers.TempHome)
-	h.HandleFunc("/m", controllers.Home)
-	//h.HandleFunc("/", controllers.About)
-	//h.HandleFunc("/", controllers.Contact)
+	h.HandleFunc("/m/?", controllers.Home)
+	h.HandleFunc("/m/about/?", controllers.About)
+	h.HandleFunc("/m/contact/?", controllers.Contact)
 	// session
 	h.HandleFunc("/m/auth/?", controllers.SessionAuth)
 	h.HandleFunc("/m/oauth2callback/?", controllers.SessionAuthCallback)

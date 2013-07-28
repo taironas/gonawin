@@ -41,7 +41,9 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template admin_show: %v", err)
 	}
 
-	err = helpers.Render(c, w, show, nil, "renderAdminShow")
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+
+	err = helpers.Render(c, w, show, nil, userdata, "renderAdminShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -69,7 +71,10 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template admin_users_show: %v", err)
 	}
 
-	err = helpers.Render(c, w, show, nil, "renderAdminUsersShow")
+	
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+
+	err = helpers.Render(c, w, show, nil,userdata, "renderAdminUsersShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

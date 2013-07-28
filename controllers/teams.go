@@ -36,12 +36,13 @@ type Form struct {
 func TeamIndex(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_index").
-		Funcs(funcs).
 		ParseFiles("templates/team/index.html"))
 	
 	teams := teammdl.FindAll(r)
@@ -54,7 +55,7 @@ func TeamIndex(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_index: %v", err)
 	}
 
-	err = helpers.Render(c, w, index, nil, "renderTeamIndex")
+	err = helpers.Render(c, w, index, funcs, userdata, "renderTeamIndex")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -62,13 +63,14 @@ func TeamIndex(w http.ResponseWriter, r *http.Request){
 
 func TeamNew(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
+
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
 	
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_new").
-		Funcs(funcs).
 		ParseFiles("templates/team/new.html"))
 	
 	var form Form
@@ -96,7 +98,7 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_new: %v", err)
 	}
 
-	err = helpers.Render(c, w, edit, nil, "renderTeamNew")
+	err = helpers.Render(c, w, edit, funcs, userdata, "renderTeamNew")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -105,12 +107,13 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 func TeamShow(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_show").
-		Funcs(funcs).
 		ParseFiles("templates/team/show.html"))
 	
 	team := teammdl.Team{ 1, "Team Foo", 1, time.Now() }
@@ -123,7 +126,7 @@ func TeamShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_show: %v", err)
 	}
 
-	err = helpers.Render(c, w, show, nil, "renderTeamShow")
+	err = helpers.Render(c, w, show, funcs, userdata, "renderTeamShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -132,12 +135,13 @@ func TeamShow(w http.ResponseWriter, r *http.Request){
 func TeamEdit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	userdata := helpers.UserData{helpers.CurrentUser(r),}
+
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return LoggedIn(r) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_show").
-		Funcs(funcs).
 		ParseFiles("templates/team/show.html", "templates/team/edit.html"))
 
 	team := teammdl.Team{ 1, "Team Foo", 1, time.Now() }
@@ -150,7 +154,7 @@ func TeamEdit(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_edit: %v", err)
 	}
 
-	err = helpers.Render(c, w, edit, nil, "renderTeamEdit")
+	err = helpers.Render(c, w, edit, funcs, userdata, "renderTeamEdit")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

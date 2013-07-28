@@ -21,45 +21,71 @@ import (
 	"html/template"
 
 	"appengine"
+
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // Content struct holds the parts to merge multiple templates.
 // Contents are of type HTML to prevent escaping HTML.
 type Content struct{
-	ContainerHTML template.HTML 
+	ContainerHTML template.HTML
+	UserData *UserData
+}
+
+// Data struct holds the data for templates
+type UserData struct{
+	User *usermdl.User
 }
 
 func Render(c appengine.Context, 
 	w http.ResponseWriter, 
 	dynamicTemplate []byte,
 	funcs template.FuncMap,
+	userdata UserData,
 	name string) error{
+	
+	initNavFuncMap(&funcs)
 
 	tmpl := template.Must(template.New(name).
 		Funcs(funcs).
-		ParseFiles("templates/layout/application.html",
+		ParseFiles("templates/layout/app.html",
 		"templates/layout/header.html",
 		"templates/layout/container.html",
+		"templates/layout/nav.html",
 		"templates/layout/footer.html",
 		"templates/layout/scripts.html"))
 	
-	err := tmpl.ExecuteTemplate(w,"tmpl_application",Content{template.HTML(dynamicTemplate)})
+	content := Content{
+		template.HTML(dynamicTemplate),
+		&userdata,
+	}
+	err := tmpl.ExecuteTemplate(w,"tmpl_app",content)
 	if err != nil{
-		c.Errorf("error in execute template: %q", err)
+		c.Errorf("error in execute templateO: %q", err)
 		return err
 	}
 	return nil
 }
 
-
-
-
-
-
-
-
-
-
+// set all navigation pages to false caller should define only the active one
+func initNavFuncMap(pfuncs *template.FuncMap){
+	
+	funcs := *pfuncs
+	if funcs != nil{
+		if _,ok := funcs["Home"]; !ok {
+			funcs["Home"] = func() bool {return false}
+		}
+		if _,ok := funcs["About"]; !ok {
+			funcs["About"] = func() bool {return false}
+		}
+		if _,ok := funcs["Contact"]; !ok {
+			funcs["Contact"] = func() bool {return false}
+		}
+		if _,ok := funcs["Profile"]; !ok {
+			funcs["Profile"] = func() bool {return false}
+		}
+	}
+}
 
 
 

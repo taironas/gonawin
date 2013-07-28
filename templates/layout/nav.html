@@ -1,0 +1,15 @@
+{{define "tmpl_nav"}}
+<!-- navigation bar -->
+<div class="navigation">
+  <ul class="nav nav-pills pull-right">
+    <li {{if Home}} class="active" {{end}}><a href="/m">Home</a></li>
+    <li {{if About}} class="active" {{end}}><a href="/m/about">About</a></li>
+    <li {{if Contact}} class="active" {{end}}><a href="/m/contact">Contact</a></li>
+    {{if LoggedIn}}
+    <li {{if Profile}} class="active" {{end}}><a href="/m/users/{{.User.Id}}">Profile</a></li>
+    <li><a href="/m/logout">Logout</a></li>
+    {{end}}
+  </ul>
+  <h3 class="muted">purple-wing</h3>
+</div>
+{{end}}

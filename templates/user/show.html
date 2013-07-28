@@ -1,21 +1,8 @@
 {{define "tmpl_user_show"}}
-<div class="navigation">
-  <ul class="nav nav-pills pull-right">
-    <li class="active"><a href="/m">Home</a></li>
-    {{if LoggedIn}}
-		<li><a href="/m/users/{{.Id}}">Profile</a></li>
-		<li><a href="/m/logout">Logout</a></li>
-    {{end}}
-  </ul>
-  <h3 class="muted">purple-wing</h3>
-</div>
-<hr>
 <div class="page-header">
 	<h1>User</h1>
 </div>
-
 {{template "tmpl_user_info" .}}
-
 <div class="form-actions">
 	<a href="/m/users/{{.Id}}/edit" class="btn"><span>Edit</span></a>
 	<a href="/m/users/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
