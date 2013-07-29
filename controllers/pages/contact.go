@@ -23,7 +23,6 @@ import (
 	
 	"appengine"
 	
-	"github.com/santiaago/purple-wing/controllers"
 	"github.com/santiaago/purple-wing/helpers"
 )
 
@@ -35,13 +34,8 @@ func Contact(w http.ResponseWriter, r *http.Request){
 		helpers.CurrentUser(r),		
 		"Contact handler",
 	}
-
-	userdata := helpers.UserData{
-		helpers.CurrentUser(r),
-	}
 	
 	funcs := template.FuncMap{
-		"LoggedIn": func() bool { return controllers.LoggedIn(r) },
 		"Contact": func() bool {return true},
 	}
 	
@@ -56,7 +50,7 @@ func Contact(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  contact: %v", err)
 	}
-	err = helpers.Render(c, w, main, funcs, userdata, "renderContact")
+	err = helpers.Render(w, r, main, funcs, "renderContact")
 	
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers in Contact Handler: %v", err)

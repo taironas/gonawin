@@ -101,3 +101,14 @@ func CurrentUser(r *http.Request) *usermdl.User {
 	
 	return nil
 }
+
+
+func LoggedIn(r *http.Request) bool {
+	if auth := GetAuthCookie(r); len(auth) > 0 {
+		if u := CurrentUser(r); u != nil {
+			return fmt.Sprintf("%x", u.Auth) == auth
+		}
+	}
+	
+	return false
+}

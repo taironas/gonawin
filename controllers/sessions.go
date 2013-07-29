@@ -42,7 +42,7 @@ func config(host string) *oauth.Config{
 }
 
 func SessionAuth(w http.ResponseWriter, r *http.Request){
-	if !LoggedIn(r) {
+	if !helpers.LoggedIn(r) {
 		url := config(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
@@ -86,14 +86,4 @@ func SessionLogout(w http.ResponseWriter, r *http.Request){
 	helpers.ClearAuthCookie(w)
 	
 	http.Redirect(w, r, root, http.StatusFound)
-}
-
-func LoggedIn(r *http.Request) bool {
-	if auth := helpers.GetAuthCookie(r); len(auth) > 0 {
-		if u := helpers.CurrentUser(r); u != nil {
-			return fmt.Sprintf("%x", u.Auth) == auth
-		}
-	}
-	
-	return false
 }

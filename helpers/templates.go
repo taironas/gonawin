@@ -37,14 +37,20 @@ type UserData struct{
 	User *usermdl.User
 }
 
-func Render(c appengine.Context, 
-	w http.ResponseWriter, 
+func Render(w http.ResponseWriter, 
+	r *http.Request,
 	dynamicTemplate []byte,
 	funcs template.FuncMap,
-	userdata UserData,
 	name string) error{
 	
-	initNavFuncMap(&funcs)
+	c := appengine.NewContext(r)
+
+	userdata := UserData{CurrentUser(r),}
+
+	if funcs == nil {
+		funcs = template.FuncMap{}
+	}
+	initNavFuncMap(&funcs, r)
 
 	tmpl := template.Must(template.New(name).
 		Funcs(funcs).
@@ -68,10 +74,13 @@ func Render(c appengine.Context,
 }
 
 // set all navigation pages to false caller should define only the active one
-func initNavFuncMap(pfuncs *template.FuncMap){
+func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 	
 	funcs := *pfuncs
 	if funcs != nil{
+		if _,ok := funcs[""]; !ok {
+			funcs["LoggedIn"] = func() bool { return LoggedIn(r) }
+		}
 		if _,ok := funcs["Home"]; !ok {
 			funcs["Home"] = func() bool {return false}
 		}
@@ -84,9 +93,8 @@ func initNavFuncMap(pfuncs *template.FuncMap){
 		if _,ok := funcs["Profile"]; !ok {
 			funcs["Profile"] = func() bool {return false}
 		}
+	}else{
+		c := appengine.NewContext(r)
+		c.Errorf("error in initNavFuncMap, funcs is nil, unable to init funcs map")
 	}
 }
-
-
-
-

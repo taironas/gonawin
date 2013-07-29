@@ -24,7 +24,6 @@ import (
 	
 	"appengine"
 	
-	"github.com/santiaago/purple-wing/controllers"
 	"github.com/santiaago/purple-wing/helpers"
 )
 
@@ -41,11 +40,9 @@ func Home(w http.ResponseWriter, r *http.Request){
 		helpers.CurrentUser(r),		
 		"Home handler",
 	}
-
-	userdata := helpers.UserData{helpers.CurrentUser(r),}
 	
 	funcs := template.FuncMap{
-		"LoggedIn": func() bool { return controllers.LoggedIn(r) },
+		"LoggedIn": func() bool { return helpers.LoggedIn(r) },
 		"Home": func() bool {return true},
 	}
 	
@@ -60,7 +57,7 @@ func Home(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  main: %v", err)
 	}
-	err = helpers.Render(c, w, main, funcs, userdata, "renderMain")
+	err = helpers.Render(w, r, main, funcs, "renderMain")
 	
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers in Home Handler: %v", err)
