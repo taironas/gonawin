@@ -20,16 +20,17 @@ import (
 	"net/http"
 
 	"github.com/santiaago/purple-wing/controllers"
+	pagesctrl "github.com/santiaago/purple-wing/controllers/pages"
 	"github.com/santiaago/purple-wing/helpers"
 )
 
 func init(){
 	h := new(helpers.RegexpHandler)
 	// usual pages
-	h.HandleFunc("/", controllers.TempHome)
-	h.HandleFunc("/m/?", controllers.Home)
-	h.HandleFunc("/m/about/?", controllers.About)
-	h.HandleFunc("/m/contact/?", controllers.Contact)
+	h.HandleFunc("/", pagesctrl.TempHome)
+	h.HandleFunc("/m/?", pagesctrl.Home)
+	h.HandleFunc("/m/about/?", pagesctrl.About)
+	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
 	// session
 	h.HandleFunc("/m/auth/?", controllers.SessionAuth)
 	h.HandleFunc("/m/oauth2callback/?", controllers.SessionAuthCallback)

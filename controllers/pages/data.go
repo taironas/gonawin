@@ -13,42 +13,15 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
-
-package controllers
+ 
+ package pages
 
 import (
-	"testing"
-	"net/http"
-	"appengine/urlfetch"
-	"github.com/rjourde/appenginetesting"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func TestHome(t *testing.T) {
-	get(t, "http://localhost:8080", "/")
-}
-
-func get(t *testing.T, baseUrl string, path string) {
-	request, err := http.NewRequest("GET", baseUrl+path, nil)
-	if err != nil {
-		t.Fatalf("Error in 'NewRequest': %q", err)
-	}
-	
-	makeRequest(t, request)
-}
-
-func makeRequest(t *testing.T, r *http.Request) {
-	c, err := appenginetesting.NewContext(nil)
-	if err != nil {
-		t.Fatalf("Error in 'NewContext': %q", err)
-	}
-	
-    client := urlfetch.Client(c)
-	response, err := client.Do(r)
-	if err != nil {
-		t.Fatalf("Error in 'Do': %q", err)
-	}
-	
-	if response.StatusCode != 200 {
-		t.Fatalf("GET " + r.URL.Path + "is not a success")
-	}
+// Data struct holds the data for templates
+type data struct{
+	User *usermdl.User
+	Msg string
 }
