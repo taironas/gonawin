@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package helpers
+package auth
 
 import (
     "net/http"
@@ -29,10 +29,6 @@ import (
     
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
-
-func IsAuthorized(ui *usermdl.GPlusUserInfo) bool {
-	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
-}
 
 func StoreAuthKey(r *http.Request, uid int64, auth []byte) {
     c := appengine.NewContext(r)
@@ -100,15 +96,4 @@ func CurrentUser(r *http.Request) *usermdl.User {
 	}
 	
 	return nil
-}
-
-
-func LoggedIn(r *http.Request) bool {
-	if auth := GetAuthCookie(r); len(auth) > 0 {
-		if u := CurrentUser(r); u != nil {
-			return fmt.Sprintf("%x", u.Auth) == auth
-		}
-	}
-	
-	return false
 }

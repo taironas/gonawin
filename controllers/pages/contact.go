@@ -24,6 +24,8 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/auth"
+
 )
 
 //contact handler: for contact page
@@ -31,7 +33,7 @@ func Contact(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	data := data{
-		helpers.CurrentUser(r),		
+		auth.CurrentUser(r),		
 		"Contact handler",
 	}
 	

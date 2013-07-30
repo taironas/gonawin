@@ -25,6 +25,7 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/auth"
 )
 
 //temporary main handler: for landing page
@@ -37,12 +38,12 @@ func Home(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	data := data{
-		helpers.CurrentUser(r),		
+		auth.CurrentUser(r),		
 		"Home handler",
 	}
 	
 	funcs := template.FuncMap{
-		"LoggedIn": func() bool { return helpers.LoggedIn(r) },
+		"LoggedIn": func() bool { return auth.LoggedIn(r) },
 		"Home": func() bool {return true},
 	}
 	

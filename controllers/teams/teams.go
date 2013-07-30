@@ -25,6 +25,8 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/auth"
+
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
@@ -75,7 +77,7 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 		if len(form.Name) <= 0 {
 			form.Error = "'Name' field cannot be empty"
 		} else {
-			team := teammdl.Create(r, form.Name, helpers.CurrentUser(r).Id)
+			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id)
 			
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/"+string(team.Id), http.StatusFound)

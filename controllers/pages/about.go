@@ -24,6 +24,7 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/auth"
 )
 
 //about handler: for about page
@@ -31,7 +32,7 @@ func About(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	data := data{
-		helpers.CurrentUser(r),		
+		auth.CurrentUser(r),		
 		"About handler",
 	}
 	

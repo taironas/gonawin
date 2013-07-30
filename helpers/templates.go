@@ -23,6 +23,7 @@ import (
 	"appengine"
 
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	"github.com/santiaago/purple-wing/helpers/auth"
 )
 
 // Content struct holds the parts to merge multiple templates.
@@ -45,7 +46,7 @@ func Render(w http.ResponseWriter,
 	
 	c := appengine.NewContext(r)
 
-	userdata := UserData{CurrentUser(r),}
+	userdata := UserData{auth.CurrentUser(r),}
 
 	var funcs template.FuncMap
  
@@ -84,7 +85,7 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 	funcs := *pfuncs
 	if funcs != nil{
 		if _,ok := funcs[""]; !ok {
-			funcs["LoggedIn"] = func() bool { return LoggedIn(r) }
+			funcs["LoggedIn"] = func() bool { return auth.LoggedIn(r) }
 		}
 		if _,ok := funcs["Home"]; !ok {
 			funcs["Home"] = func() bool {return false}
