@@ -1,6 +1,6 @@
 // Never add this file to source control
 
-package controllers
+package sessions
 
 const (
 		// Created at http://code.google.com/apis/console, these identify

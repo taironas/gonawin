@@ -19,8 +19,10 @@ package pw
 import (
 	"net/http"
 
-	"github.com/santiaago/purple-wing/controllers"
 	pagesctrl "github.com/santiaago/purple-wing/controllers/pages"
+	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
+	usersctrl "github.com/santiaago/purple-wing/controllers/users"
+	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
 	"github.com/santiaago/purple-wing/helpers"
 )
 
@@ -32,20 +34,20 @@ func init(){
 	h.HandleFunc("/m/about/?", pagesctrl.About)
 	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
 	// session
-	h.HandleFunc("/m/auth/?", controllers.SessionAuth)
-	h.HandleFunc("/m/oauth2callback/?", controllers.SessionAuthCallback)
-	h.HandleFunc("/m/logout/?", controllers.SessionLogout)	
+	h.HandleFunc("/m/auth/?", sessionsctrl.SessionAuth)
+	h.HandleFunc("/m/oauth2callback/?", sessionsctrl.SessionAuthCallback)
+	h.HandleFunc("/m/logout/?", sessionsctrl.SessionLogout)	
 	// user
-	h.HandleFunc("/m/users/[0-9]+/?", controllers.UserShow)
-	h.HandleFunc("/m/users/[0-9]+/edit/?", controllers.UserEdit)
+	h.HandleFunc("/m/users/[0-9]+/?", usersctrl.UserShow)
+	h.HandleFunc("/m/users/[0-9]+/edit/?", usersctrl.UserEdit)
 	// admin
-	h.HandleFunc("/m/a/?", controllers.AdminShow)
-	h.HandleFunc("/m/a/users/?", controllers.AdminUsers)
+	h.HandleFunc("/m/a/?", usersctrl.AdminShow)
+	h.HandleFunc("/m/a/users/?", usersctrl.AdminUsers)
 	// team
-	h.HandleFunc("/m/teams/?", controllers.TeamIndex)
-	h.HandleFunc("/m/teams/new/?", controllers.TeamNew)
-	h.HandleFunc("/m/teams/[0-9]+/?", controllers.TeamShow)
-	h.HandleFunc("/m/teams/[0-9]+/edit/?", controllers.TeamEdit)
+	h.HandleFunc("/m/teams/?", teamsctrl.TeamIndex)
+	h.HandleFunc("/m/teams/new/?", teamsctrl.TeamNew)
+	h.HandleFunc("/m/teams/[0-9]+/?", teamsctrl.TeamShow)
+	h.HandleFunc("/m/teams/[0-9]+/edit/?", teamsctrl.TeamEdit)
 
 	http.Handle("/", h)
 }
