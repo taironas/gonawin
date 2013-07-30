@@ -57,7 +57,7 @@ func Home(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  main: %v", err)
 	}
-	err = helpers.Render(w, r, main, funcs, "renderMain")
+	err = helpers.Render(w, r, main, &funcs, "renderMain")
 	
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers in Home Handler: %v", err)

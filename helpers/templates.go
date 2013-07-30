@@ -40,16 +40,21 @@ type UserData struct{
 func Render(w http.ResponseWriter, 
 	r *http.Request,
 	dynamicTemplate []byte,
-	funcs template.FuncMap,
+	pfuncs *template.FuncMap,
 	name string) error{
 	
 	c := appengine.NewContext(r)
 
 	userdata := UserData{CurrentUser(r),}
 
-	if funcs == nil {
+	var funcs template.FuncMap
+ 
+	if pfuncs == nil {
 		funcs = template.FuncMap{}
+	}else{
+		funcs = *pfuncs
 	}
+
 	initNavFuncMap(&funcs, r)
 
 	tmpl := template.Must(template.New(name).

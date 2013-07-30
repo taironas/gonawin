@@ -50,7 +50,7 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_show: %v", err)
 	}
 
-	err = helpers.Render(w, r, show, funcs, "renderUserShow")
+	err = helpers.Render(w, r, show, &funcs, "renderUserShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -78,7 +78,7 @@ func UserEdit(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_edit: %v", err)
 	}
 
-	err = helpers.Render(w, r, edit, funcs, "renderUserEdit")
+	err = helpers.Render(w, r, edit, &funcs, "renderUserEdit")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

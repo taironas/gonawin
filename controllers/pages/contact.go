@@ -50,7 +50,7 @@ func Contact(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  contact: %v", err)
 	}
-	err = helpers.Render(w, r, main, funcs, "renderContact")
+	err = helpers.Render(w, r, main, &funcs, "renderContact")
 	
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers in Contact Handler: %v", err)

@@ -51,7 +51,7 @@ func TeamIndex(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_index: %v", err)
 	}
 
-	err = helpers.Render(w, r, index, funcs, "renderTeamIndex")
+	err = helpers.Render(w, r, index, &funcs, "renderTeamIndex")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -90,7 +90,7 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_new: %v", err)
 	}
 
-	err = helpers.Render(w, r, edit, funcs, "renderTeamNew")
+	err = helpers.Render(w, r, edit, &funcs, "renderTeamNew")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -114,7 +114,7 @@ func TeamShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_show: %v", err)
 	}
 
-	err = helpers.Render(w, r, show, funcs, "renderTeamShow")
+	err = helpers.Render(w, r, show, &funcs, "renderTeamShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -139,7 +139,7 @@ func TeamEdit(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_edit: %v", err)
 	}
 
-	err = helpers.Render(w, r, edit, funcs, "renderTeamEdit")
+	err = helpers.Render(w, r, edit, &funcs, "renderTeamEdit")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
