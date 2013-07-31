@@ -40,7 +40,6 @@ func LoggedIn(r *http.Request) bool {
 
 // IsAdmin is true if you are logged in and belong to the below users.
 func IsAdmin(r *http.Request) bool {
-
 	if LoggedIn(r){
 		if u := CurrentUser(r); u != nil{
 			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com")

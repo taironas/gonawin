@@ -23,11 +23,11 @@ import (
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
-	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/handlers"
 )
 
 func init(){
-	h := new(helpers.RegexpHandler)
+	h := new(handlers.RegexpHandler)
 	// usual pages
 	h.HandleFunc("/", pagesctrl.TempHome)
 	h.HandleFunc("/m/?", pagesctrl.Home)
@@ -36,18 +36,18 @@ func init(){
 	// session
 	h.HandleFunc("/m/auth/?", sessionsctrl.SessionAuth)
 	h.HandleFunc("/m/oauth2callback/?", sessionsctrl.SessionAuthCallback)
-	h.HandleFunc("/m/logout/?", sessionsctrl.SessionLogout)	
+	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
 	// user
-	h.HandleFunc("/m/users/[0-9]+/?", usersctrl.UserShow)
-	h.HandleFunc("/m/users/[0-9]+/edit/?", usersctrl.UserEdit)
+	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.UserShow))
+	h.HandleFunc("/m/users/[0-9]+/edit/?", handlers.User(usersctrl.UserEdit))
 	// admin
-	h.HandleFunc("/m/a/?", usersctrl.AdminShow)
-	h.HandleFunc("/m/a/users/?", usersctrl.AdminUsers)
+	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
+	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
 	// team
-	h.HandleFunc("/m/teams/?", teamsctrl.TeamIndex)
-	h.HandleFunc("/m/teams/new/?", teamsctrl.TeamNew)
-	h.HandleFunc("/m/teams/[0-9]+/?", teamsctrl.TeamShow)
-	h.HandleFunc("/m/teams/[0-9]+/edit/?", teamsctrl.TeamEdit)
+	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.TeamIndex))
+	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.TeamNew))
+	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.TeamShow))
+	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.TeamEdit))
 
 	http.Handle("/", h)
 }
