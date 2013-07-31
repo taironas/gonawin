@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"net/http"
 	"time"
+	"fmt"
 
 	"appengine"	
 
@@ -78,9 +79,8 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 			form.Error = "'Name' field cannot be empty"
 		} else {
 			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id)
-			
 			// redirect to the newly created team page
-			http.Redirect(w, r, "/m/teams/"+string(team.Id), http.StatusFound)
+			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
 		}
 	}
 	
