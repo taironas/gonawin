@@ -24,10 +24,12 @@ import (
 	"appengine/datastore"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	"github.com/santiaago/purple-wing/helpers"
 )
 
 type Team struct {
 	Id int64
+	KeyName string
 	Name string
 	AdminId int64
 	Created time.Time
@@ -39,7 +41,7 @@ func Create(r *http.Request, name string, adminId int64) *Team {
 	teamId, _, _ := datastore.AllocateIDs(c, "Team", nil, 1)
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 
-	team := &Team{ teamId, name, adminId, time.Now() }
+	team := &Team{ teamId, helpers.TrimLower(name), name, adminId, time.Now() }
 
 	_, err := datastore.Put(c, key, team)
 	if err != nil {
@@ -50,7 +52,7 @@ func Create(r *http.Request, name string, adminId int64) *Team {
 }
 
 func Find(r *http.Request, filter string, value interface{}) *Team {
-	q := datastore.NewQuery("Team").Filter(filter + " =", value)
+	q := datastore.NewQuery("Team").Filter(filter + " =", value).Limit(1)
 	
 	var teams []*Team
 	

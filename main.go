@@ -38,16 +38,16 @@ func init(){
 	h.HandleFunc("/m/oauth2callback/?", sessionsctrl.SessionAuthCallback)
 	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
 	// user
-	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.UserShow))
-	h.HandleFunc("/m/users/[0-9]+/edit/?", handlers.User(usersctrl.UserEdit))
+	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
+	h.HandleFunc("/m/users/[0-9]+/edit/?", handlers.User(usersctrl.Edit))
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
 	// team
-	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.TeamIndex))
-	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.TeamNew))
-	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.TeamShow))
-	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.TeamEdit))
+	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.Index))
+	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
+	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
+	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
 
 	http.Handle("/", h)
 }

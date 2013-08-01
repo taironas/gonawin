@@ -28,7 +28,7 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func UserShow(w http.ResponseWriter, r *http.Request){
+func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{
@@ -56,7 +56,7 @@ func UserShow(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func UserEdit(w http.ResponseWriter, r *http.Request){
+func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	funcs := template.FuncMap{

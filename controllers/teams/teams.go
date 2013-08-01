@@ -36,7 +36,7 @@ type Form struct {
 	Error string
 }
 
-func TeamIndex(w http.ResponseWriter, r *http.Request){
+func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{}
@@ -60,7 +60,7 @@ func TeamIndex(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func TeamNew(w http.ResponseWriter, r *http.Request){
+func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{}
@@ -77,6 +77,8 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 		
 		if len(form.Name) <= 0 {
 			form.Error = "'Name' field cannot be empty"
+		} else if t := teammdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
+			form.Error = "That team name already exists."
 		} else {
 			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id)
 			// redirect to the newly created team page
@@ -98,7 +100,7 @@ func TeamNew(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func TeamShow(w http.ResponseWriter, r *http.Request){
+func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{}
@@ -106,7 +108,7 @@ func TeamShow(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_team_show").
 		ParseFiles("templates/team/show.html"))
 	
-	team := teammdl.Team{ 1, "Team Foo", 1, time.Now() }
+	team := teammdl.Team{ 1, "team foo", "Team Foo", 1, time.Now() }
 	
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf,"tmpl_team_show", team)
@@ -122,7 +124,7 @@ func TeamShow(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func TeamEdit(w http.ResponseWriter, r *http.Request){
+func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{}
@@ -131,7 +133,7 @@ func TeamEdit(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/team/show.html", 
 		"templates/team/edit.html"))
 
-	team := teammdl.Team{ 1, "Team Foo", 1, time.Now() }
+	team := teammdl.Team{ 1, "team foo", "Team Foo", 1, time.Now() }
 
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
