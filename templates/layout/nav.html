@@ -4,7 +4,7 @@
   <ul class="nav nav-pills pull-right">
     <li {{if Home}} class="active" {{end}}><a href="/m">Home</a></li>
     {{if LoggedIn}}
-	<li {{if About}} class="active" {{end}}><a href="/m/teams">Teams</a></li>
+	<li {{if Teams}} class="active" {{end}}><a href="/m/teams">Teams</a></li>
     <li {{if Profile}} class="active" {{end}}><a href="/m/users/{{.User.Id}}">Profile</a></li>
     <li><a href="/m/logout">Logout</a></li>
     {{end}}

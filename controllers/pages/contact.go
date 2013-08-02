@@ -37,9 +37,7 @@ func Contact(w http.ResponseWriter, r *http.Request){
 		"Contact handler",
 	}
 	
-	funcs := template.FuncMap{
-		"Contact": func() bool {return true},
-	}
+	funcs := template.FuncMap{}
 	
 	t := template.Must(template.New("tmpl_contact").
 		Funcs(funcs).

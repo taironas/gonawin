@@ -36,9 +36,7 @@ func About(w http.ResponseWriter, r *http.Request){
 		"About handler",
 	}
 	
-	funcs := template.FuncMap{
-		"About": func() bool {return true},
-	}
+	funcs := template.FuncMap{}
 	
 	t := template.Must(template.New("tmpl_about").
 		Funcs(funcs).

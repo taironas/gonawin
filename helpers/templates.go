@@ -90,11 +90,8 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 		if _,ok := funcs["Home"]; !ok {
 			funcs["Home"] = func() bool {return false}
 		}
-		if _,ok := funcs["About"]; !ok {
-			funcs["About"] = func() bool {return false}
-		}
-		if _,ok := funcs["Contact"]; !ok {
-			funcs["Contact"] = func() bool {return false}
+		if _,ok := funcs["Teams"]; !ok {
+			funcs["Teams"] = func() bool {return false}
 		}
 		if _,ok := funcs["Profile"]; !ok {
 			funcs["Profile"] = func() bool {return false}

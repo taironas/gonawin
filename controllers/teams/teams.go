@@ -39,7 +39,9 @@ type Form struct {
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	funcs := template.FuncMap{}
+	funcs := template.FuncMap{
+		"Teams": func() bool {return true},
+	}
 	
 	t := template.Must(template.New("tmpl_team_index").
 		ParseFiles("templates/team/index.html"))
