@@ -41,6 +41,12 @@ type GPlusUserInfo struct {
 	FamilyName string
 }
 
+type TwitterUserInfo struct {
+	Id string
+	Email string
+	Name string
+}
+
 func Create(r *http.Request, email string, username string, auth []byte) *User {
 	c := appengine.NewContext(r)
 	// create new user

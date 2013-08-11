@@ -34,8 +34,11 @@ func init(){
 	h.HandleFunc("/m/about/?", pagesctrl.About)
 	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
 	// session
-	h.HandleFunc("/m/auth/?", sessionsctrl.SessionAuth)
-	h.HandleFunc("/m/oauth2callback/?", sessionsctrl.SessionAuthCallback)
+	h.HandleFunc("/m/auth/?", sessionsctrl.Authenticate)
+	h.HandleFunc("/m/auth/google/?", sessionsctrl.AuthenticateWithGoogle)
+	h.HandleFunc("/m/oauth2callback/?", sessionsctrl.GoogleAuthCallback)
+	h.HandleFunc("/m/auth/twitter/?", sessionsctrl.AuthenticateWithTwitter)
+	h.HandleFunc("/m/authtwittercallback/?", sessionsctrl.TwitterAuthCallback)
 	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
