@@ -56,19 +56,18 @@ func fetchAuthKey(r *http.Request, auth string) string {
 
 func SetAuthCookie(w http.ResponseWriter, auth []byte) {
 	cookie := &http.Cookie{ 
-        Name: "auth", 
-        Value: fmt.Sprintf("%x", auth), 
-        Path: "/m",
-    }
-    http.SetCookie(w, cookie)
+		Name: "auth", 
+		Value: fmt.Sprintf("%x", auth), 
+		Path: "/m",
+	}
+	http.SetCookie(w, cookie)
 }
 
 func GetAuthCookie(r *http.Request) string {
 	if cookie, err := r.Cookie("auth"); err == nil {
-        return cookie.Value
-    }
-	
-    return ""
+		return cookie.Value
+	}
+	return ""
 }
 
 func ClearAuthCookie(w http.ResponseWriter) {

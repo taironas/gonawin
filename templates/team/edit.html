@@ -2,7 +2,7 @@
 <div class="page-header">
 	<h1>Edit Team</h1>
 </div>
-<form accept-charset="UTF-8" action="/teams/{{.Id}}" class="form-horizontal" method="post">
+<form accept-charset="UTF-8" action="/m/teams/{{.Id}}" class="form-horizontal" method="post">
 	<div class="control-group">
 		<label class="control-label" for="team_id">Id</label>
 		<div class="controls">
@@ -24,7 +24,7 @@
 
   	<div class="form-actions">
 		<input class="btn btn-primary" name="commit" type="submit" value="Update Team" />
-		<a href="/teams/{{.Id}}" class="btn">Cancel</a>
+		<a href="/m//teams/{{.Id}}" class="btn">Cancel</a>
   	</div>
 </form>
 {{end}}

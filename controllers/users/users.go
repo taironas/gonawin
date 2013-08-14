@@ -25,6 +25,8 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/handlers"
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -39,11 +41,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 		Funcs(funcs).
 		ParseFiles("templates/user/show.html", 
 		"templates/user/info.html"))
-	
-	user := usermdl.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
-		
+
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/users/", http.StatusFound)
+	}
+
+	user := usermdl.User{ intID, "test@example.com", "John Doe", nil, time.Now() }
 	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_user_show", user)
+	err = t.ExecuteTemplate(&buf,"tmpl_user_show", user)
 	show := buf.Bytes()
 	
 	if err != nil{
@@ -68,10 +74,16 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/user/show.html", 
 		"templates/user/edit.html"))
 
-	user := usermdl.User{ 1, "test@example.com", "John Doe", nil, time.Now() }
+
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/users/", http.StatusFound)
+	}
+	
+	user := usermdl.User{ intID, "test@example.com", "John Doe", nil, time.Now() }
 	
 	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
+	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
 	edit := buf.Bytes()
 
 	if err != nil{

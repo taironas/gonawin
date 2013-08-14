@@ -27,6 +27,7 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/auth"
+	"github.com/santiaago/purple-wing/helpers/handlers"
 
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
@@ -110,10 +111,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_team_show").
 		ParseFiles("templates/team/show.html"))
 	
-	team := teammdl.Team{ 1, "team foo", "Team Foo", 1, time.Now() }
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+	}
+
+	team := teammdl.Team{ intID, "team foo", "Team Foo", 1, time.Now() }
 	
 	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_team_show", team)
+	err = t.ExecuteTemplate(&buf,"tmpl_team_show", team)
 	show := buf.Bytes()
 	
 	if err != nil{
@@ -135,10 +141,15 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/team/show.html", 
 		"templates/team/edit.html"))
 
-	team := teammdl.Team{ 1, "team foo", "Team Foo", 1, time.Now() }
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+	}
+
+	team := teammdl.Team{ intID, "team foo", "Team Foo", 1, time.Now() }
 
 	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
+	err = t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
 	edit := buf.Bytes()
 
 	if err != nil{
