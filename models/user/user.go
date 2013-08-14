@@ -63,7 +63,7 @@ func Create(r *http.Request, email string, username string, auth []byte) *User {
 	return user;
 }
 
-func Find(r *http.Request, filter string, value interface{}) *User {
+func Find(r *http.Request, filter string, value interface{}) *User{
 	q := datastore.NewQuery("User").Filter(filter + " =", value)
 	
 	var users []*User
@@ -72,6 +72,36 @@ func Find(r *http.Request, filter string, value interface{}) *User {
 		return users[0]
 	}
 	
+	return nil
+}
+
+func ById(r *http.Request, id int64)(*User, error){
+	c := appengine.NewContext(r)
+
+	var u User
+	key := datastore.NewKey(c, "User", "", id, nil)
+
+	if err := datastore.Get(c, key, &u); err != nil {
+		c.Errorf("pw: user not found : %v", err)
+		return &u, err
+	}
+	return &u, nil
+}
+
+func KeyById(r *http.Request, id int64)(*datastore.Key){
+	c := appengine.NewContext(r)
+
+	key := datastore.NewKey(c, "User", "", id, nil)
+
+	return key
+}
+
+func Update(r *http.Request, id int64, u *User) error{
+	c := appengine.NewContext(r)
+	k := KeyById(r, id)
+	if _, err := datastore.Put(c, k, u); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -93,3 +123,5 @@ func FetchUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error) {
 
 	return nil, err
 }
+
+

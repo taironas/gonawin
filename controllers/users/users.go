@@ -18,9 +18,9 @@ package users
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
-	"time"
 
 	"appengine"	
 
@@ -46,10 +46,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		http.Redirect(w,r, "/m/users/", http.StatusFound)
 	}
+	var user *usermdl.User
+	user, err = usermdl.ById(r,intID)
+	if err != nil{
+		helpers.Error404(w)
+		return
+	}
 
-	user := usermdl.User{ intID, "test@example.com", "John Doe", nil, time.Now() }
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_user_show", user)
+	err = t.ExecuteTemplate(&buf,"tmpl_user_show", *user)
 	show := buf.Bytes()
 	
 	if err != nil{
@@ -64,34 +69,65 @@ func Show(w http.ResponseWriter, r *http.Request){
 
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-
-	funcs := template.FuncMap{
-		"Profile": func() bool {return true},
-	}
-	
-	t := template.Must(template.New("tmpl_user_show").
-		Funcs(funcs).
-		ParseFiles("templates/user/show.html", 
-		"templates/user/edit.html"))
-
-
-	intID, err := handlers.PermalinkID(r,3)
-	if err != nil{
-		http.Redirect(w,r, "/m/users/", http.StatusFound)
-	}
-	
-	user := usermdl.User{ intID, "test@example.com", "John Doe", nil, time.Now() }
-	
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_user_edit", user)
-	edit := buf.Bytes()
-
-	if err != nil{
-		c.Errorf("pw: error in parse template user_edit: %v", err)
-	}
-
-	err = helpers.Render(w, r, edit, &funcs, "renderUserEdit")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
+	if r.Method == "GET" {
+		
+		funcs := template.FuncMap{
+			"Profile": func() bool {return true},
+		}
+		
+		t := template.Must(template.New("tmpl_user_show").
+			Funcs(funcs).
+			ParseFiles("templates/user/show.html", 
+			"templates/user/edit.html"))
+		
+		intID, err := handlers.PermalinkID(r,3)
+		if err != nil{
+			http.Redirect(w,r, "/m/users/", http.StatusFound)
+		}
+		var user *usermdl.User
+		user, err = usermdl.ById(r,intID)
+		if err != nil{
+			helpers.Error404(w)
+			return
+		}
+		
+		var buf bytes.Buffer
+		err = t.ExecuteTemplate(&buf,"tmpl_user_edit", *user)
+		edit := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template user_edit: %v", err)
+		}
+		
+		err = helpers.Render(w, r, edit, &funcs, "renderUserEdit")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+	}else if r.Method == "POST"{
+		
+		intID, err := handlers.PermalinkID(r,3)
+		if err != nil{
+			http.Redirect(w,r, "/m/users/", http.StatusFound)
+		}
+		var user *usermdl.User
+		user, err = usermdl.ById(r,intID)
+		if err != nil{
+			helpers.Error404(w)
+			return
+		}
+		// only work on username other values should not be editable
+		editUserName := r.FormValue("Username")
+		
+		if helpers.IsUsernameValid(editUserName) && editUserName != user.Username{
+			c.Errorf("pw: updating")
+			user.Username = editUserName
+			usermdl.Update(r, intID, user)
+			c.Errorf("pw: updating done!")
+		}else{
+			c.Errorf("pw: cannot update")
+			c.Errorf("pw: cannot update %v", helpers.IsUsernameValid(editUserName))
+		}
+		url := fmt.Sprintf("/m/users/%d",intID)
+		http.Redirect(w, r, url, http.StatusFound)
 	}
 }
