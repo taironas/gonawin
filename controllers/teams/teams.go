@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"html/template"
 	"net/http"
-	"time"
 	"fmt"
 
 	"appengine"	
@@ -116,8 +115,14 @@ func Show(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
 	}
 
-	team := teammdl.Team{ intID, "team foo", "Team Foo", 1, time.Now() }
+	var team *teammdl.Team
+	team, err = teammdl.ById(r, intID)
 	
+	if err != nil{
+		helpers.Error404(w)
+		return
+	}
+
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_team_show", team)
 	show := buf.Bytes()
@@ -135,29 +140,62 @@ func Show(w http.ResponseWriter, r *http.Request){
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	funcs := template.FuncMap{}
-	
-	t := template.Must(template.New("tmpl_team_show").
-		ParseFiles("templates/team/show.html", 
-		"templates/team/edit.html"))
+	if r.Method == "GET" {
 
-	intID, err := handlers.PermalinkID(r,3)
-	if err != nil{
-		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		funcs := template.FuncMap{}
+		
+		t := template.Must(template.New("tmpl_team_show").
+			ParseFiles("templates/team/show.html", 
+			"templates/team/edit.html"))
+
+		intID, err := handlers.PermalinkID(r,3)
+		if err != nil{
+			http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		}
+
+		var team *teammdl.Team
+		team, err = teammdl.ById(r, intID)
+
+		if err != nil{
+			helpers.Error404(w)
+			return
+		}
+
+		var buf bytes.Buffer
+		err = t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
+		edit := buf.Bytes()
+
+		if err != nil{
+			c.Errorf("pw: error in parse template team_edit: %v", err)
+		}
+
+		err = helpers.Render(w, r, edit, &funcs, "renderTeamEdit")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+	}else if r.Method == "POST"{
+		intID, err := handlers.PermalinkID(r,3)
+		if err != nil{
+			http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		}
+		var team *teammdl.Team
+		team, err = teammdl.ById(r,intID)
+		if err != nil{
+			c.Errorf("pw: Team Edit handler: team not found. id: %v",intID)		
+			helpers.Error404(w)
+			return
+		}
+		// only work on name other values should not be editable
+		editName := r.FormValue("Name")
+
+		if helpers.IsUsernameValid(editName) && editName != team.Name{
+			team.Name = editName
+			teammdl.Update(r, intID, team)
+		}else{
+			c.Errorf("pw: cannot update %v %v", helpers.IsUsernameValid(editName))
+		}
+		url := fmt.Sprintf("/m/teams/%d",intID)
+		http.Redirect(w, r, url, http.StatusFound)
 	}
 
-	team := teammdl.Team{ intID, "team foo", "Team Foo", 1, time.Now() }
-
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
-	edit := buf.Bytes()
-
-	if err != nil{
-		c.Errorf("pw: error in parse template team_edit: %v", err)
-	}
-
-	err = helpers.Render(w, r, edit, &funcs, "renderTeamEdit")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
 }
