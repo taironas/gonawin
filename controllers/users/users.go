@@ -68,9 +68,10 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
+	
 	c := appengine.NewContext(r)
+
 	if r.Method == "GET" {
-		
 		funcs := template.FuncMap{
 			"Profile": func() bool {return true},
 		}
@@ -104,7 +105,6 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
 	}else if r.Method == "POST"{
-		
 		intID, err := handlers.PermalinkID(r,3)
 		if err != nil{
 			http.Redirect(w,r, "/m/users/", http.StatusFound)
@@ -112,6 +112,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		var user *usermdl.User
 		user, err = usermdl.ById(r,intID)
 		if err != nil{
+			c.Errorf("pw: User Edit handler: user not found. id: %v",intID)		
 			helpers.Error404(w)
 			return
 		}
@@ -119,12 +120,9 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		editUserName := r.FormValue("Username")
 		
 		if helpers.IsUsernameValid(editUserName) && editUserName != user.Username{
-			c.Errorf("pw: updating")
 			user.Username = editUserName
 			usermdl.Update(r, intID, user)
-			c.Errorf("pw: updating done!")
 		}else{
-			c.Errorf("pw: cannot update")
 			c.Errorf("pw: cannot update %v", helpers.IsUsernameValid(editUserName))
 		}
 		url := fmt.Sprintf("/m/users/%d",intID)

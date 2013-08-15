@@ -21,7 +21,9 @@ import (
 )
 
 // IsUsernameValid returns true is username is a string between 3 and 20 characters.
-var USERNAME_RE = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,20}$`)
+// note: added \s just temporary until user name is splited with name and last name
+// username should not have whitespaces
+var USERNAME_RE = regexp.MustCompile(`^[\sa-zA-Z0-9_-]{3,20}$`)
 func IsUsernameValid(username string) bool{
 
 	return USERNAME_RE.MatchString(username) 
