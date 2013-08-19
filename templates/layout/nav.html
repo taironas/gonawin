@@ -4,9 +4,18 @@
   <ul class="nav nav-pills pull-right">
     <li {{if Home}} class="active" {{end}}><a href="/m">Home</a></li>
     {{if LoggedIn}}
-	<li {{if Teams}} class="active" {{end}}><a href="/m/teams">Teams</a></li>
-    <li {{if Profile}} class="active" {{end}}><a href="/m/users/{{.User.Id}}">Profile</a></li>
-    <li><a href="/m/logout">Logout</a></li>
+    <li {{if Teams}} class="active" {{end}}><a href="/m/teams">Teams</a></li>
+    <li {{if Profile}} class="active dropdown" {{else}} class="dropdown" {{end}}>
+      <a class="dropdown-toggle" data-toggle="dropdown" href="">
+	{{.User.Username}}
+	<b class="caret"></b>
+      </a>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+	<li><a href="/m/users/{{.User.Id}}">Profile</a></li>
+	<li><a href="">Settings</a></li>
+	<li><a href="/m/logout">Logout</a></li>	
+      </ul>
+    </li>
     {{end}}
   </ul>
   <h3 class="muted">purple-wing</h3>
