@@ -96,6 +96,9 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 		if _,ok := funcs["Profile"]; !ok {
 			funcs["Profile"] = func() bool {return false}
 		}
+		if _,ok := funcs["Admin"]; !ok {
+			funcs["Admin"] = func() bool {return auth.IsAdmin(r)}
+		}
 	}else{
 		c := appengine.NewContext(r)
 		c.Errorf("error in initNavFuncMap, funcs is nil, unable to init funcs map")
