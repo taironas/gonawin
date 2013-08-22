@@ -26,6 +26,7 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 
 	teammdl "github.com/santiaago/purple-wing/models/team"
@@ -56,7 +57,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_index: %v", err)
 	}
 
-	err = helpers.Render(w, r, index, &funcs, "renderTeamIndex")
+	err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -96,7 +97,7 @@ func New(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_new: %v", err)
 	}
 
-	err = helpers.Render(w, r, edit, &funcs, "renderTeamNew")
+	err = templateshlp.Render(w, r, edit, &funcs, "renderTeamNew")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -120,7 +121,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_show: %v", err)
 	}
 
-	err = helpers.Render(w, r, show, &funcs, "renderTeamShow")
+	err = templateshlp.Render(w, r, show, &funcs, "renderTeamShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -145,7 +146,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template team_edit: %v", err)
 	}
 
-	err = helpers.Render(w, r, edit, &funcs, "renderTeamEdit")
+	err = templateshlp.Render(w, r, edit, &funcs, "renderTeamEdit")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

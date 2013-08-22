@@ -17,21 +17,22 @@
 package sessions
 
 import (
-	"appengine"
-	"appengine/urlfetch"
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"html/template"
-	"fmt"
-	"bytes"
-	"io/ioutil"
+	"time"
+	
+	"appengine"
+	"appengine/urlfetch"
 	
 	oauth "github.com/garyburd/go-oauth/oauth"
 	oauth2 "code.google.com/p/goauth2/oauth"
 	
-	"github.com/santiaago/purple-wing/helpers"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
-	memcachehlp "github.com/santiaago/purple-wing/helpers/memcache"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -78,7 +79,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 		if err != nil{
 			c.Errorf("pw: error executing template auth: %v", err)
 		}
-		err = helpers.Render(w, r, main, &funcs, "renderAuth")
+		err = templateshlp.Render(w, r, main, &funcs, "renderAuth")
 		
 		if err != nil{
 			c.Errorf("pw: error when calling Render from helpers in Authenticate Handler: %v", err)
@@ -100,6 +101,8 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -112,19 +115,36 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	var userInfo *usermdl.GPlusUserInfo
 	
 	if _, err := t.Exchange(code); err == nil {
-		userInfo, _ = usermdl.FetchUserInfo(r, t.Client())
+		userInfo, _ = usermdl.FetchGPlusUserInfo(t.Client())
 	}
-	if auth.IsAuthorized(userInfo) {
+	if auth.IsAuthorized(userInfo.Email) {
 		var user *usermdl.User
 		// find user
 		if user = usermdl.Find(r, "Email", userInfo.Email); user == nil {
-			// create user if it does not exist
-			user = usermdl.Create(r, userInfo.Email, userInfo.Name, auth.GenerateAuthKey())
+			// create user if it does not exist via a POST request to '/users/new'
+			values := make(url.Values)
+			values.Set("username", userInfo.Name)
+			values.Set("name", userInfo.Name)
+			values.Set("email", userInfo.Email)
+			
+			if resp, err := urlfetch.Client(c).PostForm("http://" + r.Host + "/m/users/new", values); err != nil {
+				c.Infof("pw: %v", err)
+			} else {
+				defer resp.Body.Close()
+				body, _ := ioutil.ReadAll(resp.Body)
+				
+				user = new(usermdl.User)
+				
+				if err := user.FromJson(body); err != nil {
+					c.Errorf("pw: error when decoding json response")
+				}
+			}
 		}
+		
 		// set 'auth' cookie
 		auth.SetAuthCookie(w, user.Auth)
 		// store in memcache auth key in memcaches
-		auth.StoreAuthKey(r, user.Id, user.Auth)
+		auth.StoreAuthKey(r, user.Id, user.Auth)	
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -143,8 +163,7 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 		twitterConfig().Credentials.Token = credentials.Token
 		twitterConfig().Credentials.Secret = credentials.Secret
 		
-		memcachehlp.Set(r, "token", credentials.Token)
-		memcachehlp.Set(r, "secret", credentials.Secret)
+		http.SetCookie(w, &http.Cookie{ Name: "secret", Value: credentials.Secret, Path: "/m", })
 		
 		http.Redirect(w, r, twitterConfig().AuthorizationURL(credentials, nil), 302)
 	} else {
@@ -155,15 +174,17 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	c.Infof("pw: TwitterAuthCallback")
+
 	// get the request token
 	requestToken := r.FormValue("oauth_token")
 	// update credentials with request token
 	var cred oauth.Credentials
 	cred.Token = requestToken
-	if secret, err := memcachehlp.Get(r, "secret").(string); err {
-		cred.Secret = secret
+	if cookie, err := r.Cookie("secret"); err == nil {
+		cred.Secret = cookie.Value
 	}
+	// clear 'secret' cookie
+	http.SetCookie(w, &http.Cookie{ Name: "secret", Path: "/m", Expires: time.Now(), })
 	
 	tokenCred, values, err := twitterConfig().RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
@@ -178,10 +199,13 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		c.Debugf("pw: error getting user info from twitter: %v", err)
 	}
-	defer resp.Body.Close()
 	
-	p, _ := ioutil.ReadAll(resp.Body)
-	c.Infof("Get %s returned status %d, %s", resp.Request.URL, resp.StatusCode, p)
+	userInfo, _ := usermdl.FetchTwitterUserInfo(resp)
+	
+	c.Infof("pw: Twitter User Info = %q", userInfo)
+	
+	// redirect to the final step of twitter authentication
+	http.Redirect(w, r, "/m/auth/twitter/mail", http.StatusFound)
 }
 
 func SessionLogout(w http.ResponseWriter, r *http.Request){

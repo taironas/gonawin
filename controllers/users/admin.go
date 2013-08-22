@@ -24,7 +24,7 @@ import (
 
 	"appengine"	
 
-	"github.com/santiaago/purple-wing/helpers"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -35,13 +35,13 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 	
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_admin_show", nil)
-	show := buf.Bytes()
+	adminShow := buf.Bytes()
 	
 	if err != nil{
 		c.Errorf("pw: error in parse template admin_show: %v", err)
 	}
 
-	err = helpers.Render(w, r, show, nil, "renderAdminShow")
+	err = templateshlp.Render(w, r, adminShow, nil, "renderAdminShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
@@ -55,21 +55,21 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 		"templates/user/info.html")
 
 	// sample of users
-	user1 := usermdl.User{ 1, "test1@example.com", "John Doe 1", nil, time.Now() }
-	user2 := usermdl.User{ 1, "test2@example.com", "John Doe 2", nil, time.Now() }
-	user3 := usermdl.User{ 1, "test3@example.com", "John Doe 3", nil, time.Now() }
+	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
+	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
+	user3 := usermdl.User{ 1, "test3@example.com", "jdoe3", "John Doe 3", "", time.Now() }
 	users := [] usermdl.User{user1, user2, user3}
 	// end samlpe of users
 
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf,"tmpl_admin_users_show", users)
-	show := buf.Bytes()
+	adminUsers := buf.Bytes()
 	
 	if err != nil{
 		c.Errorf("pw: error in parse template admin_users_show: %v", err)
 	}
 
-	err = helpers.Render(w, r, show, nil, "renderAdminUsersShow")
+	err = templateshlp.Render(w, r, adminUsers, nil, "renderAdminUsersShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

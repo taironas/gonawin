@@ -18,20 +18,17 @@ package auth
 
 import (
 	"net/http"
-	"fmt"
-	
-	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func IsAuthorized(ui *usermdl.GPlusUserInfo) bool {
-	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
+func IsAuthorized(email string) bool {
+	return len(email) > 0 && (email == "remy.jourde@gmail.com" || email == "santiago.ariassar@gmail.com")
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
 func LoggedIn(r *http.Request) bool {
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if u := CurrentUser(r); u != nil {
-			return fmt.Sprintf("%x", u.Auth) == auth
+			return u.Auth == auth
 		}
 	}
 	

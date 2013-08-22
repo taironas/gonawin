@@ -41,6 +41,7 @@ func init(){
 	h.HandleFunc("/m/authtwittercallback/?", sessionsctrl.TwitterAuthCallback)
 	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
 	// user
+	h.HandleFunc("/m/users/new/?", usersctrl.New)
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
 	h.HandleFunc("/m/users/[0-9]+/edit/?", handlers.User(usersctrl.Edit))
 	// admin

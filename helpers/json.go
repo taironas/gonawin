@@ -17,10 +17,17 @@
 package helpers
 
 import (
-	"strings"
+	"encoding/json"
 )
 
-// TrimLower returns a lower case slice of the string s, with all leading and trailing white space removed, as defined by Unicode.
-func TrimLower(s string) string {
-	return strings.TrimSpace(strings.ToLower(s))
+type JsonResponse map[string]interface{}
+
+func (r JsonResponse) String() (s string) {
+	b, err := json.Marshal(r)
+	if err != nil {
+			s = ""
+			return
+	}
+	s = string(b)
+	return
 }

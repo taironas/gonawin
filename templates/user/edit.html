@@ -3,22 +3,22 @@
 	<h1>Edit User</h1>
 </div>
 <form accept-charset="UTF-8" action="/users/{{.Id}}" class="form-horizontal" method="post">
-	<div class="control-group">
-		<label class="control-label" for="user_id">Id</label>
-		<div class="controls">
-			<input class="text_field" id="user_id" name="Id" size="30" type="text" value="{{.Id}}" readonly="readonly"/>
-		</div>
-	</div>
-  	<div class="control-group">
-		<label class="control-label" for="user_email">Email</label>
-		<div class="controls">
-	  		<input class="text_field" id="user_email" name="Email" size="30" type="text" value="{{.Email}}" readonly="readonly"/>
-		</div>
-  	</div>
   	<div class="control-group">
 		<label class="control-label" for="user_username">Username</label>
 		<div class="controls">
 			<input class="text_field" id="user_username" name="Username" size="30" type="text" value="{{.Username}}" />
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="user_name">Name</label>
+		<div class="controls">
+			<input class="text_field" id="user_name" name="Name" size="30" type="text" value="{{.Name}}" />
+		</div>
+	</div>
+	<div class="control-group">
+		<label class="control-label" for="user_email">Email</label>
+		<div class="controls">
+		  	<input class="text_field" id="user_email" name="Email" size="30" type="text" value="{{.Email}}"/>
 		</div>
 	</div>
 

@@ -23,7 +23,7 @@ import (
 	
 	"appengine"
 	
-	"github.com/santiaago/purple-wing/helpers"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 
 )
@@ -50,7 +50,7 @@ func Contact(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		c.Errorf("pw: error executing template  contact: %v", err)
 	}
-	err = helpers.Render(w, r, main, &funcs, "renderContact")
+	err = templateshlp.Render(w, r, main, &funcs, "renderContact")
 	
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers in Contact Handler: %v", err)

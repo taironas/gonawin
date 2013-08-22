@@ -21,20 +21,20 @@ import (
     "io"
     "fmt"
     "crypto/rand"
-	"strconv"
+    "strconv"
 	"time"
     
     "appengine"
     "appengine/memcache"
     
-	usermdl "github.com/santiaago/purple-wing/models/user"
+    usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func StoreAuthKey(r *http.Request, uid int64, auth []byte) {
+func StoreAuthKey(r *http.Request, uid int64, auth string) {
     c := appengine.NewContext(r)
 	
 	item := &memcache.Item{
-        Key:   fmt.Sprintf("auth:%x", auth),
+        Key:   "auth:" + auth,
         Value: []byte(fmt.Sprintf("%d", uid)),
     }
     // Set the item, unconditionally
@@ -54,11 +54,11 @@ func fetchAuthKey(r *http.Request, auth string) string {
     return ""
 }
 
-func SetAuthCookie(w http.ResponseWriter, auth []byte) {
+func SetAuthCookie(w http.ResponseWriter, auth string) {
 	cookie := &http.Cookie{ 
         Name: "auth", 
-        Value: fmt.Sprintf("%x", auth), 
-        Path: "/m",
+        Value: auth, 
+        Path: "/",
     }
     http.SetCookie(w, cookie)
 }
@@ -74,26 +74,28 @@ func GetAuthCookie(r *http.Request) string {
 func ClearAuthCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    "auth",
-		Path:    "/m",
+		Path:    "/",
 		Expires: time.Now(),
 	})
 }
 
-func GenerateAuthKey() []byte {
+func GenerateAuthKey() string {
     b := make([]byte, 16)
     if _, err := io.ReadFull(rand.Reader, b); err != nil {
-        return nil
+        return ""
     }
-    return b
+    return fmt.Sprintf("%x", b)
 }
 
 func CurrentUser(r *http.Request) *usermdl.User {
-	if auth := GetAuthCookie(r); len(auth) > 0 {
-		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
-			userId, _ := strconv.ParseInt(uid, 10, 64)
-			return usermdl.Find(r, "Id", userId)
-		}
-	}
-	
-	return nil
+    c := appengine.NewContext(r)
+    if auth := GetAuthCookie(r); len(auth) > 0 {
+        if uid := fetchAuthKey(r, auth); len(uid) > 0 {
+            c.Infof("pw: CurrentUser, uid=%s, auth=%s", uid, auth)
+            userId, _ := strconv.ParseInt(uid, 10, 64)
+            return usermdl.Find(r, "Id", userId)
+        }
+    }
+
+    return nil
 }
