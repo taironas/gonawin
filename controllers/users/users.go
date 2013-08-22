@@ -25,6 +25,7 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	usermdl "github.com/santiaago/purple-wing/models/user"
@@ -124,7 +125,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: error in parse template user_show: %v", err)
 	}
 
-	err = templateshlp.Render(w, r, userShow, &funcs, "renderUserShow")
+	err = templateshlp.Render(w, r, show, &funcs, "renderUserShow")
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}

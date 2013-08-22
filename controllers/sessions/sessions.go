@@ -115,7 +115,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	var userInfo *usermdl.GPlusUserInfo
 	
 	if _, err := t.Exchange(code); err == nil {
-		userInfo, _ = usermdl.FetchGPlusUserInfo(t.Client())
+		userInfo, _ = usermdl.FetchGPlusUserInfo(r, t.Client())
 	}
 	if auth.IsAuthorized(userInfo.Email) {
 		var user *usermdl.User
