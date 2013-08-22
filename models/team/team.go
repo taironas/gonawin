@@ -63,6 +63,38 @@ func Find(r *http.Request, filter string, value interface{}) *Team {
 	return nil
 }
 
+func ById(r *http.Request, id int64)(*Team, error){
+	c := appengine.NewContext(r)
+
+	var t Team
+	key := datastore.NewKey(c, "Team", "", id, nil)
+
+	if err := datastore.Get(c, key, &t); err != nil {
+		c.Errorf("pw: team not found : %v", err)
+		return &t, err
+	}
+	return &t, nil
+}
+
+
+func KeyById(r *http.Request, id int64)(*datastore.Key){
+	c := appengine.NewContext(r)
+
+	key := datastore.NewKey(c, "Team", "", id, nil)
+
+	return key
+}
+
+
+func Update(r *http.Request, id int64, t *Team) error{
+	c := appengine.NewContext(r)
+	k := KeyById(r, id)
+	if _, err := datastore.Put(c, k, t); err != nil {
+		return err
+	}
+	return nil
+}
+
 func FindAll(r *http.Request) []*Team {
 	q := datastore.NewQuery("Team")
 	

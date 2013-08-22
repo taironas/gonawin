@@ -65,10 +65,9 @@ func SetAuthCookie(w http.ResponseWriter, auth string) {
 
 func GetAuthCookie(r *http.Request) string {
 	if cookie, err := r.Cookie("auth"); err == nil {
-        return cookie.Value
-    }
-	
-    return ""
+		return cookie.Value
+	}
+	return ""
 }
 
 func ClearAuthCookie(w http.ResponseWriter) {

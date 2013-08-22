@@ -14,14 +14,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
  
- package handlers
+package handlers
 
 import (
 	"net/http"
+	"strings"
+	"strconv"
+
+	"appengine"	
 	
 	"github.com/santiaago/purple-wing/helpers/auth"
 )
-
+// is it a user?
 func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !auth.IsUser(r) {
@@ -31,7 +35,7 @@ func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 		}
 	}
 }
-
+// is it an admin?
 func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if !auth.IsAdmin(r) {
@@ -40,4 +44,15 @@ func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 			f(w, r)
 		}
 	}
+}
+// parse permalink id from URL  and return it
+func PermalinkID(r *http.Request, level int64)(int64, error){
+
+	c := appengine.NewContext(r)
+	path := strings.Split(r.URL.String(), "/")
+	intID, err := strconv.ParseInt(path[level],0,64)
+	if err != nil{
+		c.Errorf("pw: error when calling PermalinkID with %v.Error: %v",path[level], err)
+	}
+	return intID, err
 }
