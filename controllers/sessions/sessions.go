@@ -19,7 +19,6 @@ package sessions
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"html/template"
@@ -45,7 +44,7 @@ func config(host string) *oauth2.Config{
 		Scope:        "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
 		AuthURL:      "https://accounts.google.com/o/oauth2/auth",
 		TokenURL:     "https://accounts.google.com/o/oauth2/token",
-		RedirectURL:  fmt.Sprintf("http://%s%s/oauth2callback", host, root),
+		RedirectURL:  fmt.Sprintf("http://%s%s/auth/google/callback", host, root),
 	}
 }
 // Set up a configuration for twitter.
@@ -60,7 +59,7 @@ func twitterConfig() *oauth.Client{
 		TokenRequestURI:               "http://api.twitter.com/oauth/access_token",
 	}
 }
-var twitterCallbackURL string = "/m/authtwittercallback"
+var twitterCallbackURL string = "/m/auth/twitter/callback"
 
 func Authenticate(w http.ResponseWriter, r *http.Request){
 	if !auth.LoggedIn(r) {
@@ -101,8 +100,6 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -117,34 +114,17 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	if _, err := t.Exchange(code); err == nil {
 		userInfo, _ = usermdl.FetchGPlusUserInfo(r, t.Client())
 	}
-	if auth.IsAuthorized(userInfo.Email) {
+	if auth.IsAuthorizedWithGoogle(userInfo) {
 		var user *usermdl.User
 		// find user
 		if user = usermdl.Find(r, "Email", userInfo.Email); user == nil {
-			// create user if it does not exist via a POST request to '/users/new'
-			values := make(url.Values)
-			values.Set("username", userInfo.Name)
-			values.Set("name", userInfo.Name)
-			values.Set("email", userInfo.Email)
-			
-			if resp, err := urlfetch.Client(c).PostForm("http://" + r.Host + "/m/users/new", values); err != nil {
-				c.Infof("pw: %v", err)
-			} else {
-				defer resp.Body.Close()
-				body, _ := ioutil.ReadAll(resp.Body)
-				
-				user = new(usermdl.User)
-				
-				if err := user.FromJson(body); err != nil {
-					c.Errorf("pw: error when decoding json response")
-				}
-			}
+			// create user if it does not exist
+			user = usermdl.Create(r, userInfo.Email, userInfo.Name, userInfo.Name, auth.GenerateAuthKey())
 		}
-		
 		// set 'auth' cookie
 		auth.SetAuthCookie(w, user.Auth)
 		// store in memcache auth key in memcaches
-		auth.StoreAuthKey(r, user.Id, user.Auth)	
+		auth.StoreAuthKey(r, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -199,13 +179,23 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	if err != nil {
 		c.Debugf("pw: error getting user info from twitter: %v", err)
 	}
-	
+
 	userInfo, _ := usermdl.FetchTwitterUserInfo(resp)
-	
-	c.Infof("pw: Twitter User Info = %q", userInfo)
-	
-	// redirect to the final step of twitter authentication
-	http.Redirect(w, r, "/m/auth/twitter/mail", http.StatusFound)
+
+	if auth.IsAuthorizedWithTwitter(userInfo) {
+		var user *usermdl.User
+		// find user
+		if user = usermdl.Find(r, "Username", userInfo.Screen_name); user == nil {
+			// create user if it does not exist
+			user = usermdl.Create(r, "", userInfo.Screen_name, userInfo.Name, auth.GenerateAuthKey())
+		}
+		// set 'auth' cookie
+		auth.SetAuthCookie(w, user.Auth)
+		// store in memcache auth key in memcaches
+		auth.StoreAuthKey(r, user.Id, user.Auth)
+	}
+
+	http.Redirect(w, r, root, http.StatusFound)
 }
 
 func SessionLogout(w http.ResponseWriter, r *http.Request){

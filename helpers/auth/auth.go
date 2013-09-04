@@ -18,10 +18,16 @@ package auth
 
 import (
 	"net/http"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func IsAuthorized(email string) bool {
-	return len(email) > 0 && (email == "remy.jourde@gmail.com" || email == "santiago.ariassar@gmail.com")
+func IsAuthorizedWithGoogle(ui *usermdl.GPlusUserInfo) bool {
+	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
+}
+
+func IsAuthorizedWithTwitter(ui *usermdl.TwitterUserInfo) bool {
+	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
@@ -39,7 +45,7 @@ func LoggedIn(r *http.Request) bool {
 func IsAdmin(r *http.Request) bool {
 	if LoggedIn(r){
 		if u := CurrentUser(r); u != nil{
-			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com")
+			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias")
 		}
 	}
 	return false

@@ -46,9 +46,8 @@ type GPlusUserInfo struct {
 
 type TwitterUserInfo struct {
 	Id int64
-	Email string
 	Name string
-	Username string
+	Screen_name string
 }
 
 func Create(r *http.Request, email string, username string, name string, auth string) *User {
