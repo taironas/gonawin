@@ -27,7 +27,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	"github.com/santiaago/purple-wing/helpers/auth"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -38,60 +37,6 @@ type Form struct {
 	ErrorUsername string
 	ErrorName string
 	ErrorEmail string
-}
-
-func New(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-
-	var form Form
-	if r.Method == "GET" {
-		form.Username = ""
-		form.Name = ""
-		form.Email = ""
-		form.ErrorUsername = ""
-		form.ErrorName = ""
-		form.ErrorEmail = ""
-		
-		funcs := template.FuncMap{}
-		
-		t := template.Must(template.New("tmpl_user_new").
-			ParseFiles("templates/user/new.html"))
-		
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_user_new", form)
-		userNew := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template user_new: %v", err)
-		}
-		
-		err = templateshlp.Render(w, r, userNew, &funcs, "renderUserNew")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
-	} else if r.Method == "POST" {
-		form.Username = r.FormValue("username")
-		form.Name = r.FormValue("name")
-		form.Email = r.FormValue("email")
-		
-		if len(form.Username) <= 0 {
-			form.ErrorUsername = "'Username' field cannot be empty"
-		} else if u := usermdl.Find(r, "Username", form.Username); u != nil {
-			form.ErrorUsername = "That username already exists."
-		} else if len(form.Name) <= 0 {
-			form.ErrorName = "'Name' field cannot be empty"
-		} else if u := usermdl.Find(r, "Name", form.Name); u != nil {
-			form.ErrorName = "That name already exists."
-		} else if !helpers.IsEmailValid(form.Email) {
-			form.ErrorName = "That email is not valid."
-		} else {
-			if user := usermdl.Create(r, form.Email, form.Username, form.Name, auth.GenerateAuthKey()); user == nil {
-				c.Errorf("pw: error when creating new user")
-			} else {
-				renderJsonUser(w, user)
-			}
-		}
-	}
 }
 
 func Show(w http.ResponseWriter, r *http.Request){

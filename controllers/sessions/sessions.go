@@ -36,8 +36,8 @@ import (
 )
 
 const root string = "/m"
-// Set up a configuration.
-func config(host string) *oauth2.Config{
+// Set up a configuration for google.
+func googleConfig(host string) *oauth2.Config{
 	return &oauth2.Config{
 		ClientId:     CLIENT_ID,
 		ClientSecret: CLIENT_SECRET,
@@ -48,16 +48,11 @@ func config(host string) *oauth2.Config{
 	}
 }
 // Set up a configuration for twitter.
-func twitterConfig() *oauth.Client{
-	return &oauth.Client{
-		Credentials: oauth.Credentials{
-			Token:	CONSUMER_KEY,
-			Secret: CONSUMER_SECRET,
-		},
-		TemporaryCredentialRequestURI: "http://api.twitter.com/oauth/request_token",
-		ResourceOwnerAuthorizationURI: "http://api.twitter.com/oauth/authorize",
-		TokenRequestURI:               "http://api.twitter.com/oauth/access_token",
-	}
+var twitterConfig = oauth.Client{
+	Credentials: oauth.Credentials{ Token:	CONSUMER_KEY, Secret: CONSUMER_SECRET },
+	TemporaryCredentialRequestURI: "http://api.twitter.com/oauth/request_token",
+	ResourceOwnerAuthorizationURI: "http://api.twitter.com/oauth/authorize",
+	TokenRequestURI:               "http://api.twitter.com/oauth/access_token",
 }
 var twitterCallbackURL string = "/m/auth/twitter/callback"
 
@@ -91,7 +86,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 	if !auth.LoggedIn(r) {
-		url := config(r.Host).AuthCodeURL(r.URL.RawQuery)
+		url := googleConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
 		//redirect to home page
@@ -103,7 +98,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
-		Config: config(r.Host),
+		Config: googleConfig(r.Host),
 		Transport: &urlfetch.Transport{
 			Context: appengine.NewContext(r),
 		},
@@ -134,18 +129,15 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	if !auth.LoggedIn(r) {
-		callback := "http://" + r.Host + twitterCallbackURL
-		credentials, err := twitterConfig().RequestTemporaryCredentials(urlfetch.Client(c), callback, nil)
+		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
 		if err != nil {
 			http.Error(w, "Error getting temp cred, "+err.Error(), 500)
 			return
 		}
-		twitterConfig().Credentials.Token = credentials.Token
-		twitterConfig().Credentials.Secret = credentials.Secret
 		
 		http.SetCookie(w, &http.Cookie{ Name: "secret", Value: credentials.Secret, Path: "/m", })
 		
-		http.Redirect(w, r, twitterConfig().AuthorizationURL(credentials, nil), 302)
+		http.Redirect(w, r, twitterConfig.AuthorizationURL(credentials, nil), 302)
 	} else {
 		//redirect to home page
 		http.Redirect(w, r, root, http.StatusFound)
@@ -154,10 +146,9 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-
 	// get the request token
 	requestToken := r.FormValue("oauth_token")
-	// update credentials with request token
+	// update credentials with request token and 'secret cookie value'
 	var cred oauth.Credentials
 	cred.Token = requestToken
 	if cookie, err := r.Cookie("secret"); err == nil {
@@ -166,16 +157,16 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	// clear 'secret' cookie
 	http.SetCookie(w, &http.Cookie{ Name: "secret", Path: "/m", Expires: time.Now(), })
 	
-	tokenCred, values, err := twitterConfig().RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
+	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
 		http.Error(w, "Error getting request token, "+err.Error(), 500)
 		return
 	}
 	
 	// get user info
-	v := url.Values{}
-	v.Set("user_id", values.Get("user_id"))
-	resp, err := twitterConfig().Get(urlfetch.Client(c), tokenCred, "https://api.twitter.com/1.1/users/show.json", v)
+	urlValues := url.Values{}
+	urlValues.Set("user_id", values.Get("user_id"))
+	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
 	if err != nil {
 		c.Debugf("pw: error getting user info from twitter: %v", err)
 	}
