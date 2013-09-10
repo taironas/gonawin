@@ -48,7 +48,7 @@ func Create(r *http.Request, name string, adminId int64) *Team {
 		c.Errorf("Create: %v", err)
 	}
 
-	return team;
+	return team
 }
 
 func Find(r *http.Request, filter string, value interface{}) *Team {
