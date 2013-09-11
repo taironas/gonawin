@@ -34,6 +34,7 @@ import (
 
 type Form struct {
 	Name string
+	Private bool
 	Error string
 }
 
@@ -77,13 +78,14 @@ func New(w http.ResponseWriter, r *http.Request){
 		form.Error = ""
 	} else if r.Method == "POST" {
 		form.Name = r.FormValue("Name")
+		form.Private = (r.FormValue("Visibility") == "Private")
 		
 		if len(form.Name) <= 0 {
 			form.Error = "'Name' field cannot be empty"
 		} else if t := teammdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
 			form.Error = "That team name already exists."
 		} else {
-			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id)
+			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
 		}
@@ -186,14 +188,17 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			helpers.Error404(w)
 			return
 		}
-		// only work on name other values should not be editable
+		// only work on name and private. Other values should not be editable
 		editName := r.FormValue("Name")
+		editPrivate := (r.FormValue("Visibility") == "Private")
+		c.Infof("pw: Name=%s, Private=%s", editName, editPrivate)
 
-		if helpers.IsUsernameValid(editName) && editName != team.Name{
+		if helpers.IsUsernameValid(editName) && (editName != team.Name || editPrivate != team.Private) {
 			team.Name = editName
+			team.Private = editPrivate
 			teammdl.Update(r, intID, team)
 		}else{
-			c.Errorf("pw: cannot update %v %v", helpers.IsUsernameValid(editName))
+			c.Errorf("pw: cannot update %v", helpers.IsUsernameValid(editName))
 		}
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)

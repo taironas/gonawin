@@ -29,3 +29,7 @@ body {
 	font-size: 21px;
 	padding: 14px 24px;
 }
+
+.search-box {
+	float: right;
+}

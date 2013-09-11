@@ -21,7 +21,13 @@
 			<input class="text_field" id="team_adminid" name="AdminId" size="30" type="text" value="{{.AdminId}}" readonly="readonly"/>
 		</div>
 	</div>
-
+	<div class="control-group">
+		<label class="control-label" for="team_adminid">Private</label>
+		<div class="controls">
+			<input class="radio" id="team_visibility" name="Visibility" type="radio" value="Public" {{if not .Private}}checked{{end}}/> Public (Anyone can subscribe to this team)<br>
+			<input class="radio" id="team_visibility" name="Visibility" type="radio" value="Private" {{if .Private}}checked{{end}}/> Private (users need to request an invitation)
+		</div>
+	</div>
   	<div class="form-actions">
 		<input class="btn btn-primary" name="commit" type="submit" value="Update Team" />
 		<a href="/m//teams/{{.Id}}" class="btn">Cancel</a>
