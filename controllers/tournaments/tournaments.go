@@ -41,7 +41,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{
-		"Tournament": func() bool {return true},
+		"Tournaments": func() bool {return true},
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_index").
