@@ -1,0 +1,22 @@
+{{define "tmpl_tournament_new"}}
+<div class="page-header">
+	<h1>New Tournament</h1>
+</div>
+{{if len .Error}}
+	<div class="alert alert-error">
+		{{.Error}}.
+	</div>
+{{end}}
+<form accept-charset="UTF-8" action="/m/tournaments/new" class="form-horizontal" method="post">
+  	<div class="control-group">
+		<label class="control-label" for="tournament_name">Name</label>
+		<div class="controls">
+	  		<input class="text_field" id="tournament_name" name="Name" size="30" type="text" value="{{.Name}}"/>
+		</div>
+  	</div>
+  	<div class="form-actions">
+		<input class="btn btn-primary" name="commit" type="submit" value="Create Tournament" />
+		<a href="/m/tournaments" class="btn">Cancel</a>
+  	</div>
+</form>
+{{end}}

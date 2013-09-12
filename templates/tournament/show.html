@@ -1,0 +1,17 @@
+{{define "tmpl_tournament_show"}}
+<div class="page-header">
+	<h1>Tournament</h1>
+</div>
+
+<dl class="dl-horizontal">
+	<dt><strong>Id:</strong></dt>
+	<dd>{{.Id}}</dd>
+	<dt><strong>Name:</strong></dt>
+	<dd>{{.Name}}</dd>
+</dl>
+
+<div class="form-actions">
+	<a href="/m/tournaments/{{.Id}}/edit" class="btn"><span>Edit</span></a>
+	<a href="/m/tournaments/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
+</div>
+{{end}}

@@ -23,6 +23,7 @@ import (
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
+	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 )
 
@@ -51,6 +52,11 @@ func init(){
 	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
 	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
+	// tournament
+	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))
+	h.HandleFunc("/m/tournaments/new/?", handlers.User(tournamentsctrl.New))
+	h.HandleFunc("/m/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.Show))
+	h.HandleFunc("/m/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.Edit))
 
 	http.Handle("/", h)
 }
