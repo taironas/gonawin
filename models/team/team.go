@@ -32,16 +32,17 @@ type Team struct {
 	KeyName string
 	Name string
 	AdminId int64
+	Private bool
 	Created time.Time
 }
 
-func Create(r *http.Request, name string, adminId int64) *Team {
+func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	c := appengine.NewContext(r)
 	// create new team
 	teamId, _, _ := datastore.AllocateIDs(c, "Team", nil, 1)
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 
-	team := &Team{ teamId, helpers.TrimLower(name), name, adminId, time.Now() }
+	team := &Team{ teamId, helpers.TrimLower(name), name, adminId, private, time.Now() }
 
 	_, err := datastore.Put(c, key, team)
 	if err != nil {
