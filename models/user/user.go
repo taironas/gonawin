@@ -17,16 +17,16 @@
 package user
 
 import (
+	"errors"
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
-	"strconv"
 	"time"
 	
 	"appengine"
 	"appengine/datastore"
 	
-	"github.com/santiaago/purple-wing/helpers"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type User struct {
@@ -145,18 +145,19 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	return nil, err
 }
 
-func (u *User) FromJson(jsonBytes []byte) error {
-	var jsonResp helpers.JsonResponse
-	if err := json.Unmarshal(jsonBytes, &jsonResp); err != nil {
-		return err
+func Joined(r *http.Request, teamId int64, userId int64) bool {
+	_, err := teamrelmdl.Find(r, "TeamId", teamId)
+	return err == nil
+}
+
+func Join(r *http.Request, teamId int64, userId int64) error {
+	if teamRel := teamrelmdl.Create(r, teamId, userId); teamRel == nil {
+		return errors.New("error during team relationship creation")
 	}
 	
-	u.Id, _ = strconv.ParseInt(jsonResp["id"].(string), 10, 64)
-	u.Username = jsonResp["username"].(string)
-	u.Name = jsonResp["name"].(string)
-	u.Email = jsonResp["email"].(string)
-	u.Auth = jsonResp["auth"].(string)
-	u.Created, _ = time.Parse("2013-08-21 14:55:01", (jsonResp["created"].(string)))
-	
 	return nil
+}
+
+func Leave(r *http.Request, teamId int64, userId int64) error {
+	return teamrelmdl.Destroy(r, teamId, userId)
 }

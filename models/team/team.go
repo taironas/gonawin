@@ -23,7 +23,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 	
-	usermdl "github.com/santiaago/purple-wing/models/user"
 	"github.com/santiaago/purple-wing/helpers"
 )
 
@@ -104,10 +103,4 @@ func FindAll(r *http.Request) []*Team {
 	q.GetAll(appengine.NewContext(r), &teams)
 	
 	return teams
-}
-
-func (t *Team) Members() []*usermdl.User {
-	var users []*usermdl.User
-	
-	return users
 }

@@ -28,8 +28,8 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
-
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Form struct {
@@ -108,15 +108,18 @@ func New(w http.ResponseWriter, r *http.Request){
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	funcs := template.FuncMap{}
-	
-	t := template.Must(template.New("tmpl_team_show").
-		ParseFiles("templates/team/show.html"))
-	
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
 	}
+	
+	funcs := template.FuncMap{
+		"Joined": func() bool { return usermdl.Joined(r, intID, auth.CurrentUser(r).Id) },
+	}
+	
+	t := template.Must(template.New("tmpl_team_show").
+		Funcs(funcs).
+		ParseFiles("templates/team/show.html"))
 
 	var team *teammdl.Team
 	team, err = teammdl.ById(r, intID)
