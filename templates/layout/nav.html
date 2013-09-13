@@ -2,7 +2,6 @@
 <!-- navigation bar -->
 <div class="navigation">
   <ul class="nav nav-pills pull-right">
-    <li {{if Home}} class="active" {{end}}><a href="/m">Home</a></li>
     {{if LoggedIn}}
     {{if Admin}}
     <li class="dropdown">
@@ -32,6 +31,6 @@
     </li>
     {{end}}
   </ul>
-  <h3 class="muted">purple-wing{{if Admin}} <small>admin</small>{{end}}</h3>
+  <h3 class="muted"><a href="/m" style="text-decoration:none;">purple-wing{{if Admin}} <small>admin</small>{{end}}</a></h3>
 </div>
 {{end}}

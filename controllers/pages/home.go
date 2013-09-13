@@ -44,7 +44,6 @@ func Home(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return auth.LoggedIn(r) },
-		"Home": func() bool {return true},
 	}
 	
 	t := template.Must(template.New("tmpl_main").
