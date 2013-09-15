@@ -29,6 +29,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Form struct {
@@ -119,7 +120,8 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	t := template.Must(template.New("tmpl_team_show").
 		Funcs(funcs).
-		ParseFiles("templates/team/show.html"))
+		ParseFiles("templates/team/show.html",
+		"templates/team/players.html"))
 
 	var team *teammdl.Team
 	team, err = teammdl.ById(r, intID)
@@ -128,9 +130,19 @@ func Show(w http.ResponseWriter, r *http.Request){
 		helpers.Error404(w)
 		return
 	}
+	
+	players := teammdl.Players(r, intID)
+	
+	teamData := struct { 
+		Team *teammdl.Team
+		Players []*usermdl.User 
+	}{
+		team,
+		players,
+	}
 
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_team_show", team)
+	err = t.ExecuteTemplate(&buf,"tmpl_team_show", teamData)
 	show := buf.Bytes()
 	
 	if err != nil{

@@ -1,8 +1,8 @@
 {{define "tmpl_team_show"}}
 <div class="page-header">
 	<h1>Team</h1>
-	<form accept-charset="UTF-8" action="/m/teamrels/{{.Id}}" class="form-horizontal" method="post">
-		<input id="team_id" name="TeamId" type="hidden" value="{{.Id}}" />
+	<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
+		<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
 		<input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} />
 		<input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
 	</form>
@@ -10,19 +10,20 @@
 
 <dl class="dl-horizontal">
 	<dt><strong>Id:</strong></dt>
-	<dd>{{.Id}}</dd>
+	<dd>{{.Team.Id}}</dd>
 	<dt><strong>Name:</strong></dt>
-	<dd>{{.Name}}</dd>
+	<dd>{{.Team.Name}}</dd>
 	<dt><strong>AdminId:</strong></dt>
-	<dd>{{.AdminId}}</dd>
+	<dd>{{.Team.AdminId}}</dd>
 	<dt><strong>Private:</strong></dt>
-	<dd>{{.Private}}</dd>
+	<dd>{{.Team.Private}}</dd>
 </dl>
 
 {{if IsTeamAdmin}}
 <div class="form-actions">
-	<a href="/m/teams/{{.Id}}/edit" class="btn"><span>Edit</span></a>
-	<a href="/m/teams/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
+	<a href="/m/teams/{{.Team.Id}}/edit" class="btn"><span>Edit</span></a>
+	<a href="/m/teams/{{.Team.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
 </div>
 {{end}}
+{{template "tmpl_team_players" .Players}}
 {{end}}
