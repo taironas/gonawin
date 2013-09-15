@@ -17,6 +17,7 @@
 package team
 
 import (
+	"errors"
 	"net/http"
 	"time"
 	
@@ -24,6 +25,7 @@ import (
 	"appengine/datastore"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type Team struct {
@@ -103,4 +105,21 @@ func FindAll(r *http.Request) []*Team {
 	q.GetAll(appengine.NewContext(r), &teams)
 	
 	return teams
+}
+
+func Joined(r *http.Request, teamId int64, userId int64) bool {
+	teamRel := teamrelmdl.FindByTeamIdAndUserId(r, teamId, userId)
+	return teamRel != nil
+}
+
+func Join(r *http.Request, teamId int64, userId int64) error {
+	if teamRel := teamrelmdl.Create(r, teamId, userId); teamRel == nil {
+		return errors.New("error during team relationship creation")
+	}
+
+	return nil
+}
+
+func Leave(r *http.Request, teamId int64, userId int64) error {
+	return teamrelmdl.Destroy(r, teamId, userId)
 }

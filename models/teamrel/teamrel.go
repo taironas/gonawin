@@ -17,6 +17,8 @@
 package teamrel
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"time"
 	
@@ -48,17 +50,25 @@ func Create(r *http.Request, teamId int64, userId int64) *TeamRelationship {
 }
 
 func Destroy(r *http.Request, teamId int64, userId int64) error {
-	return nil
+	c := appengine.NewContext(r)
+	
+	if teamRel := FindByTeamIdAndUserId(r, teamId, userId); teamRel == nil {
+		return errors.New(fmt.Sprintf("Cannot find team relationship for teamId=%d and userId=%d", teamId, userId))
+	} else {
+		key := datastore.NewKey(c, "TeamRelationship", "", teamRel.Id, nil)
+			
+		return datastore.Delete(c, key)	
+	}
 }
 
-func Find(r *http.Request, filter string, value interface{}) *TeamRelationship {
-	q := datastore.NewQuery("TeamRelationship").Filter(filter + " =", value).Limit(1)
+func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRelationship {
+	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 	
 	var teamRels []*TeamRelationship
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teamRels); err == nil && len(teamRels) > 0 {
 		return teamRels[0]
-	}
+	} 
 	
 	return nil
 }

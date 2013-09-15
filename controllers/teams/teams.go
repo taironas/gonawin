@@ -29,7 +29,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	teammdl "github.com/santiaago/purple-wing/models/team"
-	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Form struct {
@@ -114,7 +113,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	funcs := template.FuncMap{
-		"Joined": func() bool { return usermdl.Joined(r, intID, auth.CurrentUser(r).Id) },
+		"Joined": func() bool { return teammdl.Joined(r, intID, auth.CurrentUser(r).Id) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_show").

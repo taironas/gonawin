@@ -23,7 +23,7 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers/auth"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -32,12 +32,12 @@ func Show(w http.ResponseWriter, r *http.Request){
 	// get team id
 	teamId , _ := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
 	c.Infof("pw: TeamRel.Show, r.Method = %s", r.Method)	
-	if r.Method == "POST" {
-		if err := usermdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
+	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+		if err := teammdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
 			c.Errorf("pw: teamRels.Show: %v", err)
 		}
-	} else if r.Method == "DELETE" {
-		if err := usermdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
+	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
+		if err := teammdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
 			c.Errorf("pw: teamRels.Show: %v", err)
 		}
 	}

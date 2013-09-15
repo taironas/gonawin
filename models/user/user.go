@@ -17,7 +17,6 @@
 package user
 
 import (
-	"errors"
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
@@ -25,8 +24,6 @@ import (
 	
 	"appengine"
 	"appengine/datastore"
-	
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type User struct {
@@ -143,21 +140,4 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	}
 	
 	return nil, err
-}
-
-func Joined(r *http.Request, teamId int64, userId int64) bool {
-	_, err := teamrelmdl.Find(r, "TeamId", teamId)
-	return err == nil
-}
-
-func Join(r *http.Request, teamId int64, userId int64) error {
-	if teamRel := teamrelmdl.Create(r, teamId, userId); teamRel == nil {
-		return errors.New("error during team relationship creation")
-	}
-	
-	return nil
-}
-
-func Leave(r *http.Request, teamId int64, userId int64) error {
-	return teamrelmdl.Destroy(r, teamId, userId)
 }
