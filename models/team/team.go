@@ -65,7 +65,7 @@ func Find(r *http.Request, filter string, value interface{}) *Team {
 	return nil
 }
 
-func ById(r *http.Request, id int64)(*Team, error){
+func ById(r *http.Request, id int64) (*Team, error) {
 	c := appengine.NewContext(r)
 
 	var t Team
@@ -79,7 +79,7 @@ func ById(r *http.Request, id int64)(*Team, error){
 }
 
 
-func KeyById(r *http.Request, id int64)(*datastore.Key){
+func KeyById(r *http.Request, id int64) (*datastore.Key) {
 	c := appengine.NewContext(r)
 
 	key := datastore.NewKey(c, "Team", "", id, nil)
@@ -88,7 +88,7 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 }
 
 
-func Update(r *http.Request, id int64, t *Team) error{
+func Update(r *http.Request, id int64, t *Team) error {
 	c := appengine.NewContext(r)
 	k := KeyById(r, id)
 	if _, err := datastore.Put(c, k, t); err != nil {
@@ -122,4 +122,12 @@ func Join(r *http.Request, teamId int64, userId int64) error {
 
 func Leave(r *http.Request, teamId int64, userId int64) error {
 	return teamrelmdl.Destroy(r, teamId, userId)
+}
+
+func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
+	if team, err := ById(r, teamId); err == nil {
+		return team.AdminId == userId
+	}
+	
+	return false
 }

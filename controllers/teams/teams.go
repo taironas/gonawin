@@ -114,6 +114,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{
 		"Joined": func() bool { return teammdl.Joined(r, intID, auth.CurrentUser(r).Id) },
+		"IsTeamAdmin": func() bool { return teammdl.IsTeamAdmin(r, intID, auth.CurrentUser(r).Id) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_show").
@@ -145,18 +146,21 @@ func Show(w http.ResponseWriter, r *http.Request){
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+	}
+	
+	if !teammdl.IsTeamAdmin(r, intID, auth.CurrentUser(r).Id) {
+		http.Redirect(w, r, "/m", http.StatusFound)
+	}
+	
 	if r.Method == "GET" {
 
 		funcs := template.FuncMap{}
 		
-		t := template.Must(template.New("tmpl_team_show").
-			ParseFiles("templates/team/show.html", 
-			"templates/team/edit.html"))
-
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/teams/", http.StatusFound)
-		}
+		t := template.Must(template.New("tmpl_team_edit").
+			ParseFiles("templates/team/edit.html"))
 
 		var team *teammdl.Team
 		team, err = teammdl.ById(r, intID)
@@ -179,10 +183,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
 	}else if r.Method == "POST"{
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/teams/", http.StatusFound)
-		}
+		
 		var team *teammdl.Team
 		team, err = teammdl.ById(r,intID)
 		if err != nil{

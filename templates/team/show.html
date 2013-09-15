@@ -19,8 +19,10 @@
 	<dd>{{.Private}}</dd>
 </dl>
 
+{{if IsTeamAdmin}}
 <div class="form-actions">
 	<a href="/m/teams/{{.Id}}/edit" class="btn"><span>Edit</span></a>
 	<a href="/m/teams/{{.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
 </div>
+{{end}}
 {{end}}
