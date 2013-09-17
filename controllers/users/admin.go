@@ -26,6 +26,8 @@ import (
 
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	teammdl "github.com/santiaago/purple-wing/models/team"
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
 func AdminShow(w http.ResponseWriter, r *http.Request){
@@ -75,3 +77,61 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	}
 
 }
+
+func AdminSearch(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		t, err := template.ParseFiles("templates/admin/search.html")
+	
+		var buf bytes.Buffer
+		err = t.ExecuteTemplate(&buf,"tmpl_admin_search", nil)
+		adminSearch := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template admin_search: %v", err)
+		}
+		
+		err = templateshlp.Render(w, r, adminSearch, nil, "renderAdminSearch")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+	}else if r.Method == "POST"{
+		parseTeams := r.FormValue("ParseTeams")
+		parseTournaments := r.FormValue("ParseTournaments")
+
+		if(parseTeams == "ParseTeams"){
+			c.Infof("ParseTeams selected : %v", parseTeams)
+			// Clean inverse index table of teams
+			// parse teams an build inverse index table of teams
+			teams := teammdl.FindAll(r)
+			c.Infof("teams: %v", teams)
+			for _,t := range teams{
+				c.Infof("Key: %v", t.Id)
+				c.Infof("Name: %v", t.Name)
+			}
+		}else if(parseTournaments == "ParseTournaments"){
+			c.Infof("ParseTournaments selected : %v", parseTournaments)
+			// Clean inverse index table of tournaments
+			// parse teams an build inverse index table of tournaments
+			tournaments := tournamentmdl.FindAll(r)
+			c.Infof("teams: %v", tournaments)
+			for _,t := range tournaments{
+				c.Infof("Key: %v", t.Id)
+				c.Infof("Name: %v", t.Name)
+			}
+		} else {
+			http.Redirect(w,r, "/m/a/", http.StatusFound)
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+

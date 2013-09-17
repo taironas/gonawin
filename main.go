@@ -30,11 +30,13 @@ import (
 
 func init(){
 	h := new(handlers.RegexpHandler)
+
 	// usual pages
 	h.HandleFunc("/", pagesctrl.TempHome)
 	h.HandleFunc("/m/?", pagesctrl.Home)
 	h.HandleFunc("/m/about/?", pagesctrl.About)
 	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
+
 	// session
 	h.HandleFunc("/m/auth/?", sessionsctrl.Authenticate)
 	h.HandleFunc("/m/auth/google/?", sessionsctrl.AuthenticateWithGoogle)
@@ -42,22 +44,28 @@ func init(){
 	h.HandleFunc("/m/auth/twitter/?", sessionsctrl.AuthenticateWithTwitter)
 	h.HandleFunc("/m/auth/twitter/callback/?", sessionsctrl.TwitterAuthCallback)
 	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
+
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
 	h.HandleFunc("/m/users/[0-9]+/edit/?", handlers.User(usersctrl.Edit))
+
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
+	h.HandleFunc("/m/a/search/?", handlers.Admin(usersctrl.AdminSearch))
+
 	// team
 	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.Index))
 	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
 	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
+
 	// tournament
 	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))
 	h.HandleFunc("/m/tournaments/new/?", handlers.User(tournamentsctrl.New))
 	h.HandleFunc("/m/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.Show))
 	h.HandleFunc("/m/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.Edit))
+
 	// team relationships
 	h.HandleFunc("/m/teamrels/[0-9]+/?", handlers.User(teamrelsctrl.Show))
 
