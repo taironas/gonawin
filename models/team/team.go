@@ -26,7 +26,6 @@ import (
 	
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
-	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Team struct {
@@ -134,19 +133,4 @@ func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
 	}
 	
 	return false
-}
-
-func Players(r *http.Request, teamId int64) []*usermdl.User {
-	
-	var users []*usermdl.User
-	
-	teamRels := teamrelmdl.FindByTeamId(r, teamId)
-	
-	for _, teamRel := range teamRels {
-		user, _ := usermdl.ById(r, teamRel.UserId)
-		
-		users = append(users, user)
-	}
-
-	return users
 }

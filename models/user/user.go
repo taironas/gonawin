@@ -24,6 +24,9 @@ import (
 	
 	"appengine"
 	"appengine/datastore"
+	
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 type User struct {
@@ -140,4 +143,19 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	}
 	
 	return nil, err
+}
+
+func Teams(r *http.Request, userId int64) []*teammdl.Team {
+	
+	var teams []*teammdl.Team
+	
+	teamRels := teamrelmdl.Find(r, "UserId", userId)
+	
+	for _, teamRel := range teamRels {
+		team, _ := teammdl.ById(r, teamRel.TeamId)
+		
+		teams = append(teams, team)
+	}
+
+	return teams
 }
