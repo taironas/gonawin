@@ -26,8 +26,6 @@ import (
 
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
-	teammdl "github.com/santiaago/purple-wing/models/team"
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
 func AdminShow(w http.ResponseWriter, r *http.Request){

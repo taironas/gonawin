@@ -50,7 +50,10 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
-
+	// create inverted indexes for this teamID
+	// to do this split words in name
+	// for each word check if it exist in the table if not create a line with
+	// word as key and team id as value
 	return team
 }
 

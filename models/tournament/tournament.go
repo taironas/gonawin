@@ -48,6 +48,11 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
+	
+	// create inverted indexes for this tournamentID
+	// to do this split words in name
+	// for each word check if it exist in the table if not create a line with
+	// word as key and tournament id as value
 
 	return tournament
 }
