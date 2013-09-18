@@ -96,34 +96,7 @@ func AdminSearch(w http.ResponseWriter, r *http.Request){
 		if err != nil{
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
-	}else if r.Method == "POST"{
-		parseTeams := r.FormValue("ParseTeams")
-		parseTournaments := r.FormValue("ParseTournaments")
-
-		if(parseTeams == "ParseTeams"){
-			c.Infof("ParseTeams selected : %v", parseTeams)
-			// Clean inverse index table of teams
-			// parse teams an build inverse index table of teams
-			teams := teammdl.FindAll(r)
-			c.Infof("teams: %v", teams)
-			for _,t := range teams{
-				c.Infof("Key: %v", t.Id)
-				c.Infof("Name: %v", t.Name)
-			}
-		}else if(parseTournaments == "ParseTournaments"){
-			c.Infof("ParseTournaments selected : %v", parseTournaments)
-			// Clean inverse index table of tournaments
-			// parse teams an build inverse index table of tournaments
-			tournaments := tournamentmdl.FindAll(r)
-			c.Infof("teams: %v", tournaments)
-			for _,t := range tournaments{
-				c.Infof("Key: %v", t.Id)
-				c.Infof("Name: %v", t.Name)
-			}
-		} else {
-			http.Redirect(w,r, "/m/a/", http.StatusFound)
-		}
-	}
+	}	
 }
 
 
