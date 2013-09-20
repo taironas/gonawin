@@ -73,16 +73,16 @@ func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRel
 	return nil
 }
 
-func FindByTeamId(r *http.Request, teamId int64) []*TeamRelationship {
-	c := appengine.NewContext(r)
+func Find(r *http.Request, filter string, value interface{}) []*TeamRelationship{
+	c:= appengine.NewContext(r)
 	
-	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId)
-
+	q := datastore.NewQuery("TeamRelationship").Filter(filter + " =", value)
+	
 	var teamRels []*TeamRelationship
-
+	
 	if _, err := q.GetAll(c, &teamRels); err != nil {
-		c.Errorf("pw: error occurend in teamrel.FindByTeamId: %v", err)
+		c.Errorf("pw: error occured in teamrel.Find: %v", err)
 	}
-
+	
 	return teamRels
 }

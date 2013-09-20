@@ -28,6 +28,8 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
+	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
@@ -131,7 +133,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	players := teammdl.Players(r, intID)
+	players := teamrelshlp.Players(r, intID)
 	
 	teamData := struct { 
 		Team *teammdl.Team
@@ -142,7 +144,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_team_show", teamData)
+	err = t.ExecuteTemplate(&buf, "tmpl_team_show", teamData)
 	show := buf.Bytes()
 	
 	if err != nil{

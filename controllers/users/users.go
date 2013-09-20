@@ -27,7 +27,10 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 type Form struct {
@@ -42,6 +45,11 @@ type Form struct {
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/users/", http.StatusFound)
+	}
+	
 	funcs := template.FuncMap{
 		"Profile": func() bool {return true},
 	}
@@ -49,21 +57,28 @@ func Show(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_user_show").
 		Funcs(funcs).
 		ParseFiles("templates/user/show.html", 
-		"templates/user/info.html"))
+		"templates/user/info.html",
+		"templates/user/teams.html"))
 
-	intID, err := handlers.PermalinkID(r,3)
-	if err != nil{
-		http.Redirect(w,r, "/m/users/", http.StatusFound)
-	}
 	var user *usermdl.User
 	user, err = usermdl.ById(r,intID)
 	if err != nil{
 		helpers.Error404(w)
 		return
 	}
+	
+	teams := teamrelshlp.Teams(r, intID)
+	
+	userData := struct { 
+		User *usermdl.User
+		Teams []*teammdl.Team 
+	}{
+		user,
+		teams,
+	}
 
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_user_show", *user)
+	err = t.ExecuteTemplate(&buf, "tmpl_user_show", userData)
 	show := buf.Bytes()
 	
 	if err != nil{
@@ -79,21 +94,22 @@ func Show(w http.ResponseWriter, r *http.Request){
 func Edit(w http.ResponseWriter, r *http.Request){
 	
 	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/users/", http.StatusFound)
+	}
 
 	if r.Method == "GET" {
 		funcs := template.FuncMap{
 			"Profile": func() bool {return true},
 		}
 		
-		t := template.Must(template.New("tmpl_user_show").
+		t := template.Must(template.New("tmpl_user_edit").
 			Funcs(funcs).
-			ParseFiles("templates/user/show.html", 
-			"templates/user/edit.html"))
+			ParseFiles("templates/user/edit.html"))
 		
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/users/", http.StatusFound)
-		}
+		
 		var user *usermdl.User
 		user, err = usermdl.ById(r,intID)
 		if err != nil{
@@ -114,10 +130,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
 	}else if r.Method == "POST"{
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/users/", http.StatusFound)
-		}
+		
 		var user *usermdl.User
 		user, err = usermdl.ById(r,intID)
 		if err != nil{
