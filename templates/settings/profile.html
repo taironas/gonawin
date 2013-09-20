@@ -1,0 +1,43 @@
+{{define "tmpl_settings_profile"}}
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span3">
+		<ul class="nav nav-list">
+		  <li class="active"><a href="/m/settings/edit-profile">Profile Settings</a></li>
+		  <li><a href="/m/settings/networks">Connected Networks</a></li>
+		  <li><a href="/m/settings/email">Email Notifications</a></li>
+		</ul>
+	</div>
+    <div class="span9">
+		<div class="page-header">
+			<h1>Profile Settings</h1>
+		</div>
+		<form accept-charset="UTF-8" action="/m/users/{{.Id}}/edit" class="form-horizontal" method="post">
+			<div class="control-group">
+				<label class="control-label" for="user_id">Username</label>
+				<div class="controls">
+					<input class="text_field" id="user_username" name="Username" size="30" type="text" value="{{.Username}}" readonly="readonly" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="user_name">Name</label>
+				<div class="controls">
+					<input class="text_field" id="user_name" name="Name" size="30" type="text" value="{{.Name}}" readonly="readonly" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="user_email">Email</label>
+				<div class="controls">
+					<input class="text_field" id="user_email" name="Email" size="30" type="text" value="{{.Email}}"/>
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<input class="btn btn-primary" name="commit" type="submit" value="Update User" />
+				<a href="/m/users/{{.Id}}" class="btn">Cancel</a>
+			</div>
+		</form>
+	</div>
+  </div>
+</div>
+{{end}}

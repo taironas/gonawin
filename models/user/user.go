@@ -99,9 +99,9 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 	return key
 }
 
-func Update(r *http.Request, id int64, u *User) error{
+func Update(r *http.Request, u *User) error{
 	c := appengine.NewContext(r)
-	k := KeyById(r, id)
+	k := KeyById(r, u.Id)
 	if _, err := datastore.Put(c, k, u); err != nil {
 		return err
 	}
