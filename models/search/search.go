@@ -18,6 +18,7 @@ package search
 
 import (
 	"net/http"
+	//"strings"
 
 	"appengine"
 	"appengine/datastore"
@@ -25,49 +26,84 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 )
 
-type TermsTeam struct {
+type TeamInvertedIndex struct {
 	Id int64
 	KeyName string
 	TeamIds []byte
 }
 
-type TermsTournament struct {
+type TournamentInvertedIndex struct {
 	Id int64
 	KeyName string
 	TeamIds []byte
 }
 
-func CreateTeamTerm(r *http.Request, name string, teamIds string) *TermsTeam {
+func CreateTeamInvertedIndex(r *http.Request, name string, teamIds string) *TeamInvertedIndex {
 	c := appengine.NewContext(r)
 	
-	termsTeamId, _, _ := datastore.AllocateIDs(c, "TermsTeam", nil, 1)
-	key := datastore.NewKey(c, "TermsTeam", "", termsTeamId, nil)
+	id, _, _ := datastore.AllocateIDs(c, "TeamInvertedIndex", nil, 1)
+	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
 	
 	byteIds := []byte(teamIds)
-	termsteam := &TermsTeam{ termsTeamId, helpers.TrimLower(name), byteIds }
+	t := &TeamInvertedIndex{ id, helpers.TrimLower(name), byteIds }
 
-	_, err := datastore.Put(c, key, termsteam)
+	_, err := datastore.Put(c, key, t)
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
 
-	return termsteam
+	return t
 }
 
 
-func CreateTournamentTerm(r *http.Request, name string, tournamentIds string) *TermsTournament {
+func CreateTournamentInvertedIndex(r *http.Request, name string, tournamentIds string) *TournamentInvertedIndex {
 	c := appengine.NewContext(r)
 	
-	termsTournamentId, _, _ := datastore.AllocateIDs(c, "TermsTournament", nil, 1)
-	key := datastore.NewKey(c, "TermsTournament", "", termsTournamentId, nil)
+	id, _, _ := datastore.AllocateIDs(c, "TournamentInvertedIndex", nil, 1)
+	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
 	
 	byteIds := []byte(tournamentIds)
-	termstournament := &TermsTournament{ termsTournamentId, helpers.TrimLower(name), byteIds }
+	t := &TournamentInvertedIndex{ id, helpers.TrimLower(name), byteIds }
 
-	_, err := datastore.Put(c, key, termstournament)
+	_, err := datastore.Put(c, key, t)
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
 
-	return termstournament
+	return t
 }
+
+func AddToTeamInvertedIndex(r *http.Request, name string, id int64){
+	// create inverted indexes for this teamID
+	// to do this split words in name
+	// for each word check if it exist in the table if not create a line with
+	// word as key and team id as value
+
+	//words := strings.Split(name, " ")
+	//for _; w: words;{
+	//	
+	//}
+}
+
+func AddTournamentInvertedIndex(r *http.Request, name string, id int64){
+	//words := strings.Split(name, " ")	
+	// create inverted indexes for this tournamentID
+	// to do this split words in name
+	// for each word check if it exist in the table if not create a line with
+	// word as key and tournament id as value
+}
+
+func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, id int64){
+	
+}
+
+func UpdateTournamentInvertedIndex(r *http.Request, oldname string, newname string, id int64){
+	
+}
+
+
+
+
+
+
+

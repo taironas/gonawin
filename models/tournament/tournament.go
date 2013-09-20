@@ -24,6 +24,7 @@ import (
 	"appengine/datastore"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
 type Tournament struct {
@@ -49,11 +50,7 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 		c.Errorf("Create: %v", err)
 	}
 	
-	// create inverted indexes for this tournamentID
-	// to do this split words in name
-	// for each word check if it exist in the table if not create a line with
-	// word as key and tournament id as value
-
+	searchmdl.AddTournamentInvertedIndex(r, helpers.TrimLower(name),tournamentID)
 	return tournament
 }
 
@@ -94,10 +91,12 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 
 func Update(r *http.Request, id int64, t *Tournament) error{
 	c := appengine.NewContext(r)
+	// TODO: get old name before updating
 	k := KeyById(r, id)
 	if _, err := datastore.Put(c, k, t); err != nil {
 		return err
 	}
+	//searchmdl.UpdateTournamentInvertedIndex(r, oldname, newname, id)
 	return nil
 }
 
@@ -110,3 +109,11 @@ func FindAll(r *http.Request) []*Tournament {
 	
 	return tournaments
 }
+
+
+
+
+
+
+
+

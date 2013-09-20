@@ -27,6 +27,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
 type Team struct {
@@ -50,10 +51,8 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
-	// create inverted indexes for this teamID
-	// to do this split words in name
-	// for each word check if it exist in the table if not create a line with
-	// word as key and team id as value
+	searchmdl.AddToTeamInvertedIndex(r, helpers.TrimLower(name), teamId)
+
 	return team
 }
 
@@ -94,10 +93,12 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 
 func Update(r *http.Request, id int64, t *Team) error {
 	c := appengine.NewContext(r)
+	// TODO: get old name before updating team
 	k := KeyById(r, id)
 	if _, err := datastore.Put(c, k, t); err != nil {
 		return err
 	}
+	//searchmdl.UpdateToTeamInvertedIndex(r, oldname, newname, id)
 	return nil
 }
 
