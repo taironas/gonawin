@@ -140,14 +140,47 @@ func AddTournamentInvertedIndex(r *http.Request, name string, id int64){
 			}
 		}
 	}
-	c.Infof("pw: AddToTournamentInvertedIndex end")
-	
-
-
+	c.Infof("pw: AddToTournamentInvertedIndex end")	
 }
 
 func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, id int64){
-	
+	c := appengine.NewContext(r)
+	c.Infof("pw: UpdateToTeamInvertedIndex start")
+
+	// if word in old and new do nothing
+	old_w := strings.Split(oldname," ")
+	new_w := strings.Split(newname, " ")
+
+	// remove id  from words in old name that are not present in new name
+	for _, wo := range old_w{
+		innew := false
+		for _, wn := range new_w{
+			if wo == wn{
+				innew = true
+			}
+		}
+		if !innew{
+			c.Infof("remove: %v",wo)
+			//remove it
+		}
+	}
+
+	// add all id words in new name
+	for _, wn := range new_w{
+		inold := false
+		for _, wo := range old_w{
+			if wo == wn{
+				inold = true
+			}
+		}
+		if !inold{
+			// add it
+			c.Infof("add: %v", wn)
+		}
+	}
+
+	c.Infof("pw: AddToTeamInvertedIndex end")	
+
 }
 
 func UpdateTournamentInvertedIndex(r *http.Request, oldname string, newname string, id int64){
