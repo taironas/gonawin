@@ -26,7 +26,7 @@ import (
 	
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	//usermdl "github.com/santiaago/purple-wing/models/user"
 	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
