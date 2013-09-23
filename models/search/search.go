@@ -84,20 +84,20 @@ func AddToTeamInvertedIndex(r *http.Request, name string, id int64){
 	c.Infof("pw: AddToTeamInvertedIndex start")
 	words := strings.Split(name, " ")
 	for _, w:= range words{
-		c.Infof("AddToTeamInvertedIndex: Word: %v", w)
+		c.Infof("pw: AddToTeamInvertedIndex: Word: %v", w)
 
-		if inv_id := FindTeam(r, "KeyName", w); inv_id == nil{
-			c.Infof("create inv id as word does not exist in table")
+		if inv_id := FindTeamInvertedIndex(r, "KeyName", w); inv_id == nil{
+			c.Infof("pw: create inv id as word does not exist in table")
 			CreateTeamInvertedIndex(r, w, strconv.FormatInt(id, 10))
 		} else{
 			// update row with new info
-			c.Infof("update row with new info")
-			c.Infof("current info: keyname: %v", inv_id.KeyName)
-			c.Infof("current info: teamIDs: %v", string(inv_id.TeamIds))
-			k := KeyByIdTeam(r, inv_id.Id)
+			c.Infof("pw: update row with new info")
+			c.Infof("pw: current info: keyname: %v", inv_id.KeyName)
+			c.Infof("pw: current info: teamIDs: %v", string(inv_id.TeamIds))
+			k := KeyByIdTeamInvertedIndex(r, inv_id.Id)
 
 			if newIds := mergeIds(inv_id.TeamIds, id);len(newIds) > 0{
-				c.Infof("current info: new team ids: %v", newIds)
+				c.Infof("pw: current info: new team ids: %v", newIds)
 				inv_id.TeamIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, inv_id);err != nil{
 					c.Errorf("pw: AddToTeamInvertedIndex error on update")
@@ -119,20 +119,20 @@ func AddTournamentInvertedIndex(r *http.Request, name string, id int64){
 	c.Infof("pw: AddToTournamentInvertedIndex start")
 	words := strings.Split(name, " ")
 	for _, w:= range words{
-		c.Infof("AddToTournamentInvertedIndex: Word: %v", w)
+		c.Infof("pw: AddToTournamentInvertedIndex: Word: %v", w)
 
-		if inv_id := FindTournament(r, "KeyName", w); inv_id == nil{
-			c.Infof("create inv id as word does not exist in table")
+		if inv_id := FindTournamentInvertedIndex(r, "KeyName", w); inv_id == nil{
+			c.Infof("pw: create inv id as word does not exist in table")
 			CreateTournamentInvertedIndex(r, w, strconv.FormatInt(id, 10))
 		} else{
 			// update row with new info
-			c.Infof("update row with new info")
-			c.Infof("current info: keyname: %v", inv_id.KeyName)
-			c.Infof("current info: teamIDs: %v", string(inv_id.TournamentIds))
-			k := KeyByIdTournament(r, inv_id.Id)
+			c.Infof("pw: update row with new info")
+			c.Infof("pw: current info: keyname: %v", inv_id.KeyName)
+			c.Infof("pw: current info: teamIDs: %v", string(inv_id.TournamentIds))
+			k := KeyByIdTournamentInvertedIndex(r, inv_id.Id)
 
 			if newIds := mergeIds(inv_id.TournamentIds, id);len(newIds) > 0{
-				c.Infof("current info: new team ids: %v", newIds)
+				c.Infof("pw: current info: new team ids: %v", newIds)
 				inv_id.TournamentIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, inv_id);err != nil{
 					c.Errorf("pw: AddToTournamentInvertedIndex error on update")
@@ -142,7 +142,8 @@ func AddTournamentInvertedIndex(r *http.Request, name string, id int64){
 	}
 	c.Infof("pw: AddToTournamentInvertedIndex end")	
 }
-
+// from the oldname and the new name we handle removal of words no longer present.
+// the addition of new words.
 func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, id int64){
 	c := appengine.NewContext(r)
 	c.Infof("pw: UpdateToTeamInvertedIndex start")
@@ -160,7 +161,8 @@ func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, 
 			}
 		}
 		if !innew{
-			c.Infof("remove: %v",wo)
+			c.Infof("pw: remove: %v",wo)
+			RemoveWordFromTeamInvertedIndex(r, wo, id)
 			//remove it
 		}
 	}
@@ -175,7 +177,8 @@ func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, 
 		}
 		if !inold{
 			// add it
-			c.Infof("add: %v", wn)
+			c.Infof("pw: add: %v", wn)
+			AddWordToTeamInvertedIndex(r, wn, id)
 		}
 	}
 
@@ -183,11 +186,50 @@ func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, 
 
 }
 
+// if the removal of the id makes the entity useless (no more ids in it)
+// we will remove the entity as well
+func RemoveWordFromTeamInvertedIndex(r *http.Request, w string, id int64){
+
+	c := appengine.NewContext(r)
+	c.Infof("pw: RemoveWordFromTeamInvertedIndex start")
+
+	if inv_id := FindTeamInvertedIndex(r, "KeyName", w); inv_id == nil{
+		c.Infof("pw: word %v does not exist in Team InvertedIndex so nothing to remove",w)
+	} else{
+		// update row with new info
+		k := KeyByIdTeamInvertedIndex(r, inv_id.Id)
+
+		if newIds, err := removeFromIds(inv_id.TeamIds, id); err == nil{
+			c.Infof("pw: new team ids after removal: %v", newIds)
+			if len(newIds) == 0{
+				// this entity does not have ids so remove it from the datastore.
+				c.Infof("pw: removing key %v from datastore as it is no longer used", k)
+				datastore.Delete(c, k)
+			}else{
+				inv_id.TeamIds  = []byte(newIds)
+				if _, err := datastore.Put(c, k, inv_id);err != nil{
+					c.Errorf("pw: RemoveWordFromTeamInvertedIndex error on update")
+				}
+			}
+		}else{
+			c.Errorf("pw: unable to remove id from ids: %v",err)
+		}
+	}
+	c.Infof("pw: RemoveWordFromTeamInvertedIndex end")
+	
+}
+
+// add word to team inverted index is handled the same way as AddToTeamInvertedIndex.
+// we add this function for clarity
+func AddWordToTeamInvertedIndex(r *http.Request, word string, id int64){
+	AddToTeamInvertedIndex(r, word, id)
+}
+
 func UpdateTournamentInvertedIndex(r *http.Request, oldname string, newname string, id int64){
 	
 }
 
-func FindTeam(r *http.Request, filter string, value interface{}) *TeamInvertedIndex {
+func FindTeamInvertedIndex(r *http.Request, filter string, value interface{}) *TeamInvertedIndex {
 	q := datastore.NewQuery("TeamInvertedIndex").Filter(filter + " =", value).Limit(1)
 	
 	var t[]*TeamInvertedIndex
@@ -200,7 +242,7 @@ func FindTeam(r *http.Request, filter string, value interface{}) *TeamInvertedIn
 }
 
 
-func FindTournament(r *http.Request, filter string, value interface{}) *TournamentInvertedIndex {
+func FindTournamentInvertedIndex(r *http.Request, filter string, value interface{}) *TournamentInvertedIndex {
 	q := datastore.NewQuery("TournamentInvertedIndex").Filter(filter + " =", value).Limit(1)
 	
 	var t[]*TournamentInvertedIndex
@@ -212,7 +254,7 @@ func FindTournament(r *http.Request, filter string, value interface{}) *Tourname
 	return nil
 }
 
-func KeyByIdTeam(r *http.Request, id int64) (*datastore.Key) {
+func KeyByIdTeamInvertedIndex(r *http.Request, id int64) (*datastore.Key) {
 	c := appengine.NewContext(r)
 
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
@@ -220,7 +262,7 @@ func KeyByIdTeam(r *http.Request, id int64) (*datastore.Key) {
 	return key
 }
 
-func KeyByIdTournament(r *http.Request, id int64) (*datastore.Key) {
+func KeyByIdTournamentInvertedIndex(r *http.Request, id int64) (*datastore.Key) {
 	c := appengine.NewContext(r)
 
 	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
@@ -242,4 +284,22 @@ func mergeIds(teamIds []byte, id int64) string{
 		}
 	}
 	return strTeamIds + " " + strId
+}
+
+// remove id from slice of byte with ids.
+func removeFromIds(teamIds []byte, id int64)(string,error){
+	strTeamIds := string(teamIds)
+	strIds := strings.Split(strTeamIds, " ")
+	strId := strconv.FormatInt(id, 10)
+	strRet := ""
+	for _,val := range strIds{
+		if val != strId{
+			if len(strRet)==0{
+				strRet = val
+			}else{
+				strRet = strRet + " " + val
+			}
+		}
+	}
+	return strRet, nil
 }
