@@ -50,7 +50,7 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 		c.Errorf("Create: %v", err)
 	}
 	
-	searchmdl.AddTournamentInvertedIndex(r, helpers.TrimLower(name),tournamentID)
+	searchmdl.AddToTournamentInvertedIndex(r, helpers.TrimLower(name),tournamentID)
 	return tournament
 }
 
@@ -91,12 +91,14 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 
 func Update(r *http.Request, id int64, t *Tournament) error{
 	c := appengine.NewContext(r)
-	// TODO: get old name before updating
 	k := KeyById(r, id)
-	if _, err := datastore.Put(c, k, t); err != nil {
-		return err
+	oldTournament := new(Tournament)
+	if err := datastore.Get(c, k, oldTournament); err == nil{
+		if _, err = datastore.Put(c, k, t); err != nil {
+			return err
+		}
+		searchmdl.UpdateTournamentInvertedIndex(r, oldTournament.Name, t.Name, id)
 	}
-	//searchmdl.UpdateTournamentInvertedIndex(r, oldname, newname, id)
 	return nil
 }
 

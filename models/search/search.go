@@ -113,7 +113,7 @@ func AddToTeamInvertedIndex(r *http.Request, name string, id int64){
 // Split name by words.
 // For each word check if it exist in the Tournament Inverted Index. 
 // if not create a line with the word as key and team id as value.
-func AddTournamentInvertedIndex(r *http.Request, name string, id int64){
+func AddToTournamentInvertedIndex(r *http.Request, name string, id int64){
 
 	c := appengine.NewContext(r)
 	c.Infof("pw: AddToTournamentInvertedIndex start")
@@ -219,13 +219,92 @@ func RemoveWordFromTeamInvertedIndex(r *http.Request, w string, id int64){
 	
 }
 
+// if the removal of the id makes the entity useless (no more ids in it)
+// we will remove the entity as well
+func RemoveWordFromTournamentInvertedIndex(r *http.Request, w string, id int64){
+
+	c := appengine.NewContext(r)
+	c.Infof("pw: RemoveWordFromTournamentInvertedIndex start")
+
+	if inv_id := FindTournamentInvertedIndex(r, "KeyName", w); inv_id == nil{
+		c.Infof("pw: word %v does not exist in Tournament InvertedIndex so nothing to remove",w)
+	} else{
+		// update row with new info
+		k := KeyByIdTournamentInvertedIndex(r, inv_id.Id)
+
+		if newIds, err := removeFromIds(inv_id.TournamentIds, id); err == nil{
+			c.Infof("pw: new tournament ids after removal: %v", newIds)
+			if len(newIds) == 0{
+				// this entity does not have ids so remove it from the datastore.
+				c.Infof("pw: removing key %v from datastore as it is no longer used", k)
+				datastore.Delete(c, k)
+			}else{
+				inv_id.TournamentIds  = []byte(newIds)
+				if _, err := datastore.Put(c, k, inv_id);err != nil{
+					c.Errorf("pw: RemoveWordFromTournamentInvertedIndex error on update")
+				}
+			}
+		}else{
+			c.Errorf("pw: unable to remove id from ids: %v",err)
+		}
+	}
+	c.Infof("pw: RemoveWordFromTournamentInvertedIndex end")
+	
+}
+
+
 // add word to team inverted index is handled the same way as AddToTeamInvertedIndex.
 // we add this function for clarity
 func AddWordToTeamInvertedIndex(r *http.Request, word string, id int64){
 	AddToTeamInvertedIndex(r, word, id)
 }
 
+
+// add word to tournament inverted index is handled the same way as AddToTournamentInvertedIndex.
+// we add this function for clarity
+func AddWordToTournamentInvertedIndex(r *http.Request, word string, id int64){
+	AddToTournamentInvertedIndex(r, word, id)
+}
+
 func UpdateTournamentInvertedIndex(r *http.Request, oldname string, newname string, id int64){
+	c := appengine.NewContext(r)
+	c.Infof("pw: UpdateToTournamentInvertedIndex start")
+
+	// if word in old and new do nothing
+	old_w := strings.Split(oldname," ")
+	new_w := strings.Split(newname, " ")
+
+	// remove id  from words in old name that are not present in new name
+	for _, wo := range old_w{
+		innew := false
+		for _, wn := range new_w{
+			if wo == wn{
+				innew = true
+			}
+		}
+		if !innew{
+			c.Infof("pw: remove: %v",wo)
+			RemoveWordFromTournamentInvertedIndex(r, wo, id)
+			//remove it
+		}
+	}
+
+	// add all id words in new name
+	for _, wn := range new_w{
+		inold := false
+		for _, wo := range old_w{
+			if wo == wn{
+				inold = true
+			}
+		}
+		if !inold{
+			// add it
+			c.Infof("pw: add: %v", wn)
+			AddWordToTournamentInvertedIndex(r, wn, id)
+		}
+	}
+
+	c.Infof("pw: AddToTournamentInvertedIndex end")	
 	
 }
 
