@@ -210,12 +210,12 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		editPrivate := (r.FormValue("Visibility") == "Private")
 		c.Infof("pw: Name=%s, Private=%s", editName, editPrivate)
 
-		if helpers.IsUsernameValid(editName) && (editName != team.Name || editPrivate != team.Private) {
+		if helpers.IsStringValid(editName) && (editName != team.Name || editPrivate != team.Private) {
 			team.Name = editName
 			team.Private = editPrivate
 			teammdl.Update(r, intID, team)
 		}else{
-			c.Errorf("pw: cannot update %v", helpers.IsUsernameValid(editName))
+			c.Errorf("pw: cannot update isStringValid: %v", helpers.IsStringValid(editName))
 		}
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)

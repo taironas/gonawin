@@ -70,7 +70,7 @@ func Find(r *http.Request, filter string, value interface{}) *Team {
 
 func ById(r *http.Request, id int64) (*Team, error) {
 	c := appengine.NewContext(r)
-
+	c.Infof("pw: looking for %v",id)
 	var t Team
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
@@ -93,12 +93,16 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 
 func Update(r *http.Request, id int64, t *Team) error {
 	c := appengine.NewContext(r)
-	// TODO: get old name before updating team
+	c.Infof("Team.Update Start")
 	k := KeyById(r, id)
-	if _, err := datastore.Put(c, k, t); err != nil {
-		return err
+	oldTeam := new(Team)
+	if err := datastore.Get(c,k, oldTeam);err == nil{
+		if _, err = datastore.Put(c, k, t); err != nil {
+			return err
+		}
+		searchmdl.UpdateToTeamInvertedIndex(r, oldTeam.Name, t.Name, id)
 	}
-	//searchmdl.UpdateToTeamInvertedIndex(r, oldname, newname, id)
+	c.Infof("Team.Update End")
 	return nil
 }
 
