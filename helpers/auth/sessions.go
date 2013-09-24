@@ -25,31 +25,65 @@ import (
 	"time"
     
     "appengine"
+	"appengine/datastore"
     "appengine/memcache"
     
     usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
+type AuthKey struct {
+	Id int64
+	Key string
+	Value string
+	Created time.Time
+}
+
 func StoreAuthKey(r *http.Request, uid int64, auth string) {
     c := appengine.NewContext(r)
 	
+	uidStr := fmt.Sprintf("%d", uid)
+	
+	// create new team
+	authKeyId, _, _ := datastore.AllocateIDs(c, "AuthKey", nil, 1)
+	key := datastore.NewKey(c, "AuthKey", "", authKeyId, nil)
+
+	authKey := &AuthKey{ authKeyId, auth, uidStr, time.Now() }
+
+	_, err := datastore.Put(c, key, authKey)
+	if err != nil {
+		c.Errorf("pw: StoreAuthKey: %v", err)
+	}
+	
 	item := &memcache.Item{
         Key:   "auth:" + auth,
-        Value: []byte(fmt.Sprintf("%d", uid)),
+        Value: []byte(uidStr),
     }
     // Set the item, unconditionally
-    if err := memcache.Set(c, item); err != nil {
-        c.Errorf("pw: error setting item: %v", err)
-    }
+    if err := memcache.Set(c, item); err == memcache.ErrNotStored {
+		c.Infof("item with key %q already exists", item.Key)
+	} else if err != nil {
+		c.Errorf("error adding item: %v", err)
+	}
 }
 
 func fetchAuthKey(r *http.Request, auth string) string {
     c := appengine.NewContext(r)
 
     // Get the item from the memcache
-    if item, err := memcache.Get(c, "auth:"+auth); err == nil {
-        return fmt.Sprintf("%s", item.Value)
-    } 
+    if item, err := memcache.Get(c, "auth:"+auth); err == memcache.ErrCacheMiss {
+        // item doesn't exist in memcache, retrieve it in datastore
+		q := datastore.NewQuery("AuthKey").Filter("Key =", auth).Limit(1)
+	
+		var authKeys []*AuthKey
+		
+		if _, err := q.GetAll(appengine.NewContext(r), &authKeys); err == nil && len(authKeys) > 0 {
+			return authKeys[0].Value
+		}
+    } else if err != nil {
+		c.Errorf("pw: error getting item: %v", err)
+	} else {
+		return fmt.Sprintf("%s", item.Value)
+	}
     
     return ""
 }
