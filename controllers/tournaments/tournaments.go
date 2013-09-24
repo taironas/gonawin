@@ -189,11 +189,11 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		// only work on name other values should not be editable
 		editName := r.FormValue("Name")
 
-		if helpers.IsUsernameValid(editName) && editName != tournament.Name{
+		if helpers.IsStringValid(editName) && editName != tournament.Name{
 			tournament.Name = editName
 			tournamentmdl.Update(r, intID, tournament)
 		}else{
-			c.Errorf("pw: cannot update %v %v", helpers.IsUsernameValid(editName))
+			c.Errorf("pw: cannot update %v", helpers.IsStringValid(editName))
 		}
 		url := fmt.Sprintf("/m/tournaments/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
