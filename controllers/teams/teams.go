@@ -34,7 +34,7 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-type Form struct {
+type NewForm struct {
 	Name string
 	Private bool
 	Error string
@@ -49,20 +49,48 @@ func Index(w http.ResponseWriter, r *http.Request){
 	
 	t := template.Must(template.New("tmpl_team_index").
 		ParseFiles("templates/team/index.html"))
-	
-	teams := teammdl.FindAll(r)
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_team_index", teams)
-	index := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template team_index: %v", err)
-	}
+	if r.Method == "GET"{
+		teams := teammdl.FindAll(r)
+		indexData := struct { 
+			Teams []*teammdl.Team
+			TeamInputSearch string
+		}{
+			teams,
+			"",
+		}
+		var buf bytes.Buffer
+		err := t.ExecuteTemplate(&buf,"tmpl_team_index", indexData)
+		index := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template team_index: %v", err)
+		}
 
-	err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
+		err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+	}else if r.Method == "POST"{
+		teams := teammdl.FindAll(r)
+		indexData := struct { 
+			Teams []*teammdl.Team
+			TeamInputSearch string
+		}{
+			teams,
+			"q:"+r.FormValue("TeamInputSearch"),
+		}
+		var buf bytes.Buffer
+		err := t.ExecuteTemplate(&buf,"tmpl_team_index", indexData)
+		index := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template team_index: %v", err)
+		}
+
+		err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
 	}
 }
 
@@ -74,7 +102,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_team_new").
 		ParseFiles("templates/team/new.html"))
 	
-	var form Form
+	var form NewForm
 	if r.Method == "GET" {
 		form.Name = ""
 		form.Error = ""
