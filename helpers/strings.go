@@ -21,6 +21,58 @@ import (
 )
 
 // TrimLower returns a lower case slice of the string s, with all leading and trailing white space removed, as defined by Unicode.
-func TrimLower(s string) string {
+func TrimLower(s string) string{
 	return strings.TrimSpace(strings.ToLower(s))
 }
+
+func SetOfStrings(s string) []string{
+	slice := strings.Split(TrimLower(s), " ")
+	set := ""
+	for _,w := range slice{
+		if !StringContains(set, w){
+			if len(set) == 0{
+				set = w
+			}else{
+				set = set + " " + w
+			}
+		}
+	}
+	return strings.Split(set, " ")
+}
+
+func SliceContains(slice []string, s string)bool{
+	for _, w := range slice{
+		if w == s{
+			return true
+		}
+	}
+	return false
+}
+
+
+func StringContains(strToSplit string, s string)bool{
+	slice := strings.Split(strToSplit, " ")
+	for _, w := range slice{
+		if w == s{
+			return true
+		}
+	}
+	return false
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

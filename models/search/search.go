@@ -382,3 +382,75 @@ func removeFromIds(teamIds []byte, id int64)(string,error){
 	}
 	return strRet, nil
 }
+
+func TeamInvertedIndexes(r *http.Request, words []string)[]int64{
+	c := appengine.NewContext(r)
+
+	strMerge := ""
+	for _, w := range words{
+		l := ""
+		if res := FindTeamInvertedIndex(r, "KeyName", w);res !=nil{
+			strTeamIds := string(res.TeamIds)
+			if len(l) == 0{
+				l = strTeamIds
+			}else{
+				l = l + " " + strTeamIds
+			}
+		}
+		if len(strMerge) == 0{
+			strMerge = l
+		}else{
+			// build intersection between merge and l
+			strMerge = intersect(strMerge,l)
+		}
+	}
+	strIds := strings.Split(strMerge, " ")
+	intIds := make([]int64, len(strIds)) 
+
+	i := 0
+	for _, w := range strIds{
+		if n, err := strconv.ParseInt(w,10,64); err == nil{
+			intIds[i] = n
+			i = i + 1
+		}else{
+			c.Errorf("pw: unable to parse %v, error:%v", w, err)
+		}
+	}
+	return intIds	
+}
+
+func intersect(a string, b string) string{
+	sa := helpers.SetOfStrings(a)
+	sb := helpers.SetOfStrings(b)
+	intersect := ""
+	for _, val := range sa{
+		if helpers.SliceContains(sb,val){
+			if len(intersect)==0{
+				intersect = val
+			}else{
+				intersect = intersect + " " + val
+			}
+		}
+	}
+	return intersect
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

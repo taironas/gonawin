@@ -32,6 +32,7 @@ import (
 	
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
 type NewForm struct {
@@ -71,6 +72,10 @@ func Index(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
 	}else if r.Method == "POST"{
+		query := r.FormValue("TeamInputSearch")
+		words := helpers.SetOfStrings(query)
+		ids := searchmdl.TeamInvertedIndexes(r,words)
+		c.Infof("pw: search:%v Ids:%v",query, ids)
 		teams := teammdl.FindAll(r)
 		indexData := struct { 
 			Teams []*teammdl.Team
