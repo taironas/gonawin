@@ -18,6 +18,7 @@ package search
 
 import (
 	"net/http"
+	"math"
 	"strings"
 	"strconv"
 
@@ -419,6 +420,31 @@ func TeamInvertedIndexes(r *http.Request, words []string)[]int64{
 	return intIds	
 }
 
+func Score(r *http.Request, words []string, ids []int64){
+	//c := appengine.NewContext(r)
+	
+	nb_corpus := 100
+	i := 0
+	q := make([]float64, len(words))
+	for _,w := range words{
+		dft := 0
+		if inv_id := FindTeamInvertedIndex(r, "KeyName", w); inv_id != nil{
+			dft = len(strings.Split(string(inv_id.TeamIds), " "))
+		}
+		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(nb_corpus+1)/float64(dft+1))
+		i = i + 1
+	}
+}
+
+func countTerm(words []string, w string)int64{
+	var c int64 = 0
+	for _,wi := range words{
+		if wi == w{
+			c = c + 1
+		}
+	}
+	return c
+}
 func intersect(a string, b string) string{
 	sa := helpers.SetOfStrings(a)
 	sb := helpers.SetOfStrings(b)
@@ -434,23 +460,3 @@ func intersect(a string, b string) string{
 	}
 	return intersect
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
