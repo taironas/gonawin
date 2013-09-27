@@ -20,3 +20,18 @@ body {
 .search-box {
 	float: right;
 }
+
+#email {
+	width: 400px;
+	float: left;
+}
+
+#invite {
+	width: 350px;
+	float: right;
+}
+
+.email-body {
+	color: #cb8a41;
+	font-family: monospace;
+}

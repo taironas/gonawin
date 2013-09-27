@@ -18,6 +18,7 @@ package helpers
 
 import (
 	"regexp"
+	"strings"
 )
 
 // IsUsernameValid returns true is username is a string between 3 and 20 characters.
@@ -40,6 +41,16 @@ var EMAIL_RE = regexp.MustCompile(`^[\S]+@[\S]+\.[\S]+$`)
 func IsEmailValid(email string) bool{
 
 	return EMAIL_RE.MatchString(email)
+}
+
+func AreEmailsValid(emails []string) bool{
+	for _, email := range emails {
+		if !IsEmailValid(strings.TrimSpace(email)) {
+			return false
+		}
+	}
+	
+	return true
 }
 
 // IsStringValid returns true if string is not empty.

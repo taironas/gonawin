@@ -19,6 +19,8 @@ package pw
 import (
 	"net/http"
 
+	"github.com/santiaago/purple-wing/helpers/handlers"
+	
 	pagesctrl "github.com/santiaago/purple-wing/controllers/pages"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
@@ -26,7 +28,7 @@ import (
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
 	teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
 	settingsctrl "github.com/santiaago/purple-wing/controllers/settings"
-	"github.com/santiaago/purple-wing/helpers/handlers"
+	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 )
 
 func init(){
@@ -73,6 +75,9 @@ func init(){
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))
 	h.HandleFunc("/m/settings/networks/?", handlers.User(settingsctrl.Networks))
 	h.HandleFunc("/m/settings/email/?", handlers.User(settingsctrl.Email))
+	
+	// invite
+	h.HandleFunc("/m/invite/?", handlers.User(invitectrl.Email))
 	
 	http.Handle("/", h)
 }
