@@ -33,6 +33,7 @@ import (
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	searchmdl "github.com/santiaago/purple-wing/models/search"
+	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 )
 
 type NewForm struct {
@@ -74,7 +75,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 	}else if r.Method == "POST"{
 		query := r.FormValue("TeamInputSearch")
 		words := helpers.SetOfStrings(query)
-		ids := searchmdl.TeamInvertedIndexes(r,words)
+		ids := teaminvidmdl.GetIndexes(r,words)
 		c.Infof("pw: search:%v Ids:%v",query, ids)
 		searchmdl.Score(r, words, ids)
 

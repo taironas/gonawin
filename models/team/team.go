@@ -26,7 +26,7 @@ import (
 	
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
-	searchmdl "github.com/santiaago/purple-wing/models/search"
+	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 )
 
 type Team struct {
@@ -56,7 +56,7 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 		c.Errorf("Create: %v", err)
 	}
 	// udpate inverted index
-	searchmdl.AddToTeamInvertedIndex(r, helpers.TrimLower(name), teamId)
+	teaminvidmdl.Add(r, helpers.TrimLower(name), teamId)
 	// update team counter
 	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
 		var err1 error
@@ -114,7 +114,7 @@ func Update(r *http.Request, id int64, t *Team) error {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
-		searchmdl.UpdateToTeamInvertedIndex(r, oldTeam.Name, t.Name, id)
+		teaminvidmdl.Update(r, oldTeam.Name, t.Name, id)
 	}
 	c.Infof("Team.Update End")
 	return nil

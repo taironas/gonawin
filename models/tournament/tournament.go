@@ -24,7 +24,7 @@ import (
 	"appengine/datastore"
 	
 	"github.com/santiaago/purple-wing/helpers"
-	searchmdl "github.com/santiaago/purple-wing/models/search"
+	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 )
 
 type Tournament struct {
@@ -36,6 +36,11 @@ type Tournament struct {
 	End time.Time
 	Created time.Time
 }
+
+type CounterTournament struct {
+	Count int64
+}
+
 
 func Create(r *http.Request, name string, description string, start time.Time, end time.Time ) *Tournament {
 	c := appengine.NewContext(r)
@@ -50,7 +55,7 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 		c.Errorf("Create: %v", err)
 	}
 	
-	searchmdl.AddToTournamentInvertedIndex(r, helpers.TrimLower(name),tournamentID)
+	tournamentinvidmdl.Add(r, helpers.TrimLower(name),tournamentID)
 	return tournament
 }
 
@@ -97,7 +102,7 @@ func Update(r *http.Request, id int64, t *Tournament) error{
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
-		searchmdl.UpdateTournamentInvertedIndex(r, oldTournament.Name, t.Name, id)
+		tournamentinvidmdl.Update(r, oldTournament.Name, t.Name, id)
 	}
 	return nil
 }
