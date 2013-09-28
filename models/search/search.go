@@ -40,6 +40,15 @@ type TournamentInvertedIndex struct {
 	TournamentIds []byte
 }
 
+type WordCountTeam struct{
+	Count int64
+}
+
+type WordCountTournament struct{
+	Id int64
+	Count int64
+}
+
 func CreateTeamInvertedIndex(r *http.Request, word string, teamIds string) *TeamInvertedIndex {
 	c := appengine.NewContext(r)
 	c.Infof("pw: CreateTeamInvertedIndex")
@@ -53,10 +62,18 @@ func CreateTeamInvertedIndex(r *http.Request, word string, teamIds string) *Team
 	if err != nil {
 		c.Errorf("pw: CreateTeamInvertedIndex: %v", err)
 	}
-
+	// increment counter
+	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
+		var err1 error
+		_, err1 = IncrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
+		return err1
+	}, nil)
+	if errIncrement != nil {
+		c.Errorf("pw: Error incrementing WordCountTeam")
+	}
+	
 	return t
 }
-
 
 func CreateTournamentInvertedIndex(r *http.Request, name string, tournamentIds string) *TournamentInvertedIndex {
 	c := appengine.NewContext(r)
@@ -164,7 +181,6 @@ func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, 
 		if !innew{
 			c.Infof("pw: remove: %v",wo)
 			RemoveWordFromTeamInvertedIndex(r, wo, id)
-			//remove it
 		}
 	}
 
@@ -177,7 +193,6 @@ func UpdateToTeamInvertedIndex(r *http.Request, oldname string, newname string, 
 			}
 		}
 		if !inold{
-			// add it
 			c.Infof("pw: add: %v", wn)
 			AddWordToTeamInvertedIndex(r, wn, id)
 		}
@@ -206,6 +221,15 @@ func RemoveWordFromTeamInvertedIndex(r *http.Request, w string, id int64){
 				// this entity does not have ids so remove it from the datastore.
 				c.Infof("pw: removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
+				// decrement word counter
+				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
+					var err1 error
+					_, err1 = DecrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
+					return err1
+				}, nil)
+				if errDec != nil {
+					c.Errorf("pw: Error decrementing WordCountTeam")
+				}
 			}else{
 				inv_id.TeamIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, inv_id);err != nil{
@@ -216,8 +240,7 @@ func RemoveWordFromTeamInvertedIndex(r *http.Request, w string, id int64){
 			c.Errorf("pw: unable to remove id from ids: %v",err)
 		}
 	}
-	c.Infof("pw: RemoveWordFromTeamInvertedIndex end")
-	
+	c.Infof("pw: RemoveWordFromTeamInvertedIndex end")	
 }
 
 // if the removal of the id makes the entity useless (no more ids in it)
@@ -253,13 +276,11 @@ func RemoveWordFromTournamentInvertedIndex(r *http.Request, w string, id int64){
 	
 }
 
-
 // add word to team inverted index is handled the same way as AddToTeamInvertedIndex.
 // we add this function for clarity
 func AddWordToTeamInvertedIndex(r *http.Request, word string, id int64){
 	AddToTeamInvertedIndex(r, word, id)
 }
-
 
 // add word to tournament inverted index is handled the same way as AddToTournamentInvertedIndex.
 // we add this function for clarity
@@ -306,7 +327,6 @@ func UpdateTournamentInvertedIndex(r *http.Request, oldname string, newname stri
 	}
 
 	c.Infof("pw: AddToTournamentInvertedIndex end")	
-	
 }
 
 func FindTeamInvertedIndex(r *http.Request, filter string, value interface{}) *TeamInvertedIndex {
@@ -350,7 +370,6 @@ func KeyByIdTournamentInvertedIndex(r *http.Request, id int64) (*datastore.Key) 
 	return key
 }
 
-
 // merge ids in slice of byte with id if it is not already there
 // if id is already in the slice return empty string
 func mergeIds(teamIds []byte, id int64) string{
@@ -384,7 +403,7 @@ func removeFromIds(teamIds []byte, id int64)(string,error){
 	return strRet, nil
 }
 
-func TeamInvertedIndexes(r *http.Request, words []string)[]int64{
+func teamInvertedIndexes(r *http.Request, words []string)[]int64{
 	c := appengine.NewContext(r)
 
 	strMerge := ""
@@ -420,10 +439,43 @@ func TeamInvertedIndexes(r *http.Request, words []string)[]int64{
 	return intIds	
 }
 
+func incrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x WordCountTeam
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count++
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x WordCountTeam
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count--
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func currentWordCountTeam(c appengine.Context)(int64, error){
+	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
+	var x WordCountTeam
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
 func Score(r *http.Request, words []string, ids []int64){
-	//c := appengine.NewContext(r)
-	
-	nb_corpus := 100
+	c := appengine.NewContext(r)
+		
+	wcTeam, _ := currentWordCountTeam(c) 
 	i := 0
 	q := make([]float64, len(words))
 	for _,w := range words{
@@ -431,9 +483,10 @@ func Score(r *http.Request, words []string, ids []int64){
 		if inv_id := FindTeamInvertedIndex(r, "KeyName", w); inv_id != nil{
 			dft = len(strings.Split(string(inv_id.TeamIds), " "))
 		}
-		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(nb_corpus+1)/float64(dft+1))
+		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(wcTeam+1)/float64(dft+1))
 		i = i + 1
 	}
+	// d	
 }
 
 func countTerm(words []string, w string)int64{
@@ -445,6 +498,7 @@ func countTerm(words []string, w string)int64{
 	}
 	return c
 }
+
 func intersect(a string, b string) string{
 	sa := helpers.SetOfStrings(a)
 	sb := helpers.SetOfStrings(b)
