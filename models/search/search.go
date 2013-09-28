@@ -19,6 +19,7 @@ package search
 import (
 	"net/http"
 	"math"
+	"sort"
 	"strings"
 
 	"appengine"
@@ -62,4 +63,48 @@ func Score(r *http.Request, query string, ids []int64){
 		vec_d[i] = d		
 	}
 	c.Infof("d vector: %v",vec_d)
+
+	// compute score vector
+	var score map[int64]float64
+	score = make(map[int64]float64)
+	for i, vec_di := range vec_d{
+		score[ids[i]] = dotProduct(vec_di, q)
+	}
+	c.Infof("score vector :%v", score)
+
+	sortedScore := make([]int, len(score))
+	i := 0
+	for k, _ := range score{
+		sortedScore[i] = int(k)
+		i++
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(sortedScore)))
+	c.Infof("sorted score vector %v",sortedScore)
 }
+
+func dotProduct(vec1 []float64,vec2 []float64)float64{
+	if len(vec1) != len(vec2){
+		return 0
+	}else{
+		sum := float64(0)
+		for i, _ :=  range vec1 {
+			sum = sum + vec1[i]*vec2[i]
+		}
+		return sum
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
