@@ -86,7 +86,7 @@ func Add(r *http.Request, name string, id int64){
 			c.Infof("pw: current info: teamIDs: %v", string(inv_id.TeamIds))
 			k := KeyById(r, inv_id.Id)
 
-			if newIds := mergeIds(inv_id.TeamIds, id);len(newIds) > 0{
+			if newIds := helpers.MergeIds(inv_id.TeamIds, id);len(newIds) > 0{
 				c.Infof("pw: current info: new team ids: %v", newIds)
 				inv_id.TeamIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, inv_id);err != nil{
@@ -154,7 +154,7 @@ func RemoveWord(r *http.Request, w string, id int64){
 		// update row with new info
 		k := KeyById(r, inv_id.Id)
 
-		if newIds, err := removeFromIds(inv_id.TeamIds, id); err == nil{
+		if newIds, err := helpers.RemovefromIds(inv_id.TeamIds, id); err == nil{
 			c.Infof("pw: new team ids after removal: %v", newIds)
 			if len(newIds) == 0{
 				// this entity does not have ids so remove it from the datastore.
@@ -209,39 +209,6 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 	return key
 }
 
-// merge ids in slice of byte with id if it is not already there
-// if id is already in the slice return empty string
-func mergeIds(teamIds []byte, id int64) string{
-	
-	strTeamIds := string(teamIds)
-	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
-	for _, i := range strIds{
-		if i == strId{
-			return ""
-		}
-	}
-	return strTeamIds + " " + strId
-}
-
-// remove id from slice of byte with ids.
-func removeFromIds(teamIds []byte, id int64)(string,error){
-	strTeamIds := string(teamIds)
-	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
-	strRet := ""
-	for _,val := range strIds{
-		if val != strId{
-			if len(strRet)==0{
-				strRet = val
-			}else{
-				strRet = strRet + " " + val
-			}
-		}
-	}
-	return strRet, nil
-}
-
 func GetIndexes(r *http.Request, words []string)[]int64{
 	c := appengine.NewContext(r)
 
@@ -260,7 +227,7 @@ func GetIndexes(r *http.Request, words []string)[]int64{
 			strMerge = l
 		}else{
 			// build intersection between merge and l
-			strMerge = intersect(strMerge,l)
+			strMerge = helpers.Intersect(strMerge,l)
 		}
 	}
 	strIds := strings.Split(strMerge, " ")
@@ -309,20 +276,4 @@ func GetWordCount(c appengine.Context)(int64, error){
 		return 0, err
 	}
 	return x.Count, nil
-}
-
-func intersect(a string, b string) string{
-	sa := helpers.SetOfStrings(a)
-	sb := helpers.SetOfStrings(b)
-	intersect := ""
-	for _, val := range sa{
-		if helpers.SliceContains(sb,val){
-			if len(intersect)==0{
-				intersect = val
-			}else{
-				intersect = intersect + " " + val
-			}
-		}
-	}
-	return intersect
 }

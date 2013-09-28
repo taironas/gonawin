@@ -60,6 +60,25 @@ func StringContains(strToSplit string, s string)bool{
 	return false
 }
 
+// from two strings with format "str1 str2" and "str2 str3"
+// compute the intersection of the two strings
+// in this example the result is "str2"
+func Intersect(a string, b string) string{
+	sa := SetOfStrings(a)
+	sb := SetOfStrings(b)
+	intersect := ""
+	for _, val := range sa{
+		if SliceContains(sb,val){
+			if len(intersect)==0{
+				intersect = val
+			}else{
+				intersect = intersect + " " + val
+			}
+		}
+	}
+	return intersect
+}
+
 
 
 

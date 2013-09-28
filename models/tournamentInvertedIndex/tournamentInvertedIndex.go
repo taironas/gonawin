@@ -76,7 +76,7 @@ func Add(r *http.Request, name string, id int64){
 			c.Infof("pw: current info: teamIDs: %v", string(inv_id.TournamentIds))
 			k := KeyById(r, inv_id.Id)
 
-			if newIds := mergeIds(inv_id.TournamentIds, id);len(newIds) > 0{
+			if newIds := helpers.MergeIds(inv_id.TournamentIds, id);len(newIds) > 0{
 				c.Infof("pw: current info: new team ids: %v", newIds)
 				inv_id.TournamentIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, inv_id);err != nil{
@@ -101,7 +101,7 @@ func RemoveWord(r *http.Request, w string, id int64){
 		// update row with new info
 		k := KeyById(r, inv_id.Id)
 
-		if newIds, err := removeFromIds(inv_id.TournamentIds, id); err == nil{
+		if newIds, err := helpers.RemovefromIds(inv_id.TournamentIds, id); err == nil{
 			c.Infof("pw: new tournament ids after removal: %v", newIds)
 			if len(newIds) == 0{
 				// this entity does not have ids so remove it from the datastore.
@@ -185,37 +185,4 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
 
 	return key
-}
-
-// merge ids in slice of byte with id if it is not already there
-// if id is already in the slice return empty string
-func mergeIds(teamIds []byte, id int64) string{
-	
-	strTeamIds := string(teamIds)
-	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
-	for _, i := range strIds{
-		if i == strId{
-			return ""
-		}
-	}
-	return strTeamIds + " " + strId
-}
-
-// remove id from slice of byte with ids.
-func removeFromIds(teamIds []byte, id int64)(string,error){
-	strTeamIds := string(teamIds)
-	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
-	strRet := ""
-	for _,val := range strIds{
-		if val != strId{
-			if len(strRet)==0{
-				strRet = val
-			}else{
-				strRet = strRet + " " + val
-			}
-		}
-	}
-	return strRet, nil
 }
