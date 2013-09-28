@@ -80,6 +80,16 @@ func Intersect(a string, b string) string{
 }
 
 
+func CountTerm(words []string, w string)int64{
+	var c int64 = 0
+	for _,wi := range words{
+		if wi == w{
+			c = c + 1
+		}
+	}
+	return c
+}
+
 
 
 

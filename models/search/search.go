@@ -24,32 +24,42 @@ import (
 	"appengine"
 
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
+	teammdl "github.com/santiaago/purple-wing/models/team"
+	helpers "github.com/santiaago/purple-wing/helpers"
 )
 
-func Score(r *http.Request, words []string, ids []int64){
+func Score(r *http.Request, query string, ids []int64){
 	c := appengine.NewContext(r)
-		
+
+	words := strings.Split(query, " ")
+	setOfWords := helpers.SetOfStrings(query)
 	nbTeamWords, _ := teaminvidmdl.GetWordCount(c) 
-	i := 0
-	q := make([]float64, len(words))
-	for _,w := range words{
+
+	// query vector
+	q := make([]float64, len(setOfWords))
+	for i,w := range setOfWords{
 		dft := 0
 		if inv_id := teaminvidmdl.Find(r, "KeyName", w); inv_id != nil{
 			dft = len(strings.Split(string(inv_id.TeamIds), " "))
 		}
-		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
-		i = i + 1
+		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 	}
-	// d
-	//nbTeam := 
-}
+	c.Infof("query vector: %v",q)
 
-func countTerm(words []string, w string)int64{
-	var c int64 = 0
-	for _,wi := range words{
-		if wi == w{
-			c = c + 1
+	// d vector
+	//nbTeams, _ := teammdl.GetTeamCounter(c)
+	vec_d := make([][]float64, len(ids))
+	for i, id := range ids{
+		d := make([]float64, len(setOfWords))
+		for j, wi := range setOfWords{
+			// get word frequency by team (id, wi)
+			wordFreqByTeam := teammdl.GetWordFrequencyForTeam(r, id, wi)
+			// get number of teams with word (wi)
+			teamFreqForWord := teaminvidmdl.GetTeamFrequencyForWord(r, wi)
+			d[j] = math.Log10(float64(1+wordFreqByTeam)) * math.Log10(float64(nbTeamWords+1)/float64(teamFreqForWord+1))
 		}
+		vec_d[i] = make([]float64, len(setOfWords))
+		vec_d[i] = d		
 	}
-	return c
+	c.Infof("d vector: %v",vec_d)
 }

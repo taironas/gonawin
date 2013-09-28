@@ -277,3 +277,22 @@ func GetWordCount(c appengine.Context)(int64, error){
 	}
 	return x.Count, nil
 }
+
+func GetTeamFrequencyForWord(r *http.Request, word string)int64{
+	
+	if inv_id := Find(r, "KeyName", word); inv_id == nil{
+		return 0
+	}else{
+		return int64(len(strings.Split(string(inv_id.TeamIds)," ")))
+	}
+}
+
+
+
+
+
+
+
+
+
+

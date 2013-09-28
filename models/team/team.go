@@ -19,6 +19,7 @@ package team
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 	
 	"appengine"
@@ -186,4 +187,12 @@ func GetTeamCounter(c appengine.Context)(int64, error){
 		return 0, err
 	}
 	return x.Count, nil
+}
+
+func GetWordFrequencyForTeam(r *http.Request, id int64, word string)int64{
+
+	if team := Find(r, "Id", id); team != nil{
+		return helpers.CountTerm(strings.Split(team.KeyName, " "),word)
+	}
+	return 0
 }
