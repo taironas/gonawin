@@ -40,12 +40,17 @@ type TournamentInvertedIndex struct {
 	TournamentIds []byte
 }
 
+
 type WordCountTeam struct{
 	Count int64
 }
 
+
 type WordCountTournament struct{
-	Id int64
+	Count int64
+}
+
+type CounterTournament struct {
 	Count int64
 }
 
@@ -65,7 +70,7 @@ func CreateTeamInvertedIndex(r *http.Request, word string, teamIds string) *Team
 	// increment counter
 	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
 		var err1 error
-		_, err1 = IncrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
+		_, err1 = incrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
 		return err1
 	}, nil)
 	if errIncrement != nil {
@@ -224,7 +229,7 @@ func RemoveWordFromTeamInvertedIndex(r *http.Request, w string, id int64){
 				// decrement word counter
 				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
 					var err1 error
-					_, err1 = DecrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
+					_, err1 = decrementWordCountTeam(c, datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil))
 					return err1
 				}, nil)
 				if errDec != nil {
@@ -403,7 +408,7 @@ func removeFromIds(teamIds []byte, id int64)(string,error){
 	return strRet, nil
 }
 
-func teamInvertedIndexes(r *http.Request, words []string)[]int64{
+func TeamInvertedIndexes(r *http.Request, words []string)[]int64{
 	c := appengine.NewContext(r)
 
 	strMerge := ""
@@ -463,7 +468,7 @@ func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
-func currentWordCountTeam(c appengine.Context)(int64, error){
+func getWordCountTeam(c appengine.Context)(int64, error){
 	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
 	var x WordCountTeam
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -475,7 +480,7 @@ func currentWordCountTeam(c appengine.Context)(int64, error){
 func Score(r *http.Request, words []string, ids []int64){
 	c := appengine.NewContext(r)
 		
-	wcTeam, _ := currentWordCountTeam(c) 
+	nbTeamWords, _ := getWordCountTeam(c) 
 	i := 0
 	q := make([]float64, len(words))
 	for _,w := range words{
@@ -483,10 +488,11 @@ func Score(r *http.Request, words []string, ids []int64){
 		if inv_id := FindTeamInvertedIndex(r, "KeyName", w); inv_id != nil{
 			dft = len(strings.Split(string(inv_id.TeamIds), " "))
 		}
-		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(wcTeam+1)/float64(dft+1))
+		q[i] = math.Log10(1+float64(countTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 		i = i + 1
 	}
-	// d	
+	// d
+	//nbTeam := 
 }
 
 func countTerm(words []string, w string)int64{

@@ -38,6 +38,11 @@ type Team struct {
 	Created time.Time
 }
 
+
+type TeamCounter struct {
+	Count int64
+}
+
 func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	c := appengine.NewContext(r)
 	// create new team
@@ -50,7 +55,17 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
+	// udpate inverted index
 	searchmdl.AddToTeamInvertedIndex(r, helpers.TrimLower(name), teamId)
+	// update team counter
+	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
+		var err1 error
+		_, err1 = incrementTeamCounter(c, datastore.NewKey(c, "TeamCounter", "singleton", 0, nil))
+		return err1
+	}, nil)
+	if errIncrement != nil {
+		c.Errorf("pw: Error incrementing TeamCounter")
+	}
 
 	return team
 }
@@ -138,4 +153,37 @@ func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
 	}
 	
 	return false
+}
+
+func incrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x TeamCounter
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count++
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x TeamCounter
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count--
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func GetTeamCounter(c appengine.Context)(int64, error){
+	key := datastore.NewKey(c, "TeamCounter", "singleton", 0, nil)
+	var x TeamCounter
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	return x.Count, nil
 }
