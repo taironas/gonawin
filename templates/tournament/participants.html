@@ -1,0 +1,16 @@
+{{define "tmpl_team_participants"}}
+<div class="participants">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Participants</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .}}
+		  		<td><a href="/m/users/{{.Id}}">{{.Username}}</a></td>
+		  	{{end}}
+		</tbody>
+	</table>
+</div>
+{{end}}

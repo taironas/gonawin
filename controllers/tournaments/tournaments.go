@@ -27,9 +27,12 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
+	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Form struct {
@@ -106,15 +109,19 @@ func New(w http.ResponseWriter, r *http.Request){
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	funcs := template.FuncMap{}
-	
-	t := template.Must(template.New("tmpl_tournament_show").
-		ParseFiles("templates/tournament/show.html"))
-	
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
 	}
+	
+	funcs := template.FuncMap{
+		"Joined": func() bool { return tournamentmdl.Joined(r, intID, auth.CurrentUser(r).Id) },
+	}
+	
+	t := template.Must(template.New("tmpl_tournament_show").
+		Funcs(funcs).
+		ParseFiles("templates/tournament/show.html",
+		"templates/tournament/participants.html"))
 
 	var tournament *tournamentmdl.Tournament
 	tournament, err = tournamentmdl.ById(r, intID)
@@ -123,9 +130,19 @@ func Show(w http.ResponseWriter, r *http.Request){
 		helpers.Error404(w)
 		return
 	}
+	
+	participants := tournamentrelshlp.Participants(r, intID)
+	
+	tournamentData := struct { 
+		Tournament *tournamentmdl.Tournament
+		Participants []*usermdl.User 
+	}{
+		tournament,
+		participants,
+	}
 
 	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_tournament_show", tournament)
+	err = t.ExecuteTemplate(&buf,"tmpl_tournament_show", tournamentData)
 	show := buf.Bytes()
 	
 	if err != nil{
@@ -141,18 +158,17 @@ func Show(w http.ResponseWriter, r *http.Request){
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+	}
+		
 	if r.Method == "GET" {
 
 		funcs := template.FuncMap{}
 		
-		t := template.Must(template.New("tmpl_tournament_show").
-			ParseFiles("templates/tournament/show.html", 
-			"templates/tournament/edit.html"))
-
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
-		}
+		t := template.Must(template.New("tmpl_tournament_edit").
+			ParseFiles("templates/tournament/edit.html"))
 
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(r, intID)
@@ -175,10 +191,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
 	}else if r.Method == "POST"{
-		intID, err := handlers.PermalinkID(r,3)
-		if err != nil{
-			http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
-		}
+		
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(r,intID)
 		if err != nil{

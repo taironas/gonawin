@@ -17,6 +17,7 @@
 package tournament
 
 import (
+	"errors"
 	"net/http"
 	"time"
 	
@@ -25,6 +26,8 @@ import (
 	
 	"github.com/santiaago/purple-wing/helpers"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
+	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
 type Tournament struct {
@@ -115,6 +118,23 @@ func FindAll(r *http.Request) []*Tournament {
 	q.GetAll(appengine.NewContext(r), &tournaments)
 	
 	return tournaments
+}
+
+func Joined(r *http.Request, tournamentId int64, userId int64) bool {
+	tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(r, tournamentId, userId)
+	return tournamentRel != nil
+}
+
+func Join(r *http.Request, tournamentId int64, userId int64) error {
+	if tournamentRel := tournamentrelmdl.Create(r, tournamentId, userId); tournamentRel == nil {
+		return errors.New("error during tournament relationship creation")
+	}
+
+	return nil
+}
+
+func Leave(r *http.Request, tournamentId int64, userId int64) error {
+	return tournamentrelmdl.Destroy(r, tournamentId, userId)
 }
 
 

@@ -27,9 +27,11 @@ import (
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
 type Form struct {
@@ -57,7 +59,8 @@ func Show(w http.ResponseWriter, r *http.Request){
 		Funcs(funcs).
 		ParseFiles("templates/user/show.html", 
 		"templates/user/info.html",
-		"templates/user/teams.html"))
+		"templates/user/teams.html",
+		"templates/user/tournaments.html"))
 
 	var user *usermdl.User
 	user, err = usermdl.ById(r,intID)
@@ -67,13 +70,16 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	teams := teamrelshlp.Teams(r, intID)
+	tournaments := tournamentrelshlp.Tournaments(r, intID)
 	
 	userData := struct { 
 		User *usermdl.User
-		Teams []*teammdl.Team 
+		Teams []*teammdl.Team
+		Tournaments []*tournamentmdl.Tournament
 	}{
 		user,
 		teams,
+		tournaments,
 	}
 
 	var buf bytes.Buffer

@@ -14,23 +14,23 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
  
-package teamrels
+package tournamentrels
 
 import (
 	"net/http"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
-	teammdl "github.com/santiaago/purple-wing/models/team"
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 )
 
-func Players(r *http.Request, teamId int64) []*usermdl.User {
+func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
 	var users []*usermdl.User
 	
-	teamRels := teamrelmdl.Find(r, "TeamId", teamId)
+	tournamentRels := tournamentrelmdl.Find(r, "TournamentId", tournamentId)
 
-	for _, teamRel := range teamRels {
-		user, _ := usermdl.ById(r, teamRel.UserId)
+	for _, tournamentRel := range tournamentRels {
+		user, _ := usermdl.ById(r, tournamentRel.UserId)
 
 		users = append(users, user)
 	}
@@ -38,16 +38,16 @@ func Players(r *http.Request, teamId int64) []*usermdl.User {
 	return users
 }
 
-func Teams(r *http.Request, userId int64) []*teammdl.Team {
-	var teams []*teammdl.Team
+func Tournaments(r *http.Request, userId int64) []*tournamentmdl.Tournament {
+	var tournaments []*tournamentmdl.Tournament
 	
-	teamRels := teamrelmdl.Find(r, "UserId", userId)
+	tournamentRels := tournamentrelmdl.Find(r, "UserId", userId)
 
-	for _, teamRel := range teamRels {
-		team, _ := teammdl.ById(r, teamRel.TeamId)
+	for _, tournamentRel := range tournamentRels {
+		tournament, _ := tournamentmdl.ById(r, tournamentRel.TournamentId)
 
-		teams = append(teams, team)
+		tournaments = append(tournaments, tournament)
 	}
 
-	return teams
+	return tournaments
 }

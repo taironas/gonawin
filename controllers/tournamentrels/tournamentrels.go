@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package teamrels
+package tournamentrels
 
 import (
 	"net/http"
@@ -23,25 +23,25 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers/auth"
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	// get team id
-	teamId , _ := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
-	
+	// get tournament id
+	tournamentId , _ := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
-		if err := teammdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: teamRels.Show: %v", err)
+		if err := tournamentmdl.Join(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
+			c.Errorf("pw: tournamentrels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if err := teammdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: teamRels.Show: %v", err)
+		if err := tournamentmdl.Leave(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
+			c.Errorf("pw: tournamentrels.Show: %v", err)
 		}
 	}
 	
-	http.Redirect(w,r, "/m/teams/"+r.FormValue("TeamId"), http.StatusFound)
+	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
 

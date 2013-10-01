@@ -1,0 +1,16 @@
+{{define "tmpl_user_tournaments"}}
+<div class="tournaments">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Tournaments</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .}}
+		  		<td><a href="/m/tournaments/{{.Id}}">{{.Name}}</a></td>
+		  	{{end}}
+		</tbody>
+	</table>
+</div>
+{{end}}

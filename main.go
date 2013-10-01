@@ -27,6 +27,7 @@ import (
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
 	teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
+	tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
 	settingsctrl "github.com/santiaago/purple-wing/controllers/settings"
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 )
@@ -68,8 +69,9 @@ func init(){
 	h.HandleFunc("/m/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.Show))
 	h.HandleFunc("/m/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.Edit))
 
-	// team relationships
+	// relationships
 	h.HandleFunc("/m/teamrels/[0-9]+/?", handlers.User(teamrelsctrl.Show))
+	h.HandleFunc("/m/tournamentrels/[0-9]+/?", handlers.User(tournamentrelsctrl.Show))
 	
 	// settings
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))
