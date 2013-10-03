@@ -20,14 +20,13 @@ import (
 	"errors"
 	"net/http"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
-	
+
 	"github.com/santiaago/purple-wing/helpers"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
-	searchmdl "github.com/santiaago/purple-wing/models/search"
 )
 
 type Tournament struct {
@@ -57,20 +56,20 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
-	
+
 	tournamentinvidmdl.Add(r, helpers.TrimLower(name),tournamentID)
 	return tournament
 }
 
 func Find(r *http.Request, filter string, value interface{}) *Tournament {
 	q := datastore.NewQuery("Tournament").Filter(filter + " =", value).Limit(1)
-	
+
 	var tournaments []*Tournament
-	
+
 	if _, err := q.GetAll(appengine.NewContext(r), &tournaments); err == nil && len(tournaments) > 0 {
 		return tournaments[0]
 	}
-	
+
 	return nil
 }
 
@@ -112,11 +111,11 @@ func Update(r *http.Request, id int64, t *Tournament) error{
 
 func FindAll(r *http.Request) []*Tournament {
 	q := datastore.NewQuery("Tournament")
-	
+
 	var tournaments []*Tournament
-	
+
 	q.GetAll(appengine.NewContext(r), &tournaments)
-	
+
 	return tournaments
 }
 
@@ -136,11 +135,3 @@ func Join(r *http.Request, tournamentId int64, userId int64) error {
 func Leave(r *http.Request, tournamentId int64, userId int64) error {
 	return tournamentrelmdl.Destroy(r, tournamentId, userId)
 }
-
-
-
-
-
-
-
-
