@@ -5,7 +5,22 @@
 		<input id="tournament_id" name="TournamentId" type="hidden" value="{{.Tournament.Id}}" />
 		<input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} />
 		<input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
+		<a href="#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
 	</form>
+	
+	<!-- Modal -->
+	<div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">Add Team</h3>
+	  </div>
+	  <div class="modal-body">
+			<form accept-charset="UTF-8" action="/m/tournamentteamrels/{{.Tournament.Id}}" class="form-horizontal" method="post">
+				<input id="tournament_id" name="TournamentId" type="hidden" value="{{.Tournament.Id}}" />
+				{{template "tmpl_tournament_candidateTeams" .CandidateTeams}}
+			</form>
+	  </div>
+	</div>
 </div>
 
 <dl class="dl-horizontal">
@@ -19,5 +34,6 @@
 	<a href="/m/tournaments/{{.Tournament.Id}}/edit" class="btn"><span>Edit</span></a>
 	<a href="/m/tournaments/{{.Tournament.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
 </div>
-{{template "tmpl_team_participants" .Participants}}
+{{template "tmpl_tournament_participants" .Participants}}
+{{template "tmpl_tournament_teams" .Teams}}
 {{end}}

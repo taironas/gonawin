@@ -20,8 +20,10 @@ import (
 	"net/http"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
@@ -36,6 +38,20 @@ func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
 	}
 
 	return users
+}
+
+func Teams(r *http.Request, tournamentId int64) []*teammdl.Team {
+	var teams []*teammdl.Team
+	
+	tournamentteamRels := tournamentteamrelmdl.Find(r, "TournamentId", tournamentId)
+
+	for _, tournamentteamRel := range tournamentteamRels {
+		team, _ := teammdl.ById(r, tournamentteamRel.TeamId)
+
+		teams = append(teams, team)
+	}
+
+	return teams
 }
 
 func Tournaments(r *http.Request, userId int64) []*tournamentmdl.Tournament {

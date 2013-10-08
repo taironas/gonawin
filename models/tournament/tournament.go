@@ -27,6 +27,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type Tournament struct {
@@ -134,4 +135,21 @@ func Join(r *http.Request, tournamentId int64, userId int64) error {
 
 func Leave(r *http.Request, tournamentId int64, userId int64) error {
 	return tournamentrelmdl.Destroy(r, tournamentId, userId)
+}
+
+func TeamJoined(r *http.Request, tournamentId int64, teamId int64) bool {
+	tournamentteamRel := tournamentteamrelmdl.FindByTournamentIdAndTeamId(r, tournamentId, teamId)
+	return tournamentteamRel != nil
+}
+
+func TeamJoin(r *http.Request, tournamentId int64, teamId int64) error {
+	if tournamentteamRel := tournamentteamrelmdl.Create(r, tournamentId, teamId); tournamentteamRel == nil {
+		return errors.New("error during tournament team relationship creation")
+	}
+
+	return nil
+}
+
+func TeamLeave(r *http.Request, tournamentId int64, teamId int64) error {
+	return tournamentteamrelmdl.Destroy(r, tournamentId, teamId)
 }

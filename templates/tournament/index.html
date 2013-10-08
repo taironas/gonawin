@@ -14,43 +14,22 @@
 		</div>
 	</div>
 </div>
-<p>
-  <h3>Your tournaments:</h3>
+<div class="page-content">
   <table class="table table-striped">
     <thead>
       <tr>
-	<th>Id</th>
-	<th>Name</th>
+	    <th>Id</th>
+	    <th>Name</th>
       </tr>
     </thead>
     <tbody>
       {{range .}}
       <tr>
-	<td>{{.Id}}</td>
-	<td><a href="/m/tournaments/{{.Id}}">{{.Name}}</a></td>
+	    <td>{{.Id}}</td>
+	    <td><a href="/m/tournaments/{{.Id}}">{{.Name}}</a></td>
       </tr>
       {{end}}
     </tbody>
   </table>
-</p>
-<p>
-  <h3>Other Tournaments</h3>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-	<th>Id</th>
-	<th>Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{range .}}
-      <tr>
-	<td>{{.Id}}</td>
-	<td><a href="/m/tournaments/{{.Id}}">{{.Name}}</a></td>
-      </tr>
-      {{end}}
-    </tbody>
-  </table>
-
-</p>
+</div>
 {{end}}

@@ -33,6 +33,7 @@ import (
 
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 type Form struct {
@@ -116,12 +117,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{
 		"Joined": func() bool { return tournamentmdl.Joined(r, intID, auth.CurrentUser(r).Id) },
+		"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(r, intID, teamId) },
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_show").
 		Funcs(funcs).
 		ParseFiles("templates/tournament/show.html",
-		"templates/tournament/participants.html"))
+		"templates/tournament/participants.html",
+		"templates/tournament/teams.html",
+		"templates/tournament/candidateTeams.html"))
 
 	var tournament *tournamentmdl.Tournament
 	tournament, err = tournamentmdl.ById(r, intID)
@@ -132,13 +136,19 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	participants := tournamentrelshlp.Participants(r, intID)
+	teams := tournamentrelshlp.Teams(r, intID)
+	candidateTeams := teammdl.Find(r, "AdminId", auth.CurrentUser(r).Id)
 	
 	tournamentData := struct { 
 		Tournament *tournamentmdl.Tournament
-		Participants []*usermdl.User 
+		Participants []*usermdl.User
+		Teams []*teammdl.Team
+		CandidateTeams []*teammdl.Team
 	}{
 		tournament,
 		participants,
+		teams,
+		candidateTeams,
 	}
 
 	var buf bytes.Buffer

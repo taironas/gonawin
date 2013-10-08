@@ -159,3 +159,8 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 
 	return teams
 }
+
+func AdminTeams(r *http.Request, adminId int64) []*teammdl.Team {
+	
+	return teammdl.Find(r, "AdminId", adminId)
+}

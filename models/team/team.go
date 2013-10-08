@@ -71,13 +71,13 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	return team
 }
 
-func Find(r *http.Request, filter string, value interface{}) *Team {
-	q := datastore.NewQuery("Team").Filter(filter + " =", value).Limit(1)
+func Find(r *http.Request, filter string, value interface{}) []*Team {
+	q := datastore.NewQuery("Team").Filter(filter + " =", value)
 	
 	var teams []*Team
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teams); err == nil && len(teams) > 0 {
-		return teams[0]
+	if _, err := q.GetAll(appengine.NewContext(r), &teams); err == nil {
+		return teams
 	}
 	
 	return nil
@@ -96,7 +96,6 @@ func ById(r *http.Request, id int64) (*Team, error) {
 	return &t, nil
 }
 
-
 func KeyById(r *http.Request, id int64) (*datastore.Key) {
 	c := appengine.NewContext(r)
 
@@ -104,7 +103,6 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 
 	return key
 }
-
 
 func Update(r *http.Request, id int64, t *Team) error {
 	c := appengine.NewContext(r)
@@ -191,8 +189,8 @@ func GetTeamCounter(c appengine.Context)(int64, error){
 
 func GetWordFrequencyForTeam(r *http.Request, id int64, word string)int64{
 
-	if team := Find(r, "Id", id); team != nil{
-		return helpers.CountTerm(strings.Split(team.KeyName, " "),word)
+	if teams := Find(r, "Id", id); teams != nil{
+		return helpers.CountTerm(strings.Split(teams[0].KeyName, " "),word)
 	}
 	return 0
 }

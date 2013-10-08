@@ -1,0 +1,21 @@
+{{define "tmpl_tournament_candidateTeams"}}
+{{if len .}}
+	<table class="table table-hover">
+		<tbody>
+		{{range $index, $team := .}}
+		<tr>
+			<td><a href="/m/teams/{{$team.Id}}">{{$team.Name}}</a></td>
+			<input id="team_id" name="TeamId" type="hidden" value="{{$team.Id}}" />
+			<input id="action" name="Action" type="hidden" {{if TeamJoined $team.Id}}value="delete_action"{{else}}value="post_action"{{end}} />
+			<td><input class="btn btn-primary btn-join pull-right" name="commit" type="submit" {{if TeamJoined $team.Id}}value="Leave"{{else}}value="Join"{{end}} /></td>
+		</tr>
+		{{end}}
+		</tbody>
+	</table>
+{{else}}
+	<div id="no_team">
+		<p>No team has been created by you.</p>
+		<a href="/m/teams/new" class="btn btn-primary"><span>Create new team</span></a>
+	</div>
+{{end}}
+{{end}}
