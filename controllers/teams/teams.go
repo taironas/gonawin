@@ -165,7 +165,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 			}
 		}
 		// delete all tournament-team relationships
-		for _, tournament := range tournamentrelshlp.Tournaments(r, intID) {
+		for _, tournament := range tournamentrelshlp.Teams(r, intID) {
 			if err := tournamentteamrelmdl.Destroy(r, tournament.Id, intID); err !=nil {
 				c.Errorf("pw: error when trying to destroy team relationship: %v", err)
 			}
