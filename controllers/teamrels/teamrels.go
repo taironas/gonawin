@@ -37,7 +37,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: teamRels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if teamId.AdminId != auth.CurrentUser(r).Id {
+		if teammdl.IsTeamAdmin(r, teamId, auth.CurrentUser(r).Id) {
 			if err := teammdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
 				c.Errorf("pw: teamRels.Show: %v", err)
 			}

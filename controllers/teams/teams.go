@@ -29,12 +29,14 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 	
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	searchmdl "github.com/santiaago/purple-wing/models/search"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type NewForm struct {
@@ -153,6 +155,25 @@ func Show(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+	}
+	
+	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+		// delete all team-user relationships
+		for _, player := range teamrelshlp.Players(r, intID) {
+			if err := teamrelmdl.Destroy(r, intID, player.Id); err !=nil {
+				c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete all tournament-team relationships
+		for _, tournament := range tournamentrelshlp.Tournaments(r, intID) {
+			if err := tournamentteamrelmdl.Destroy(r, tournament.Id, intID); err !=nil {
+				c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete the team
+		teammdl.Destroy(r, intID)
+		
+		http.Redirect(w, r, "/m/teams", http.StatusFound)
 	}
 	
 	funcs := template.FuncMap{

@@ -18,6 +18,7 @@ package team
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -71,6 +72,18 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	return team
 }
 
+func Destroy(r *http.Request, teamId int64) error {
+	c := appengine.NewContext(r)
+	
+	if team, err := ById(r, teamId); err != nil {
+		return errors.New(fmt.Sprintf("Cannot find team with teamId=%d", teamId))
+	} else {
+		key := datastore.NewKey(c, "Team", "", team.Id, nil)
+			
+		return datastore.Delete(c, key)	
+	}
+}
+
 func Find(r *http.Request, filter string, value interface{}) []*Team {
 	q := datastore.NewQuery("Team").Filter(filter + " =", value)
 	
@@ -85,7 +98,7 @@ func Find(r *http.Request, filter string, value interface{}) []*Team {
 
 func ById(r *http.Request, id int64) (*Team, error) {
 	c := appengine.NewContext(r)
-	c.Infof("pw: looking for %v",id)
+	c.Infof("pw: looking for team id=%v",id)
 	var t Team
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
