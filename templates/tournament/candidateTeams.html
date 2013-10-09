@@ -5,9 +5,8 @@
 		{{range $index, $team := .}}
 		<tr>
 			<td><a href="/m/teams/{{$team.Id}}">{{$team.Name}}</a></td>
-			<input id="team_id" name="TeamId" type="hidden" value="{{$team.Id}}" />
-			<input id="action" name="Action" type="hidden" {{if TeamJoined $team.Id}}value="delete_action"{{else}}value="post_action"{{end}} />
-			<td><input class="btn btn-primary btn-join pull-right" name="commit" type="submit" {{if TeamJoined $team.Id}}value="Leave"{{else}}value="Join"{{end}} /></td>
+			<input id="action" name="Action_{{$team.Id}}" type="hidden" {{if TeamJoined $team.Id}}value="delete_action"{{else}}value="post_action"{{end}} />
+			<td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{$team.Id}}" >{{if TeamJoined $team.Id}}Leave{{else}}Join{{end}}</button></td>
 		</tr>
 		{{end}}
 		</tbody>

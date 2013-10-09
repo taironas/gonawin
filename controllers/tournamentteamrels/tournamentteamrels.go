@@ -30,15 +30,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	// get tournament id
 	tournamentId , _ := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	teamId , _ := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
+	teamId , _ := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
 	
 	c.Infof("pw tournamentteamrels.Show: tournamentId=%d, teamId=%d", tournamentId, teamId)
 
-	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
 		if err := tournamentmdl.TeamJoin(r, tournamentId, teamId); err != nil {
 			c.Errorf("pw: tournamentteamrels.Show: %v", err)
 		}
-	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
+	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
 		if err := tournamentmdl.TeamLeave(r, tournamentId, teamId); err != nil {
 			c.Errorf("pw: tournamentteamrels.Show: %v", err)
 		}
