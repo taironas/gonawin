@@ -1,11 +1,13 @@
 {{define "tmpl_team_show"}}
 <div class="page-header">
 	<h1>Team</h1>
+	{{if not IsTeamAdmin}}
 	<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
 		<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
 		<input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} />
 		<input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
 	</form>
+	{{end}}
 </div>
 
 <dl class="dl-horizontal">

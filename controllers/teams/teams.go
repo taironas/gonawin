@@ -34,6 +34,7 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	searchmdl "github.com/santiaago/purple-wing/models/search"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type NewForm struct {
@@ -125,6 +126,8 @@ func New(w http.ResponseWriter, r *http.Request){
 			form.Error = "That team name already exists."
 		} else {
 			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
+			// join the team
+			teamrelmdl.Create(r, team.Id, auth.CurrentUser(r).Id)
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
 		}
