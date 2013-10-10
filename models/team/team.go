@@ -98,7 +98,7 @@ func Find(r *http.Request, filter string, value interface{}) []*Team {
 
 func ById(r *http.Request, id int64) (*Team, error) {
 	c := appengine.NewContext(r)
-	c.Infof("pw: looking for team id=%v",id)
+	
 	var t Team
 	key := datastore.NewKey(c, "Team", "", id, nil)
 

@@ -18,6 +18,7 @@ package tournament
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -61,6 +62,18 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 
 	tournamentinvidmdl.Add(r, helpers.TrimLower(name),tournamentID)
 	return tournament
+}
+
+func Destroy(r *http.Request, tournamentId int64) error {
+	c := appengine.NewContext(r)
+
+	if tournament, err := ById(r, tournamentId); err != nil {
+		return errors.New(fmt.Sprintf("Cannot find tournament with tournamentId=%d", tournamentId))
+	} else {
+		key := datastore.NewKey(c, "Tournament", "", tournament.Id, nil)
+
+		return datastore.Delete(c, key)  
+	}
 }
 
 func Find(r *http.Request, filter string, value interface{}) *Tournament {

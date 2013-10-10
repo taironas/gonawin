@@ -34,6 +34,8 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type Form struct {
@@ -113,6 +115,25 @@ func Show(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+	}
+	
+	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+		// delete all tournament-user relationships
+		for _, participant := range tournamentrelshlp.Participants(r, intID) {
+			if err := tournamentrelmdl.Destroy(r, intID, participant.Id); err !=nil {
+			c.Errorf("pw: error when trying to destroy tournament relationship: %v", err)
+			}
+		}
+		// delete all tournament-team relationships
+		for _, team := range tournamentrelshlp.Teams(r, intID) {
+			if err := tournamentteamrelmdl.Destroy(r, intID, team.Id); err !=nil {
+			c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete the tournament
+		tournamentmdl.Destroy(r, intID)
+		
+		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 	}
 	
 	funcs := template.FuncMap{
