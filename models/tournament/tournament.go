@@ -37,6 +37,7 @@ type Tournament struct {
 	Description string
 	Start time.Time
 	End time.Time
+	AdminId int64
 	Created time.Time
 }
 
@@ -45,13 +46,13 @@ type CounterTournament struct {
 }
 
 
-func Create(r *http.Request, name string, description string, start time.Time, end time.Time ) *Tournament {
+func Create(r *http.Request, name string, description string, start time.Time, end time.Time, adminId int64 ) *Tournament {
 	c := appengine.NewContext(r)
 	// create new tournament
 	tournamentID, _, _ := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
-	tournament := &Tournament{ tournamentID, helpers.TrimLower(name), name, description, start, end, time.Now() }
+	tournament := &Tournament{ tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now() }
 
 	_, err := datastore.Put(c, key, tournament)
 	if err != nil {
@@ -135,6 +136,14 @@ func Join(r *http.Request, tournamentId int64, userId int64) error {
 
 func Leave(r *http.Request, tournamentId int64, userId int64) error {
 	return tournamentrelmdl.Destroy(r, tournamentId, userId)
+}
+
+func IsTournamentAdmin(r *http.Request, tournamentId int64, userId int64) bool {
+	if tournament, err := ById(r, tournamentId); err == nil {
+		return tournament.AdminId == userId
+	}
+	
+	return false
 }
 
 func TeamJoined(r *http.Request, tournamentId int64, teamId int64) bool {

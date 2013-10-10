@@ -87,7 +87,7 @@ func New(w http.ResponseWriter, r *http.Request){
 		} else if t := tournamentmdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
 			form.Error = "That tournament name already exists."
 		} else {
-			tournament := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now() )
+			tournament := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/m/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
 		}
@@ -118,6 +118,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	funcs := template.FuncMap{
 		"Joined": func() bool { return tournamentmdl.Joined(r, intID, auth.CurrentUser(r).Id) },
 		"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(r, intID, teamId) },
+		"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(r, intID, auth.CurrentUser(r).Id) },
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_show").
@@ -171,6 +172,10 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+	}
+	
+	if !tournamentmdl.IsTournamentAdmin(r, intID, auth.CurrentUser(r).Id) {
+		http.Redirect(w, r, "/m", http.StatusFound)
 	}
 		
 	if r.Method == "GET" {

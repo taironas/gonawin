@@ -30,10 +30,13 @@
 	<dd>{{.Tournament.Name}}</dd>
 </dl>
 
+{{if IsTournamentAdmin}}
 <div class="form-actions">
 	<a href="/m/tournaments/{{.Tournament.Id}}/edit" class="btn"><span>Edit</span></a>
 	<a href="/m/tournaments/{{.Tournament.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
 </div>
+{{end}}
+
 {{template "tmpl_tournament_participants" .Participants}}
 {{template "tmpl_tournament_teams" .Teams}}
 {{end}}

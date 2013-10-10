@@ -75,7 +75,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		if err != nil{
 			c.Errorf("pw: error when calling Render from helpers: %v", err)
 		}
-	}else if r.Method == "POST"{
+	} else if r.Method == "POST" {
 		query := r.FormValue("TeamInputSearch")
 		words := helpers.SetOfStrings(query)
 		ids := teaminvidmdl.GetIndexes(r,words)
