@@ -2,11 +2,29 @@
 <div class="page-header">
 	<h1>Team</h1>
 	{{if not IsTeamAdmin}}
-	<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
-		<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
-		<input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} />
-		<input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
-	</form>
+		{{if not Joined}}
+			{{if .Team.Private}}
+				<form accept-charset="UTF-8" action="/m/teams/{{.Team.Id}}/invite" class="form-horizontal" method="post">
+				{{if RequestSent}}
+					<input class="btn disabled" name="commit" type="submit" value="Request sent..." />
+				{{else}}
+						<input class="btn btn-primary" name="commit" type="submit" value="Request invitation" />
+				{{end}}
+				</form>
+			{{else}}
+				<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
+					<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
+					<input id="action" name="Action" type="hidden" value="post_action" />
+					<input class="btn btn-primary" name="commit" type="submit" value="Join" />
+				</form>
+			{{end}}
+		{{else}}
+			<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
+				<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
+				<input id="action" name="Action" type="hidden" value="delete_action" />
+				<input class="btn btn-primary" name="commit" type="submit" value="Leave" />
+			</form>
+		{{end}}
 	{{end}}
 </div>
 
@@ -22,13 +40,13 @@
 </dl>
 
 {{if IsTeamAdmin}}
-<div class="form-actions">
-	<form accept-charset="UTF-8" action="/m/teams/{{.Team.Id}}" class="form-horizontal" method="post">
-		<a href="/m/teams/{{.Team.Id}}/edit" class="btn"><span>Edit</span></a>
-		<input id="action" name="Action" type="hidden" value="delete" />
-		<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');">Delete</button>
-	</form>
-</div>
+	<div class="form-actions">
+		<form accept-charset="UTF-8" action="/m/teams/{{.Team.Id}}" class="form-horizontal" method="post">
+			<a href="/m/teams/{{.Team.Id}}/edit" class="btn"><span>Edit</span></a>
+			<input id="action" name="Action" type="hidden" value="delete" />
+			<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');">Delete</button>
+		</form>
+	</div>
 {{end}}
 
 {{template "tmpl_team_players" .Players}}

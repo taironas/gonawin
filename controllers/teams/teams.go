@@ -37,6 +37,7 @@ import (
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
+	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 )
 
 type NewForm struct {
@@ -179,6 +180,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	funcs := template.FuncMap{
 		"Joined": func() bool { return teammdl.Joined(r, intID, auth.CurrentUser(r).Id) },
 		"IsTeamAdmin": func() bool { return teammdl.IsTeamAdmin(r, intID, auth.CurrentUser(r).Id) },
+		"RequestSent": func() bool { return teamrequestmdl.Sent(r, intID, auth.CurrentUser(r).Id) },
 	}
 	
 	t := template.Must(template.New("tmpl_team_show").
@@ -281,5 +283,21 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
 	}
+}
 
+func Invite(w http.ResponseWriter, r *http.Request){
+	
+	intID, err := handlers.PermalinkID(r,3)
+	if err != nil{
+		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+	}
+	
+	if r.Method == "POST"{
+		if teamRequest := teamrequestmdl.Create(r, intID, auth.CurrentUser(r).Id); teamRequest == nil {
+			appengine.NewContext(r).Errorf("pw: no team request has been created")
+		}
+		
+		url := fmt.Sprintf("/m/teams/%d",intID)
+		http.Redirect(w, r, url, http.StatusFound)
+	}
 }

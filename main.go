@@ -63,6 +63,7 @@ func init(){
 	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
 	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
+	h.HandleFunc("/m/teams/[0-9]+/invite/?", handlers.User(teamsctrl.Invite))
 
 	// tournament
 	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))
