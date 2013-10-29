@@ -29,7 +29,7 @@ import (
 	helpers "github.com/santiaago/purple-wing/helpers"
 )
 
-func Score(r *http.Request, query string, ids []int64)/*[]int*/{
+func Score(r *http.Request, query string, ids []int64)[]int64{
 	c := appengine.NewContext(r)
 
 	words := strings.Split(query, " ")
@@ -74,7 +74,7 @@ func Score(r *http.Request, query string, ids []int64)/*[]int*/{
 	sortedScore := sortMapByValue(score)
 	c.Infof("sorted score: %v", sortedScore)
 
-	//return sortedScore
+	return getKeysFromPairList(sortedScore)
 }
 
 // A data structure to hold a key/value pair.
@@ -110,6 +110,16 @@ func sortMapByValueDesc(m map[int64]float64) PairList {
 	}
 	sort.Sort(sort.Reverse(p))
 	return p
+}
+
+func getKeysFromPairList(p PairList) []int64{
+	keys := make([]int64, len(p))
+	i := 0
+	for _, pair := range p{
+		keys[i] = pair.Key
+		i++
+	}
+	return keys
 }
 
 func dotProduct(vec1 []float64,vec2 []float64)float64{

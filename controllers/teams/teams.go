@@ -78,19 +78,22 @@ func Index(w http.ResponseWriter, r *http.Request){
 		}
 	} else if r.Method == "POST" {
 		query := r.FormValue("TeamInputSearch")
+		if len(query) == 0{
+			http.Redirect(w, r, "teams", http.StatusFound)
+			return
+		}
 		words := helpers.SetOfStrings(query)
 		ids := teaminvidmdl.GetIndexes(r,words)
 		c.Infof("pw: search:%v Ids:%v",query, ids)
-		//result := searchmdl.Score(r, query, ids)
-		searchmdl.Score(r, query, ids)
+		result := searchmdl.Score(r, query, ids)
 
-		teams := teammdl.FindAll(r)
+		teams := teammdl.ByIds(r, result)
 		indexData := struct { 
 			Teams []*teammdl.Team
 			TeamInputSearch string
 		}{
 			teams,
-			"q:"+r.FormValue("TeamInputSearch"),
+			r.FormValue("TeamInputSearch"),
 		}
 		var buf bytes.Buffer
 		err := t.ExecuteTemplate(&buf,"tmpl_team_index", indexData)

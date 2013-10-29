@@ -142,6 +142,18 @@ func FindAll(r *http.Request) []*Team {
 	return teams
 }
 
+// find with respect to array of ids
+func ByIds(r *http.Request, ids []int64) []*Team{
+		
+	var teams []*Team
+	for _, id := range ids{
+		if team, err := ById(r, id); err == nil{
+			teams = append(teams, team)
+		}
+	}
+	return teams
+}
+
 func Joined(r *http.Request, teamId int64, userId int64) bool {
 	teamRel := teamrelmdl.FindByTeamIdAndUserId(r, teamId, userId)
 	return teamRel != nil
