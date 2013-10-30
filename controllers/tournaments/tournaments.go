@@ -34,8 +34,10 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	searchmdl "github.com/santiaago/purple-wing/models/search"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
+	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 )
 
 type Form struct {
@@ -53,19 +55,62 @@ func Index(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_tournament_index").
 		ParseFiles("templates/tournament/index.html"))
 	
-	tournaments := tournamentmdl.FindAll(r)
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_tournament_index", tournaments)
-	index := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template tournament_index: %v", err)
-	}
+	if r.Method == "GET"{
+		tournaments := tournamentmdl.FindAll(r)
 
-	err = templateshlp.Render(w, r, index, &funcs, "renderTournamentIndex")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
+		indexData := struct { 
+			Tournaments []*tournamentmdl.Tournament
+			TournamentInputSearch string
+		}{
+			tournaments,
+			"",
+		}
+		
+		var buf bytes.Buffer
+		err := t.ExecuteTemplate(&buf,"tmpl_tournament_index", indexData)
+		index := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template tournament_index: %v", err)
+		}
+
+		err = templateshlp.Render(w, r, index, &funcs, "renderTournamentIndex")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+
+	}else if r.Method == "POST"{
+		query := r.FormValue("TournamentInputSearch")
+		if len(query) == 0{
+			http.Redirect(w, r, "teams", http.StatusFound)
+			return
+		}
+		words := helpers.SetOfStrings(query)
+		ids := tournamentinvmdl.GetIndexes(r, words)
+		c.Infof("pw: search: %v Ids:%v", query, ids)
+		result := searchmdl.TournamentScore(r, query, ids)
+		
+		tournaments := tournamentmdl.ByIds(r, result)
+		indexData := struct{
+			Tournaments []*tournamentmdl.Tournament
+			TournamentInputSearch string
+		}{
+			tournaments,
+			r.FormValue("TournamentInputSearch"),
+		}
+				var buf bytes.Buffer
+		err := t.ExecuteTemplate(&buf,"tmpl_tournament_index", indexData)
+		index := buf.Bytes()
+		
+		if err != nil{
+			c.Errorf("pw: error in parse template tournament_index: %v", err)
+		}
+
+		err = templateshlp.Render(w, r, index, &funcs, "renderTournamentIndex")
+		if err != nil{
+			c.Errorf("pw: error when calling Render from helpers: %v", err)
+		}
+
 	}
 }
 
@@ -249,13 +294,3 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	}
 
 }
-
-
-
-
-
-
-
-
-
-

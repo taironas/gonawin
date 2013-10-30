@@ -26,10 +26,62 @@ import (
 
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+
+	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+
 	helpers "github.com/santiaago/purple-wing/helpers"
 )
 
-func Score(r *http.Request, query string, ids []int64)[]int64{
+func TournamentScore(r *http.Request, query string, ids []int64)[]int64{
+	c := appengine.NewContext(r)
+
+	words := strings.Split(query, " ")
+	setOfWords := helpers.SetOfStrings(query)
+	nbTournamentWords, _ := tournamentinvidmdl.GetWordCount(c) 
+
+	// query vector
+	q := make([]float64, len(setOfWords))
+	for i,w := range setOfWords{
+		dft := 0
+		if inv_id := tournamentinvidmdl.Find(r, "KeyName", w); inv_id != nil{
+			dft = len(strings.Split(string(inv_id.TournamentIds), " "))
+		}
+		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
+	}
+	c.Infof("query vector: %v",q)
+
+	// d vector
+	//nbTournaments, _ := tournamentmdl.GetTournamentCounter(c)
+	vec_d := make([][]float64, len(ids))
+	for i, id := range ids{
+		d := make([]float64, len(setOfWords))
+		for j, wi := range setOfWords{
+			// get word frequency by tournament (id, wi)
+			wordFreqByTournament := tournamentmdl.GetWordFrequencyForTournament(r, id, wi)
+			// get number of tournaments with word (wi)
+			tournamentFreqForWord := tournamentinvidmdl.GetTournamentFrequencyForWord(r, wi)
+			d[j] = math.Log10(float64(1+wordFreqByTournament)) * math.Log10(float64(nbTournamentWords+1)/float64(tournamentFreqForWord+1))
+		}
+		vec_d[i] = make([]float64, len(setOfWords))
+		vec_d[i] = d		
+	}
+	c.Infof("d vector: %v",vec_d)
+
+	// compute score vector
+	var score map[int64]float64
+	score = make(map[int64]float64)
+	for i, vec_di := range vec_d{
+		score[ids[i]] = dotProduct(vec_di, q)
+	}
+	c.Infof("score vector :%v", score)
+	sortedScore := sortMapByValue(score)
+	c.Infof("sorted score: %v", sortedScore)
+
+	return getKeysFromPairList(sortedScore)
+}
+
+func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 	c := appengine.NewContext(r)
 
 	words := strings.Split(query, " ")

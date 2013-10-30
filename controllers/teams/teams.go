@@ -85,7 +85,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		words := helpers.SetOfStrings(query)
 		ids := teaminvidmdl.GetIndexes(r,words)
 		c.Infof("pw: search:%v Ids:%v",query, ids)
-		result := searchmdl.Score(r, query, ids)
+		result := searchmdl.TeamScore(r, query, ids)
 
 		teams := teammdl.ByIds(r, result)
 		indexData := struct { 

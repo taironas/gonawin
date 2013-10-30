@@ -186,3 +186,81 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 
 	return key
 }
+
+func GetIndexes(r *http.Request, words []string)[]int64{
+	c := appengine.NewContext(r)
+
+	strMerge := ""
+	for _, w := range words{
+		l := ""
+		if res := Find(r, "KeyName", w);res !=nil{
+			strTournamentIds := string(res.TournamentIds)
+			if len(l) == 0{
+				l = strTournamentIds
+			}else{
+				l = l + " " + strTournamentIds
+			}
+		}
+		if len(strMerge) == 0{
+			strMerge = l
+		}else{
+			// build intersection between merge and l
+			strMerge = helpers.Intersect(strMerge,l)
+		}
+	}
+	strIds := strings.Split(strMerge, " ")
+	intIds := make([]int64, len(strIds)) 
+
+	i := 0
+	for _, w := range strIds{
+		if n, err := strconv.ParseInt(w,10,64); err == nil{
+			intIds[i] = n
+			i = i + 1
+		}else{
+			c.Errorf("pw: unable to parse %v, error:%v", w, err)
+		}
+	}
+	return intIds	
+}
+
+func incrementWordCountTournament(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x WordCountTournament
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count++
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func decrementWordCountTournament(c appengine.Context, key *datastore.Key) (int64, error) {
+	var x WordCountTournament
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	x.Count--
+	if _, err := datastore.Put(c, key, &x); err != nil {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func GetWordCount(c appengine.Context)(int64, error){
+	key := datastore.NewKey(c, "WordCountTournament", "singleton", 0, nil)
+	var x WordCountTournament
+	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
+		return 0, err
+	}
+	return x.Count, nil
+}
+
+func GetTournamentFrequencyForWord(r *http.Request, word string)int64{
+	
+	if inv_id := Find(r, "KeyName", word); inv_id == nil{
+		return 0
+	}else{
+		return int64(len(strings.Split(string(inv_id.TournamentIds)," ")))
+	}
+}

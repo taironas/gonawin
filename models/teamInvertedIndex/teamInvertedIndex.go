@@ -286,13 +286,3 @@ func GetTeamFrequencyForWord(r *http.Request, word string)int64{
 		return int64(len(strings.Split(string(inv_id.TeamIds)," ")))
 	}
 }
-
-
-
-
-
-
-
-
-
-
