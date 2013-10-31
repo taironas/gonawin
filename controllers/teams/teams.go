@@ -46,77 +46,52 @@ type NewForm struct {
 	Error string
 }
 
+type indexData struct{
+	Teams []*teammdl.Team
+	TeamInputSearch string	
+}
+
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	funcs := template.FuncMap{
-		"Teams": func() bool {return true},
+	var data indexData
+	if r.Method == "GET"{
+		teams := teammdl.FindAll(r)
+		data.Teams = teams
+		data.TeamInputSearch = ""
+
+	} else if r.Method == "POST" {
+		if query := r.FormValue("TeamInputSearch"); len(query) == 0{
+			http.Redirect(w, r, "teams", http.StatusFound)
+			return
+		} else{
+			words := helpers.SetOfStrings(query)
+			ids := teaminvidmdl.GetIndexes(r,words)
+			c.Infof("pw: search:%v Ids:%v",query, ids)
+			result := searchmdl.TeamScore(r, query, ids)
+			
+			teams := teammdl.ByIds(r, result)
+			data.Teams = teams
+			data.TeamInputSearch = query
+		}
+	} else{
+		helpers.Error404(w)
 	}
 	
 	t := template.Must(template.New("tmpl_team_index").
 		ParseFiles("templates/team/index.html"))
-	if r.Method == "GET"{
-		teams := teammdl.FindAll(r)
-		indexData := struct { 
-			Teams []*teammdl.Team
-			TeamInputSearch string
-		}{
-			teams,
-			"",
-		}
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_team_index", indexData)
-		index := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template team_index: %v", err)
-		}
 
-		err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
-	} else if r.Method == "POST" {
-		query := r.FormValue("TeamInputSearch")
-		if len(query) == 0{
-			http.Redirect(w, r, "teams", http.StatusFound)
-			return
-		}
-		words := helpers.SetOfStrings(query)
-		ids := teaminvidmdl.GetIndexes(r,words)
-		c.Infof("pw: search:%v Ids:%v",query, ids)
-		result := searchmdl.TeamScore(r, query, ids)
-
-		teams := teammdl.ByIds(r, result)
-		indexData := struct { 
-			Teams []*teammdl.Team
-			TeamInputSearch string
-		}{
-			teams,
-			r.FormValue("TeamInputSearch"),
-		}
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_team_index", indexData)
-		index := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template team_index: %v", err)
-		}
-
-		err = templateshlp.Render(w, r, index, &funcs, "renderTeamIndex")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
+	funcs := template.FuncMap{
+		"Teams": func() bool {return true},
 	}
+
+	render(w, r, t, data, funcs, "renderTeamIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	funcs := template.FuncMap{}
-	
-	t := template.Must(template.New("tmpl_team_new").
-		ParseFiles("templates/team/new.html"))
 	
 	var form NewForm
 	if r.Method == "GET" {
@@ -137,7 +112,12 @@ func New(w http.ResponseWriter, r *http.Request){
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
 		}
+	} else{
+		helpers.Error404(w)
 	}
+
+	t := template.Must(template.New("tmpl_team_new").
+		ParseFiles("templates/team/new.html"))
 	
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf,"tmpl_team_new", form)
@@ -303,4 +283,24 @@ func Invite(w http.ResponseWriter, r *http.Request){
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
 	}
+}
+
+// Executes and Render template with the data structre and the func map passed as argument
+func render(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
+
+	c := appengine.NewContext(r)
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf, t.Name(), data)
+	index := buf.Bytes()
+	
+	if err != nil{
+		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
+	}
+	
+	err = templateshlp.Render(w, r, index, &funcs, id)
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
+	}
+
 }
