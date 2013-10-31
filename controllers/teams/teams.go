@@ -89,9 +89,6 @@ func Index(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
-	funcs := template.FuncMap{}
 	
 	var form NewForm
 	if r.Method == "GET" {
@@ -119,18 +116,9 @@ func New(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_team_new").
 		ParseFiles("templates/team/new.html"))
 	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_team_new", form)
-	edit := buf.Bytes()
-
-	if err != nil{
-		c.Errorf("pw: error in parse template team_new: %v", err)
-	}
-
-	err = templateshlp.Render(w, r, edit, &funcs, "renderTeamNew")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
+	funcs := template.FuncMap{}
+	
+	render(w, r, t, form, funcs, "renderTeamNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -139,8 +127,8 @@ func Show(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
-	}
-	
+	} 
+
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
 		// delete all team-user relationships
 		for _, player := range teamrelshlp.Players(r, intID) {
@@ -159,7 +147,6 @@ func Show(w http.ResponseWriter, r *http.Request){
 		
 		http.Redirect(w, r, "/m/teams", http.StatusFound)
 	}
-	
 	funcs := template.FuncMap{
 		"Joined": func() bool { return teammdl.Joined(r, intID, auth.CurrentUser(r).Id) },
 		"IsTeamAdmin": func() bool { return teammdl.IsTeamAdmin(r, intID, auth.CurrentUser(r).Id) },
@@ -172,9 +159,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		"templates/team/players.html"))
 
 	var team *teammdl.Team
-	team, err = teammdl.ById(r, intID)
-	
-	if err != nil{
+	if team, err = teammdl.ById(r, intID); err != nil{
 		helpers.Error404(w)
 		return
 	}
@@ -188,19 +173,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		team,
 		players,
 	}
-
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf, "tmpl_team_show", teamData)
-	show := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template team_show: %v", err)
-	}
-
-	err = templateshlp.Render(w, r, show, &funcs, "renderTeamShow")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
+	render(w, r, t, teamData, funcs, "renderTeamShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
