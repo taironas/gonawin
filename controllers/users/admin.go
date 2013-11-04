@@ -17,13 +17,13 @@
 package users
 
 import (
-	"bytes"
 	"html/template"
 	"net/http"
 	"time"
+	
+	"appengine"
 
-	"appengine"	
-
+	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
@@ -32,28 +32,22 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	t, err := template.ParseFiles("templates/admin/show.html")
-	
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_admin_show", nil)
-	adminShow := buf.Bytes()
-	
 	if err != nil{
-		c.Errorf("pw: error in parse template admin_show: %v", err)
-	}
+		c.Errorf("pw: cannot parse files  admin/show.html")
 
-	err = templateshlp.Render(w, r, adminShow, nil, "renderAdminShow")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
-
+	// no data needed, no func map used
+	templateshlp.Render_with_data(w, r, t, nil, nil, "renderAdminShow")
 }
 
 func AdminUsers(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	
+
 	t, err := template.ParseFiles("templates/admin/users.html",
 		"templates/user/info.html")
-
+	if err != nil{
+		c.Errorf("pw: cannot parse files  admin/users.html")
+	}
 	// sample of users
 	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
 	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
@@ -61,19 +55,8 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	users := [] usermdl.User{user1, user2, user3}
 	// end samlpe of users
 
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_admin_users_show", users)
-	adminUsers := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template admin_users_show: %v", err)
-	}
-
-	err = templateshlp.Render(w, r, adminUsers, nil, "renderAdminUsersShow")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
-
+	// no func map needed
+	templateshlp.Render_with_data(w, r, t, users, nil, "renderAdminUsersShow")
 }
 
 func AdminSearch(w http.ResponseWriter, r *http.Request){
@@ -81,20 +64,15 @@ func AdminSearch(w http.ResponseWriter, r *http.Request){
 
 	if r.Method == "GET" {
 		t, err := template.ParseFiles("templates/admin/search.html")
-	
-		var buf bytes.Buffer
-		err = t.ExecuteTemplate(&buf,"tmpl_admin_search", nil)
-		adminSearch := buf.Bytes()
-		
 		if err != nil{
-			c.Errorf("pw: error in parse template admin_search: %v", err)
+			c.Errorf("pw: cannot parse files  admin/search.html")
 		}
-		
-		err = templateshlp.Render(w, r, adminSearch, nil, "renderAdminSearch")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
-	}	
+
+		// no data or func map needed
+		templateshlp.Render_with_data(w, r, t, nil, nil, "renderAdminSearch")
+	}else{
+		helpers.Error404(w)
+	}
 }
 
 

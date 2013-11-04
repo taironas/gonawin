@@ -19,9 +19,6 @@
 import (
 	"net/http"
 	"html/template"
-	"bytes"
-	
-	"appengine"
 	
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
@@ -30,7 +27,6 @@ import (
 
 //contact handler: for contact page
 func Contact(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
 
 	data := data{
 		auth.CurrentUser(r),		
@@ -42,17 +38,6 @@ func Contact(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_contact").
 		Funcs(funcs).
 		ParseFiles("templates/pages/contact.html"))
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_contact", data)
-	main := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error executing template  contact: %v", err)
-	}
-	err = templateshlp.Render(w, r, main, &funcs, "renderContact")
-	
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers in Contact Handler: %v", err)
-	}
+
+	templateshlp.Render_with_data(w, r, t, data, funcs, "renderContact")
 }

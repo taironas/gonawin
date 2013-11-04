@@ -17,7 +17,6 @@
 package invite
 
 import (
-	"bytes"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -54,9 +53,6 @@ Your friends @ purple-wing
 func Email(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
-	t := template.Must(template.New("tmpl_invite_email").
-		ParseFiles("templates/invite/email.html"))
-	
 	var form InviteForm
 	form.Name = auth.CurrentUser(r).Name
 	
@@ -88,23 +84,16 @@ func Email(w http.ResponseWriter, r *http.Request){
 					if err := mail.Send(c, msg); err != nil {
 						c.Errorf("pw: couldn't send email: %v", err)
 					}
-				}
-				
+				}				
 				http.Redirect(w, r, "/m/", http.StatusFound)
+				return
 			} 
 		}
+	}else {
+		helpers.Error404(w)
 	}
+	t := template.Must(template.New("tmpl_invite_email").
+		ParseFiles("templates/invite/email.html"))
 	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf, "tmpl_invite_email", form)
-	mail := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error executing template email: %v", err)
-	}
-	err = templateshlp.Render(w, r, mail, nil, "renderEmail")
-	
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers in Email Handler: %v", err)
-	}
+	templateshlp.Render_with_data(w, r, t, form, nil, "renderEmail")
 }

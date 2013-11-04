@@ -17,7 +17,6 @@
 package tournaments
 
 import (
-	"bytes"
 	"html/template"
 	"net/http"
 	"fmt"
@@ -88,7 +87,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		"Tournaments": func() bool {return true},
 	}
 	
-	render(w, r, t, data, funcs, "renderTournamentIndex")
+	templateshlp.Render_with_data(w, r, t, data, funcs, "renderTournamentIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -118,7 +117,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	
-	render(w, r, t, form, funcs, "renderTournamentNew")
+	templateshlp.Render_with_data(w, r, t, form, funcs, "renderTournamentNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -188,7 +187,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teams,
 		candidateTeams,
 	}
-	render(w, r, t, tournamentData, funcs, "renderTournamentShow")
+	templateshlp.Render_with_data(w, r, t, tournamentData, funcs, "renderTournamentShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -220,7 +219,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		t := template.Must(template.New("tmpl_tournament_edit").
 			ParseFiles("templates/tournament/edit.html"))
 
-		render(w, r, t, tournament, funcs, "renderTournamentEdit")
+		templateshlp.Render_with_data(w, r, t, tournament, funcs, "renderTournamentEdit")
 
 	}else if r.Method == "POST"{
 		
@@ -237,24 +236,5 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
 		helpers.Error404(w)
-	}
-}
-
-// Executes and Render template with the data structre and the func map passed as argument
-func render(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
-
-	c := appengine.NewContext(r)
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf, t.Name(), data)
-	index := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
-	}
-	
-	err = templateshlp.Render(w, r, index, &funcs, id)
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
 }

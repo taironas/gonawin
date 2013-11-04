@@ -19,9 +19,6 @@ package pages
 import (
 	"net/http"
 	"html/template"
-	"bytes"
-	
-	"appengine"
 	
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
@@ -29,7 +26,6 @@ import (
 
 //about handler: for about page
 func About(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
 
 	data := data{
 		auth.CurrentUser(r),		
@@ -41,17 +37,13 @@ func About(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_about").
 		Funcs(funcs).
 		ParseFiles("templates/pages/about.html"))
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_about", data)
-	main := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error executing template  about: %v", err)
-	}
-	err = templateshlp.Render(w, r, main, &funcs, "renderAbout")
-	
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers in About Handler: %v", err)
-	}
+
+	templateshlp.Render_with_data(w, r, t, data, funcs, "renderAbout")
 }
+
+
+
+
+
+
+

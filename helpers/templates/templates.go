@@ -17,6 +17,7 @@
 package templates
 
 import (
+	"bytes"
 	"net/http"
 	"html/template"
 
@@ -77,6 +78,26 @@ func Render(w http.ResponseWriter,
 		return err
 	}
 	return nil
+}
+
+
+// Executes and Render template with the data structre and the func map passed as argument
+func Render_with_data(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
+
+	c := appengine.NewContext(r)
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf, t.Name(), data)
+	templateBytes := buf.Bytes()
+	
+	if err != nil{
+		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
+	}
+	
+	err = Render(w, r, templateBytes, &funcs, id)
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
+	}
 }
 
 // set all navigation pages to false caller should define only the active one

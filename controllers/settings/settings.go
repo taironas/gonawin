@@ -17,7 +17,6 @@
 package settings
 
 import (
-	"bytes"
 	"net/http"
 	"html/template"
 	
@@ -42,18 +41,8 @@ func Profile(w http.ResponseWriter, r *http.Request){
 			Funcs(funcs).
 			ParseFiles("templates/settings/profile.html"))
 		
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_settings_profile", auth.CurrentUser(r))
-		profile := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template settings_profile: %v", err)
-		}
-		
-		err = templateshlp.Render(w, r, profile, &funcs, "renderProfile")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
+		templateshlp.Render_with_data(w, r, t, auth.CurrentUser(r), funcs, "renderProfile")
+
 	}else if r.Method == "POST"{
 		currentUser := auth.CurrentUser(r)
 		
@@ -71,41 +60,19 @@ func Profile(w http.ResponseWriter, r *http.Request){
 }
 
 func Networks(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_networks").
 		ParseFiles("templates/settings/networks.html"))
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf, "tmpl_settings_networks", nil)
-	networks := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error executing template networks: %v", err)
-	}
-	err = templateshlp.Render(w, r, networks, nil, "renderNetworks")
-	
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers in Networks Handler: %v", err)
-	}
+
+	// no data, no funcs map
+	templateshlp.Render_with_data(w, r, t, nil, nil, "renderNetworks")
 }
 
 func Email(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_email").
 		ParseFiles("templates/settings/email.html"))
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf, "tmpl_settings_email", nil)
-	mail := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error executing template email: %v", err)
-	}
-	err = templateshlp.Render(w, r, mail, nil, "renderEmail")
-	
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers in Email Handler: %v", err)
-	}
+
+	// no data, no funcs map
+	templateshlp.Render_with_data(w, r, t, nil, nil, "renderEmail")
 }

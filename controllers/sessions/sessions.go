@@ -17,7 +17,6 @@
 package sessions
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -58,26 +57,14 @@ var twitterCallbackURL string = "/m/auth/twitter/callback"
 
 func Authenticate(w http.ResponseWriter, r *http.Request){
 	if !auth.LoggedIn(r) {
-		c := appengine.NewContext(r)
 		
 		funcs := template.FuncMap{}
 		
 		t := template.Must(template.New("tmpl_auth").
 			Funcs(funcs).
 			ParseFiles("templates/session/auth.html"))
-		
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_auth", nil)
-		main := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error executing template auth: %v", err)
-		}
-		err = templateshlp.Render(w, r, main, &funcs, "renderAuth")
-		
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers in Authenticate Handler: %v", err)
-		}
+		// no data needed
+		templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAuth")
 	} else {
 		//redirect to home page
 		http.Redirect(w, r, root, http.StatusFound)

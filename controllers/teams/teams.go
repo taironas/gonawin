@@ -17,7 +17,6 @@
 package teams
 
 import (
-	"bytes"
 	"html/template"
 	"net/http"
 	"fmt"
@@ -85,7 +84,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		"Teams": func() bool {return true},
 	}
 
-	render(w, r, t, data, funcs, "renderTeamIndex")
+	templateshlp.Render_with_data(w, r, t, data, funcs, "renderTeamIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -118,7 +117,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	
-	render(w, r, t, form, funcs, "renderTeamNew")
+	templateshlp.Render_with_data(w, r, t, form, funcs, "renderTeamNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -173,7 +172,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		team,
 		players,
 	}
-	render(w, r, t, teamData, funcs, "renderTeamShow")
+	templateshlp.Render_with_data(w, r, t, teamData, funcs, "renderTeamShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -202,19 +201,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			helpers.Error404(w)
 			return
 		}
+		templateshlp.Render_with_data(w, r, t, team, funcs, "renderTeamEdit")
 
-		var buf bytes.Buffer
-		err = t.ExecuteTemplate(&buf,"tmpl_team_edit", team)
-		edit := buf.Bytes()
-
-		if err != nil{
-			c.Errorf("pw: error in parse template team_edit: %v", err)
-		}
-
-		err = templateshlp.Render(w, r, edit, &funcs, "renderTeamEdit")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
 	}else if r.Method == "POST"{
 		
 		var team *teammdl.Team
@@ -238,6 +226,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		}
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
+	} else {
+		helpers.Error404(w)
 	}
 }
 
@@ -255,24 +245,5 @@ func Invite(w http.ResponseWriter, r *http.Request){
 		
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
-	}
-}
-
-// Executes and Render template with the data structre and the func map passed as argument
-func render(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
-
-	c := appengine.NewContext(r)
-	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf, t.Name(), data)
-	index := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
-	}
-	
-	err = templateshlp.Render(w, r, index, &funcs, id)
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
 }
