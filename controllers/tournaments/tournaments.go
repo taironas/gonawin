@@ -45,82 +45,53 @@ type Form struct {
 	Error string
 }
 
+type indexData struct{
+	Tournaments []*tournamentmdl.Tournament
+	TournamentInputSearch string
+}
+
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	
-	funcs := template.FuncMap{
-		"Tournaments": func() bool {return true},
-	}
-	
-	t := template.Must(template.New("tmpl_tournament_index").
-		ParseFiles("templates/tournament/index.html"))
-	
+
+
+	var data indexData	
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(r)
 
-		indexData := struct { 
-			Tournaments []*tournamentmdl.Tournament
-			TournamentInputSearch string
-		}{
-			tournaments,
-			"",
-		}
+		data.Tournaments =tournaments
+		data.TournamentInputSearch = ""
 		
-		var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_tournament_index", indexData)
-		index := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template tournament_index: %v", err)
-		}
-
-		err = templateshlp.Render(w, r, index, &funcs, "renderTournamentIndex")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
-
 	}else if r.Method == "POST"{
 		query := r.FormValue("TournamentInputSearch")
 		if len(query) == 0{
 			http.Redirect(w, r, "teams", http.StatusFound)
 			return
 		}
+
 		words := helpers.SetOfStrings(query)
 		ids := tournamentinvmdl.GetIndexes(r, words)
 		c.Infof("pw: search: %v Ids:%v", query, ids)
 		result := searchmdl.TournamentScore(r, query, ids)
 		
 		tournaments := tournamentmdl.ByIds(r, result)
-		indexData := struct{
-			Tournaments []*tournamentmdl.Tournament
-			TournamentInputSearch string
-		}{
-			tournaments,
-			r.FormValue("TournamentInputSearch"),
-		}
-				var buf bytes.Buffer
-		err := t.ExecuteTemplate(&buf,"tmpl_tournament_index", indexData)
-		index := buf.Bytes()
-		
-		if err != nil{
-			c.Errorf("pw: error in parse template tournament_index: %v", err)
-		}
+		data.Tournaments = tournaments
+		data.TournamentInputSearch = query
 
-		err = templateshlp.Render(w, r, index, &funcs, "renderTournamentIndex")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
-
+	}else{
+		helpers.Error404(w)
 	}
+	
+	t := template.Must(template.New("tmpl_tournament_index").
+		ParseFiles("templates/tournament/index.html"))
+
+	funcs := template.FuncMap{
+		"Tournaments": func() bool {return true},
+	}
+	
+	render(w, r, t, data, funcs, "renderTournamentIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
-	funcs := template.FuncMap{}
-	
-	t := template.Must(template.New("tmpl_tournament_new").
-		ParseFiles("templates/tournament/new.html"))
 	
 	var form Form
 	if r.Method == "GET" {
@@ -138,20 +109,16 @@ func New(w http.ResponseWriter, r *http.Request){
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/m/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
 		}
+	} else {
+		helpers.Error404(w)
 	}
 	
-	var buf bytes.Buffer
-	err := t.ExecuteTemplate(&buf,"tmpl_tournament_new", form)
-	edit := buf.Bytes()
-
-	if err != nil{
-		c.Errorf("pw: error in parse template tournament_new: %v", err)
-	}
-
-	err = templateshlp.Render(w, r, edit, &funcs, "renderTournamentNew")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
+	t := template.Must(template.New("tmpl_tournament_new").
+		ParseFiles("templates/tournament/new.html"))
+	
+	funcs := template.FuncMap{}
+	
+	render(w, r, t, form, funcs, "renderTournamentNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -160,6 +127,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+		return
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
@@ -179,6 +147,9 @@ func Show(w http.ResponseWriter, r *http.Request){
 		tournamentmdl.Destroy(r, intID)
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
+	} else {
+		helpers.Error404(w)
+		return
 	}
 	
 	funcs := template.FuncMap{
@@ -217,19 +188,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teams,
 		candidateTeams,
 	}
-
-	var buf bytes.Buffer
-	err = t.ExecuteTemplate(&buf,"tmpl_tournament_show", tournamentData)
-	show := buf.Bytes()
-	
-	if err != nil{
-		c.Errorf("pw: error in parse template tournament_show: %v", err)
-	}
-
-	err = templateshlp.Render(w, r, show, &funcs, "renderTournamentShow")
-	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
-	}
+	render(w, r, t, tournamentData, funcs, "renderTournamentShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -238,10 +197,20 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+		return
 	}
 	
 	if !tournamentmdl.IsTournamentAdmin(r, intID, auth.CurrentUser(r).Id) {
 		http.Redirect(w, r, "/m", http.StatusFound)
+		return
+	}
+
+	var tournament *tournamentmdl.Tournament
+	tournament, err = tournamentmdl.ById(r, intID)
+	if err != nil{
+		c.Errorf("pw: Tournament Edit handler: tournament not found. id: %v",intID)
+		helpers.Error404(w)
+		return
 	}
 		
 	if r.Method == "GET" {
@@ -251,35 +220,10 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		t := template.Must(template.New("tmpl_tournament_edit").
 			ParseFiles("templates/tournament/edit.html"))
 
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(r, intID)
+		render(w, r, t, tournament, funcs, "renderTournamentEdit")
 
-		if err != nil{
-			helpers.Error404(w)
-			return
-		}
-
-		var buf bytes.Buffer
-		err = t.ExecuteTemplate(&buf,"tmpl_tournament_edit", tournament)
-		edit := buf.Bytes()
-
-		if err != nil{
-			c.Errorf("pw: error in parse template tournament_edit: %v", err)
-		}
-
-		err = templateshlp.Render(w, r, edit, &funcs, "renderTournamentEdit")
-		if err != nil{
-			c.Errorf("pw: error when calling Render from helpers: %v", err)
-		}
 	}else if r.Method == "POST"{
 		
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(r,intID)
-		if err != nil{
-			c.Errorf("pw: Tournament Edit handler: tournament not found. id: %v",intID)		
-			helpers.Error404(w)
-			return
-		}
 		// only work on name other values should not be editable
 		editName := r.FormValue("Name")
 
@@ -291,6 +235,26 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		}
 		url := fmt.Sprintf("/m/tournaments/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
+	} else {
+		helpers.Error404(w)
 	}
+}
 
+// Executes and Render template with the data structre and the func map passed as argument
+func render(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
+
+	c := appengine.NewContext(r)
+	
+	var buf bytes.Buffer
+	err := t.ExecuteTemplate(&buf, t.Name(), data)
+	index := buf.Bytes()
+	
+	if err != nil{
+		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
+	}
+	
+	err = templateshlp.Render(w, r, index, &funcs, id)
+	if err != nil{
+		c.Errorf("pw: error when calling Render from helpers: %v", err)
+	}
 }

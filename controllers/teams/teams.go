@@ -275,5 +275,4 @@ func render(w http.ResponseWriter, r *http.Request, t *template.Template, data i
 	if err != nil{
 		c.Errorf("pw: error when calling Render from helpers: %v", err)
 	}
-
 }
