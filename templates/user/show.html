@@ -3,10 +3,7 @@
 	<h1>User</h1>
 </div>
 {{template "tmpl_user_info" .User}}
-<div class="form-actions">
-	<a href="/m/users/{{.User.Id}}/edit" class="btn"><span>Edit</span></a>
-	<a href="/m/users/{{.User.Id}}" class="btn btn-danger" data-confirm="Are you sure?" data-method="delete">Delete</a>
-</div>
 {{template "tmpl_user_teams" .Teams}}
 {{template "tmpl_user_tournaments" .Tournaments}}
+{{template "tmpl_user_requests" .TeamRequests}}
 {{end}}

@@ -99,5 +99,5 @@ func ById(r *http.Request, id int64) (*TeamRequest, error) {
 }
 
 func Sent(r *http.Request, teamId int64, userId int64) bool {
-	return findByTeamIdAndUserId != nil
+	return findByTeamIdAndUserId(r, teamId, userId) != nil
 }
