@@ -31,6 +31,8 @@ import (
 	oauth2 "code.google.com/p/goauth2/oauth"
 	
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	userhlp "github.com/santiaago/purple-wing/helpers/user"
+	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
@@ -69,7 +71,6 @@ func facebookConfig(host string) *oauth2.Config{
 		TokenURL:     "https://graph.facebook.com/oauth/access_token",
 		RedirectURL:  fmt.Sprintf("http://%s%s/auth/facebook/callback", host, root),
 	}
-
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request){
@@ -109,10 +110,10 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 		},
 	}
 	
-	var userInfo *usermdl.GPlusUserInfo
+	var userInfo *userhlp.GPlusUserInfo
 	
 	if _, err := t.Exchange(code); err == nil {
-		userInfo, _ = usermdl.FetchGPlusUserInfo(r, t.Client())
+		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
 	if auth.IsAuthorizedWithGoogle(userInfo) {
 		var user *usermdl.User
@@ -175,7 +176,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 		c.Debugf("pw: error getting user info from twitter: %v", err)
 	}
 
-	userInfo, _ := usermdl.FetchTwitterUserInfo(resp)
+	userInfo, _ := userhlp.FetchTwitterUserInfo(resp)
 
 	if auth.IsAuthorizedWithTwitter(userInfo) {
 		var user *usermdl.User
@@ -245,7 +246,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
-	userInfo, err := usermdl.FetchFacebookUserInfo(graphResponse)
+	userInfo, err := userhlp.FetchFacebookUserInfo(graphResponse)
 	if err != nil{
 		c.Errorf("pw: FetchFacebookUserInfo: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
@@ -268,7 +269,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 
 func isFacebookTokenValid(response *http.Response) (bool, error){
 
-	tokeData, err := usermdl.FetchFacebookTokenData(response)
+	tokeData, err := userhlp.FetchFacebookTokenData(response)
 	if err == nil{
 		if tokeData.Data.Is_valid && 
 			(strconv.Itoa(tokeData.Data.App_id) == FACEBOOK_CLIENT_ID) &&

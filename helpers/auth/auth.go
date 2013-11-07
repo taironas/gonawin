@@ -19,21 +19,21 @@ package auth
 import (
 	"net/http"
 	
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	user "github.com/santiaago/purple-wing/helpers/user"
 )
 
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEemailSarias = "santiago.ariassar@gmail.com"
 
-func IsAuthorizedWithGoogle(ui *usermdl.GPlusUserInfo) bool {
+func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
 }
 
-func IsAuthorizedWithTwitter(ui *usermdl.TwitterUserInfo) bool {
+func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
 	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
 }
 
-func IsAuthorizedWithFacebook(ui *usermdl.FacebookUserInfo) bool {
+func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
 }
 

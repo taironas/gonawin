@@ -17,18 +17,18 @@
 package auth
 
 import (
-    "net/http"
-    "io"
-    "fmt"
-    "crypto/rand"
-    "strconv"
+	"net/http"
+	"io"
+	"fmt"
+	"crypto/rand"
+	"strconv"
 	"time"
-    
-    "appengine"
+	
+	"appengine"
 	"appengine/datastore"
-    "appengine/memcache"
-    
-    usermdl "github.com/santiaago/purple-wing/models/user"
+	"appengine/memcache"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type AuthKey struct {
