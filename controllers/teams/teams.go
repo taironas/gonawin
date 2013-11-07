@@ -17,9 +17,10 @@
 package teams
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
-	"fmt"
+	"strconv"
 
 	"appengine"	
 
@@ -243,7 +244,29 @@ func Invite(w http.ResponseWriter, r *http.Request){
 			appengine.NewContext(r).Errorf("pw: no team request has been created")
 		}
 		
-		url := fmt.Sprintf("/m/teams/%d",intID)
+		url := fmt.Sprintf("/m/teams/%d", intID)
+		http.Redirect(w, r, url, http.StatusFound)
+	}
+}
+
+func Request(w http.ResponseWriter, r *http.Request){
+	
+	if r.Method == "POST"{
+		
+		requestId, _ := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
+		
+		if r.FormValue("SubmitButton") == "Accept" {
+			if teamRequest, err := teamrequestmdl.ById(r, requestId); err == nil {
+				// join user to the team
+				teammdl.Join(r, teamRequest.TeamId, teamRequest.UserId);
+			} else {
+				appengine.NewContext(r).Errorf("pw: cannot find team request with id=%d", requestId)
+			}
+		}
+		
+		teamrequestmdl.Destroy(r, requestId)
+		
+		url := fmt.Sprintf("/m/users/%d", auth.CurrentUser(r).Id)
 		http.Redirect(w, r, url, http.StatusFound)
 	}
 }

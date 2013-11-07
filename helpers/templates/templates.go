@@ -52,11 +52,10 @@ func Render(w http.ResponseWriter,
 	var funcs template.FuncMap
  
 	if pfuncs == nil {
-		funcs = template.FuncMap{}
-	}else{
+		c.Errorf("pw: Render: pFuncs should not be nil")
+	} else {
 		funcs = *pfuncs
-	}
-
+	}	
 	initNavFuncMap(&funcs, r)
 
 	tmpl := template.Must(template.New(name).
@@ -74,14 +73,13 @@ func Render(w http.ResponseWriter,
 	}
 	err := tmpl.ExecuteTemplate(w,"tmpl_app",content)
 	if err != nil{
-		c.Errorf("error in execute templateO: %q", err)
+		c.Errorf("error in execute template: %q", err)
 		return err
 	}
 	return nil
 }
 
-
-// Executes and Render template with the data structre and the func map passed as argument
+// Executes and Render template with the data structure and the func map passed as argument
 func Render_with_data(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
 
 	c := appengine.NewContext(r)
@@ -103,8 +101,9 @@ func Render_with_data(w http.ResponseWriter, r *http.Request, t *template.Templa
 // set all navigation pages to false caller should define only the active one
 func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 	
-	funcs := *pfuncs
-	if funcs != nil{
+	if pfuncs != nil{
+		funcs := *pfuncs
+		
 		if _,ok := funcs[""]; !ok {
 			funcs["LoggedIn"] = func() bool { return auth.LoggedIn(r) }
 		}
@@ -120,7 +119,8 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 		if _,ok := funcs["Admin"]; !ok {
 			funcs["Admin"] = func() bool {return auth.IsAdmin(r)}
 		}
-	}else{
+		
+	} else {
 		c := appengine.NewContext(r)
 		c.Errorf("error in initNavFuncMap, funcs is nil, unable to init funcs map")
 	}

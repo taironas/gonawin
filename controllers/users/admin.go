@@ -36,8 +36,9 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: cannot parse files  admin/show.html")
 
 	}
-	// no data needed, no func map used
-	templateshlp.Render_with_data(w, r, t, nil, nil, "renderAdminShow")
+	// no data needed
+	funcs := template.FuncMap{}
+	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAdminShow")
 }
 
 func AdminUsers(w http.ResponseWriter, r *http.Request){
@@ -55,8 +56,8 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	users := [] usermdl.User{user1, user2, user3}
 	// end samlpe of users
 
-	// no func map needed
-	templateshlp.Render_with_data(w, r, t, users, nil, "renderAdminUsersShow")
+	funcs := template.FuncMap{}
+	templateshlp.Render_with_data(w, r, t, users, funcs, "renderAdminUsersShow")
 }
 
 func AdminSearch(w http.ResponseWriter, r *http.Request){
@@ -68,8 +69,9 @@ func AdminSearch(w http.ResponseWriter, r *http.Request){
 			c.Errorf("pw: cannot parse files  admin/search.html")
 		}
 
-		// no data or func map needed
-		templateshlp.Render_with_data(w, r, t, nil, nil, "renderAdminSearch")
+		// no data
+		funcs := template.FuncMap{}
+		templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAdminSearch")
 	}else{
 		helpers.Error404(w)
 	}

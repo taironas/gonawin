@@ -29,6 +29,8 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
+	
 )
 
 type Form struct {
@@ -41,8 +43,8 @@ type Form struct {
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
-
-	intID, err := handlers.PermalinkID(r,3)
+	
+	userId, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/users/", http.StatusFound)
 		return
@@ -57,26 +59,30 @@ func Show(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/user/show.html", 
 		"templates/user/info.html",
 		"templates/user/teams.html",
-		"templates/user/tournaments.html"))
+		"templates/user/tournaments.html",
+		"templates/user/requests.html"))
 
 	var user *usermdl.User
-	user, err = usermdl.ById(r,intID)
+	user, err = usermdl.ById(r,userId)
 	if err != nil{
 		helpers.Error404(w)
 		return
 	}
 	
-	teams := teamrelshlp.Teams(r, intID)
-	tournaments := tournamentrelshlp.Tournaments(r, intID)
+	teams := teamrelshlp.Teams(r, userId)
+	tournaments := tournamentrelshlp.Tournaments(r, userId)
+	teamRequests := teamrelshlp.TeamsRequests(r, teams)
 	
 	userData := struct { 
 		User *usermdl.User
 		Teams []*teammdl.Team
 		Tournaments []*tournamentmdl.Tournament
+		TeamRequests []*teamrequestmdl.TeamRequest
 	}{
 		user,
 		teams,
 		tournaments,
+		teamRequests,
 	}
 	
 	templateshlp.Render_with_data(w, r, t, userData, funcs, "renderUserShow")

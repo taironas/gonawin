@@ -21,6 +21,7 @@ import (
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
@@ -50,4 +51,14 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	}
 
 	return teams
+}
+
+func TeamsRequests(r *http.Request, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
+	var teamRequests []*teamrequestmdl.TeamRequest
+	
+	for _, team := range teams {
+		teamRequests = append(teamRequests, teamrequestmdl.Find(r, "TeamId", team.Id)...)
+	}
+
+	return teamRequests
 }
