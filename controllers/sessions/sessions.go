@@ -34,7 +34,6 @@ import (
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
-	//usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const root string = "/m"
@@ -179,7 +178,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 		c.Errorf("pw: TwitterAuthCallback, error getting user info from twitter: %v", err)
 	}
 
-	userInfo, err := usermdl.FetchTwitterUserInfo(resp)
+	userInfo, err := userhlp.FetchTwitterUserInfo(resp)
 	if err != nil {
 		c.Errorf("pw: TwitterAuthCallback, error occurred when fetching twitter user info: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)

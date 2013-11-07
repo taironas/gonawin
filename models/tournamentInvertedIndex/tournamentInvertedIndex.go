@@ -50,7 +50,7 @@ func Create(r *http.Request, name string, tournamentIds string) *TournamentInver
 	byteIds := []byte(tournamentIds)
 	t := &TournamentInvertedIndex{ id, helpers.TrimLower(name), byteIds }
 
-	_, err := datastore.Put(c, key, t)
+	_, err = datastore.Put(c, key, t)
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}

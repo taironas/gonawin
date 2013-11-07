@@ -45,7 +45,7 @@ func Create(r *http.Request, teamId int64, userId int64) *TeamRequest {
 
 	teamRequest := &TeamRequest{ teamRequestId, teamId, userId, time.Now() }
 
-	_, err := datastore.Put(c, key, teamRequest)
+	_, err = datastore.Put(c, key, teamRequest)
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}

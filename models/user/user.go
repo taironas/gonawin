@@ -49,7 +49,7 @@ func Create(r *http.Request, email string, username string, name string, auth st
 	
 	user := &User{ userId, email, username, name, auth, time.Now() }
 
-	_, err := datastore.Put(c, key, user)
+	_, err = datastore.Put(c, key, user)
 	if err != nil {
 		c.Errorf("User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
@@ -105,6 +105,7 @@ func Update(r *http.Request, u *User) error{
 }
 
 func Teams(r *http.Request, userId int64) []*teammdl.Team {
+	c := appengine.NewContext(r)
 	
 	var teams []*teammdl.Team
 	

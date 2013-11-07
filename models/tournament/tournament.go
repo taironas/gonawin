@@ -60,7 +60,7 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 
 	tournament := &Tournament{ tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now() }
 
-	_, err := datastore.Put(c, key, tournament)
+	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
 		c.Errorf("Create: %v", err)
 	}
