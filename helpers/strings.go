@@ -49,7 +49,6 @@ func SliceContains(slice []string, s string)bool{
 	return false
 }
 
-
 func StringContains(strToSplit string, s string)bool{
 	slice := strings.Split(strToSplit, " ")
 	for _, w := range slice{
@@ -78,7 +77,6 @@ func Intersect(a string, b string) string{
 	}
 	return intersect
 }
-
 
 func CountTerm(words []string, w string)int64{
 	var c int64 = 0

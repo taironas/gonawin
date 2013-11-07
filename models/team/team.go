@@ -48,7 +48,11 @@ type TeamCounter struct {
 func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 	c := appengine.NewContext(r)
 	// create new team
-	teamId, _, _ := datastore.AllocateIDs(c, "Team", nil, 1)
+	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
+	if err != nil {
+		c.Errorf("pw: Team.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 
 	team := &Team{ teamId, helpers.TrimLower(name), name, adminId, private, time.Now() }

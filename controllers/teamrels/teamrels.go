@@ -30,7 +30,10 @@ func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get team id
-	teamId , _ := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
+	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
+	if err != nil {
+		c.Errorf("pw: teamRels.Show, string value could not be parsed: %v", err)
+	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
 		if err := teammdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
@@ -42,7 +45,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 				c.Errorf("pw: teamRels.Show: %v", err)
 			}
 		} else {
-			c.Errorf("pw: teamRels.Show: Team administrator cannot leave the team")
+			c.Errorf("pw: teamRels.Show, Team administrator cannot leave the team")
 		}
 	}
 	

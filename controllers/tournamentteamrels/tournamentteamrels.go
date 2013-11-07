@@ -29,10 +29,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get tournament id
-	tournamentId , _ := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	teamId , _ := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
-	
-	c.Infof("pw tournamentteamrels.Show: tournamentId=%d, teamId=%d", tournamentId, teamId)
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		c.Errorf("pw: tournamentteamrels.Show, string value could not be parsed: %v", err)
+	}
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
+	if err != nil {
+		c.Errorf("pw: tournamentteamrels.Show, string value could not be parsed: %v", err)
+	}
 
 	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
 		if err := tournamentmdl.TeamJoin(r, tournamentId, teamId); err != nil {

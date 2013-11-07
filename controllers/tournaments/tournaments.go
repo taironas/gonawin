@@ -52,17 +52,16 @@ type indexData struct{
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
-
 	var data indexData	
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(r)
 
-		data.Tournaments =tournaments
+		data.Tournaments = tournaments
 		data.TournamentInputSearch = ""
 		
-	}else if r.Method == "POST"{
+	} else if r.Method == "POST" {
 		query := r.FormValue("TournamentInputSearch")
-		if len(query) == 0{
+		if len(query) == 0 {
 			http.Redirect(w, r, "teams", http.StatusFound)
 			return
 		}
@@ -76,8 +75,9 @@ func Index(w http.ResponseWriter, r *http.Request){
 		data.Tournaments = tournaments
 		data.TournamentInputSearch = query
 
-	}else{
+	} else {
 		helpers.Error404(w)
+		return
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_index").
@@ -107,9 +107,11 @@ func New(w http.ResponseWriter, r *http.Request){
 			tournament := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/m/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
+			return
 		}
 	} else {
 		helpers.Error404(w)
+		return
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_new").
@@ -221,7 +223,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 		templateshlp.Render_with_data(w, r, t, tournament, funcs, "renderTournamentEdit")
 
-	}else if r.Method == "POST"{
+	} else if r.Method == "POST" {
 		
 		// only work on name other values should not be editable
 		editName := r.FormValue("Name")
@@ -229,7 +231,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		if helpers.IsStringValid(editName) && editName != tournament.Name{
 			tournament.Name = editName
 			tournamentmdl.Update(r, intID, tournament)
-		}else{
+		} else {
 			c.Errorf("pw: cannot update %v", helpers.IsStringValid(editName))
 		}
 		url := fmt.Sprintf("/m/tournaments/%d",intID)

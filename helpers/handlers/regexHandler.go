@@ -46,11 +46,11 @@ func (h *RegexpHandler) HandleFunc(strPattern string, handler func(http.Response
 
 func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range h.routes {
-        if route.pattern.MatchString(r.URL.Path) {
-            route.handler.ServeHTTP(w, r)
-            return
-        }
-    }
-    // no pattern matched; send 404 response
-    http.NotFound(w, r)
+			if route.pattern.MatchString(r.URL.Path) {
+					route.handler.ServeHTTP(w, r)
+					return
+			}
+	}
+	// no pattern matched; send 404 response
+	http.NotFound(w, r)
 }

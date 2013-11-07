@@ -88,8 +88,8 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, root, http.StatusFound)
 	}
 }
-// Google 
 
+// Google 
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 	if !authhlp.LoggedIn(r) {
 		url := googleConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
@@ -101,8 +101,8 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
-
 	c := appengine.NewContext(r)
+	
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -129,15 +129,17 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 }
 
 // Twitter
-
 func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
+
 	if !authhlp.LoggedIn(r) {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
 		if err != nil {
-			http.Error(w, "Error getting temp cred, "+err.Error(), 500)
+			c.Errorf("pw: AuthenticateWithTwitter, error getting temporary credentials: %v", err)
+			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
+		
 		http.SetCookie(w, &http.Cookie{ Name: "secret", Value: credentials.Secret, Path: "/m", })
 		http.Redirect(w, r, twitterConfig.AuthorizationURL(credentials, nil), 302)
 	} else {
@@ -155,13 +157,17 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	cred.Token = requestToken
 	if cookie, err := r.Cookie("secret"); err == nil {
 		cred.Secret = cookie.Value
+	} else {
+		c.Errorf("pw: TwitterAuthCallback, error getting 'secret' cookie: %v", err)
 	}
+	
 	// clear 'secret' cookie
 	http.SetCookie(w, &http.Cookie{ Name: "secret", Path: "/m", Expires: time.Now(), })
 	
 	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
-		http.Error(w, "Error getting request token, "+err.Error(), 500)
+		c.Errorf("pw: TwitterAuthCallback, error getting request token: %v", err)
+		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	
@@ -170,10 +176,15 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	urlValues.Set("user_id", values.Get("user_id"))
 	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
 	if err != nil {
-		c.Debugf("pw: error getting user info from twitter: %v", err)
+		c.Errorf("pw: TwitterAuthCallback, error getting user info from twitter: %v", err)
 	}
 
-	userInfo, _ := userhlp.FetchTwitterUserInfo(resp)
+	userInfo, err := usermdl.FetchTwitterUserInfo(resp)
+	if err != nil {
+		c.Errorf("pw: TwitterAuthCallback, error occurred when fetching twitter user info: %v", err)
+		http.Redirect(w, r, root, http.StatusFound)
+		return
+	}
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
 		if err := authhlp.SignupUser(w, r, userInfo.Screen_name, "", userInfo.Screen_name, userInfo.Name); err != nil{
@@ -187,7 +198,6 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 }
 
 // Facebook
-
 func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 	if !authhlp.LoggedIn(r) {
 		url := facebookConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
@@ -201,7 +211,6 @@ func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	
 	c := appengine.NewContext(r)
-	c.Infof("pw: FacebookAuthCallback: Enter!")
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -210,37 +219,37 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 			Context: appengine.NewContext(r),
 		},
 	}	
+	
 	if v, err := t.Exchange(code); err != nil {
-		c.Errorf("pw: Error in Exchange: %v, returned value: %v", err, v)
+		c.Errorf("pw: FacebookAuthCallback, error occurred during exchange: %v, returned value: %v", err, v)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 
-	c.Infof("pw: FacebookAuthCallback Exchange ok!")
 	// build facebook url from debug_token url and get response
 	urlFacebook := fmt.Sprintf(kUrlFacebookDebugToken, t.Token.AccessToken, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET)
 	accessTokenResponse, err := t.Client().Get(urlFacebook)
 	if err != nil {
-		c.Errorf("pw: Client Get error calling %s : %v",urlFacebook, err)
+		c.Errorf("pw: FacebookAuthCallback, client get error calling %s : %v", urlFacebook, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	// verify if information from facebook is valid for current user.
 	if isValid, err := isFacebookTokenValid(accessTokenResponse); (err != nil || !isValid){
-		c.Errorf("pw: isFacebookTokenValid: Is valid: %v, Error: %v", isValid, err)
+		c.Errorf("pw: FacebookAuthCallback, isFacebookTokenValid: Is valid: %v, Error: %v", isValid, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	// ask facebook.com/me for user profile information
 	graphResponse, err := t.Client().Get(kUrlFacebookMe)
 	if err != nil {
-		c.Errorf("pw: Failure on Get request %s: %v", kUrlFacebookMe, err)
+		c.Errorf("pw: FacebookAuthCallback, failure on get request %s: %v", kUrlFacebookMe, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	userInfo, err := userhlp.FetchFacebookUserInfo(graphResponse)
 	if err != nil{
-		c.Errorf("pw: FetchFacebookUserInfo: %v", err)
+		c.Errorf("pw: FacebookAuthCallback, error occurred when fetching facebook user info: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
@@ -256,11 +265,11 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 
 func isFacebookTokenValid(response *http.Response) (bool, error){
 
-	tokeData, err := userhlp.FetchFacebookTokenData(response)
+	tokenData, err := userhlp.FetchFacebookTokenData(response)
 	if err == nil{
-		if tokeData.Data.Is_valid && 
-			(strconv.Itoa(tokeData.Data.App_id) == FACEBOOK_CLIENT_ID) &&
-			(tokeData.Data.Application == "purple-wing"){
+		if tokenData.Data.Is_valid && 
+			(strconv.Itoa(tokenData.Data.App_id) == FACEBOOK_CLIENT_ID) &&
+			(tokenData.Data.Application == "purple-wing"){
 			return true, err
 		}
 	}

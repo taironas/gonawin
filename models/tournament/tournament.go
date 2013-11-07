@@ -51,7 +51,11 @@ type TournamentCounter struct {
 func Create(r *http.Request, name string, description string, start time.Time, end time.Time, adminId int64 ) *Tournament {
 	c := appengine.NewContext(r)
 	// create new tournament
-	tournamentID, _, _ := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	if err != nil {
+		c.Errorf("pw: Tournament.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
 	tournament := &Tournament{ tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now() }
@@ -110,7 +114,6 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 
 	return key
 }
-
 
 func Update(r *http.Request, id int64, t *Tournament) error{
 	c := appengine.NewContext(r)

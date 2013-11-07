@@ -37,11 +37,14 @@ type WordCountTeam struct{
 	Count int64
 }
 
-
 func Create(r *http.Request, word string, teamIds string) *TeamInvertedIndex {
 	c := appengine.NewContext(r)
-	c.Infof("pw: CreateTeamInvertedIndex")
-	id, _, _ := datastore.AllocateIDs(c, "TeamInvertedIndex", nil, 1)
+	
+	id, _, err := datastore.AllocateIDs(c, "TeamInvertedIndex", nil, 1)
+	if err != nil {
+		c.Errorf("pw: TeamInvertedIndex.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
 	
 	byteIds := []byte(teamIds)
@@ -69,9 +72,8 @@ func Create(r *http.Request, word string, teamIds string) *TeamInvertedIndex {
 // For each word check if it exist in the Team Inverted Index. 
 // if not create a line with the word as key and team id as value.
 func Add(r *http.Request, name string, id int64){
-
 	c := appengine.NewContext(r)
-	c.Infof("pw: AddToTeamInvertedIndex start")
+	
 	words := strings.Split(name, " ")
 	for _, w:= range words{
 		c.Infof("pw: AddToTeamInvertedIndex: Word: %v", w)
@@ -94,16 +96,13 @@ func Add(r *http.Request, name string, id int64){
 				}
 			}
 		}
-	}
-	c.Infof("pw: AddToTeamInvertedIndex end")
-	
+	}	
 }
 
 // from the oldname and the new name we handle removal of words no longer present.
 // the addition of new words.
 func Update(r *http.Request, oldname string, newname string, id int64){
 	c := appengine.NewContext(r)
-	c.Infof("pw: UpdateToTeamInvertedIndex start")
 
 	// if word in old and new do nothing
 	old_w := strings.Split(oldname," ")
@@ -136,17 +135,12 @@ func Update(r *http.Request, oldname string, newname string, id int64){
 			AddWord(r, wn, id)
 		}
 	}
-
-	c.Infof("pw: AddToTeamInvertedIndex end")	
-
 }
 
 // if the removal of the id makes the entity useless (no more ids in it)
 // we will remove the entity as well
 func RemoveWord(r *http.Request, w string, id int64){
-
 	c := appengine.NewContext(r)
-	c.Infof("pw: RemoveWordFromTeamInvertedIndex start")
 
 	if inv_id := Find(r, "KeyName", w); inv_id == nil{
 		c.Infof("pw: word %v does not exist in Team InvertedIndex so nothing to remove",w)
@@ -179,7 +173,6 @@ func RemoveWord(r *http.Request, w string, id int64){
 			c.Errorf("pw: unable to remove id from ids: %v",err)
 		}
 	}
-	c.Infof("pw: RemoveWordFromTeamInvertedIndex end")	
 }
 
 

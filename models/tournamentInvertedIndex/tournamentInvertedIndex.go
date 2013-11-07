@@ -40,7 +40,11 @@ type WordCountTournament struct{
 func Create(r *http.Request, name string, tournamentIds string) *TournamentInvertedIndex {
 	c := appengine.NewContext(r)
 	
-	id, _, _ := datastore.AllocateIDs(c, "TournamentInvertedIndex", nil, 1)
+	id, _, err := datastore.AllocateIDs(c, "TournamentInvertedIndex", nil, 1)
+	if err != nil {
+		c.Errorf("pw: TournamentInvertedIndex.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
 	
 	byteIds := []byte(tournamentIds)
@@ -59,9 +63,8 @@ func Create(r *http.Request, name string, tournamentIds string) *TournamentInver
 // For each word check if it exist in the Tournament Inverted Index. 
 // if not create a line with the word as key and team id as value.
 func Add(r *http.Request, name string, id int64){
-
 	c := appengine.NewContext(r)
-	c.Infof("pw: AddToTournamentInvertedIndex start")
+	
 	words := strings.Split(name, " ")
 	for _, w:= range words{
 		c.Infof("pw: AddToTournamentInvertedIndex: Word: %v", w)
@@ -85,15 +88,12 @@ func Add(r *http.Request, name string, id int64){
 			}
 		}
 	}
-	c.Infof("pw: AddToTournamentInvertedIndex end")	
 }
 
 // if the removal of the id makes the entity useless (no more ids in it)
 // we will remove the entity as well
 func RemoveWord(r *http.Request, w string, id int64){
-
 	c := appengine.NewContext(r)
-	c.Infof("pw: RemoveWordFromTournamentInvertedIndex start")
 
 	if inv_id := Find(r, "KeyName", w); inv_id == nil{
 		c.Infof("pw: word %v does not exist in Tournament InvertedIndex so nothing to remove",w)
@@ -117,8 +117,6 @@ func RemoveWord(r *http.Request, w string, id int64){
 			c.Errorf("pw: unable to remove id from ids: %v",err)
 		}
 	}
-	c.Infof("pw: RemoveWordFromTournamentInvertedIndex end")
-	
 }
 // add word to tournament inverted index is handled the same way as AddToTournamentInvertedIndex.
 // we add this function for clarity
@@ -128,7 +126,6 @@ func AddWord(r *http.Request, word string, id int64){
 
 func Update(r *http.Request, oldname string, newname string, id int64){
 	c := appengine.NewContext(r)
-	c.Infof("pw: Update start")
 
 	// if word in old and new do nothing
 	old_w := strings.Split(oldname," ")
@@ -163,8 +160,6 @@ func Update(r *http.Request, oldname string, newname string, id int64){
 			AddWord(r, wn, id)
 		}
 	}
-
-	c.Infof("pw: AddToTournamentInvertedIndex end")	
 }
 
 func Find(r *http.Request, filter string, value interface{}) *TournamentInvertedIndex {

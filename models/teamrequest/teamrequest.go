@@ -36,7 +36,11 @@ type TeamRequest struct {
 func Create(r *http.Request, teamId int64, userId int64) *TeamRequest {
 	c := appengine.NewContext(r)
 	// create new team request
-	teamRequestId, _, _ := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
+	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
+	if err != nil {
+		c.Errorf("pw: TeamRequest.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "TeamRequest", "", teamRequestId, nil)
 
 	teamRequest := &TeamRequest{ teamRequestId, teamId, userId, time.Now() }

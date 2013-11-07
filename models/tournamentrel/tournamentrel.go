@@ -36,7 +36,11 @@ type TournamentRelationship struct {
 func Create(r *http.Request, tournamentId int64, userId int64) *TournamentRelationship {
 	c := appengine.NewContext(r)
 	// create new tournament relationship
-	tournamentRelationshipId, _, _ := datastore.AllocateIDs(c, "TournamentRelationship", nil, 1)
+	tournamentRelationshipId, _, err := datastore.AllocateIDs(c, "TournamentRelationship", nil, 1)
+	if err != nil {
+		c.Errorf("pw: TournamentRelationship.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "TournamentRelationship", "", tournamentRelationshipId, nil)
 
 	tournamentRelationship := &TournamentRelationship{ tournamentRelationshipId, tournamentId, userId, time.Now() }

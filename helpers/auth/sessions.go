@@ -28,7 +28,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"appengine/memcache"
-	
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -40,27 +40,31 @@ type AuthKey struct {
 }
 
 func StoreAuthKey(r *http.Request, uid int64, auth string) {
-    c := appengine.NewContext(r)
+	c := appengine.NewContext(r)
 	
 	uidStr := fmt.Sprintf("%d", uid)
 	
 	// create new team
-	authKeyId, _, _ := datastore.AllocateIDs(c, "AuthKey", nil, 1)
+	authKeyId, _, err := datastore.AllocateIDs(c, "AuthKey", nil, 1)
+	if err != nil {
+		c.Errorf("pw: StoreAuthKey: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "AuthKey", "", authKeyId, nil)
 
 	authKey := &AuthKey{ authKeyId, auth, uidStr, time.Now() }
 
-	_, err := datastore.Put(c, key, authKey)
+	_, err = datastore.Put(c, key, authKey)
 	if err != nil {
 		c.Errorf("pw: StoreAuthKey: %v", err)
 	}
 	
 	item := &memcache.Item{
-        Key:   "auth:" + auth,
-        Value: []byte(uidStr),
-    }
+		Key:   "auth:" + auth,
+		Value: []byte(uidStr),
+	}
     // Set the item, unconditionally
-    if err := memcache.Set(c, item); err == memcache.ErrNotStored {
+	if err := memcache.Set(c, item); err == memcache.ErrNotStored {
 		c.Infof("item with key %q already exists", item.Key)
 	} else if err != nil {
 		c.Errorf("error adding item: %v", err)
@@ -68,34 +72,34 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
 }
 
 func fetchAuthKey(r *http.Request, auth string) string {
-    c := appengine.NewContext(r)
+	c := appengine.NewContext(r)
 
-    // Get the item from the memcache
-    if item, err := memcache.Get(c, "auth:"+auth); err == memcache.ErrCacheMiss {
-        // item doesn't exist in memcache, retrieve it in datastore
+	// Get the item from the memcache
+	if item, err := memcache.Get(c, "auth:"+auth); err == memcache.ErrCacheMiss {
+		// item doesn't exist in memcache, retrieve it in datastore
 		q := datastore.NewQuery("AuthKey").Filter("Key =", auth).Limit(1)
-	
+
 		var authKeys []*AuthKey
-		
+
 		if _, err := q.GetAll(appengine.NewContext(r), &authKeys); err == nil && len(authKeys) > 0 {
 			return authKeys[0].Value
 		}
-    } else if err != nil {
+	} else if err != nil {
 		c.Errorf("pw: error getting item: %v", err)
 	} else {
 		return fmt.Sprintf("%s", item.Value)
 	}
-    
-    return ""
+
+	return ""
 }
 
 func SetAuthCookie(w http.ResponseWriter, auth string) {
 	cookie := &http.Cookie{ 
-        Name: "auth", 
-        Value: auth, 
-        Path: "/",
-    }
-    http.SetCookie(w, cookie)
+		Name: "auth", 
+		Value: auth, 
+		Path: "/",
+	}
+	http.SetCookie(w, cookie)
 }
 
 func GetAuthCookie(r *http.Request) string {
@@ -114,23 +118,28 @@ func ClearAuthCookie(w http.ResponseWriter) {
 }
 
 func GenerateAuthKey() string {
-    b := make([]byte, 16)
-    if _, err := io.ReadFull(rand.Reader, b); err != nil {
-        return ""
-    }
-    return fmt.Sprintf("%x", b)
+	b := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+			return ""
+	}
+	return fmt.Sprintf("%x", b)
 }
 
 func CurrentUser(r *http.Request) *usermdl.User {
-    c := appengine.NewContext(r)
-    if auth := GetAuthCookie(r); len(auth) > 0 {
-        if uid := fetchAuthKey(r, auth); len(uid) > 0 {
-            c.Infof("pw: CurrentUser, uid=%s, auth=%s", uid, auth)
-            userId, _ := strconv.ParseInt(uid, 10, 64)
-            return usermdl.Find(r, "Id", userId)
-        }
-    }
-    return nil
+	c := appengine.NewContext(r)
+	if auth := GetAuthCookie(r); len(auth) > 0 {
+		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
+			c.Infof("pw: CurrentUser, uid=%s, auth=%s", uid, auth)
+			userId, err := strconv.ParseInt(uid, 10, 64)
+			if err != nil {
+				c.Errorf("pw: CurrentUser, string value could not be parsed: %v", err)
+			}
+			
+			return usermdl.Find(r, "Id", userId)
+		}
+	}
+
+	return nil
 }
 
 func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, screenName string, name string) error{

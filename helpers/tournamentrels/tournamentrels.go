@@ -19,6 +19,8 @@ package tournamentrels
 import (
 	"net/http"
 	
+	"appengine"
+	
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
@@ -27,42 +29,57 @@ import (
 )
 
 func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
+	c := appengine.NewContext(r)
+	
 	var users []*usermdl.User
 	
 	tournamentRels := tournamentrelmdl.Find(r, "TournamentId", tournamentId)
 
 	for _, tournamentRel := range tournamentRels {
-		user, _ := usermdl.ById(r, tournamentRel.UserId)
-
-		users = append(users, user)
+		user, err := usermdl.ById(r, tournamentRel.UserId)
+		if err != nil {
+			c.Errorf("pw: Participants, cannot find user with ID=%", tournamentRel.UserId)
+		} else {
+			users = append(users, user)
+		}
 	}
 
 	return users
 }
 
 func Teams(r *http.Request, tournamentId int64) []*teammdl.Team {
+	c := appengine.NewContext(r)
+	
 	var teams []*teammdl.Team
 	
 	tournamentteamRels := tournamentteamrelmdl.Find(r, "TournamentId", tournamentId)
 
 	for _, tournamentteamRel := range tournamentteamRels {
-		team, _ := teammdl.ById(r, tournamentteamRel.TeamId)
-
-		teams = append(teams, team)
+		team, err := teammdl.ById(r, tournamentteamRel.TeamId)
+		if err != nil {
+			c.Errorf("pw: Teams, cannot find team with ID=%", tournamentteamRel.TeamId)
+		} else {
+			teams = append(teams, team)
+		}
 	}
 
 	return teams
 }
 
 func Tournaments(r *http.Request, userId int64) []*tournamentmdl.Tournament {
+	c := appengine.NewContext(r)
+	
 	var tournaments []*tournamentmdl.Tournament
 	
 	tournamentRels := tournamentrelmdl.Find(r, "UserId", userId)
 
 	for _, tournamentRel := range tournamentRels {
-		tournament, _ := tournamentmdl.ById(r, tournamentRel.TournamentId)
-
-		tournaments = append(tournaments, tournament)
+		tournament, err := tournamentmdl.ById(r, tournamentRel.TournamentId)
+		if err != nil {
+			c.Errorf("pw: Tournaments, cannot find team with ID=%", tournamentRel.TournamentId)
+		} else {
+			tournaments = append(tournaments, tournament)
+		}
 	}
 
 	return tournaments

@@ -40,14 +40,18 @@ type User struct {
 func Create(r *http.Request, email string, username string, name string, auth string) (*User, error) {
 	c := appengine.NewContext(r)
 	// create new user
-	userId, _, _ := datastore.AllocateIDs(c, "User", nil, 1)
+	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
+	if err != nil {
+		c.Errorf("pw: User.Create: %v", err)
+	}
+	
 	key := datastore.NewKey(c, "User", "", userId, nil)
 	
 	user := &User{ userId, email, username, name, auth, time.Now() }
 
 	_, err := datastore.Put(c, key, user)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		c.Errorf("User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
 
@@ -55,12 +59,16 @@ func Create(r *http.Request, email string, username string, name string, auth st
 }
 
 func Find(r *http.Request, filter string, value interface{}) *User{
+	c := appengine.NewContext(r)
+	
 	q := datastore.NewQuery("User").Filter(filter + " =", value)
 	
 	var users []*User
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
 		return users[0]
+	} else {
+		c.Errorf("pw: User.Find: %v", err)
 	}
 
 	return nil
@@ -103,9 +111,13 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	teamRels := teamrelmdl.Find(r, "UserId", userId)
 	
 	for _, teamRel := range teamRels {
-		team, _ := teammdl.ById(r, teamRel.TeamId)
+		team, err := teammdl.ById(r, teamRel.TeamId)
 		
-		teams = append(teams, team)
+		if err != nil {
+			c.Errorf("pw: User.Teams, cannot find team with ID=%", teamRel.TeamId)
+		} else {
+			teams = append(teams, team)
+		}
 	}
 
 	return teams

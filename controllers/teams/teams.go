@@ -204,7 +204,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		}
 		templateshlp.Render_with_data(w, r, t, team, funcs, "renderTeamEdit")
 
-	}else if r.Method == "POST"{
+	} else if r.Method == "POST"{
 		
 		var team *teammdl.Team
 		team, err = teammdl.ById(r,intID)
@@ -237,6 +237,7 @@ func Invite(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		return
 	}
 	
 	if r.Method == "POST"{
@@ -250,10 +251,14 @@ func Invite(w http.ResponseWriter, r *http.Request){
 }
 
 func Request(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 	
 	if r.Method == "POST"{
 		
-		requestId, _ := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
+		requestId, err := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
+		if err != nil {
+			c.Errorf("pw: teams.Request, string value could not be parsed: %v", err)
+		}
 		
 		if r.FormValue("SubmitButton") == "Accept" {
 			if teamRequest, err := teamrequestmdl.ById(r, requestId); err == nil {

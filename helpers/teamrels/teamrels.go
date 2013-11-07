@@ -19,6 +19,8 @@ package teamrels
 import (
 	"net/http"
 	
+	"appengine"
+	
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
@@ -26,28 +28,38 @@ import (
 )
 
 func Players(r *http.Request, teamId int64) []*usermdl.User {
+	c := appengine.NewContext(r)
+	
 	var users []*usermdl.User
 	
 	teamRels := teamrelmdl.Find(r, "TeamId", teamId)
 
 	for _, teamRel := range teamRels {
-		user, _ := usermdl.ById(r, teamRel.UserId)
-
-		users = append(users, user)
+		user, err := usermdl.ById(r, teamRel.UserId)
+		if err != nil {
+			c.Errorf("pw: Players, cannot find user with ID=%", teamRel.UserId)
+		} else {
+			users = append(users, user)
+		}
 	}
 
 	return users
 }
 
 func Teams(r *http.Request, userId int64) []*teammdl.Team {
+	c := appengine.NewContext(r)
+	
 	var teams []*teammdl.Team
 	
 	teamRels := teamrelmdl.Find(r, "UserId", userId)
 
 	for _, teamRel := range teamRels {
-		team, _ := teammdl.ById(r, teamRel.TeamId)
-
-		teams = append(teams, team)
+		team, err := teammdl.ById(r, teamRel.TeamId)
+		if err != nil {
+			c.Errorf("pw: Teams, cannot find team with ID=%", teamRel.TeamId)
+		} else {
+			teams = append(teams, team)
+		}
 	}
 
 	return teams
