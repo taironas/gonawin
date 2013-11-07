@@ -33,8 +33,8 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	
-	"github.com/santiaago/purple-wing/helpers/auth"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	authhlp "github.com/santiaago/purple-wing/helpers/auth"
+	//usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const root string = "/m"
@@ -74,7 +74,7 @@ func facebookConfig(host string) *oauth2.Config{
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request){
-	if !auth.LoggedIn(r) {
+	if !authhlp.LoggedIn(r) {
 		
 		funcs := template.FuncMap{}
 		
@@ -91,7 +91,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 // Google 
 
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
-	if !auth.LoggedIn(r) {
+	if !authhlp.LoggedIn(r) {
 		url := googleConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
@@ -101,6 +101,8 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
+
+	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -115,17 +117,12 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	if _, err := t.Exchange(code); err == nil {
 		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
-	if auth.IsAuthorizedWithGoogle(userInfo) {
-		var user *usermdl.User
-		// find user
-		if user = usermdl.Find(r, "Email", userInfo.Email); user == nil {
-			// create user if it does not exist
-			user = usermdl.Create(r, userInfo.Email, userInfo.Name, userInfo.Name, auth.GenerateAuthKey())
+	if authhlp.IsAuthorizedWithGoogle(userInfo) {
+		if err := authhlp.SignupUser(w, r, userInfo.Email, userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+			c.Errorf("pw: SignupUser: %v", err)
+			http.Redirect(w, r, root, http.StatusFound)
+			return
 		}
-		// set 'auth' cookie
-		auth.SetAuthCookie(w, user.Auth)
-		// store in memcache auth key in memcaches
-		auth.StoreAuthKey(r, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -135,7 +132,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 
 func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	if !auth.LoggedIn(r) {
+	if !authhlp.LoggedIn(r) {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
 		if err != nil {
 			http.Error(w, "Error getting temp cred, "+err.Error(), 500)
@@ -178,17 +175,12 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 
 	userInfo, _ := userhlp.FetchTwitterUserInfo(resp)
 
-	if auth.IsAuthorizedWithTwitter(userInfo) {
-		var user *usermdl.User
-		// find user
-		if user = usermdl.Find(r, "Username", userInfo.Screen_name); user == nil {
-			// create user if it does not exist
-			user = usermdl.Create(r, "", userInfo.Screen_name, userInfo.Name, auth.GenerateAuthKey())
+	if authhlp.IsAuthorizedWithTwitter(userInfo) {
+		if err := authhlp.SignupUser(w, r, userInfo.Screen_name, "", userInfo.Screen_name, userInfo.Name); err != nil{
+			c.Errorf("pw: SignupUser: %v", err)
+			http.Redirect(w, r, root, http.StatusFound)
+			return
 		}
-		// set 'auth' cookie
-		auth.SetAuthCookie(w, user.Auth)
-		// store in memcache auth key in memcaches
-		auth.StoreAuthKey(r, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -197,7 +189,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 // Facebook
 
 func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
-	if !auth.LoggedIn(r) {
+	if !authhlp.LoggedIn(r) {
 		url := facebookConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
@@ -252,17 +244,12 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
-	if auth.IsAuthorizedWithFacebook(userInfo){
-		var user *usermdl.User
-		// find user
-		if user = usermdl.Find(r, "Email", userInfo.Email); user == nil {
-			// create user if it does not exist
-			user = usermdl.Create(r, userInfo.Email, userInfo.Name, userInfo.Name, auth.GenerateAuthKey())
+	if authhlp.IsAuthorizedWithFacebook(userInfo){
+		if err = authhlp.SignupUser(w, r, userInfo.Email, userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+			c.Errorf("pw: SignupUser: %v", err)
+			http.Redirect(w, r, root, http.StatusFound)
+			return
 		}
-		// set 'auth' cookie
-		auth.SetAuthCookie(w, user.Auth)
-		// store in memcache auth key in memcaches
-		auth.StoreAuthKey(r, user.Id, user.Auth)
 	}
 	http.Redirect(w, r, root, http.StatusFound)
 }
@@ -281,7 +268,7 @@ func isFacebookTokenValid(response *http.Response) (bool, error){
 }
 
 func SessionLogout(w http.ResponseWriter, r *http.Request){
-	auth.ClearAuthCookie(w)
+	authhlp.ClearAuthCookie(w)
 	
 	http.Redirect(w, r, root, http.StatusFound)
 }

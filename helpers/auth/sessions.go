@@ -19,6 +19,7 @@ package auth
 import (
 	"net/http"
 	"io"
+	"errors"
 	"fmt"
 	"crypto/rand"
 	"strconv"
@@ -129,6 +130,26 @@ func CurrentUser(r *http.Request) *usermdl.User {
             return usermdl.Find(r, "Id", userId)
         }
     }
-
     return nil
+}
+
+func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, screenName string, name string) error{
+
+	c := appengine.NewContext(r)
+	var user *usermdl.User
+	// find user
+	if user = usermdl.Find(r, "Username", queryName); user == nil {
+		// create user if it does not exist
+		if userCreate, err := usermdl.Create(r, email, screenName, name, GenerateAuthKey()); err != nil{
+			c.Errorf("Signup: %v", err)
+			return errors.New("helpers/auth: Unable to create user.")
+		}else{
+			user = userCreate
+		}
+	}
+	// set 'auth' cookie
+	SetAuthCookie(w, user.Auth)
+	// store in memcache auth key in memcaches
+	StoreAuthKey(r, user.Id, user.Auth)
+	return nil
 }

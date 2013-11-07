@@ -18,6 +18,7 @@ package user
 
 import (
 	"net/http"
+	"errors"
 	"time"
 	
 	"appengine"
@@ -36,7 +37,7 @@ type User struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, email string, username string, name string, auth string) *User {
+func Create(r *http.Request, email string, username string, name string, auth string) (*User, error) {
 	c := appengine.NewContext(r)
 	// create new user
 	userId, _, _ := datastore.AllocateIDs(c, "User", nil, 1)
@@ -47,9 +48,10 @@ func Create(r *http.Request, email string, username string, name string, auth st
 	_, err := datastore.Put(c, key, user)
 	if err != nil {
 		c.Errorf("Create: %v", err)
+		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
 
-	return user;
+	return user, nil
 }
 
 func Find(r *http.Request, filter string, value interface{}) *User{
