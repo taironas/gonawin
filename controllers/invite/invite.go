@@ -95,5 +95,6 @@ func Email(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_invite_email").
 		ParseFiles("templates/invite/email.html"))
 	
-	templateshlp.Render_with_data(w, r, t, form, nil, "renderEmail")
+	funcs := template.FuncMap{}
+	templateshlp.Render_with_data(w, r, t, form, funcs, "renderEmail")
 }

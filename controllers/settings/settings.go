@@ -64,8 +64,9 @@ func Networks(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_settings_networks").
 		ParseFiles("templates/settings/networks.html"))
 
-	// no data, no funcs map
-	templateshlp.Render_with_data(w, r, t, nil, nil, "renderNetworks")
+	// no data
+	funcs := template.FuncMap{}
+	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderNetworks")
 }
 
 func Email(w http.ResponseWriter, r *http.Request){
@@ -73,6 +74,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 	t := template.Must(template.New("tmpl_settings_email").
 		ParseFiles("templates/settings/email.html"))
 
-	// no data, no funcs map
-	templateshlp.Render_with_data(w, r, t, nil, nil, "renderEmail")
+	// no data
+	funcs := template.FuncMap{}
+	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderEmail")
 }
