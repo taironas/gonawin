@@ -44,6 +44,8 @@ func init(){
 
 	// session
 	h.HandleFunc("/m/auth/?", sessionsctrl.Authenticate)
+	h.HandleFunc("/m/auth/facebook/?", sessionsctrl.AuthenticateWithFacebook)
+	h.HandleFunc("/m/auth/facebook/callback/?", sessionsctrl.FacebookAuthCallback)
 	h.HandleFunc("/m/auth/google/?", sessionsctrl.AuthenticateWithGoogle)
 	h.HandleFunc("/m/auth/google/callback/?", sessionsctrl.GoogleAuthCallback)
 	h.HandleFunc("/m/auth/twitter/?", sessionsctrl.AuthenticateWithTwitter)

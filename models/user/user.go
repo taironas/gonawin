@@ -17,16 +17,16 @@
 package user
 
 import (
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"net/http"
 	"time"
 	
 	"appengine"
 	"appengine/datastore"
-	
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type User struct {
@@ -48,6 +48,29 @@ type TwitterUserInfo struct {
 	Id int64
 	Name string
 	Screen_name string
+}
+
+type FacebookUserInfo struct{
+	Name, Email string
+}
+
+type FacebookTokenData struct{
+	Data DataType
+}
+
+type DataType struct{
+	App_id int
+	Application string
+	Expires_at int
+	Is_valid bool
+	Issued_at int
+	Metadata MetadataType
+	Scopes []string
+	User_id int
+}
+
+type MetadataType struct{
+	Sso string
 }
 
 func Create(r *http.Request, email string, username string, name string, auth string) *User {
@@ -74,7 +97,7 @@ func Find(r *http.Request, filter string, value interface{}) *User{
 	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
 		return users[0]
 	}
-	
+
 	return nil
 }
 
@@ -144,6 +167,37 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	
 	return nil, err
 }
+
+// unmarshal facebook response for graph.facebook.com request
+func FetchFacebookTokenData(r *http.Response) (*FacebookTokenData, error){
+	defer r.Body.Close()
+	if body, err := ioutil.ReadAll(r.Body); err != nil {
+		return nil, err
+	}else{
+		var data *FacebookTokenData
+		if err = json.Unmarshal(body, &data); err != nil{
+			return nil, err
+		}else{
+			return data, err
+		}
+	}
+}
+
+// unmarshal facebook response from facebook.com/me
+func FetchFacebookUserInfo(graphResponse *http.Response)(*FacebookUserInfo, error){
+	defer graphResponse.Body.Close()
+	if graphBody, err := ioutil.ReadAll(graphResponse.Body); err != nil{
+		return nil, err
+	}else{
+		var userInfo *FacebookUserInfo
+		if err = json.Unmarshal(graphBody, &userInfo); err != nil{
+			return nil, err
+		}else{
+			return userInfo, err
+		}
+	}
+}
+
 
 func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	

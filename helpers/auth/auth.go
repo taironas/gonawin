@@ -22,12 +22,19 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
+const kEmailRjourde = "remy.jourde@gmail.com"
+const kEemailSarias = "santiago.ariassar@gmail.com"
+
 func IsAuthorizedWithGoogle(ui *usermdl.GPlusUserInfo) bool {
-	return ui != nil && (ui.Email == "remy.jourde@gmail.com" || ui.Email == "santiago.ariassar@gmail.com")
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
 }
 
 func IsAuthorizedWithTwitter(ui *usermdl.TwitterUserInfo) bool {
 	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
+}
+
+func IsAuthorizedWithFacebook(ui *usermdl.FacebookUserInfo) bool {
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
