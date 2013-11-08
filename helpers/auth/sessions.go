@@ -126,6 +126,10 @@ func GenerateAuthKey() string {
 }
 
 func CurrentUser(r *http.Request) *usermdl.User {
+	if kOfflineMode {
+		return usermdl.Find(r, "Username", "purple")
+	}
+	
 	c := appengine.NewContext(r)
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if uid := fetchAuthKey(r, auth); len(uid) > 0 {

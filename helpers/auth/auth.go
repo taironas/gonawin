@@ -22,6 +22,8 @@ import (
 	user "github.com/santiaago/purple-wing/helpers/user"
 )
 
+const kOfflineMode bool = false
+
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEemailSarias = "santiago.ariassar@gmail.com"
 
@@ -39,6 +41,10 @@ func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
 func LoggedIn(r *http.Request) bool {
+	if kOfflineMode { 
+		return true 
+	}
+	
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if u := CurrentUser(r); u != nil {
 			return u.Auth == auth
@@ -52,7 +58,7 @@ func LoggedIn(r *http.Request) bool {
 func IsAdmin(r *http.Request) bool {
 	if LoggedIn(r){
 		if u := CurrentUser(r); u != nil{
-			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias")
+			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias" || (kOfflineMode && u.Username == "purple"))
 		}
 	}
 	return false
