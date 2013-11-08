@@ -85,7 +85,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		"Teams": func() bool {return true},
 	}
 
-	templateshlp.Render_with_data(w, r, t, data, funcs, "renderTeamIndex")
+	templateshlp.RenderWithData(w, r, t, data, funcs, "renderTeamIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -118,7 +118,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	
-	templateshlp.Render_with_data(w, r, t, form, funcs, "renderTeamNew")
+	templateshlp.RenderWithData(w, r, t, form, funcs, "renderTeamNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -173,7 +173,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		team,
 		players,
 	}
-	templateshlp.Render_with_data(w, r, t, teamData, funcs, "renderTeamShow")
+	templateshlp.RenderWithData(w, r, t, teamData, funcs, "renderTeamShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -202,7 +202,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			helpers.Error404(w)
 			return
 		}
-		templateshlp.Render_with_data(w, r, t, team, funcs, "renderTeamEdit")
+		templateshlp.RenderWithData(w, r, t, team, funcs, "renderTeamEdit")
 
 	} else if r.Method == "POST"{
 		

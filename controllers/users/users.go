@@ -85,5 +85,5 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teamRequests,
 	}
 	
-	templateshlp.Render_with_data(w, r, t, userData, funcs, "renderUserShow")
+	templateshlp.RenderWithData(w, r, t, userData, funcs, "renderUserShow")
 }

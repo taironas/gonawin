@@ -80,7 +80,7 @@ func Render(w http.ResponseWriter,
 }
 
 // Executes and Render template with the data structure and the func map passed as argument
-func Render_with_data(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
+func RenderWithData(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
 
 	c := appengine.NewContext(r)
 	

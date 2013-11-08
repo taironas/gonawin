@@ -38,7 +38,7 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 	}
 	// no data needed
 	funcs := template.FuncMap{}
-	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAdminShow")
+	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAdminShow")
 }
 
 func AdminUsers(w http.ResponseWriter, r *http.Request){
@@ -57,7 +57,7 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	// end samlpe of users
 
 	funcs := template.FuncMap{}
-	templateshlp.Render_with_data(w, r, t, users, funcs, "renderAdminUsersShow")
+	templateshlp.RenderWithData(w, r, t, users, funcs, "renderAdminUsersShow")
 }
 
 func AdminSearch(w http.ResponseWriter, r *http.Request){
@@ -71,7 +71,7 @@ func AdminSearch(w http.ResponseWriter, r *http.Request){
 
 		// no data
 		funcs := template.FuncMap{}
-		templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAdminSearch")
+		templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAdminSearch")
 	}else{
 		helpers.Error404(w)
 	}

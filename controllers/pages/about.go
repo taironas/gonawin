@@ -38,7 +38,7 @@ func About(w http.ResponseWriter, r *http.Request){
 		Funcs(funcs).
 		ParseFiles("templates/pages/about.html"))
 
-	templateshlp.Render_with_data(w, r, t, data, funcs, "renderAbout")
+	templateshlp.RenderWithData(w, r, t, data, funcs, "renderAbout")
 }
 
 

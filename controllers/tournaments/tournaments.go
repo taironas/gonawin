@@ -87,7 +87,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		"Tournaments": func() bool {return true},
 	}
 	
-	templateshlp.Render_with_data(w, r, t, data, funcs, "renderTournamentIndex")
+	templateshlp.RenderWithData(w, r, t, data, funcs, "renderTournamentIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -119,7 +119,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	
-	templateshlp.Render_with_data(w, r, t, form, funcs, "renderTournamentNew")
+	templateshlp.RenderWithData(w, r, t, form, funcs, "renderTournamentNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -189,7 +189,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teams,
 		candidateTeams,
 	}
-	templateshlp.Render_with_data(w, r, t, tournamentData, funcs, "renderTournamentShow")
+	templateshlp.RenderWithData(w, r, t, tournamentData, funcs, "renderTournamentShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -221,7 +221,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		t := template.Must(template.New("tmpl_tournament_edit").
 			ParseFiles("templates/tournament/edit.html"))
 
-		templateshlp.Render_with_data(w, r, t, tournament, funcs, "renderTournamentEdit")
+		templateshlp.RenderWithData(w, r, t, tournament, funcs, "renderTournamentEdit")
 
 	} else if r.Method == "POST" {
 		

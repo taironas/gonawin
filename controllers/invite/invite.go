@@ -96,5 +96,5 @@ func Email(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/invite/email.html"))
 	
 	funcs := template.FuncMap{}
-	templateshlp.Render_with_data(w, r, t, form, funcs, "renderEmail")
+	templateshlp.RenderWithData(w, r, t, form, funcs, "renderEmail")
 }

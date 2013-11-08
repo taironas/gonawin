@@ -81,7 +81,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 			Funcs(funcs).
 			ParseFiles("templates/session/auth.html"))
 		// no data needed
-		templateshlp.Render_with_data(w, r, t, nil, funcs, "renderAuth")
+		templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAuth")
 	} else {
 		//redirect to home page
 		http.Redirect(w, r, root, http.StatusFound)

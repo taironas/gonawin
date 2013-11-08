@@ -41,7 +41,7 @@ func Profile(w http.ResponseWriter, r *http.Request){
 			Funcs(funcs).
 			ParseFiles("templates/settings/profile.html"))
 		
-		templateshlp.Render_with_data(w, r, t, auth.CurrentUser(r), funcs, "renderProfile")
+		templateshlp.RenderWithData(w, r, t, auth.CurrentUser(r), funcs, "renderProfile")
 
 	}else if r.Method == "POST"{
 		currentUser := auth.CurrentUser(r)
@@ -66,7 +66,7 @@ func Networks(w http.ResponseWriter, r *http.Request){
 
 	// no data
 	funcs := template.FuncMap{}
-	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderNetworks")
+	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderNetworks")
 }
 
 func Email(w http.ResponseWriter, r *http.Request){
@@ -76,5 +76,5 @@ func Email(w http.ResponseWriter, r *http.Request){
 
 	// no data
 	funcs := template.FuncMap{}
-	templateshlp.Render_with_data(w, r, t, nil, funcs, "renderEmail")
+	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderEmail")
 }

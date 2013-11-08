@@ -39,5 +39,5 @@ func Contact(w http.ResponseWriter, r *http.Request){
 		Funcs(funcs).
 		ParseFiles("templates/pages/contact.html"))
 
-	templateshlp.Render_with_data(w, r, t, data, funcs, "renderContact")
+	templateshlp.RenderWithData(w, r, t, data, funcs, "renderContact")
 }
