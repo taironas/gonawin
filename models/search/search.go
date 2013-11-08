@@ -75,7 +75,7 @@ func TournamentScore(r *http.Request, query string, ids []int64)[]int64{
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
 	c.Infof("score vector :%v", score)
-	sortedScore := sortMapByValue(score)
+	sortedScore := sortMapByValueDesc(score)
 	c.Infof("sorted score: %v", sortedScore)
 
 	return getKeysFromPairList(sortedScore)
@@ -123,7 +123,7 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
 	c.Infof("score vector :%v", score)
-	sortedScore := sortMapByValue(score)
+	sortedScore := sortMapByValueDesc(score)
 	c.Infof("sorted score: %v", sortedScore)
 
 	return getKeysFromPairList(sortedScore)

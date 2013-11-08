@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
