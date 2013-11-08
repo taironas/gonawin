@@ -146,14 +146,24 @@ func CurrentUser(r *http.Request) *usermdl.User {
 	return nil
 }
 
-func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, screenName string, name string) error{
+func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) error{
 
 	c := appengine.NewContext(r)
 	var user *usermdl.User
+	
+	queryValue := ""
+	if queryName == "Email" {
+		queryValue = email
+	} else if queryName == "Username" {
+		queryValue = username
+	} else {
+		return errors.New("helpers/auth: no valid query name.")
+	}
+	
 	// find user
-	if user = usermdl.Find(r, "Username", queryName); user == nil {
+	if user = usermdl.Find(r, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		if userCreate, err := usermdl.Create(r, email, screenName, name, GenerateAuthKey()); err != nil{
+		if userCreate, err := usermdl.Create(r, email, username, name, GenerateAuthKey()); err != nil{
 			c.Errorf("Signup: %v", err)
 			return errors.New("helpers/auth: Unable to create user.")
 		}else{
