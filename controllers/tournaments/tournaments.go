@@ -127,6 +127,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
+		c.Errorf("pw: Unable to find ID in request %v",r)
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
 		return
 	}
@@ -148,7 +149,9 @@ func Show(w http.ResponseWriter, r *http.Request){
 		tournamentmdl.Destroy(r, intID)
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
-	} else {
+		return
+	} else if r.Method != "GET"{
+		c.Errorf("pw: request method not supported")
 		helpers.Error404(w)
 		return
 	}

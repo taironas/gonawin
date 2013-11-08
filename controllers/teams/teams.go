@@ -146,6 +146,11 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teammdl.Destroy(r, intID)
 		
 		http.Redirect(w, r, "/m/teams", http.StatusFound)
+		return
+	} else if (r.Method != "GET"){
+		c.Errorf("pw: request method not supported")
+		helpers.Error404(w)
+		return	
 	}
 	funcs := template.FuncMap{
 		"Joined": func() bool { return teammdl.Joined(r, intID, auth.CurrentUser(r).Id) },
