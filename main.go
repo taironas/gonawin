@@ -58,7 +58,6 @@ func init(){
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
-	h.HandleFunc("/m/a/search/?", handlers.Admin(usersctrl.AdminSearch))
 
 	// team
 	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.Index))

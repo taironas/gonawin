@@ -20,8 +20,6 @@ import (
 	"html/template"
 	"net/http"
 	"time"
-	
-	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
@@ -29,26 +27,16 @@ import (
 )
 
 func AdminShow(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
-	t, err := template.ParseFiles("templates/admin/show.html")
-	if err != nil{
-		c.Errorf("pw: cannot parse files  admin/show.html")
-
-	}
-	// no data needed
 	funcs := template.FuncMap{}
+	
+	t := template.Must(template.New("tmpl_admin_show").
+		Funcs(funcs).
+		ParseFiles("templates/admin/show.html"))
+	
 	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAdminShow")
 }
 
 func AdminUsers(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-
-	t, err := template.ParseFiles("templates/admin/users.html",
-		"templates/user/info.html")
-	if err != nil{
-		c.Errorf("pw: cannot parse files  admin/users.html")
-	}
 	// sample of users
 	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
 	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
@@ -57,24 +45,13 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	// end samlpe of users
 
 	funcs := template.FuncMap{}
+	
+	t := template.Must(template.New("tmpl_admin_users_show").
+		Funcs(funcs).
+		ParseFiles("templates/admin/users.html", 
+		"templates/user/info.html"))
+		
 	templateshlp.RenderWithData(w, r, t, users, funcs, "renderAdminUsersShow")
-}
-
-func AdminSearch(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-
-	if r.Method == "GET" {
-		t, err := template.ParseFiles("templates/admin/search.html")
-		if err != nil{
-			c.Errorf("pw: cannot parse files  admin/search.html")
-		}
-
-		// no data
-		funcs := template.FuncMap{}
-		templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAdminSearch")
-	}else{
-		helpers.Error404(w)
-	}
 }
 
 
