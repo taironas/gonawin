@@ -175,8 +175,8 @@ func Joined(r *http.Request, teamId int64, userId int64) bool {
 }
 
 func Join(r *http.Request, teamId int64, userId int64) error {
-	if teamRel := teamrelmdl.Create(r, teamId, userId); teamRel == nil {
-		return errors.New("pw: Team.Join, error during team relationship creation")
+	if _, err := teamrelmdl.Create(r, teamId, userId); err != nil {
+		return errors.New(fmt.Sprintf("pw: Team.Join, error during team relationship creation: %v", err))
 	}
 
 	return nil

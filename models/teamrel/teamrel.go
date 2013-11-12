@@ -33,12 +33,12 @@ type TeamRelationship struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, teamId int64, userId int64) *TeamRelationship {
+func Create(r *http.Request, teamId int64, userId int64) (*TeamRelationship, error) {
 	c := appengine.NewContext(r)
 	// create new team relationship
 	teamRelationshipId, _, err := datastore.AllocateIDs(c, "TeamRelationship", nil, 1)
 	if err != nil {
-		c.Errorf("pw: TeamRelationship.Create: %v", err)
+		return nil, err
 	}
 	
 	key := datastore.NewKey(c, "TeamRelationship", "", teamRelationshipId, nil)
@@ -47,10 +47,10 @@ func Create(r *http.Request, teamId int64, userId int64) *TeamRelationship {
 
 	_, err = datastore.Put(c, key, teamRelationship)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		return nil, err
 	}
 
-	return teamRelationship
+	return teamRelationship, nil
 }
 
 func Destroy(r *http.Request, teamId int64, userId int64) error {
@@ -66,13 +66,17 @@ func Destroy(r *http.Request, teamId int64, userId int64) error {
 }
 
 func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRelationship {
+	c:= appengine.NewContext(r)
+	
 	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 	
 	var teamRels []*TeamRelationship
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teamRels); err == nil && len(teamRels) > 0 {
 		return teamRels[0]
-	} 
+	} else {
+		c.Errorf("pw: teamrel.FindByTeamIdAndUserId, error occurred during GetAll: %v", err)
+	}
 	
 	return nil
 }
@@ -85,7 +89,7 @@ func Find(r *http.Request, filter string, value interface{}) []*TeamRelationship
 	var teamRels []*TeamRelationship
 	
 	if _, err := q.GetAll(c, &teamRels); err != nil {
-		c.Errorf("pw: error occured in teamrel.Find: %v", err)
+		c.Errorf("pw: teamrel.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return teamRels
