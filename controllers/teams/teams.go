@@ -51,30 +51,34 @@ type indexData struct{
 	TeamInputSearch string	
 }
 
-func Index(w http.ResponseWriter, r *http.Request){
+func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	
 	var data indexData
-	if r.Method == "GET"{
+	if r.Method == "GET" {
 		teams := teammdl.FindAll(r)
 		data.Teams = teams
 		data.TeamInputSearch = ""
 
 	} else if r.Method == "POST" {
-		if query := r.FormValue("TeamInputSearch"); len(query) == 0{
+		if query := r.FormValue("TeamInputSearch"); len(query) == 0 {
 			http.Redirect(w, r, "teams", http.StatusFound)
 			return
-		} else{
+		} else {
 			words := helpers.SetOfStrings(query)
-			ids := teaminvidmdl.GetIndexes(r,words)
-			c.Infof("pw: search:%v Ids:%v",query, ids)
+			ids, err := teaminvidmdl.GetIndexes(r, words)
+			
+			if err != nil {
+				c.Errorf("pw: teams.Index, error occurred when getting indexes of words: %v", err)
+			}
+			
 			result := searchmdl.TeamScore(r, query, ids)
 			
 			teams := teammdl.ByIds(r, result)
 			data.Teams = teams
 			data.TeamInputSearch = query
 		}
-	} else{
+	} else {
 		helpers.Error404(w)
 	}
 	

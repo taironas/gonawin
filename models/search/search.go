@@ -92,34 +92,40 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 	q := make([]float64, len(setOfWords))
 	for i,w := range setOfWords{
 		dft := 0
-		if inv_id := teaminvidmdl.Find(r, "KeyName", w); inv_id != nil{
-			dft = len(strings.Split(string(inv_id.TeamIds), " "))
+		if invId, err := teaminvidmdl.Find(r, "KeyName", w); err != nil {
+			c.Errorf("pw: search.TeamScore, unable to find KeyName=%s: %v", w, err)
+		} else if invId != nil {
+			dft = len(strings.Split(string(invId.TeamIds), " "))
 		}
-		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
+		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords + 1)/float64(dft + 1))
 	}
-	c.Infof("query vector: %v",q)
+	c.Infof("query vector: %v", q)
 
 	// d vector
 	//nbTeams, _ := teammdl.GetTeamCounter(c)
 	vec_d := make([][]float64, len(ids))
-	for i, id := range ids{
+	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords{
 			// get word frequency by team (id, wi)
 			wordFreqByTeam := teammdl.GetWordFrequencyForTeam(r, id, wi)
 			// get number of teams with word (wi)
-			teamFreqForWord := teaminvidmdl.GetTeamFrequencyForWord(r, wi)
+			teamFreqForWord, err := teaminvidmdl.GetTeamFrequencyForWord(r, wi)
+			if err != nil {
+				c.Errorf("pw: search.TeamScore, error occurred when getting team frequency for word=%s: %v", wi, err)
+			}
+			
 			d[j] = math.Log10(float64(1+wordFreqByTeam)) * math.Log10(float64(nbTeamWords+1)/float64(teamFreqForWord+1))
 		}
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d		
 	}
-	c.Infof("d vector: %v",vec_d)
+	c.Infof("d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
 	score = make(map[int64]float64)
-	for i, vec_di := range vec_d{
+	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
 	c.Infof("score vector :%v", score)
