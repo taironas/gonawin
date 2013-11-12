@@ -45,12 +45,12 @@ type TeamCounter struct {
 	Count int64
 }
 
-func Create(r *http.Request, name string, adminId int64, private bool) *Team {
+func Create(r *http.Request, name string, adminId int64, private bool) (*Team, error) {
 	c := appengine.NewContext(r)
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
 	if err != nil {
-		c.Errorf("pw: Team.Create: %v", err)
+		return nil, err
 	}
 	
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
@@ -59,7 +59,7 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		return nil, err
 	}
 	// udpate inverted index
 	teaminvidmdl.Add(r, helpers.TrimLower(name), teamId)
@@ -73,7 +73,7 @@ func Create(r *http.Request, name string, adminId int64, private bool) *Team {
 		c.Errorf("pw: Error incrementing TeamCounter")
 	}
 
-	return team
+	return team, err
 }
 
 func Destroy(r *http.Request, teamId int64) error {
@@ -89,12 +89,16 @@ func Destroy(r *http.Request, teamId int64) error {
 }
 
 func Find(r *http.Request, filter string, value interface{}) []*Team {
+	c := appengine.NewContext(r)
+	
 	q := datastore.NewQuery("Team").Filter(filter + " =", value)
 	
 	var teams []*Team
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teams); err == nil {
 		return teams
+	} else {
+		c.Errorf("pw: Team.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return nil
@@ -123,7 +127,7 @@ func KeyById(r *http.Request, id int64) (*datastore.Key) {
 
 func Update(r *http.Request, id int64, t *Team) error {
 	c := appengine.NewContext(r)
-	c.Infof("Team.Update Start")
+
 	k := KeyById(r, id)
 	oldTeam := new(Team)
 	if err := datastore.Get(c,k, oldTeam);err == nil{
@@ -132,27 +136,34 @@ func Update(r *http.Request, id int64, t *Team) error {
 		}
 		teaminvidmdl.Update(r, oldTeam.Name, t.Name, id)
 	}
-	c.Infof("Team.Update End")
+
 	return nil
 }
 
 func FindAll(r *http.Request) []*Team {
+	c := appengine.NewContext(r)
+	
 	q := datastore.NewQuery("Team")
 	
 	var teams []*Team
 	
-	q.GetAll(appengine.NewContext(r), &teams)
+	if _, err := q.GetAll(appengine.NewContext(r), &teams); err != nil {
+		c.Errorf("pw: Team.FindAll, error occurred during GetAll call: %v", err)
+	}
 	
 	return teams
 }
 
 // find with respect to array of ids
 func ByIds(r *http.Request, ids []int64) []*Team{
-		
+	c := appengine.NewContext(r)
+	
 	var teams []*Team
 	for _, id := range ids{
 		if team, err := ById(r, id); err == nil{
 			teams = append(teams, team)
+		} else {
+			c.Errorf("pw: Team.ByIds, error occurred during ById call: %v", err)
 		}
 	}
 	return teams
@@ -165,7 +176,7 @@ func Joined(r *http.Request, teamId int64, userId int64) bool {
 
 func Join(r *http.Request, teamId int64, userId int64) error {
 	if teamRel := teamrelmdl.Create(r, teamId, userId); teamRel == nil {
-		return errors.New("error during team relationship creation")
+		return errors.New("pw: Team.Join, error during team relationship creation")
 	}
 
 	return nil
@@ -178,9 +189,10 @@ func Leave(r *http.Request, teamId int64, userId int64) error {
 func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
 	if team, err := ById(r, teamId); err == nil {
 		return team.AdminId == userId
+	} else {
+		c.Errorf("pw: Team.IsTeamAdmin, error occurred during ById call: %v", err)
+		return false
 	}
-	
-	return false
 }
 
 func incrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
@@ -207,7 +219,7 @@ func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error
 	return x.Count, nil
 }
 
-func GetTeamCounter(c appengine.Context)(int64, error){
+func GetTeamCounter(c appengine.Context)(int64, error) {
 	key := datastore.NewKey(c, "TeamCounter", "singleton", 0, nil)
 	var x TeamCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {

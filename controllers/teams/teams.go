@@ -89,6 +89,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 	
 	var form NewForm
 	if r.Method == "GET" {
@@ -103,7 +104,12 @@ func New(w http.ResponseWriter, r *http.Request){
 		} else if t := teammdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
 			form.Error = "That team name already exists."
 		} else {
-			team := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
+			team, err := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
+			
+			if err != nil {
+				c.Errorf("pw: error when trying to create a team: %v", err)
+			}
+			
 			// join the team
 			teamrelmdl.Create(r, team.Id, auth.CurrentUser(r).Id)
 			// redirect to the newly created team page
