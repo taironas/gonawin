@@ -187,6 +187,8 @@ func Leave(r *http.Request, teamId int64, userId int64) error {
 }
 
 func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
+	c := appengine.NewContext(r)
+	
 	if team, err := ById(r, teamId); err == nil {
 		return team.AdminId == userId
 	} else {
