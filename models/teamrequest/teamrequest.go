@@ -33,12 +33,12 @@ type TeamRequest struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, teamId int64, userId int64) *TeamRequest {
+func Create(r *http.Request, teamId int64, userId int64) (*TeamRequest, error) {
 	c := appengine.NewContext(r)
 	// create new team request
 	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
 	if err != nil {
-		c.Errorf("pw: TeamRequest.Create: %v", err)
+		return nil, err
 	}
 	
 	key := datastore.NewKey(c, "TeamRequest", "", teamRequestId, nil)
@@ -47,10 +47,10 @@ func Create(r *http.Request, teamId int64, userId int64) *TeamRequest {
 
 	_, err = datastore.Put(c, key, teamRequest)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		return nil, err
 	}
 
-	return teamRequest
+	return teamRequest, nil
 }
 
 func Destroy(r *http.Request, teamRequestId int64) error {
@@ -66,27 +66,32 @@ func Destroy(r *http.Request, teamRequestId int64) error {
 }
 
 func Find(r *http.Request, filter string, value interface{}) []*TeamRequest {
+	c:= appengine.NewContext(r)
+	
 	q := datastore.NewQuery("TeamRequest").Filter(filter + " =", value)
 	
 	var teamRequests []*TeamRequest
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err == nil {
-		return teamRequests
+	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err != nil {
+		c.Errorf("pw: teamrequest.Find, error occurred during GetAll: %v", err)
 	}
 	
-	return nil
+	return teamRequests
 }
 
 func findByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRequest {
+	c:= appengine.NewContext(r)
+	
 	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 	
 	var teamRequests []*TeamRequest
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
-	} 
-	
-	return nil
+	} else {
+		c.Errorf("pw: teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
+		return nil
+	}
 }
 
 func ById(r *http.Request, id int64) (*TeamRequest, error) {
@@ -96,7 +101,7 @@ func ById(r *http.Request, id int64) (*TeamRequest, error) {
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
 
 	if err := datastore.Get(c, key, &tr); err != nil {
-		c.Errorf("pw: team request not found : %v", err)
+		c.Errorf("pw: teamrequest.ById, error occurred during Get: %v", err)
 		return &tr, err
 	}
 	return &tr, nil

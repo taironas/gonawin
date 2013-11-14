@@ -109,13 +109,14 @@ func New(w http.ResponseWriter, r *http.Request){
 			form.Error = "That team name already exists."
 		} else {
 			team, err := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
-			
 			if err != nil {
 				c.Errorf("pw: error when trying to create a team: %v", err)
 			}
-			
 			// join the team
-			teamrelmdl.Create(r, team.Id, auth.CurrentUser(r).Id)
+			_, err = teamrelmdl.Create(r, team.Id, auth.CurrentUser(r).Id)
+			if err != nil {
+				c.Errorf("pw: error when trying to create a team relationship: %v", err)
+			}
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
 		}
@@ -248,6 +249,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 }
 
 func Invite(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
@@ -256,8 +258,8 @@ func Invite(w http.ResponseWriter, r *http.Request){
 	}
 	
 	if r.Method == "POST"{
-		if teamRequest := teamrequestmdl.Create(r, intID, auth.CurrentUser(r).Id); teamRequest == nil {
-			appengine.NewContext(r).Errorf("pw: no team request has been created")
+		if _, err := teamrequestmdl.Create(r, intID, auth.CurrentUser(r).Id); err != nil {
+			c.Errorf("pw: teams.Invite, error when trying to create a team request: %v", err)
 		}
 		
 		url := fmt.Sprintf("/m/teams/%d", intID)

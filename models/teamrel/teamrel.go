@@ -76,9 +76,8 @@ func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRel
 		return teamRels[0]
 	} else {
 		c.Errorf("pw: teamrel.FindByTeamIdAndUserId, error occurred during GetAll: %v", err)
+		return nil
 	}
-	
-	return nil
 }
 
 func Find(r *http.Request, filter string, value interface{}) []*TeamRelationship{
