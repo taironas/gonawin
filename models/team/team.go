@@ -99,9 +99,8 @@ func Find(r *http.Request, filter string, value interface{}) []*Team {
 		return teams
 	} else {
 		c.Errorf("pw: Team.Find, error occurred during GetAll: %v", err)
+		return nil
 	}
-	
-	return nil
 }
 
 func ById(r *http.Request, id int64) (*Team, error) {
@@ -130,7 +129,7 @@ func Update(r *http.Request, id int64, t *Team) error {
 
 	k := KeyById(r, id)
 	oldTeam := new(Team)
-	if err := datastore.Get(c,k, oldTeam);err == nil{
+	if err := datastore.Get(c,k, oldTeam);err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
@@ -155,15 +154,15 @@ func FindAll(r *http.Request) []*Team {
 }
 
 // find with respect to array of ids
-func ByIds(r *http.Request, ids []int64) []*Team{
+func ByIds(r *http.Request, ids []int64) []*Team {
 	c := appengine.NewContext(r)
 	
 	var teams []*Team
-	for _, id := range ids{
-		if team, err := ById(r, id); err == nil{
+	for _, id := range ids {
+		if team, err := ById(r, id); err == nil {
 			teams = append(teams, team)
 		} else {
-			c.Errorf("pw: Team.ByIds, error occurred during ById call: %v", err)
+			c.Errorf("pw: Team.ByIds, error occurred during ByIds call: %v", err)
 		}
 	}
 	return teams

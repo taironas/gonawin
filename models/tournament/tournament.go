@@ -48,12 +48,12 @@ type TournamentCounter struct {
 }
 
 
-func Create(r *http.Request, name string, description string, start time.Time, end time.Time, adminId int64 ) *Tournament {
+func Create(r *http.Request, name string, description string, start time.Time, end time.Time, adminId int64 ) (*Tournament, error) {
 	c := appengine.NewContext(r)
 	// create new tournament
 	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	if err != nil {
-		c.Errorf("pw: Tournament.Create: %v", err)
+		return nil, err
 	}
 	
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
@@ -62,11 +62,12 @@ func Create(r *http.Request, name string, description string, start time.Time, e
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		return nil, err
 	}
 
 	tournamentinvidmdl.Add(r, helpers.TrimLower(name),tournamentID)
-	return tournament
+	
+	return tournament, nil
 }
 
 func Destroy(r *http.Request, tournamentId int64) error {
@@ -82,15 +83,18 @@ func Destroy(r *http.Request, tournamentId int64) error {
 }
 
 func Find(r *http.Request, filter string, value interface{}) []*Tournament {
+	c := appengine.NewContext(r)
+	
 	q := datastore.NewQuery("Tournament").Filter(filter + " =", value)
 
 	var tournaments []*Tournament
 
 	if _, err := q.GetAll(appengine.NewContext(r), &tournaments); err == nil {
 		return tournaments
+	} else {
+		c.Errorf("pw: Tournament.Find, error occurred during GetAll: %v", err)
+		return nil
 	}
-
-	return nil
 }
 
 func ById(r *http.Request, id int64)(*Tournament, error){
@@ -115,11 +119,12 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 	return key
 }
 
-func Update(r *http.Request, id int64, t *Tournament) error{
+func Update(r *http.Request, id int64, t *Tournament) error {
 	c := appengine.NewContext(r)
+	
 	k := KeyById(r, id)
 	oldTournament := new(Tournament)
-	if err := datastore.Get(c, k, oldTournament); err == nil{
+	if err := datastore.Get(c, k, oldTournament); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
@@ -129,22 +134,29 @@ func Update(r *http.Request, id int64, t *Tournament) error{
 }
 
 func FindAll(r *http.Request) []*Tournament {
+	c := appengine.NewContext(r)
+	
 	q := datastore.NewQuery("Tournament")
 
 	var tournaments []*Tournament
 
-	q.GetAll(appengine.NewContext(r), &tournaments)
+	if _, err := q.GetAll(appengine.NewContext(r), &tournaments); err != nil {
+		c.Errorf("pw: Tournament.FindAll, error occurred during GetAll call: %v", err)
+	}
 
 	return tournaments
 }
 
 // find with respect to array of ids
-func ByIds(r *http.Request, ids []int64) []*Tournament{
-		
+func ByIds(r *http.Request, ids []int64) []*Tournament {
+	c := appengine.NewContext(r)
+	
 	var tournaments []*Tournament
-	for _, id := range ids{
-		if tournament, err := ById(r, id); err == nil{
+	for _, id := range ids {
+		if tournament, err := ById(r, id); err == nil {
 			tournaments = append(tournaments, tournament)
+		} else {
+			c.Errorf("pw: Tournament.ByIds, error occurred during ByIds call: %v", err)
 		}
 	}
 	return tournaments
@@ -229,7 +241,7 @@ func GetTournamentCounter(c appengine.Context)(int64, error){
 	return x.Count, nil
 }
 
-func GetWordFrequencyForTournament(r *http.Request, id int64, word string)int64{
+func GetWordFrequencyForTournament(r *http.Request, id int64, word string) int64 {
 
 	if tournaments := Find(r, "Id", id); tournaments != nil{
 		return helpers.CountTerm(strings.Split(tournaments[0].KeyName, " "),word)

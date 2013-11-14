@@ -91,6 +91,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 }
 
 func New(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 	
 	var form Form
 	if r.Method == "GET" {
@@ -104,7 +105,10 @@ func New(w http.ResponseWriter, r *http.Request){
 		} else if t := tournamentmdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
 			form.Error = "That tournament name already exists."
 		} else {
-			tournament := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
+			tournament, err := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
+			if err != nil {
+				c.Errorf("pw: error when trying to create a tournament: %v", err)
+			}
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/m/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
 			return
