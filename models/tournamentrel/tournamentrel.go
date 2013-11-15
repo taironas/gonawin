@@ -33,12 +33,12 @@ type TournamentRelationship struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, tournamentId int64, userId int64) *TournamentRelationship {
+func Create(r *http.Request, tournamentId int64, userId int64) (*TournamentRelationship, error) {
 	c := appengine.NewContext(r)
 	// create new tournament relationship
 	tournamentRelationshipId, _, err := datastore.AllocateIDs(c, "TournamentRelationship", nil, 1)
 	if err != nil {
-		c.Errorf("pw: TournamentRelationship.Create: %v", err)
+		return nil, err
 	}
 	
 	key := datastore.NewKey(c, "TournamentRelationship", "", tournamentRelationshipId, nil)
@@ -47,10 +47,10 @@ func Create(r *http.Request, tournamentId int64, userId int64) *TournamentRelati
 
 	_, err = datastore.Put(c, key, tournamentRelationship)
 	if err != nil {
-		c.Errorf("Create: %v", err)
+		return nil, err
 	}
 
-	return tournamentRelationship
+	return tournamentRelationship, nil
 }
 
 func Destroy(r *http.Request, tournamentId int64, userId int64) error {
@@ -66,18 +66,21 @@ func Destroy(r *http.Request, tournamentId int64, userId int64) error {
 }
 
 func FindByTournamentIdAndUserId(r *http.Request, tournamentId int64, userId int64) *TournamentRelationship {
+	c:= appengine.NewContext(r)
+	
 	q := datastore.NewQuery("TournamentRelationship").Filter("TournamentId =", tournamentId).Filter("UserId =", userId).Limit(1)
 	
 	var tournamentRels []*TournamentRelationship
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &tournamentRels); err == nil && len(tournamentRels) > 0 {
 		return tournamentRels[0]
-	} 
-	
-	return nil
+	} else {
+		c.Errorf("pw: tournamentrel.FindByTournamentIdAndUserId, error occurred during GetAll: %v", err)
+		return nil
+	}
 }
 
-func Find(r *http.Request, filter string, value interface{}) []*TournamentRelationship{
+func Find(r *http.Request, filter string, value interface{}) []*TournamentRelationship {
 	c:= appengine.NewContext(r)
 	
 	q := datastore.NewQuery("TournamentRelationship").Filter(filter + " =", value)
@@ -85,7 +88,7 @@ func Find(r *http.Request, filter string, value interface{}) []*TournamentRelati
 	var tournamentRels []*TournamentRelationship
 	
 	if _, err := q.GetAll(c, &tournamentRels); err != nil {
-		c.Errorf("pw: error occured in tournamentrel.Find: %v", err)
+		c.Errorf("pw: tournamentrel.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return tournamentRels

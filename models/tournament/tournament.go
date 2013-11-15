@@ -168,8 +168,8 @@ func Joined(r *http.Request, tournamentId int64, userId int64) bool {
 }
 
 func Join(r *http.Request, tournamentId int64, userId int64) error {
-	if tournamentRel := tournamentrelmdl.Create(r, tournamentId, userId); tournamentRel == nil {
-		return errors.New("error during tournament relationship creation")
+	if tournamentRel, err := tournamentrelmdl.Create(r, tournamentId, userId); tournamentRel == nil {
+		return errors.New(fmt.Sprintf("pw: Tournament.Join, error during tournament relationship creation: %v", err))
 	}
 
 	return nil
