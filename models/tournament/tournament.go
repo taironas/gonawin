@@ -195,8 +195,8 @@ func TeamJoined(r *http.Request, tournamentId int64, teamId int64) bool {
 
 // Team joins the Tournament
 func TeamJoin(r *http.Request, tournamentId int64, teamId int64) error {
-	if tournamentteamRel := tournamentteamrelmdl.Create(r, tournamentId, teamId); tournamentteamRel == nil {
-		return errors.New("error during tournament team relationship creation")
+	if tournamentteamRel, err := tournamentteamrelmdl.Create(r, tournamentId, teamId); tournamentteamRel == nil {
+		return errors.New(fmt.Sprintf("pw: Tournament.TeamJoin, error during tournament team relationship creation: %v", err))
 	}
 
 	return nil
