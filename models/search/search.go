@@ -33,7 +33,7 @@ import (
 	helpers "github.com/santiaago/purple-wing/helpers"
 )
 
-func TournamentScore(r *http.Request, query string, ids []int64)[]int64{
+func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
 	c := appengine.NewContext(r)
 
 	words := strings.Split(query, " ")
@@ -44,8 +44,10 @@ func TournamentScore(r *http.Request, query string, ids []int64)[]int64{
 	q := make([]float64, len(setOfWords))
 	for i,w := range setOfWords{
 		dft := 0
-		if inv_id := tournamentinvidmdl.Find(r, "KeyName", w); inv_id != nil{
-			dft = len(strings.Split(string(inv_id.TournamentIds), " "))
+		if invId, err := tournamentinvidmdl.Find(r, "KeyName", w); err != nil {
+			c.Errorf("pw: search.TournamentScore, unable to find KeyName=%s: %v", w, err)
+		} else if invId != nil {
+			dft = len(strings.Split(string(invId.TournamentIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
 	}
@@ -60,7 +62,11 @@ func TournamentScore(r *http.Request, query string, ids []int64)[]int64{
 			// get word frequency by tournament (id, wi)
 			wordFreqByTournament := tournamentmdl.GetWordFrequencyForTournament(r, id, wi)
 			// get number of tournaments with word (wi)
-			tournamentFreqForWord := tournamentinvidmdl.GetTournamentFrequencyForWord(r, wi)
+			tournamentFreqForWord, err := tournamentinvidmdl.GetTournamentFrequencyForWord(r, wi)
+			if err != nil {
+				c.Errorf("pw: search.TournamentScore, error occurred when getting tournament frequency for word=%s: %v", wi, err)
+			}
+			
 			d[j] = math.Log10(float64(1+wordFreqByTournament)) * math.Log10(float64(nbTournamentWords+1)/float64(tournamentFreqForWord+1))
 		}
 		vec_d[i] = make([]float64, len(setOfWords))

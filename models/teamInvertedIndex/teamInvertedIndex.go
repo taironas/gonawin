@@ -154,8 +154,8 @@ func removeWord(r *http.Request, w string, id int64) error {
 
 	invId, err := Find(r, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf("pw: teaminvid.removeWordunable, unable to find KeyName=%s: %v", w, err))
-	} else if invId == nil{
+		return errors.New(fmt.Sprintf("pw: teaminvid.removeWord, unable to find KeyName=%s: %v", w, err))
+	} else if invId == nil {
 		c.Infof("pw: word %v does not exist in Team InvertedIndex so nothing to remove", w)
 	} else {
 		// update row with new info
@@ -221,7 +221,7 @@ func GetIndexes(r *http.Request, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
 	
-	for _, w := range words{
+	for _, w := range words {
 		l := ""
 		
 		res, err := Find(r, "KeyName", w)
@@ -282,7 +282,7 @@ func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
-func GetWordCount(c appengine.Context)(int64, error){
+func GetWordCount(c appengine.Context)(int64, error) {
 	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
 	var x WordCountTeam
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -295,9 +295,9 @@ func GetTeamFrequencyForWord(r *http.Request, word string) (int64, error) {
 	
 	if invId, err := Find(r, "KeyName", word); err != nil {
 		return 0, errors.New(fmt.Sprintf("pw: teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err))
-	} else if invId == nil{
+	} else if invId == nil {
 		return 0, nil
-	}else{
-		return int64(len(strings.Split(string(invId.TeamIds)," "))), nil
+	} else {
+		return int64(len(strings.Split(string(invId.TeamIds), " "))), nil
 	}
 }

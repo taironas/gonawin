@@ -60,21 +60,23 @@ func Index(w http.ResponseWriter, r *http.Request){
 		data.TournamentInputSearch = ""
 		
 	} else if r.Method == "POST" {
-		query := r.FormValue("TournamentInputSearch")
-		if len(query) == 0 {
-			http.Redirect(w, r, "teams", http.StatusFound)
+		if query := r.FormValue("TournamentInputSearch"); len(query) == 0 {
+			http.Redirect(w, r, "tournaments", http.StatusFound)
 			return
+		} else {
+			words := helpers.SetOfStrings(query)
+			ids, err := tournamentinvmdl.GetIndexes(r, words)
+			
+			if err != nil {
+				c.Errorf("pw: tournaments.Index, error occurred when getting indexes of words: %v", err)
+			}
+			
+			result := searchmdl.TournamentScore(r, query, ids)
+			
+			tournaments := tournamentmdl.ByIds(r, result)
+			data.Tournaments = tournaments
+			data.TournamentInputSearch = query
 		}
-
-		words := helpers.SetOfStrings(query)
-		ids := tournamentinvmdl.GetIndexes(r, words)
-		c.Infof("pw: search: %v Ids:%v", query, ids)
-		result := searchmdl.TournamentScore(r, query, ids)
-		
-		tournaments := tournamentmdl.ByIds(r, result)
-		data.Tournaments = tournaments
-		data.TournamentInputSearch = query
-
 	} else {
 		helpers.Error404(w)
 		return
