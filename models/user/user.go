@@ -17,8 +17,8 @@
 package user
 
 import (
-	"net/http"
 	"errors"
+	"net/http"
 	"time"
 	
 	"appengine"
@@ -58,7 +58,7 @@ func Create(r *http.Request, email string, username string, name string, auth st
 	return user, nil
 }
 
-func Find(r *http.Request, filter string, value interface{}) *User{
+func Find(r *http.Request, filter string, value interface{}) *User {
 	c := appengine.NewContext(r)
 	
 	q := datastore.NewQuery("User").Filter(filter + " =", value)
@@ -68,13 +68,12 @@ func Find(r *http.Request, filter string, value interface{}) *User{
 	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
 		return users[0]
 	} else {
-		c.Errorf("pw: User.Find: %v", err)
+		c.Errorf("pw: User.Find, error occurred during GetAll: %v", err)
+		return nil
 	}
-
-	return nil
 }
 
-func ById(r *http.Request, id int64)(*User, error){
+func ById(r *http.Request, id int64) (*User, error) {
 	c := appengine.NewContext(r)
 
 	var u User
@@ -87,7 +86,7 @@ func ById(r *http.Request, id int64)(*User, error){
 	return &u, nil
 }
 
-func KeyById(r *http.Request, id int64)(*datastore.Key){
+func KeyById(r *http.Request, id int64)(*datastore.Key) {
 	c := appengine.NewContext(r)
 
 	key := datastore.NewKey(c, "User", "", id, nil)
@@ -95,7 +94,7 @@ func KeyById(r *http.Request, id int64)(*datastore.Key){
 	return key
 }
 
-func Update(r *http.Request, u *User) error{
+func Update(r *http.Request, u *User) error {
 	c := appengine.NewContext(r)
 	k := KeyById(r, u.Id)
 	if _, err := datastore.Put(c, k, u); err != nil {
