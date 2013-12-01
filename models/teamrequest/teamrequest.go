@@ -19,7 +19,6 @@ package teamrequest
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 	
 	"appengine"
@@ -35,8 +34,7 @@ type TeamRequest struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, teamId int64, userId int64) (*TeamRequest, error) {
-	c := appengine.NewContext(r)
+func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
 	// create new team request
 	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
 	if err != nil {
@@ -55,10 +53,9 @@ func Create(r *http.Request, teamId int64, userId int64) (*TeamRequest, error) {
 	return teamRequest, nil
 }
 
-func Destroy(r *http.Request, teamRequestId int64) error {
-	c := appengine.NewContext(r)
+func Destroy(c appengine.Context, teamRequestId int64) error {
 	
-	if teamRequest, err := ById(r, teamRequestId); err != nil {
+	if teamRequest, err := ById(c, teamRequestId); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find team request with teamRequestId=%d", teamRequestId))
 	} else {
 		key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
@@ -67,28 +64,26 @@ func Destroy(r *http.Request, teamRequestId int64) error {
 	}
 }
 
-func Find(r *http.Request, filter string, value interface{}) []*TeamRequest {
-	c:= appengine.NewContext(r)
+func Find(c appengine.Context, filter string, value interface{}) []*TeamRequest {
 	
 	q := datastore.NewQuery("TeamRequest").Filter(filter + " =", value)
 	
 	var teamRequests []*TeamRequest
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err != nil {
+	if _, err := q.GetAll(c, &teamRequests); err != nil {
 		log.Errorf(c, " teamrequest.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return teamRequests
 }
 
-func findByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRequest {
-	c:= appengine.NewContext(r)
+func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRequest {
 	
 	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 	
 	var teamRequests []*TeamRequest
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err == nil && len(teamRequests) > 0 {
+	if _, err := q.GetAll(c, &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
 	} else {
 		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
@@ -96,8 +91,7 @@ func findByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamReq
 	}
 }
 
-func ById(r *http.Request, id int64) (*TeamRequest, error) {
-	c := appengine.NewContext(r)
+func ById(c appengine.Context, id int64) (*TeamRequest, error) {
 	
 	var tr TeamRequest
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
@@ -109,6 +103,6 @@ func ById(r *http.Request, id int64) (*TeamRequest, error) {
 	return &tr, nil
 }
 
-func Sent(r *http.Request, teamId int64, userId int64) bool {
-	return findByTeamIdAndUserId(r, teamId, userId) != nil
+func Sent(c appengine.Context, teamId int64, userId int64) bool {
+	return findByTeamIdAndUserId(c, teamId, userId) != nil
 }

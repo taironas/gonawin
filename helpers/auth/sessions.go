@@ -40,8 +40,7 @@ type AuthKey struct {
 	Created time.Time
 }
 
-func StoreAuthKey(r *http.Request, uid int64, auth string) {
-	c := appengine.NewContext(r)
+func StoreAuthKey(c appengine.Context, uid int64, auth string) {
 	
 	uidStr := fmt.Sprintf("%d", uid)
 	
@@ -64,7 +63,7 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
 		Key:   "auth:" + auth,
 		Value: []byte(uidStr),
 	}
-    // Set the item, unconditionally
+	// Set the item, unconditionally
 	if err := memcache.Set(c, item); err == memcache.ErrNotStored {
 		log.Infof(c, "item with key %q already exists", item.Key)
 	} else if err != nil {
@@ -82,7 +81,7 @@ func fetchAuthKey(r *http.Request, auth string) string {
 
 		var authKeys []*AuthKey
 
-		if _, err := q.GetAll(appengine.NewContext(r), &authKeys); err == nil && len(authKeys) > 0 {
+		if _, err := q.GetAll(c, &authKeys); err == nil && len(authKeys) > 0 {
 			return authKeys[0].Value
 		}
 	} else if err != nil {
@@ -126,12 +125,11 @@ func GenerateAuthKey() string {
 	return fmt.Sprintf("%x", b)
 }
 
-func CurrentUser(r *http.Request) *usermdl.User {
+func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	if kOfflineMode {
-		return usermdl.Find(r, "Username", "purple")
+		return usermdl.Find(c, "Username", "purple")
 	}
 	
-	c := appengine.NewContext(r)
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
 			log.Infof(c, " CurrentUser, uid=%s, auth=%s", uid, auth)
@@ -140,7 +138,7 @@ func CurrentUser(r *http.Request) *usermdl.User {
 				log.Errorf(c, " CurrentUser, string value could not be parsed: %v", err)
 			}
 			
-			return usermdl.Find(r, "Id", userId)
+			return usermdl.Find(c, "Id", userId)
 		}
 	}
 
@@ -162,9 +160,9 @@ func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	}
 	
 	// find user
-	if user = usermdl.Find(r, queryName, queryValue); user == nil {
+	if user = usermdl.Find(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		if userCreate, err := usermdl.Create(r, email, username, name, GenerateAuthKey()); err != nil{
+		if userCreate, err := usermdl.Create(c, email, username, name, GenerateAuthKey()); err != nil{
 			log.Errorf(c, "Signup: %v", err)
 			return errors.New("helpers/auth: Unable to create user.")
 		}else{
@@ -174,6 +172,6 @@ func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	// set 'auth' cookie
 	SetAuthCookie(w, user.Auth)
 	// store in memcache auth key in memcaches
-	StoreAuthKey(r, user.Id, user.Auth)
+	StoreAuthKey(c, user.Id, user.Auth)
 	return nil
 }

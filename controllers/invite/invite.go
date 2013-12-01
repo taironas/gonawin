@@ -56,7 +56,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	var form InviteForm
-	form.Name = auth.CurrentUser(r).Name
+	form.Name = auth.CurrentUser(r, c).Name
 	
 	if r.Method == "GET" {
 		form.EmailsList = ""
@@ -79,7 +79,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 					msg := &mail.Message{
 					Sender:  "No Reply purple-wing <no-reply@purple-wing.com>",
 					To:      []string{email},
-					Subject: auth.CurrentUser(r).Name + " wants you to join Purple-wing!",
+					Subject: auth.CurrentUser(r, c).Name + " wants you to join Purple-wing!",
 					Body:    fmt.Sprintf(inviteMessage, url),
 					}
 					
@@ -98,5 +98,5 @@ func Email(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/invite/email.html"))
 	
 	funcs := template.FuncMap{}
-	templateshlp.RenderWithData(w, r, t, form, funcs, "renderEmail")
+	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderEmail")
 }

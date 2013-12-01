@@ -19,7 +19,6 @@ package teamrel
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"time"
 	
 	"appengine"
@@ -35,8 +34,7 @@ type TeamRelationship struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, teamId int64, userId int64) (*TeamRelationship, error) {
-	c := appengine.NewContext(r)
+func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship, error) {
 	// create new team relationship
 	teamRelationshipId, _, err := datastore.AllocateIDs(c, "TeamRelationship", nil, 1)
 	if err != nil {
@@ -55,10 +53,9 @@ func Create(r *http.Request, teamId int64, userId int64) (*TeamRelationship, err
 	return teamRelationship, nil
 }
 
-func Destroy(r *http.Request, teamId int64, userId int64) error {
-	c := appengine.NewContext(r)
+func Destroy(c appengine.Context, teamId int64, userId int64) error {
 	
-	if teamRel := FindByTeamIdAndUserId(r, teamId, userId); teamRel == nil {
+	if teamRel := FindByTeamIdAndUserId(c, teamId, userId); teamRel == nil {
 		return errors.New(fmt.Sprintf("Cannot find team relationship for teamId=%d and userId=%d", teamId, userId))
 	} else {
 		key := datastore.NewKey(c, "TeamRelationship", "", teamRel.Id, nil)
@@ -67,14 +64,13 @@ func Destroy(r *http.Request, teamId int64, userId int64) error {
 	}
 }
 
-func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRelationship {
-	c:= appengine.NewContext(r)
+func FindByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRelationship {
 	
 	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 	
 	var teamRels []*TeamRelationship
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teamRels); err == nil && len(teamRels) > 0 {
+	if _, err := q.GetAll(c, &teamRels); err == nil && len(teamRels) > 0 {
 		return teamRels[0]
 	} else {
 		log.Errorf(c, " teamrel.FindByTeamIdAndUserId, error occurred during GetAll: %v", err)
@@ -82,8 +78,7 @@ func FindByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamRel
 	}
 }
 
-func Find(r *http.Request, filter string, value interface{}) []*TeamRelationship{
-	c:= appengine.NewContext(r)
+func Find(c appengine.Context, filter string, value interface{}) []*TeamRelationship{
 	
 	q := datastore.NewQuery("TeamRelationship").Filter(filter + " =", value)
 	

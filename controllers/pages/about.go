@@ -19,16 +19,18 @@ package pages
 import (
 	"net/http"
 	"html/template"
-	
+
+	"appengine"
+
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 )
 
 //about handler: for about page
 func About(w http.ResponseWriter, r *http.Request){
-
+	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r),		
+		auth.CurrentUser(r, c),		
 		"About handler",
 	}
 	
@@ -38,7 +40,7 @@ func About(w http.ResponseWriter, r *http.Request){
 		Funcs(funcs).
 		ParseFiles("templates/pages/about.html"))
 
-	templateshlp.RenderWithData(w, r, t, data, funcs, "renderAbout")
+	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderAbout")
 }
 
 

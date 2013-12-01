@@ -16,9 +16,7 @@
  
 package tournamentrels
 
-import (
-	"net/http"
-	
+import (	
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers/log"	
@@ -29,15 +27,13 @@ import (
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
-func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
-	c := appengine.NewContext(r)
-	
+func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {	
 	var users []*usermdl.User
 	
-	tournamentRels := tournamentrelmdl.Find(r, "TournamentId", tournamentId)
+	tournamentRels := tournamentrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentRel := range tournamentRels {
-		user, err := usermdl.ById(r, tournamentRel.UserId)
+		user, err := usermdl.ById(c, tournamentRel.UserId)
 		if err != nil {
 			log.Errorf(c, " Participants, cannot find user with ID=%", tournamentRel.UserId)
 		} else {
@@ -48,15 +44,14 @@ func Participants(r *http.Request, tournamentId int64) []*usermdl.User {
 	return users
 }
 
-func Teams(r *http.Request, tournamentId int64) []*teammdl.Team {
-	c := appengine.NewContext(r)
+func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
 	
-	tournamentteamRels := tournamentteamrelmdl.Find(r, "TournamentId", tournamentId)
+	tournamentteamRels := tournamentteamrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentteamRel := range tournamentteamRels {
-		team, err := teammdl.ById(r, tournamentteamRel.TeamId)
+		team, err := teammdl.ById(c, tournamentteamRel.TeamId)
 		if err != nil {
 			log.Errorf(c, " Teams, cannot find team with ID=%", tournamentteamRel.TeamId)
 		} else {
@@ -67,15 +62,14 @@ func Teams(r *http.Request, tournamentId int64) []*teammdl.Team {
 	return teams
 }
 
-func Tournaments(r *http.Request, userId int64) []*tournamentmdl.Tournament {
-	c := appengine.NewContext(r)
+func Tournaments(c appengine.Context, userId int64) []*tournamentmdl.Tournament {
 	
 	var tournaments []*tournamentmdl.Tournament
 	
-	tournamentRels := tournamentrelmdl.Find(r, "UserId", userId)
+	tournamentRels := tournamentrelmdl.Find(c, "UserId", userId)
 
 	for _, tournamentRel := range tournamentRels {
-		tournament, err := tournamentmdl.ById(r, tournamentRel.TournamentId)
+		tournament, err := tournamentmdl.ById(c, tournamentRel.TournamentId)
 		if err != nil {
 			log.Errorf(c, " Tournaments, cannot find team with ID=%", tournamentRel.TournamentId)
 		} else {

@@ -20,6 +20,8 @@ import (
 	"html/template"
 	"net/http"
 
+	"appengine"
+
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
@@ -43,8 +45,9 @@ type Form struct {
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
-	
-	userId, err := handlers.PermalinkID(r,3)
+	c := appengine.NewContext(r)
+
+	userId, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		http.Redirect(w,r, "/m/users/", http.StatusFound)
 		return
@@ -63,15 +66,15 @@ func Show(w http.ResponseWriter, r *http.Request){
 		"templates/user/requests.html"))
 
 	var user *usermdl.User
-	user, err = usermdl.ById(r,userId)
+	user, err = usermdl.ById(c,userId)
 	if err != nil{
 		helpers.Error404(w)
 		return
 	}
 	
-	teams := teamrelshlp.Teams(r, userId)
-	tournaments := tournamentrelshlp.Tournaments(r, userId)
-	teamRequests := teamrelshlp.TeamsRequests(r, teams)
+	teams := teamrelshlp.Teams(c, userId)
+	tournaments := tournamentrelshlp.Tournaments(c, userId)
+	teamRequests := teamrelshlp.TeamsRequests(c, teams)
 	
 	userData := struct { 
 		User *usermdl.User
@@ -85,5 +88,5 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teamRequests,
 	}
 	
-	templateshlp.RenderWithData(w, r, t, userData, funcs, "renderUserShow")
+	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
 }

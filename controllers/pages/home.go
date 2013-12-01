@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"html/template"
 	"fmt"
-	
+	"appengine"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 )
@@ -32,19 +32,19 @@ func TempHome(w http.ResponseWriter, r *http.Request){
 
 //main handler: for home page
 func Home(w http.ResponseWriter, r *http.Request){
-
+	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r),		
+		auth.CurrentUser(r, c),		
 		"Home handler",
 	}
 	
 	funcs := template.FuncMap{
-		"LoggedIn": func() bool { return auth.LoggedIn(r) },
+		"LoggedIn": func() bool { return auth.LoggedIn(r, c) },
 	}
 	
 	t := template.Must(template.New("tmpl_main").
 		Funcs(funcs).
 		ParseFiles("templates/pages/main.html"))
 
-	templateshlp.RenderWithData(w, r, t, data, funcs, "renderMain")
+	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderMain")
 }

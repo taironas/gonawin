@@ -74,7 +74,8 @@ func facebookConfig(host string) *oauth2.Config{
 }
 
 func Authenticate(w http.ResponseWriter, r *http.Request){
-	if !authhlp.LoggedIn(r) {
+	c := appengine.NewContext(r)
+	if !authhlp.LoggedIn(r, c) {
 		
 		funcs := template.FuncMap{}
 		
@@ -82,7 +83,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 			Funcs(funcs).
 			ParseFiles("templates/session/auth.html"))
 		// no data needed
-		templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAuth")
+		templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAuth")
 	} else {
 		//redirect to home page
 		http.Redirect(w, r, root, http.StatusFound)
@@ -91,7 +92,8 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 
 // Google 
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
-	if !authhlp.LoggedIn(r) {
+	c := appengine.NewContext(r)
+	if !authhlp.LoggedIn(r, c) {
 		url := googleConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
@@ -101,8 +103,7 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
+	c := appengine.NewContext(r)	
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	t := &oauth2.Transport{
@@ -131,8 +132,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 // Twitter
 func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-
-	if !authhlp.LoggedIn(r) {
+	if !authhlp.LoggedIn(r, c) {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
 		if err != nil {
 			log.Errorf(c, " AuthenticateWithTwitter, error getting temporary credentials: %v", err)
@@ -199,7 +199,8 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 
 // Facebook
 func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
-	if !authhlp.LoggedIn(r) {
+	c := appengine.NewContext(r)
+	if !authhlp.LoggedIn(r, c) {
 		url := facebookConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
@@ -208,8 +209,7 @@ func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
-	
+func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){	
 	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")

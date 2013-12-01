@@ -42,13 +42,12 @@ type UserData struct{
 
 func Render(w http.ResponseWriter, 
 	r *http.Request,
+	c appengine.Context,
 	dynamicTemplate []byte,
 	pfuncs *template.FuncMap,
 	name string) error{
 	
-	c := appengine.NewContext(r)
-
-	userdata := UserData{auth.CurrentUser(r),}
+	userdata := UserData{auth.CurrentUser(r, c),}
 
 	var funcs template.FuncMap
  
@@ -57,7 +56,7 @@ func Render(w http.ResponseWriter,
 	} else {
 		funcs = *pfuncs
 	}	
-	initNavFuncMap(&funcs, r)
+	initNavFuncMap(&funcs, r, c)
 
 	tmpl := template.Must(template.New(name).
 		Funcs(funcs).
@@ -81,9 +80,7 @@ func Render(w http.ResponseWriter,
 }
 
 // Executes and Render template with the data structure and the func map passed as argument
-func RenderWithData(w http.ResponseWriter, r *http.Request, t *template.Template, data interface{}, funcs template.FuncMap, id string){
-
-	c := appengine.NewContext(r)
+func RenderWithData(w http.ResponseWriter, r *http.Request, c appengine.Context, t *template.Template, data interface{}, funcs template.FuncMap, id string){
 	
 	var buf bytes.Buffer
 	err := t.ExecuteTemplate(&buf, t.Name(), data)
@@ -93,20 +90,20 @@ func RenderWithData(w http.ResponseWriter, r *http.Request, t *template.Template
 		log.Errorf(c, " error in parse template %v: %v", t.Name(), err)
 	}
 	
-	err = Render(w, r, templateBytes, &funcs, id)
+	err = Render(w, r, c, templateBytes, &funcs, id)
 	if err != nil{
 		log.Errorf(c, " error when calling Render from helpers: %v", err)
 	}
 }
 
 // set all navigation pages to false caller should define only the active one
-func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
+func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request, c appengine.Context) {
 	
 	if pfuncs != nil{
 		funcs := *pfuncs
 		
 		if _,ok := funcs[""]; !ok {
-			funcs["LoggedIn"] = func() bool { return auth.LoggedIn(r) }
+			funcs["LoggedIn"] = func() bool { return auth.LoggedIn(r, c) }
 		}
 		if _,ok := funcs["Teams"]; !ok {
 			funcs["Teams"] = func() bool {return false}
@@ -118,11 +115,10 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 			funcs["Profile"] = func() bool {return false}
 		}
 		if _,ok := funcs["Admin"]; !ok {
-			funcs["Admin"] = func() bool {return auth.IsAdmin(r)}
+			funcs["Admin"] = func() bool {return auth.IsAdmin(r, c)}
 		}
 		
 	} else {
-		c := appengine.NewContext(r)
 		log.Errorf(c, "error in initNavFuncMap, funcs is nil, unable to init funcs map")
 	}
 }

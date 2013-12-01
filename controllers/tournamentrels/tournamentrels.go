@@ -37,15 +37,14 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
-		if err := tournamentmdl.Join(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
+		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
 			log.Errorf(c, " tournamentrels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if err := tournamentmdl.Leave(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
+		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
 			log.Errorf(c, " tournamentrels.Show: %v", err)
 		}
 	}
 	
 	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
-

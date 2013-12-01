@@ -16,9 +16,7 @@
  
 package teamrels
 
-import (
-	"net/http"
-	
+import (	
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers/log"
@@ -28,15 +26,14 @@ import (
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
-func Players(r *http.Request, teamId int64) []*usermdl.User {
-	c := appengine.NewContext(r)
+func Players(c appengine.Context, teamId int64) []*usermdl.User {
 	
 	var users []*usermdl.User
 	
-	teamRels := teamrelmdl.Find(r, "TeamId", teamId)
+	teamRels := teamrelmdl.Find(c, "TeamId", teamId)
 
 	for _, teamRel := range teamRels {
-		user, err := usermdl.ById(r, teamRel.UserId)
+		user, err := usermdl.ById(c, teamRel.UserId)
 		if err != nil {
 			log.Errorf(c, " Players, cannot find user with ID=%", teamRel.UserId)
 		} else {
@@ -47,15 +44,14 @@ func Players(r *http.Request, teamId int64) []*usermdl.User {
 	return users
 }
 
-func Teams(r *http.Request, userId int64) []*teammdl.Team {
-	c := appengine.NewContext(r)
+func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
 	
-	teamRels := teamrelmdl.Find(r, "UserId", userId)
+	teamRels := teamrelmdl.Find(c, "UserId", userId)
 
 	for _, teamRel := range teamRels {
-		team, err := teammdl.ById(r, teamRel.TeamId)
+		team, err := teammdl.ById(c, teamRel.TeamId)
 		if err != nil {
 			log.Errorf(c, " Teams, cannot find team with ID=%", teamRel.TeamId)
 		} else {
@@ -66,11 +62,11 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	return teams
 }
 
-func TeamsRequests(r *http.Request, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
+func TeamsRequests(c appengine.Context, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
 	var teamRequests []*teamrequestmdl.TeamRequest
 	
 	for _, team := range teams {
-		teamRequests = append(teamRequests, teamrequestmdl.Find(r, "TeamId", team.Id)...)
+		teamRequests = append(teamRequests, teamrequestmdl.Find(c, "TeamId", team.Id)...)
 	}
 
 	return teamRequests

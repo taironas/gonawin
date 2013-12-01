@@ -21,21 +21,27 @@ import (
 	"net/http"
 	"time"
 
+	"appengine"
+
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 func AdminShow(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
 	funcs := template.FuncMap{}
 	
 	t := template.Must(template.New("tmpl_admin_show").
 		Funcs(funcs).
 		ParseFiles("templates/admin/show.html"))
 	
-	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderAdminShow")
+	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAdminShow")
 }
 
 func AdminUsers(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
 	// sample of users
 	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
 	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
@@ -50,7 +56,7 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/admin/users.html", 
 		"templates/user/info.html"))
 		
-	templateshlp.RenderWithData(w, r, t, users, funcs, "renderAdminUsersShow")
+	templateshlp.RenderWithData(w, r, c, t, users, funcs, "renderAdminUsersShow")
 }
 
 

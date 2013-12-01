@@ -42,16 +42,16 @@ func Profile(w http.ResponseWriter, r *http.Request){
 			Funcs(funcs).
 			ParseFiles("templates/settings/profile.html"))
 		
-		templateshlp.RenderWithData(w, r, t, auth.CurrentUser(r), funcs, "renderProfile")
+		templateshlp.RenderWithData(w, r, c, t, auth.CurrentUser(r, c), funcs, "renderProfile")
 
 	}else if r.Method == "POST"{
-		currentUser := auth.CurrentUser(r)
+		currentUser := auth.CurrentUser(r, c)
 		
 		editUserName := r.FormValue("Username")
 		
 		if helpers.IsUsernameValid(editUserName) && editUserName != currentUser.Username{
 			currentUser.Username = editUserName
-			usermdl.Update(r, currentUser)
+			usermdl.Update(c, currentUser)
 		} else {
 			log.Errorf(c, " cannot update current user info")
 		}
@@ -61,21 +61,23 @@ func Profile(w http.ResponseWriter, r *http.Request){
 }
 
 func Networks(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_networks").
 		ParseFiles("templates/settings/networks.html"))
 
 	// no data
 	funcs := template.FuncMap{}
-	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderNetworks")
+	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderNetworks")
 }
 
 func Email(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_email").
 		ParseFiles("templates/settings/email.html"))
 
 	// no data
 	funcs := template.FuncMap{}
-	templateshlp.RenderWithData(w, r, t, nil, funcs, "renderEmail")
+	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderEmail")
 }

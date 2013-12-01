@@ -18,7 +18,6 @@ package user
 
 import (
 	"errors"
-	"net/http"
 	"time"
 	
 	"appengine"
@@ -39,8 +38,7 @@ type User struct {
 	Created time.Time
 }
 
-func Create(r *http.Request, email string, username string, name string, auth string) (*User, error) {
-	c := appengine.NewContext(r)
+func Create(c appengine.Context, email string, username string, name string, auth string) (*User, error) {
 	// create new user
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
@@ -60,14 +58,13 @@ func Create(r *http.Request, email string, username string, name string, auth st
 	return user, nil
 }
 
-func Find(r *http.Request, filter string, value interface{}) *User {
-	c := appengine.NewContext(r)
+func Find(c appengine.Context, filter string, value interface{}) *User {
 	
 	q := datastore.NewQuery("User").Filter(filter + " =", value)
 	
 	var users []*User
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
+	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
 		return users[0]
 	} else {
 		log.Errorf(c, " User.Find, error occurred during GetAll: %v", err)
@@ -75,8 +72,7 @@ func Find(r *http.Request, filter string, value interface{}) *User {
 	}
 }
 
-func ById(r *http.Request, id int64) (*User, error) {
-	c := appengine.NewContext(r)
+func ById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
 	key := datastore.NewKey(c, "User", "", id, nil)
@@ -88,32 +84,29 @@ func ById(r *http.Request, id int64) (*User, error) {
 	return &u, nil
 }
 
-func KeyById(r *http.Request, id int64)(*datastore.Key) {
-	c := appengine.NewContext(r)
+func KeyById(c appengine.Context, id int64)(*datastore.Key) {
 
 	key := datastore.NewKey(c, "User", "", id, nil)
 
 	return key
 }
 
-func Update(r *http.Request, u *User) error {
-	c := appengine.NewContext(r)
-	k := KeyById(r, u.Id)
+func Update(c appengine.Context, u *User) error {
+	k := KeyById(c, u.Id)
 	if _, err := datastore.Put(c, k, u); err != nil {
 		return err
 	}
 	return nil
 }
 
-func Teams(r *http.Request, userId int64) []*teammdl.Team {
-	c := appengine.NewContext(r)
+func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
 	
-	teamRels := teamrelmdl.Find(r, "UserId", userId)
+	teamRels := teamrelmdl.Find(c, "UserId", userId)
 	
 	for _, teamRel := range teamRels {
-		team, err := teammdl.ById(r, teamRel.TeamId)
+		team, err := teammdl.ById(c, teamRel.TeamId)
 		
 		if err != nil {
 			log.Errorf(c, " User.Teams, cannot find team with ID=%", teamRel.TeamId)
@@ -125,7 +118,7 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	return teams
 }
 
-func AdminTeams(r *http.Request, adminId int64) []*teammdl.Team {
+func AdminTeams(c appengine.Context, adminId int64) []*teammdl.Team {
 	
-	return teammdl.Find(r, "AdminId", adminId)
+	return teammdl.Find(c, "AdminId", adminId)
 }

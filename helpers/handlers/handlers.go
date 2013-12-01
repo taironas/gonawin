@@ -30,7 +30,8 @@ import (
 // is it a user?
 func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !auth.IsUser(r) {
+		c := appengine.NewContext(r)
+		if !auth.IsUser(r, c) {
 			http.Redirect(w, r, "/m", http.StatusFound)
 		} else{
 			f(w, r)
@@ -40,7 +41,8 @@ func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 // is it an admin?
 func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !auth.IsAdmin(r) {
+		c := appengine.NewContext(r)
+		if !auth.IsAdmin(r, c) {
 			http.Redirect(w, r, "/m", http.StatusFound)
 		} else{
 			f(w, r)
@@ -48,9 +50,8 @@ func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	}
 }
 // parse permalink id from URL  and return it
-func PermalinkID(r *http.Request, level int64)(int64, error){
+func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error){
 
-	c := appengine.NewContext(r)
 	path := strings.Split(r.URL.String(), "/")
 	intID, err := strconv.ParseInt(path[level],0,64)
 	if err != nil{

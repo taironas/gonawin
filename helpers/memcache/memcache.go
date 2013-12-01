@@ -18,15 +18,13 @@ package memcache
 
 import (
 	"fmt"
-	"net/http"
 	"appengine"
 	"appengine/memcache"
 
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
-func Set(r *http.Request, key string, value interface{}) {
-	c := appengine.NewContext(r)
+func Set(c appengine.Context, key string, value interface{}) {
 
 	var bytes []byte
 	switch v := value.(type) {
@@ -46,8 +44,7 @@ func Set(r *http.Request, key string, value interface{}) {
 	}
 }
 
-func Get(r *http.Request, key string) (interface{}) {
-	c := appengine.NewContext(r)
+func Get(c appengine.Context, key string) (interface{}) {
 
 	// Get the item from the memcache
 	item, _ := memcache.Get(c, key)

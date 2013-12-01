@@ -55,7 +55,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 
 	var data indexData	
 	if r.Method == "GET"{
-		tournaments := tournamentmdl.FindAll(r)
+		tournaments := tournamentmdl.FindAll(c)
 
 		data.Tournaments = tournaments
 		data.TournamentInputSearch = ""
@@ -66,15 +66,15 @@ func Index(w http.ResponseWriter, r *http.Request){
 			return
 		} else {
 			words := helpers.SetOfStrings(query)
-			ids, err := tournamentinvmdl.GetIndexes(r, words)
+			ids, err := tournamentinvmdl.GetIndexes(c, words)
 			
 			if err != nil {
 				log.Errorf(c, " tournaments.Index, error occurred when getting indexes of words: %v", err)
 			}
 			
-			result := searchmdl.TournamentScore(r, query, ids)
+			result := searchmdl.TournamentScore(c, query, ids)
 			
-			tournaments := tournamentmdl.ByIds(r, result)
+			tournaments := tournamentmdl.ByIds(c, result)
 			data.Tournaments = tournaments
 			data.TournamentInputSearch = query
 		}
@@ -90,7 +90,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 		"Tournaments": func() bool {return true},
 	}
 	
-	templateshlp.RenderWithData(w, r, t, data, funcs, "renderTournamentIndex")
+	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderTournamentIndex")
 }
 
 func New(w http.ResponseWriter, r *http.Request){
@@ -105,10 +105,10 @@ func New(w http.ResponseWriter, r *http.Request){
 		
 		if len(form.Name) <= 0 {
 			form.Error = "'Name' field cannot be empty"
-		} else if t := tournamentmdl.Find(r, "KeyName", helpers.TrimLower(form.Name)); t != nil {
+		} else if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(form.Name)); t != nil {
 			form.Error = "That tournament name already exists."
 		} else {
-			tournament, err := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
+			tournament, err := tournamentmdl.Create(c, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r, c).Id)
 			if err != nil {
 				log.Errorf(c, " error when trying to create a tournament: %v", err)
 			}
@@ -126,34 +126,34 @@ func New(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	
-	templateshlp.RenderWithData(w, r, t, form, funcs, "renderTournamentNew")
+	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderTournamentNew")
 }
 
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	intID, err := handlers.PermalinkID(r,3)
+	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		log.Errorf(c, " Unable to find ID in request %v",r)
-		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+		http.Redirect(w, r, "/m/tournaments/", http.StatusFound)
 		return
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
 		// delete all tournament-user relationships
-		for _, participant := range tournamentrelshlp.Participants(r, intID) {
-			if err := tournamentrelmdl.Destroy(r, intID, participant.Id); err !=nil {
+		for _, participant := range tournamentrelshlp.Participants(c, intID) {
+			if err := tournamentrelmdl.Destroy(c, intID, participant.Id); err !=nil {
 			log.Errorf(c, " error when trying to destroy tournament relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
-		for _, team := range tournamentrelshlp.Teams(r, intID) {
-			if err := tournamentteamrelmdl.Destroy(r, intID, team.Id); err !=nil {
+		for _, team := range tournamentrelshlp.Teams(c, intID) {
+			if err := tournamentteamrelmdl.Destroy(c, intID, team.Id); err !=nil {
 			log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete the tournament
-		tournamentmdl.Destroy(r, intID)
+		tournamentmdl.Destroy(c, intID)
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 		return
@@ -164,9 +164,9 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	funcs := template.FuncMap{
-		"Joined": func() bool { return tournamentmdl.Joined(r, intID, auth.CurrentUser(r).Id) },
-		"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(r, intID, teamId) },
-		"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(r, intID, auth.CurrentUser(r).Id) },
+		"Joined": func() bool { return tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
+		"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(c, intID, teamId) },
+		"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) },
 	}
 	
 	t := template.Must(template.New("tmpl_tournament_show").
@@ -177,16 +177,16 @@ func Show(w http.ResponseWriter, r *http.Request){
 		"templates/tournament/candidateTeams.html"))
 
 	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(r, intID)
+	tournament, err = tournamentmdl.ById(c, intID)
 	
 	if err != nil{
 		helpers.Error404(w)
 		return
 	}
 	
-	participants := tournamentrelshlp.Participants(r, intID)
-	teams := tournamentrelshlp.Teams(r, intID)
-	candidateTeams := teammdl.Find(r, "AdminId", auth.CurrentUser(r).Id)
+	participants := tournamentrelshlp.Participants(c, intID)
+	teams := tournamentrelshlp.Teams(c, intID)
+	candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
 	
 	tournamentData := struct { 
 		Tournament *tournamentmdl.Tournament
@@ -199,25 +199,25 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teams,
 		candidateTeams,
 	}
-	templateshlp.RenderWithData(w, r, t, tournamentData, funcs, "renderTournamentShow")
+	templateshlp.RenderWithData(w, r, c, t, tournamentData, funcs, "renderTournamentShow")
 }
 
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
-	intID, err := handlers.PermalinkID(r,3)
+	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
 		return
 	}
 	
-	if !tournamentmdl.IsTournamentAdmin(r, intID, auth.CurrentUser(r).Id) {
+	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
 		http.Redirect(w, r, "/m", http.StatusFound)
 		return
 	}
 
 	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(r, intID)
+	tournament, err = tournamentmdl.ById(c, intID)
 	if err != nil{
 		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
 		helpers.Error404(w)
@@ -231,7 +231,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		t := template.Must(template.New("tmpl_tournament_edit").
 			ParseFiles("templates/tournament/edit.html"))
 
-		templateshlp.RenderWithData(w, r, t, tournament, funcs, "renderTournamentEdit")
+		templateshlp.RenderWithData(w, r, c, t, tournament, funcs, "renderTournamentEdit")
 
 	} else if r.Method == "POST" {
 		
@@ -240,7 +240,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 
 		if helpers.IsStringValid(editName) && editName != tournament.Name{
 			tournament.Name = editName
-			tournamentmdl.Update(r, intID, tournament)
+			tournamentmdl.Update(c, intID, tournament)
 		} else {
 			log.Errorf(c, " cannot update %v", helpers.IsStringValid(editName))
 		}

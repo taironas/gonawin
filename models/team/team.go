@@ -19,7 +19,6 @@ package team
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 	
@@ -46,8 +45,7 @@ type TeamCounter struct {
 	Count int64
 }
 
-func Create(r *http.Request, name string, adminId int64, private bool) (*Team, error) {
-	c := appengine.NewContext(r)
+func Create(c appengine.Context, name string, adminId int64, private bool) (*Team, error) {
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
 	if err != nil {
@@ -63,7 +61,7 @@ func Create(r *http.Request, name string, adminId int64, private bool) (*Team, e
 		return nil, err
 	}
 	// udpate inverted index
-	teaminvidmdl.Add(r, helpers.TrimLower(name), teamId)
+	teaminvidmdl.Add(c, helpers.TrimLower(name), teamId)
 	// update team counter
 	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
 		var err1 error
@@ -77,10 +75,9 @@ func Create(r *http.Request, name string, adminId int64, private bool) (*Team, e
 	return team, err
 }
 
-func Destroy(r *http.Request, teamId int64) error {
-	c := appengine.NewContext(r)
+func Destroy(c appengine.Context, teamId int64) error {
 	
-	if team, err := ById(r, teamId); err != nil {
+	if team, err := ById(c, teamId); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find team with teamId=%d", teamId))
 	} else {
 		key := datastore.NewKey(c, "Team", "", team.Id, nil)
@@ -89,14 +86,13 @@ func Destroy(r *http.Request, teamId int64) error {
 	}
 }
 
-func Find(r *http.Request, filter string, value interface{}) []*Team {
-	c := appengine.NewContext(r)
+func Find(c appengine.Context, filter string, value interface{}) []*Team {
 	
 	q := datastore.NewQuery("Team").Filter(filter + " =", value)
 	
 	var teams []*Team
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teams); err == nil {
+	if _, err := q.GetAll(c, &teams); err == nil {
 		return teams
 	} else {
 		log.Errorf(c, " Team.Find, error occurred during GetAll: %v", err)
@@ -104,8 +100,7 @@ func Find(r *http.Request, filter string, value interface{}) []*Team {
 	}
 }
 
-func ById(r *http.Request, id int64) (*Team, error) {
-	c := appengine.NewContext(r)
+func ById(c appengine.Context, id int64) (*Team, error) {
 	
 	var t Team
 	key := datastore.NewKey(c, "Team", "", id, nil)
@@ -117,37 +112,33 @@ func ById(r *http.Request, id int64) (*Team, error) {
 	return &t, nil
 }
 
-func KeyById(r *http.Request, id int64) (*datastore.Key) {
-	c := appengine.NewContext(r)
+func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
 	return key
 }
 
-func Update(r *http.Request, id int64, t *Team) error {
-	c := appengine.NewContext(r)
+func Update(c appengine.Context, id int64, t *Team) error {
 
-	k := KeyById(r, id)
+	k := KeyById(c, id)
 	oldTeam := new(Team)
 	if err := datastore.Get(c,k, oldTeam);err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
-		teaminvidmdl.Update(r, oldTeam.Name, t.Name, id)
+		teaminvidmdl.Update(c, oldTeam.Name, t.Name, id)
 	}
 
 	return nil
 }
 
-func FindAll(r *http.Request) []*Team {
-	c := appengine.NewContext(r)
-	
+func FindAll(c appengine.Context) []*Team {
 	q := datastore.NewQuery("Team")
 	
 	var teams []*Team
 	
-	if _, err := q.GetAll(appengine.NewContext(r), &teams); err != nil {
+	if _, err := q.GetAll(c, &teams); err != nil {
 		log.Errorf(c, " Team.FindAll, error occurred during GetAll call: %v", err)
 	}
 	
@@ -155,12 +146,11 @@ func FindAll(r *http.Request) []*Team {
 }
 
 // find with respect to array of ids
-func ByIds(r *http.Request, ids []int64) []*Team {
-	c := appengine.NewContext(r)
+func ByIds(c appengine.Context, ids []int64) []*Team {
 	
 	var teams []*Team
 	for _, id := range ids {
-		if team, err := ById(r, id); err == nil {
+		if team, err := ById(c, id); err == nil {
 			teams = append(teams, team)
 		} else {
 			log.Errorf(c, " Team.ByIds, error occurred during ByIds call: %v", err)
@@ -169,27 +159,26 @@ func ByIds(r *http.Request, ids []int64) []*Team {
 	return teams
 }
 
-func Joined(r *http.Request, teamId int64, userId int64) bool {
-	teamRel := teamrelmdl.FindByTeamIdAndUserId(r, teamId, userId)
+func Joined(c appengine.Context, teamId int64, userId int64) bool {
+	teamRel := teamrelmdl.FindByTeamIdAndUserId(c, teamId, userId)
 	return teamRel != nil
 }
 
-func Join(r *http.Request, teamId int64, userId int64) error {
-	if _, err := teamrelmdl.Create(r, teamId, userId); err != nil {
+func Join(c appengine.Context, teamId int64, userId int64) error {
+	if _, err := teamrelmdl.Create(c, teamId, userId); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error during team relationship creation: %v", err))
 	}
 
 	return nil
 }
 
-func Leave(r *http.Request, teamId int64, userId int64) error {
-	return teamrelmdl.Destroy(r, teamId, userId)
+func Leave(c appengine.Context, teamId int64, userId int64) error {
+	return teamrelmdl.Destroy(c, teamId, userId)
 }
 
-func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
-	c := appengine.NewContext(r)
+func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 	
-	if team, err := ById(r, teamId); err == nil {
+	if team, err := ById(c, teamId); err == nil {
 		return team.AdminId == userId
 	} else {
 		log.Errorf(c, " Team.IsTeamAdmin, error occurred during ById call: %v", err)
@@ -230,9 +219,9 @@ func GetTeamCounter(c appengine.Context)(int64, error) {
 	return x.Count, nil
 }
 
-func GetWordFrequencyForTeam(r *http.Request, id int64, word string)int64{
+func GetWordFrequencyForTeam(c appengine.Context, id int64, word string)int64{
 
-	if teams := Find(r, "Id", id); teams != nil{
+	if teams := Find(c, "Id", id); teams != nil{
 		return helpers.CountTerm(strings.Split(teams[0].KeyName, " "),word)
 	}
 	return 0

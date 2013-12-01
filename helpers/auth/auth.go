@@ -18,7 +18,8 @@ package auth
 
 import (
 	"net/http"
-	
+	"appengine"
+
 	user "github.com/santiaago/purple-wing/helpers/user"
 )
 
@@ -40,13 +41,13 @@ func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
-func LoggedIn(r *http.Request) bool {
+func LoggedIn(r *http.Request, c appengine.Context) bool {
 	if kOfflineMode { 
 		return true 
 	}
 	
 	if auth := GetAuthCookie(r); len(auth) > 0 {
-		if u := CurrentUser(r); u != nil {
+		if u := CurrentUser(r, c); u != nil {
 			return u.Auth == auth
 		}
 	}
@@ -55,9 +56,9 @@ func LoggedIn(r *http.Request) bool {
 }
 
 // IsAdmin is true if you are logged in and belong to the below users.
-func IsAdmin(r *http.Request) bool {
-	if LoggedIn(r){
-		if u := CurrentUser(r); u != nil{
+func IsAdmin(r *http.Request, c appengine.Context) bool {
+	if LoggedIn(r, c){
+		if u := CurrentUser(r, c); u != nil{
 			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias" || (kOfflineMode && u.Username == "purple"))
 		}
 	}
@@ -65,6 +66,6 @@ func IsAdmin(r *http.Request) bool {
 }
 
 // IsUser is true if you are logged in, can either be an admin or not.
-func IsUser(r *http.Request) bool {
-	return LoggedIn(r)
+func IsUser(r *http.Request, c appengine.Context) bool {
+	return LoggedIn(r, c)
 }

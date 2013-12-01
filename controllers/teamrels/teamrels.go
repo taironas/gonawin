@@ -37,12 +37,12 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
-		if err := teammdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
+		if err := teammdl.Join(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
 			log.Errorf(c, " teamRels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if !teammdl.IsTeamAdmin(r, teamId, auth.CurrentUser(r).Id) {
-			if err := teammdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
+		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
+			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
 				log.Errorf(c, " teamRels.Show: %v", err)
 			}
 		} else {

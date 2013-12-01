@@ -41,11 +41,11 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 
 	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
-		if err := tournamentmdl.TeamJoin(r, tournamentId, teamId); err != nil {
+		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, " tournamentteamrels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
-		if err := tournamentmdl.TeamLeave(r, tournamentId, teamId); err != nil {
+		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, " tournamentteamrels.Show: %v", err)
 		}
 	}
