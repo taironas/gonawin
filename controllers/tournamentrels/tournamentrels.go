@@ -21,7 +21,8 @@ import (
 	"strconv"
 	
 	"appengine"
-	
+
+	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
@@ -32,16 +33,16 @@ func Show(w http.ResponseWriter, r *http.Request){
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		c.Errorf("pw: tournaments.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournaments.Show, string value could not be parsed: %v", err)
 	}
 
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
 		if err := tournamentmdl.Join(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: tournamentrels.Show: %v", err)
+			log.Errorf(c, " tournamentrels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
 		if err := tournamentmdl.Leave(r, tournamentId, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: tournamentrels.Show: %v", err)
+			log.Errorf(c, " tournamentrels.Show: %v", err)
 		}
 	}
 	

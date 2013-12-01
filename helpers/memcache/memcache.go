@@ -21,6 +21,8 @@ import (
 	"net/http"
 	"appengine"
 	"appengine/memcache"
+
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 func Set(r *http.Request, key string, value interface{}) {
@@ -40,7 +42,7 @@ func Set(r *http.Request, key string, value interface{}) {
 	}
 	// Set the item, unconditionally
 	if err := memcache.Set(c, item); err != nil {
-		c.Errorf("pw: error setting item: %v", err)
+		log.Errorf(c, " error setting item: %v", err)
 	}
 }
 

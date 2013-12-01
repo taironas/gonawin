@@ -25,6 +25,8 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
+
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
@@ -69,7 +71,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 			ids, err := teaminvidmdl.GetIndexes(r, words)
 			
 			if err != nil {
-				c.Errorf("pw: teams.Index, error occurred when getting indexes of words: %v", err)
+				log.Errorf(c, " teams.Index, error occurred when getting indexes of words: %v", err)
 			}
 			
 			result := searchmdl.TeamScore(r, query, ids)
@@ -110,12 +112,12 @@ func New(w http.ResponseWriter, r *http.Request){
 		} else {
 			team, err := teammdl.Create(r, form.Name, auth.CurrentUser(r).Id, form.Private)
 			if err != nil {
-				c.Errorf("pw: error when trying to create a team: %v", err)
+				log.Errorf(c, " error when trying to create a team: %v", err)
 			}
 			// join the team
 			_, err = teamrelmdl.Create(r, team.Id, auth.CurrentUser(r).Id)
 			if err != nil {
-				c.Errorf("pw: error when trying to create a team relationship: %v", err)
+				log.Errorf(c, " error when trying to create a team relationship: %v", err)
 			}
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
@@ -144,13 +146,13 @@ func Show(w http.ResponseWriter, r *http.Request){
 		// delete all team-user relationships
 		for _, player := range teamrelshlp.Players(r, intID) {
 			if err := teamrelmdl.Destroy(r, intID, player.Id); err !=nil {
-				c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
 		for _, tournament := range tournamentrelshlp.Teams(r, intID) {
 			if err := tournamentteamrelmdl.Destroy(r, tournament.Id, intID); err !=nil {
-				c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete the team
@@ -159,7 +161,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/m/teams", http.StatusFound)
 		return
 	} else if (r.Method != "GET"){
-		c.Errorf("pw: request method not supported")
+		log.Errorf(c, " request method not supported")
 		helpers.Error404(w)
 		return	
 	}
@@ -225,21 +227,21 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		var team *teammdl.Team
 		team, err = teammdl.ById(r,intID)
 		if err != nil{
-			c.Errorf("pw: Team Edit handler: team not found. id: %v",intID)		
+			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)		
 			helpers.Error404(w)
 			return
 		}
 		// only work on name and private. Other values should not be editable
 		editName := r.FormValue("Name")
 		editPrivate := (r.FormValue("Visibility") == "Private")
-		c.Infof("pw: Name=%s, Private=%s", editName, editPrivate)
+		log.Infof(c, " Name=%s, Private=%s", editName, editPrivate)
 
 		if helpers.IsStringValid(editName) && (editName != team.Name || editPrivate != team.Private) {
 			team.Name = editName
 			team.Private = editPrivate
 			teammdl.Update(r, intID, team)
 		}else{
-			c.Errorf("pw: cannot update isStringValid: %v", helpers.IsStringValid(editName))
+			log.Errorf(c, " cannot update isStringValid: %v", helpers.IsStringValid(editName))
 		}
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
@@ -259,7 +261,7 @@ func Invite(w http.ResponseWriter, r *http.Request){
 	
 	if r.Method == "POST"{
 		if _, err := teamrequestmdl.Create(r, intID, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: teams.Invite, error when trying to create a team request: %v", err)
+			log.Errorf(c, " teams.Invite, error when trying to create a team request: %v", err)
 		}
 		
 		url := fmt.Sprintf("/m/teams/%d", intID)
@@ -274,7 +276,7 @@ func Request(w http.ResponseWriter, r *http.Request){
 		
 		requestId, err := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
 		if err != nil {
-			c.Errorf("pw: teams.Request, string value could not be parsed: %v", err)
+			log.Errorf(c, " teams.Request, string value could not be parsed: %v", err)
 		}
 		
 		if r.FormValue("SubmitButton") == "Accept" {
@@ -282,7 +284,7 @@ func Request(w http.ResponseWriter, r *http.Request){
 				// join user to the team
 				teammdl.Join(r, teamRequest.TeamId, teamRequest.UserId);
 			} else {
-				appengine.NewContext(r).Errorf("pw: cannot find team request with id=%d", requestId)
+				appengine.NewContext(r).Errorf(" cannot find team request with id=%d", requestId)
 			}
 		}
 		

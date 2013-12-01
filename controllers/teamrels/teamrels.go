@@ -21,7 +21,8 @@ import (
 	"strconv"
 	
 	"appengine"
-	
+
+	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
@@ -32,20 +33,20 @@ func Show(w http.ResponseWriter, r *http.Request){
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
 	if err != nil {
-		c.Errorf("pw: teamRels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " teamRels.Show, string value could not be parsed: %v", err)
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
 		if err := teammdl.Join(r, teamId, auth.CurrentUser(r).Id); err != nil {
-			c.Errorf("pw: teamRels.Show: %v", err)
+			log.Errorf(c, " teamRels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
 		if !teammdl.IsTeamAdmin(r, teamId, auth.CurrentUser(r).Id) {
 			if err := teammdl.Leave(r, teamId, auth.CurrentUser(r).Id); err != nil {
-				c.Errorf("pw: teamRels.Show: %v", err)
+				log.Errorf(c, " teamRels.Show: %v", err)
 			}
 		} else {
-			c.Errorf("pw: teamRels.Show, Team administrator cannot leave the team")
+			log.Errorf(c, " teamRels.Show, Team administrator cannot leave the team")
 		}
 	}
 	

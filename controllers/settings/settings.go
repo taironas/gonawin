@@ -24,6 +24,7 @@ import (
 	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
@@ -52,7 +53,7 @@ func Profile(w http.ResponseWriter, r *http.Request){
 			currentUser.Username = editUserName
 			usermdl.Update(r, currentUser)
 		} else {
-			c.Errorf("pw: cannot update current user info")
+			log.Errorf(c, " cannot update current user info")
 		}
 		
 		http.Redirect(w, r, "/m/settings/edit-profile", http.StatusFound)

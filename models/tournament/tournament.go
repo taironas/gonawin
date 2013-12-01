@@ -27,6 +27,7 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
@@ -92,7 +93,7 @@ func Find(r *http.Request, filter string, value interface{}) []*Tournament {
 	if _, err := q.GetAll(appengine.NewContext(r), &tournaments); err == nil {
 		return tournaments
 	} else {
-		c.Errorf("pw: Tournament.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, " Tournament.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -104,7 +105,7 @@ func ById(r *http.Request, id int64)(*Tournament, error){
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
 
 	if err := datastore.Get(c, key, &t); err != nil {
-		c.Errorf("pw: tournament not found : %v", err)
+		log.Errorf(c, " tournament not found : %v", err)
 		return &t, err
 	}
 	return &t, nil
@@ -141,7 +142,7 @@ func FindAll(r *http.Request) []*Tournament {
 	var tournaments []*Tournament
 
 	if _, err := q.GetAll(appengine.NewContext(r), &tournaments); err != nil {
-		c.Errorf("pw: Tournament.FindAll, error occurred during GetAll call: %v", err)
+		log.Errorf(c, " Tournament.FindAll, error occurred during GetAll call: %v", err)
 	}
 
 	return tournaments
@@ -156,7 +157,7 @@ func ByIds(r *http.Request, ids []int64) []*Tournament {
 		if tournament, err := ById(r, id); err == nil {
 			tournaments = append(tournaments, tournament)
 		} else {
-			c.Errorf("pw: Tournament.ByIds, error occurred during ByIds call: %v", err)
+			log.Errorf(c, " Tournament.ByIds, error occurred during ByIds call: %v", err)
 		}
 	}
 	return tournaments
@@ -169,7 +170,7 @@ func Joined(r *http.Request, tournamentId int64, userId int64) bool {
 
 func Join(r *http.Request, tournamentId int64, userId int64) error {
 	if tournamentRel, err := tournamentrelmdl.Create(r, tournamentId, userId); tournamentRel == nil {
-		return errors.New(fmt.Sprintf("pw: Tournament.Join, error during tournament relationship creation: %v", err))
+		return errors.New(fmt.Sprintf(" Tournament.Join, error during tournament relationship creation: %v", err))
 	}
 
 	return nil
@@ -196,7 +197,7 @@ func TeamJoined(r *http.Request, tournamentId int64, teamId int64) bool {
 // Team joins the Tournament
 func TeamJoin(r *http.Request, tournamentId int64, teamId int64) error {
 	if tournamentteamRel, err := tournamentteamrelmdl.Create(r, tournamentId, teamId); tournamentteamRel == nil {
-		return errors.New(fmt.Sprintf("pw: Tournament.TeamJoin, error during tournament team relationship creation: %v", err))
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error during tournament team relationship creation: %v", err))
 	}
 
 	return nil

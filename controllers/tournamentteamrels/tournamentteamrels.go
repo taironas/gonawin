@@ -23,6 +23,7 @@ import (
 	"appengine"
 	
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 func Show(w http.ResponseWriter, r *http.Request){
@@ -31,21 +32,21 @@ func Show(w http.ResponseWriter, r *http.Request){
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		c.Errorf("pw: tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
 	}
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
 	if err != nil {
-		c.Errorf("pw: tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
 	}
 
 	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
 		if err := tournamentmdl.TeamJoin(r, tournamentId, teamId); err != nil {
-			c.Errorf("pw: tournamentteamrels.Show: %v", err)
+			log.Errorf(c, " tournamentteamrels.Show: %v", err)
 		}
 	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
 		if err := tournamentmdl.TeamLeave(r, tournamentId, teamId); err != nil {
-			c.Errorf("pw: tournamentteamrels.Show: %v", err)
+			log.Errorf(c, " tournamentteamrels.Show: %v", err)
 		}
 	}
 	

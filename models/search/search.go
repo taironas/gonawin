@@ -31,6 +31,7 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 
 	helpers "github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
@@ -45,13 +46,13 @@ func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
 	for i,w := range setOfWords{
 		dft := 0
 		if invId, err := tournamentinvidmdl.Find(r, "KeyName", w); err != nil {
-			c.Errorf("pw: search.TournamentScore, unable to find KeyName=%s: %v", w, err)
+			log.Errorf(c, " search.TournamentScore, unable to find KeyName=%s: %v", w, err)
 		} else if invId != nil {
 			dft = len(strings.Split(string(invId.TournamentIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
 	}
-	c.Infof("query vector: %v",q)
+	log.Infof(c, "query vector: %v",q)
 
 	// d vector
 	//nbTournaments, _ := tournamentmdl.GetTournamentCounter(c)
@@ -64,7 +65,7 @@ func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
 			// get number of tournaments with word (wi)
 			tournamentFreqForWord, err := tournamentinvidmdl.GetTournamentFrequencyForWord(r, wi)
 			if err != nil {
-				c.Errorf("pw: search.TournamentScore, error occurred when getting tournament frequency for word=%s: %v", wi, err)
+				log.Errorf(c, " search.TournamentScore, error occurred when getting tournament frequency for word=%s: %v", wi, err)
 			}
 			
 			d[j] = math.Log10(float64(1+wordFreqByTournament)) * math.Log10(float64(nbTournamentWords+1)/float64(tournamentFreqForWord+1))
@@ -72,7 +73,7 @@ func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d		
 	}
-	c.Infof("d vector: %v",vec_d)
+	log.Infof(c, "d vector: %v",vec_d)
 
 	// compute score vector
 	var score map[int64]float64
@@ -80,9 +81,9 @@ func TournamentScore(r *http.Request, query string, ids []int64) []int64 {
 	for i, vec_di := range vec_d{
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
-	c.Infof("score vector :%v", score)
+	log.Infof(c, "score vector :%v", score)
 	sortedScore := sortMapByValueDesc(score)
-	c.Infof("sorted score: %v", sortedScore)
+	log.Infof(c, "sorted score: %v", sortedScore)
 
 	return getKeysFromPairList(sortedScore)
 }
@@ -99,13 +100,13 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 	for i,w := range setOfWords{
 		dft := 0
 		if invId, err := teaminvidmdl.Find(r, "KeyName", w); err != nil {
-			c.Errorf("pw: search.TeamScore, unable to find KeyName=%s: %v", w, err)
+			log.Errorf(c, " search.TeamScore, unable to find KeyName=%s: %v", w, err)
 		} else if invId != nil {
 			dft = len(strings.Split(string(invId.TeamIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords + 1)/float64(dft + 1))
 	}
-	c.Infof("query vector: %v", q)
+	log.Infof(c, "query vector: %v", q)
 
 	// d vector
 	//nbTeams, _ := teammdl.GetTeamCounter(c)
@@ -118,7 +119,7 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 			// get number of teams with word (wi)
 			teamFreqForWord, err := teaminvidmdl.GetTeamFrequencyForWord(r, wi)
 			if err != nil {
-				c.Errorf("pw: search.TeamScore, error occurred when getting team frequency for word=%s: %v", wi, err)
+				log.Errorf(c, " search.TeamScore, error occurred when getting team frequency for word=%s: %v", wi, err)
 			}
 			
 			d[j] = math.Log10(float64(1+wordFreqByTeam)) * math.Log10(float64(nbTeamWords+1)/float64(teamFreqForWord+1))
@@ -126,7 +127,7 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d		
 	}
-	c.Infof("d vector: %v", vec_d)
+	log.Infof(c, "d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
@@ -134,9 +135,9 @@ func TeamScore(r *http.Request, query string, ids []int64)[]int64{
 	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
-	c.Infof("score vector :%v", score)
+	log.Infof(c, "score vector :%v", score)
 	sortedScore := sortMapByValueDesc(score)
-	c.Infof("sorted score: %v", sortedScore)
+	log.Infof(c, "sorted score: %v", sortedScore)
 
 	return getKeysFromPairList(sortedScore)
 }

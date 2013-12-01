@@ -29,6 +29,7 @@ import (
 	"appengine/datastore"
 	"appengine/memcache"
 
+	"github.com/santiaago/purple-wing/helpers/log"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -47,7 +48,7 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
 	// create new team
 	authKeyId, _, err := datastore.AllocateIDs(c, "AuthKey", nil, 1)
 	if err != nil {
-		c.Errorf("pw: StoreAuthKey: %v", err)
+		log.Errorf(c, " StoreAuthKey: %v", err)
 	}
 	
 	key := datastore.NewKey(c, "AuthKey", "", authKeyId, nil)
@@ -56,7 +57,7 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
 
 	_, err = datastore.Put(c, key, authKey)
 	if err != nil {
-		c.Errorf("pw: StoreAuthKey: %v", err)
+		log.Errorf(c, " StoreAuthKey: %v", err)
 	}
 	
 	item := &memcache.Item{
@@ -65,9 +66,9 @@ func StoreAuthKey(r *http.Request, uid int64, auth string) {
 	}
     // Set the item, unconditionally
 	if err := memcache.Set(c, item); err == memcache.ErrNotStored {
-		c.Infof("item with key %q already exists", item.Key)
+		log.Infof(c, "item with key %q already exists", item.Key)
 	} else if err != nil {
-		c.Errorf("error adding item: %v", err)
+		log.Errorf(c, "error adding item: %v", err)
 	}
 }
 
@@ -85,7 +86,7 @@ func fetchAuthKey(r *http.Request, auth string) string {
 			return authKeys[0].Value
 		}
 	} else if err != nil {
-		c.Errorf("pw: error getting item: %v", err)
+		log.Errorf(c, " error getting item: %v", err)
 	} else {
 		return fmt.Sprintf("%s", item.Value)
 	}
@@ -133,10 +134,10 @@ func CurrentUser(r *http.Request) *usermdl.User {
 	c := appengine.NewContext(r)
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
-			c.Infof("pw: CurrentUser, uid=%s, auth=%s", uid, auth)
+			log.Infof(c, " CurrentUser, uid=%s, auth=%s", uid, auth)
 			userId, err := strconv.ParseInt(uid, 10, 64)
 			if err != nil {
-				c.Errorf("pw: CurrentUser, string value could not be parsed: %v", err)
+				log.Errorf(c, " CurrentUser, string value could not be parsed: %v", err)
 			}
 			
 			return usermdl.Find(r, "Id", userId)
@@ -164,7 +165,7 @@ func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	if user = usermdl.Find(r, queryName, queryValue); user == nil {
 		// create user if it does not exist
 		if userCreate, err := usermdl.Create(r, email, username, name, GenerateAuthKey()); err != nil{
-			c.Errorf("Signup: %v", err)
+			log.Errorf(c, "Signup: %v", err)
 			return errors.New("helpers/auth: Unable to create user.")
 		}else{
 			user = userCreate

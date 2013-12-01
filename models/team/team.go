@@ -25,7 +25,8 @@ import (
 	
 	"appengine"
 	"appengine/datastore"
-	
+
+	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
@@ -70,7 +71,7 @@ func Create(r *http.Request, name string, adminId int64, private bool) (*Team, e
 		return err1
 	}, nil)
 	if errIncrement != nil {
-		c.Errorf("pw: Error incrementing TeamCounter")
+		log.Errorf(c, " Error incrementing TeamCounter")
 	}
 
 	return team, err
@@ -98,7 +99,7 @@ func Find(r *http.Request, filter string, value interface{}) []*Team {
 	if _, err := q.GetAll(appengine.NewContext(r), &teams); err == nil {
 		return teams
 	} else {
-		c.Errorf("pw: Team.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, " Team.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -110,7 +111,7 @@ func ById(r *http.Request, id int64) (*Team, error) {
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
 	if err := datastore.Get(c, key, &t); err != nil {
-		c.Errorf("pw: team not found : %v", err)
+		log.Errorf(c, " team not found : %v", err)
 		return &t, err
 	}
 	return &t, nil
@@ -147,7 +148,7 @@ func FindAll(r *http.Request) []*Team {
 	var teams []*Team
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teams); err != nil {
-		c.Errorf("pw: Team.FindAll, error occurred during GetAll call: %v", err)
+		log.Errorf(c, " Team.FindAll, error occurred during GetAll call: %v", err)
 	}
 	
 	return teams
@@ -162,7 +163,7 @@ func ByIds(r *http.Request, ids []int64) []*Team {
 		if team, err := ById(r, id); err == nil {
 			teams = append(teams, team)
 		} else {
-			c.Errorf("pw: Team.ByIds, error occurred during ByIds call: %v", err)
+			log.Errorf(c, " Team.ByIds, error occurred during ByIds call: %v", err)
 		}
 	}
 	return teams
@@ -175,7 +176,7 @@ func Joined(r *http.Request, teamId int64, userId int64) bool {
 
 func Join(r *http.Request, teamId int64, userId int64) error {
 	if _, err := teamrelmdl.Create(r, teamId, userId); err != nil {
-		return errors.New(fmt.Sprintf("pw: Team.Join, error during team relationship creation: %v", err))
+		return errors.New(fmt.Sprintf(" Team.Join, error during team relationship creation: %v", err))
 	}
 
 	return nil
@@ -191,7 +192,7 @@ func IsTeamAdmin(r *http.Request, teamId int64, userId int64) bool {
 	if team, err := ById(r, teamId); err == nil {
 		return team.AdminId == userId
 	} else {
-		c.Errorf("pw: Team.IsTeamAdmin, error occurred during ById call: %v", err)
+		log.Errorf(c, " Team.IsTeamAdmin, error occurred during ById call: %v", err)
 		return false
 	}
 }

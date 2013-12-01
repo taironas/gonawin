@@ -24,6 +24,8 @@ import (
 	
 	"appengine"
 	"appengine/datastore"
+
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 type TournamentTeamRelationship struct {
@@ -75,7 +77,7 @@ func FindByTournamentIdAndTeamId(r *http.Request, tournamentId int64, teamId int
 	if _, err := q.GetAll(appengine.NewContext(r), &tournamentteamRels); err == nil && len(tournamentteamRels) > 0 {
 		return tournamentteamRels[0]
 	} else {
-		c.Errorf("pw: tournamentteamrel.FindByTournamentIdAndTeamId, error occurred during GetAll: %v", err)
+		log.Errorf(c, " tournamentteamrel.FindByTournamentIdAndTeamId, error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -88,7 +90,7 @@ func Find(r *http.Request, filter string, value interface{}) []*TournamentTeamRe
 	var tournamentteamRels []*TournamentTeamRelationship
 	
 	if _, err := q.GetAll(c, &tournamentteamRels); err != nil {
-		c.Errorf("pw: tournamentteamrel.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, " tournamentteamrel.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return tournamentteamRels

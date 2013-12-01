@@ -24,6 +24,8 @@ import (
 	
 	"appengine"
 	"appengine/datastore"
+
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 type TeamRequest struct {
@@ -73,7 +75,7 @@ func Find(r *http.Request, filter string, value interface{}) []*TeamRequest {
 	var teamRequests []*TeamRequest
 	
 	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err != nil {
-		c.Errorf("pw: teamrequest.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, " teamrequest.Find, error occurred during GetAll: %v", err)
 	}
 	
 	return teamRequests
@@ -89,7 +91,7 @@ func findByTeamIdAndUserId(r *http.Request, teamId int64, userId int64) *TeamReq
 	if _, err := q.GetAll(appengine.NewContext(r), &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
 	} else {
-		c.Errorf("pw: teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
+		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -101,7 +103,7 @@ func ById(r *http.Request, id int64) (*TeamRequest, error) {
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
 
 	if err := datastore.Get(c, key, &tr); err != nil {
-		c.Errorf("pw: teamrequest.ById, error occurred during Get: %v", err)
+		log.Errorf(c, " teamrequest.ById, error occurred during Get: %v", err)
 		return &tr, err
 	}
 	return &tr, nil

@@ -23,6 +23,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/purple-wing/helpers/log"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	"github.com/santiaago/purple-wing/helpers/auth"
 )
@@ -52,7 +53,7 @@ func Render(w http.ResponseWriter,
 	var funcs template.FuncMap
  
 	if pfuncs == nil {
-		c.Errorf("pw: Render: pFuncs should not be nil")
+		log.Errorf(c, " Render: pFuncs should not be nil")
 	} else {
 		funcs = *pfuncs
 	}	
@@ -73,7 +74,7 @@ func Render(w http.ResponseWriter,
 	}
 	err := tmpl.ExecuteTemplate(w,"tmpl_app",content)
 	if err != nil{
-		c.Errorf("error in execute template: %q", err)
+		log.Errorf(c, "error in execute template: %q", err)
 		return err
 	}
 	return nil
@@ -89,12 +90,12 @@ func RenderWithData(w http.ResponseWriter, r *http.Request, t *template.Template
 	templateBytes := buf.Bytes()
 	
 	if err != nil{
-		c.Errorf("pw: error in parse template %v: %v", t.Name(), err)
+		log.Errorf(c, " error in parse template %v: %v", t.Name(), err)
 	}
 	
 	err = Render(w, r, templateBytes, &funcs, id)
 	if err != nil{
-		c.Errorf("pw: error when calling Render from helpers: %v", err)
+		log.Errorf(c, " error when calling Render from helpers: %v", err)
 	}
 }
 
@@ -122,6 +123,6 @@ func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request) {
 		
 	} else {
 		c := appengine.NewContext(r)
-		c.Errorf("error in initNavFuncMap, funcs is nil, unable to init funcs map")
+		log.Errorf(c, "error in initNavFuncMap, funcs is nil, unable to init funcs map")
 	}
 }

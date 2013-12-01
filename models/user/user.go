@@ -24,6 +24,8 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"github.com/santiaago/purple-wing/helpers/log"
+
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
@@ -42,7 +44,7 @@ func Create(r *http.Request, email string, username string, name string, auth st
 	// create new user
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
-		c.Errorf("pw: User.Create: %v", err)
+		log.Errorf(c, " User.Create: %v", err)
 	}
 	
 	key := datastore.NewKey(c, "User", "", userId, nil)
@@ -51,7 +53,7 @@ func Create(r *http.Request, email string, username string, name string, auth st
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
-		c.Errorf("User.Create: %v", err)
+		log.Errorf(c, "User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
 
@@ -68,7 +70,7 @@ func Find(r *http.Request, filter string, value interface{}) *User {
 	if _, err := q.GetAll(appengine.NewContext(r), &users); err == nil && len(users) > 0 {
 		return users[0]
 	} else {
-		c.Errorf("pw: User.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, " User.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -80,7 +82,7 @@ func ById(r *http.Request, id int64) (*User, error) {
 	key := datastore.NewKey(c, "User", "", id, nil)
 
 	if err := datastore.Get(c, key, &u); err != nil {
-		c.Errorf("pw: user not found : %v", err)
+		log.Errorf(c, " user not found : %v", err)
 		return &u, err
 	}
 	return &u, nil
@@ -114,7 +116,7 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 		team, err := teammdl.ById(r, teamRel.TeamId)
 		
 		if err != nil {
-			c.Errorf("pw: User.Teams, cannot find team with ID=%", teamRel.TeamId)
+			log.Errorf(c, " User.Teams, cannot find team with ID=%", teamRel.TeamId)
 		} else {
 			teams = append(teams, team)
 		}

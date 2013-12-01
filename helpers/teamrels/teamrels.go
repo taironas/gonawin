@@ -21,6 +21,7 @@ import (
 	
 	"appengine"
 	
+	"github.com/santiaago/purple-wing/helpers/log"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
@@ -37,7 +38,7 @@ func Players(r *http.Request, teamId int64) []*usermdl.User {
 	for _, teamRel := range teamRels {
 		user, err := usermdl.ById(r, teamRel.UserId)
 		if err != nil {
-			c.Errorf("pw: Players, cannot find user with ID=%", teamRel.UserId)
+			log.Errorf(c, " Players, cannot find user with ID=%", teamRel.UserId)
 		} else {
 			users = append(users, user)
 		}
@@ -56,7 +57,7 @@ func Teams(r *http.Request, userId int64) []*teammdl.Team {
 	for _, teamRel := range teamRels {
 		team, err := teammdl.ById(r, teamRel.TeamId)
 		if err != nil {
-			c.Errorf("pw: Teams, cannot find team with ID=%", teamRel.TeamId)
+			log.Errorf(c, " Teams, cannot find team with ID=%", teamRel.TeamId)
 		} else {
 			teams = append(teams, team)
 		}

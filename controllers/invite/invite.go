@@ -26,6 +26,8 @@ import (
 	"appengine/mail"
 	
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
+
 	"github.com/santiaago/purple-wing/helpers/auth"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 )
@@ -60,7 +62,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 		form.EmailsList = ""
 		form.Error = ""
 	} else if r.Method == "POST" {
-		c.Infof("pw: Form Value = %v", r.FormValue("emails_area"))
+		log.Infof(c, " Form Value = %v", r.FormValue("emails_area"))
 		form.EmailsList = r.FormValue("emails_area")
 		
 		if len(form.EmailsList) <= 0 {
@@ -82,7 +84,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 					}
 					
 					if err := mail.Send(c, msg); err != nil {
-						c.Errorf("pw: couldn't send email: %v", err)
+						log.Errorf(c, " couldn't send email: %v", err)
 					}
 				}				
 				http.Redirect(w, r, "/m/", http.StatusFound)

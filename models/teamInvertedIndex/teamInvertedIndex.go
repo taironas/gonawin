@@ -27,6 +27,7 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 type TeamInvertedIndex struct {
@@ -63,7 +64,7 @@ func Create(r *http.Request, word string, teamIds string) (*TeamInvertedIndex, e
 		return err1
 	}, nil)
 	if errIncrement != nil {
-		c.Errorf("pw: Error incrementing WordCountTeam")
+		log.Errorf(c, " Error incrementing WordCountTeam")
 	}
 	
 	return t, err
@@ -78,22 +79,22 @@ func Add(r *http.Request, name string, id int64) error {
 	
 	words := strings.Split(name, " ")
 	for _, w:= range words{
-		c.Infof("pw: AddToTeamInvertedIndex: Word: %v", w)
+		log.Infof(c, " AddToTeamInvertedIndex: Word: %v", w)
 
 		if invId, err := Find(r, "KeyName", w); err != nil {
-			return errors.New(fmt.Sprintf("pw: teaminvid.Add, unable to find KeyName=%s: %v", w, err))
+			return errors.New(fmt.Sprintf(" teaminvid.Add, unable to find KeyName=%s: %v", w, err))
 		} else if	invId == nil {
-			c.Infof("pw: create inv id as word does not exist in table")
+			log.Infof(c, " create inv id as word does not exist in table")
 			Create(r, w, strconv.FormatInt(id, 10))
 		} else {
 			// update row with new info
-			c.Infof("pw: update row with new info")
-			c.Infof("pw: current info: keyname: %v", invId.KeyName)
-			c.Infof("pw: current info: teamIDs: %v", string(invId.TeamIds))
+			log.Infof(c, " update row with new info")
+			log.Infof(c, " current info: keyname: %v", invId.KeyName)
+			log.Infof(c, " current info: teamIDs: %v", string(invId.TeamIds))
 			k := KeyById(r, invId.Id)
 
 			if newIds := helpers.MergeIds(invId.TeamIds, id);len(newIds) > 0 {
-				c.Infof("pw: current info: new team ids: %v", newIds)
+				log.Infof(c, " current info: new team ids: %v", newIds)
 				invId.TeamIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId);err != nil {
 					return err
@@ -125,7 +126,7 @@ func Update(r *http.Request, oldname string, newname string, id int64) error {
 			}
 		}
 		if !innew{
-			c.Infof("pw: remove: %v",wo)
+			log.Infof(c, " remove: %v",wo)
 			err = removeWord(r, wo, id)
 		}
 	}
@@ -139,7 +140,7 @@ func Update(r *http.Request, oldname string, newname string, id int64) error {
 			}
 		}
 		if !inold{
-			c.Infof("pw: add: %v", wn)
+			log.Infof(c, " add: %v", wn)
 			err = addWord(r, wn, id)
 		}
 	}
@@ -154,18 +155,18 @@ func removeWord(r *http.Request, w string, id int64) error {
 
 	invId, err := Find(r, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf("pw: teaminvid.removeWord, unable to find KeyName=%s: %v", w, err))
+		return errors.New(fmt.Sprintf(" teaminvid.removeWord, unable to find KeyName=%s: %v", w, err))
 	} else if invId == nil {
-		c.Infof("pw: word %v does not exist in Team InvertedIndex so nothing to remove", w)
+		log.Infof(c, " word %v does not exist in Team InvertedIndex so nothing to remove", w)
 	} else {
 		// update row with new info
 		k := KeyById(r, invId.Id)
 
 		if newIds, err := helpers.RemovefromIds(invId.TeamIds, id); err == nil{
-			c.Infof("pw: new team ids after removal: %v", newIds)
+			log.Infof(c, " new team ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
-				c.Infof("pw: removing key %v from datastore as it is no longer used", k)
+				log.Infof(c, " removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
 				// decrement word counter
 				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
@@ -174,16 +175,16 @@ func removeWord(r *http.Request, w string, id int64) error {
 					return err1
 				}, nil)
 				if errDec != nil {
-					return errors.New(fmt.Sprintf("pw: Error decrementing WordCountTeam: %v", errDec))
+					return errors.New(fmt.Sprintf(" Error decrementing WordCountTeam: %v", errDec))
 				}
 			} else {
 				invId.TeamIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId);err != nil{
-					return errors.New(fmt.Sprintf("pw: RemoveWordFromTeamInvertedIndex error on update: %v", err))
+					return errors.New(fmt.Sprintf(" RemoveWordFromTeamInvertedIndex error on update: %v", err))
 				}
 			}
 		} else {
-			return errors.New(fmt.Sprintf("pw: unable to remove id from ids: %v", err))
+			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v", err))
 		}
 	}
 	
@@ -226,7 +227,7 @@ func GetIndexes(r *http.Request, words []string) ([]int64, error) {
 		
 		res, err := Find(r, "KeyName", w)
 		if err != nil {
-			err1 = errors.New(fmt.Sprintf("pw: teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
+			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res !=nil {
 			strTeamIds := string(res.TeamIds)
 			if len(l) == 0 {
@@ -251,7 +252,7 @@ func GetIndexes(r *http.Request, words []string) ([]int64, error) {
 			intIds[i] = n
 			i = i + 1
 		} else {
-			err1 = errors.New(fmt.Sprintf("pw: teaminvid.GetIndexes, unable to parse %v, error:%v", w, err))
+			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to parse %v, error:%v", w, err))
 		}
 	}
 	
@@ -294,7 +295,7 @@ func GetWordCount(c appengine.Context)(int64, error) {
 func GetTeamFrequencyForWord(r *http.Request, word string) (int64, error) {
 	
 	if invId, err := Find(r, "KeyName", word); err != nil {
-		return 0, errors.New(fmt.Sprintf("pw: teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err))
+		return 0, errors.New(fmt.Sprintf(" teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err))
 	} else if invId == nil {
 		return 0, nil
 	} else {

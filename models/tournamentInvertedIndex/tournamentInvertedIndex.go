@@ -27,6 +27,7 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 type TournamentInvertedIndex struct {
@@ -69,22 +70,22 @@ func Add(r *http.Request, name string, id int64) error {
 	
 	words := strings.Split(name, " ")
 	for _, w:= range words{
-		c.Infof("pw: AddToTournamentInvertedIndex: Word: %v", w)
+		log.Infof(c, " AddToTournamentInvertedIndex: Word: %v", w)
 
 		if invId, err := Find(r, "KeyName", w); err != nil {
-			return errors.New(fmt.Sprintf("pw: tournamentinvid.Add, unable to find KeyName=%s: %v", w, err))
+			return errors.New(fmt.Sprintf(" tournamentinvid.Add, unable to find KeyName=%s: %v", w, err))
 		} else if invId == nil {
-			c.Infof("pw: create inv id as word does not exist in table")
+			log.Infof(c, " create inv id as word does not exist in table")
 			Create(r, w, strconv.FormatInt(id, 10))
 		} else {
 			// update row with new info
-			c.Infof("pw: update row with new info")
-			c.Infof("pw: current info: keyname: %v", invId.KeyName)
-			c.Infof("pw: current info: teamIDs: %v", string(invId.TournamentIds))
+			log.Infof(c, " update row with new info")
+			log.Infof(c, " current info: keyname: %v", invId.KeyName)
+			log.Infof(c, " current info: teamIDs: %v", string(invId.TournamentIds))
 			k := KeyById(r, invId.Id)
 
 			if newIds := helpers.MergeIds(invId.TournamentIds, id); len(newIds) > 0 {
-				c.Infof("pw: current info: new team ids: %v", newIds)
+				log.Infof(c, " current info: new team ids: %v", newIds)
 				invId.TournamentIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId);err != nil {
 					return err
@@ -114,7 +115,7 @@ func Update(r *http.Request, oldname string, newname string, id int64) error {
 			}
 		}
 		if !innew{
-			c.Infof("pw: remove: %v",wo)
+			log.Infof(c, " remove: %v",wo)
 			err = removeWord(r, wo, id)
 			//remove it
 		}
@@ -130,7 +131,7 @@ func Update(r *http.Request, oldname string, newname string, id int64) error {
 		}
 		if !inold{
 			// add it
-			c.Infof("pw: add: %v", wn)
+			log.Infof(c, " add: %v", wn)
 			err = addWord(r, wn, id)
 		}
 	}
@@ -145,27 +146,27 @@ func removeWord(r *http.Request, w string, id int64) error {
 
 	invId, err := Find(r, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf("pw: tournamentinvid.removeWord, unable to find KeyName=%s: %v", w, err))
+		return errors.New(fmt.Sprintf(" tournamentinvid.removeWord, unable to find KeyName=%s: %v", w, err))
 	} else if  invId == nil {
-		c.Infof("pw: word %v does not exist in Tournament InvertedIndex so nothing to remove",w)
+		log.Infof(c, " word %v does not exist in Tournament InvertedIndex so nothing to remove",w)
 	} else {
 		// update row with new info
 		k := KeyById(r, invId.Id)
 
 		if newIds, err := helpers.RemovefromIds(invId.TournamentIds, id); err == nil{
-			c.Infof("pw: new tournament ids after removal: %v", newIds)
+			log.Infof(c, " new tournament ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
-				c.Infof("pw: removing key %v from datastore as it is no longer used", k)
+				log.Infof(c, " removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
 			} else {
 				invId.TournamentIds  = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId);err != nil {
-					c.Errorf("pw: RemoveWordFromTournamentInvertedIndex error on update")
+					log.Errorf(c, " RemoveWordFromTournamentInvertedIndex error on update")
 				}
 			}
 		} else {
-			return errors.New(fmt.Sprintf("pw: unable to remove id from ids: %v",err))
+			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v",err))
 		}
 	}
 	
@@ -206,7 +207,7 @@ func GetIndexes(r *http.Request, words []string) ([]int64, error) {
 		
 		res, err := Find(r, "KeyName", w)
 		if err != nil {
-			err1 = errors.New(fmt.Sprintf("pw: tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
+			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res !=nil {
 			strTournamentIds := string(res.TournamentIds)
 			if len(l) == 0 {
@@ -231,7 +232,7 @@ func GetIndexes(r *http.Request, words []string) ([]int64, error) {
 			intIds[i] = n
 			i = i + 1
 		} else {
-			err1 = errors.New(fmt.Sprintf("pw: tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err))
+			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err))
 		}
 	}
 	return intIds, err1	
@@ -273,7 +274,7 @@ func GetWordCount(c appengine.Context)(int64, error) {
 func GetTournamentFrequencyForWord(r *http.Request, word string) (int64, error) {
 	
 	if invId, err := Find(r, "KeyName", word); err != nil {
-		return 0, errors.New(fmt.Sprintf("pw: tournamentinvid.GetTournamentFrequencyForWord, unable to find KeyName=%s: %v", word, err))
+		return 0, errors.New(fmt.Sprintf(" tournamentinvid.GetTournamentFrequencyForWord, unable to find KeyName=%s: %v", word, err))
 	} else if invId == nil {
 		return 0, nil
 	} else {

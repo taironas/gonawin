@@ -24,6 +24,8 @@ import (
 	"appengine"	
 	
 	"github.com/santiaago/purple-wing/helpers/auth"
+	"github.com/santiaago/purple-wing/helpers/log"
+
 )
 // is it a user?
 func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
@@ -52,7 +54,7 @@ func PermalinkID(r *http.Request, level int64)(int64, error){
 	path := strings.Split(r.URL.String(), "/")
 	intID, err := strconv.ParseInt(path[level],0,64)
 	if err != nil{
-		c.Errorf("pw: error when calling PermalinkID with %v.Error: %v",path[level], err)
+		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v",path[level], err)
 	}
 	return intID, err
 }

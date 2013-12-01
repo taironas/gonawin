@@ -34,6 +34,7 @@ import (
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 const root string = "/m"
@@ -118,7 +119,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	}
 	if authhlp.IsAuthorizedWithGoogle(userInfo) {
 		if err := authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
-			c.Errorf("pw: SignupUser: %v", err)
+			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
@@ -134,7 +135,7 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	if !authhlp.LoggedIn(r) {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
 		if err != nil {
-			c.Errorf("pw: AuthenticateWithTwitter, error getting temporary credentials: %v", err)
+			log.Errorf(c, " AuthenticateWithTwitter, error getting temporary credentials: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
@@ -157,7 +158,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	if cookie, err := r.Cookie("secret"); err == nil {
 		cred.Secret = cookie.Value
 	} else {
-		c.Errorf("pw: TwitterAuthCallback, error getting 'secret' cookie: %v", err)
+		log.Errorf(c, " TwitterAuthCallback, error getting 'secret' cookie: %v", err)
 	}
 	
 	// clear 'secret' cookie
@@ -165,7 +166,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	
 	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
-		c.Errorf("pw: TwitterAuthCallback, error getting request token: %v", err)
+		log.Errorf(c, " TwitterAuthCallback, error getting request token: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
@@ -175,19 +176,19 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	urlValues.Set("user_id", values.Get("user_id"))
 	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
 	if err != nil {
-		c.Errorf("pw: TwitterAuthCallback, error getting user info from twitter: %v", err)
+		log.Errorf(c, " TwitterAuthCallback, error getting user info from twitter: %v", err)
 	}
 
 	userInfo, err := userhlp.FetchTwitterUserInfo(resp)
 	if err != nil {
-		c.Errorf("pw: TwitterAuthCallback, error occurred when fetching twitter user info: %v", err)
+		log.Errorf(c, " TwitterAuthCallback, error occurred when fetching twitter user info: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
 		if err := authhlp.SignupUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
-			c.Errorf("pw: SignupUser: %v", err)
+			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
@@ -220,7 +221,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	}	
 	
 	if v, err := t.Exchange(code); err != nil {
-		c.Errorf("pw: FacebookAuthCallback, error occurred during exchange: %v, returned value: %v", err, v)
+		log.Errorf(c, " FacebookAuthCallback, error occurred during exchange: %v, returned value: %v", err, v)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
@@ -229,32 +230,32 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	urlFacebook := fmt.Sprintf(kUrlFacebookDebugToken, t.Token.AccessToken, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET)
 	accessTokenResponse, err := t.Client().Get(urlFacebook)
 	if err != nil {
-		c.Errorf("pw: FacebookAuthCallback, client get error calling %s : %v", urlFacebook, err)
+		log.Errorf(c, " FacebookAuthCallback, client get error calling %s : %v", urlFacebook, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	// verify if information from facebook is valid for current user.
 	if isValid, err := isFacebookTokenValid(accessTokenResponse); (err != nil || !isValid){
-		c.Errorf("pw: FacebookAuthCallback, isFacebookTokenValid: Is valid: %v, Error: %v", isValid, err)
+		log.Errorf(c, " FacebookAuthCallback, isFacebookTokenValid: Is valid: %v, Error: %v", isValid, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	// ask facebook.com/me for user profile information
 	graphResponse, err := t.Client().Get(kUrlFacebookMe)
 	if err != nil {
-		c.Errorf("pw: FacebookAuthCallback, failure on get request %s: %v", kUrlFacebookMe, err)
+		log.Errorf(c, " FacebookAuthCallback, failure on get request %s: %v", kUrlFacebookMe, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	userInfo, err := userhlp.FetchFacebookUserInfo(graphResponse)
 	if err != nil{
-		c.Errorf("pw: FacebookAuthCallback, error occurred when fetching facebook user info: %v", err)
+		log.Errorf(c, " FacebookAuthCallback, error occurred when fetching facebook user info: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
 	if authhlp.IsAuthorizedWithFacebook(userInfo){
 		if err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
-			c.Errorf("pw: SignupUser: %v", err)
+			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}

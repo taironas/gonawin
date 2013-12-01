@@ -25,6 +25,7 @@ import (
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
@@ -68,7 +69,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 			ids, err := tournamentinvmdl.GetIndexes(r, words)
 			
 			if err != nil {
-				c.Errorf("pw: tournaments.Index, error occurred when getting indexes of words: %v", err)
+				log.Errorf(c, " tournaments.Index, error occurred when getting indexes of words: %v", err)
 			}
 			
 			result := searchmdl.TournamentScore(r, query, ids)
@@ -109,7 +110,7 @@ func New(w http.ResponseWriter, r *http.Request){
 		} else {
 			tournament, err := tournamentmdl.Create(r, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r).Id)
 			if err != nil {
-				c.Errorf("pw: error when trying to create a tournament: %v", err)
+				log.Errorf(c, " error when trying to create a tournament: %v", err)
 			}
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/m/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
@@ -133,7 +134,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	intID, err := handlers.PermalinkID(r,3)
 	if err != nil{
-		c.Errorf("pw: Unable to find ID in request %v",r)
+		log.Errorf(c, " Unable to find ID in request %v",r)
 		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
 		return
 	}
@@ -142,13 +143,13 @@ func Show(w http.ResponseWriter, r *http.Request){
 		// delete all tournament-user relationships
 		for _, participant := range tournamentrelshlp.Participants(r, intID) {
 			if err := tournamentrelmdl.Destroy(r, intID, participant.Id); err !=nil {
-			c.Errorf("pw: error when trying to destroy tournament relationship: %v", err)
+			log.Errorf(c, " error when trying to destroy tournament relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
 		for _, team := range tournamentrelshlp.Teams(r, intID) {
 			if err := tournamentteamrelmdl.Destroy(r, intID, team.Id); err !=nil {
-			c.Errorf("pw: error when trying to destroy team relationship: %v", err)
+			log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete the tournament
@@ -157,7 +158,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 		return
 	} else if r.Method != "GET"{
-		c.Errorf("pw: request method not supported")
+		log.Errorf(c, " request method not supported")
 		helpers.Error404(w)
 		return
 	}
@@ -218,7 +219,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	var tournament *tournamentmdl.Tournament
 	tournament, err = tournamentmdl.ById(r, intID)
 	if err != nil{
-		c.Errorf("pw: Tournament Edit handler: tournament not found. id: %v",intID)
+		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
 		helpers.Error404(w)
 		return
 	}
@@ -241,7 +242,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 			tournament.Name = editName
 			tournamentmdl.Update(r, intID, tournament)
 		} else {
-			c.Errorf("pw: cannot update %v", helpers.IsStringValid(editName))
+			log.Errorf(c, " cannot update %v", helpers.IsStringValid(editName))
 		}
 		url := fmt.Sprintf("/m/tournaments/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
