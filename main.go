@@ -88,6 +88,9 @@ func init(){
 
 	// angularjs
 	h.HandleFunc("/j/teams/?", handlers.User(teamsctrl.IndexJson))
+	h.HandleFunc("/j/teams/new/?", handlers.User(teamsctrl.NewJson))
+	h.HandleFunc("/j/teams/[0-9]+/?", handlers.User(teamsctrl.ShowJson))
+	h.HandleFunc("/j/teams/[0-9]+/edit/?", handlers.User(teamsctrl.EditJson))
 
 	http.Handle("/", h)
 }

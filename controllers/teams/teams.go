@@ -134,7 +134,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", jsonData)
 }
 
- 
+// Team new handler 
 func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -175,6 +175,49 @@ func New(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderTeamNew")
 }
 
+// Json Team new handler 
+func NewJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	var form NewForm
+	if r.Method == "GET" {
+		form.Name = ""
+		form.Error = ""
+	} else if r.Method == "POST" {
+		form.Name = r.FormValue("Name")
+		form.Private = (r.FormValue("Visibility") == "Private")
+		
+		if len(form.Name) <= 0 {
+			form.Error = "'Name' field cannot be empty"
+		} else if t := teammdl.Find(c, "KeyName", helpers.TrimLower(form.Name)); t != nil {
+			form.Error = "That team name already exists."
+		} else {
+			team, err := teammdl.Create(c, form.Name, auth.CurrentUser(r, c).Id, form.Private)
+			if err != nil {
+				log.Errorf(c, " error when trying to create a team: %v", err)
+			}
+			// join the team
+			_, err = teamrelmdl.Create(c, team.Id, auth.CurrentUser(r, c).Id)
+			if err != nil {
+				log.Errorf(c, " error when trying to create a team relationship: %v", err)
+			}
+			// redirect to the newly created team page
+			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
+		}
+	} else{
+		helpers.Error404(w)
+		return
+	}
+
+	jsonData, err := json.Marshal(form)
+	if err != nil{
+		log.Errorf(c, "unable to Marshal data structure: %v", err)
+	}
+	log.Infof(c, "json: %s", jsonData)
+	fmt.Fprintf(w, "%s", jsonData)
+}
+
+// Team show handler
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -235,6 +278,49 @@ func Show(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, teamData, funcs, "renderTeamShow")
 }
 
+// Json Team show handler
+func ShowJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r, c, 3)
+	if err != nil{
+		log.Errorf(c, "Error parsing int ID")
+		helpers.Error404(w)
+		return	
+	} 
+
+	if (r.Method != "GET"){
+		log.Errorf(c, " request method not supported")
+		helpers.Error404(w)
+		return	
+	}
+
+	var team *teammdl.Team
+	if team, err = teammdl.ById(c, intID); err != nil{
+		log.Errorf(c, "team ID not found %v, error: %v", intID, err)
+		helpers.Error404(w)
+		return
+	}
+	
+	players := teamrelshlp.Players(c, intID)
+	
+	teamData := struct { 
+		Team *teammdl.Team
+		Players []*usermdl.User 
+	}{
+		team,
+		players,
+	}
+	
+	jsonData, err := json.Marshal(teamData)
+	if err != nil{
+		log.Errorf(c, "unable to Marshal data structure: %v", err)
+	}
+	log.Infof(c, "json: %s", jsonData)
+	fmt.Fprintf(w, "%s", jsonData)
+}
+
+// Team Edit handler
 func Edit(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -288,6 +374,43 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, url, http.StatusFound)
 	} else {
 		helpers.Error404(w)
+	}
+}
+
+// Team Edit handler
+func EditJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r, c, 3)
+	if err != nil{
+		log.Errorf(c, "Error parsing int ID")
+		helpers.Error404(w)
+		return	
+	} 
+	
+	if !teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) {
+		http.Redirect(w, r, "/m", http.StatusFound)
+	}
+	
+	if r.Method == "GET" {
+
+		var team *teammdl.Team
+		team, err = teammdl.ById(c, intID)
+
+		if err != nil{
+			helpers.Error404(w)
+			return
+		}
+		jsonData, err := json.Marshal(team)
+		if err != nil{
+			log.Errorf(c, "unable to Marshal data structure: %v", err)
+		}
+		log.Infof(c, "json: %s", jsonData)
+		fmt.Fprintf(w, "%s", jsonData)
+		
+	} else {
+		helpers.Error404(w)
+		return
 	}
 }
 
