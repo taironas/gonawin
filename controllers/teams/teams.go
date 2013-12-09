@@ -21,7 +21,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-	"encoding/json"
+
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
@@ -125,13 +125,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) {
 	} else {
 		helpers.Error404(w)
 	}
-	
-	jsonData, err := json.Marshal(data)
-	if err != nil{
-		log.Errorf(c, "unable to Marshal data structure: %v", err)
-	}
-	log.Infof(c, "json: %s", jsonData)
-	fmt.Fprintf(w, "%s", jsonData)
+	templateshlp.RenderJson(w, c, data)
 }
 
 // Team new handler 
@@ -209,12 +203,7 @@ func NewJson(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	jsonData, err := json.Marshal(form)
-	if err != nil{
-		log.Errorf(c, "unable to Marshal data structure: %v", err)
-	}
-	log.Infof(c, "json: %s", jsonData)
-	fmt.Fprintf(w, "%s", jsonData)
+	templateshlp.RenderJson(w, c, form)
 }
 
 // Team show handler
@@ -311,14 +300,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		team,
 		players,
 	}
-	
-	jsonData, err := json.Marshal(teamData)
-	if err != nil{
-		log.Errorf(c, "unable to Marshal data structure: %v", err)
-	}
-	log.Infof(c, "json: %s", jsonData)
-	fmt.Fprintf(w, "%s", jsonData)
-}
+	templateshlp.RenderJson(w, c, teamData)}
 
 // Team Edit handler
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -401,13 +383,7 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 			helpers.Error404(w)
 			return
 		}
-		jsonData, err := json.Marshal(team)
-		if err != nil{
-			log.Errorf(c, "unable to Marshal data structure: %v", err)
-		}
-		log.Infof(c, "json: %s", jsonData)
-		fmt.Fprintf(w, "%s", jsonData)
-		
+		templateshlp.RenderJson(w, c, team)
 	} else {
 		helpers.Error404(w)
 		return

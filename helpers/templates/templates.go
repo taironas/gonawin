@@ -17,7 +17,9 @@
 package templates
 
 import (
+	"fmt"
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"html/template"
 
@@ -94,6 +96,16 @@ func RenderWithData(w http.ResponseWriter, r *http.Request, c appengine.Context,
 	if err != nil{
 		log.Errorf(c, " error when calling Render from helpers: %v", err)
 	}
+}
+
+// renders data to json and writes it to response writer
+func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}){
+	jsonData, err := json.Marshal(data)
+	if err != nil{
+		log.Errorf(c, "unable to Marshal data structure: %v", err)
+	}
+	log.Infof(c, "json: %s", jsonData)
+	fmt.Fprintf(w, "%s", jsonData)
 }
 
 // set all navigation pages to false caller should define only the active one
