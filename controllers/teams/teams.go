@@ -21,7 +21,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
-
+	"encoding/json"
 	"appengine"	
 
 	"github.com/santiaago/purple-wing/helpers"
@@ -94,6 +94,47 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderTeamIndex")
 }
 
+// json index handler
+func IndexJson(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	
+	var data indexData
+	if r.Method == "GET" {
+		teams := teammdl.FindAll(c)
+		data.Teams = teams
+		data.TeamInputSearch = ""
+
+	} else if r.Method == "POST" {
+		if query := r.FormValue("TeamInputSearch"); len(query) == 0 {
+			http.Redirect(w, r, "teams", http.StatusFound)
+			return
+		} else {
+			words := helpers.SetOfStrings(query)
+			ids, err := teaminvidmdl.GetIndexes(c, words)
+			
+			if err != nil {
+				log.Errorf(c, " teams.Index, error occurred when getting indexes of words: %v", err)
+			}
+			
+			result := searchmdl.TeamScore(c, query, ids)
+			
+			teams := teammdl.ByIds(c, result)
+			data.Teams = teams
+			data.TeamInputSearch = query
+		}
+	} else {
+		helpers.Error404(w)
+	}
+	
+	jsonData, err := json.Marshal(data)
+	if err != nil{
+		log.Errorf(c, "unable to Marshal data structure: %v", err)
+	}
+	log.Infof(c, "json: %s", jsonData)
+	fmt.Fprintf(w, "%s", jsonData)
+}
+
+ 
 func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	

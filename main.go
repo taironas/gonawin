@@ -85,6 +85,9 @@ func init(){
 	
 	// invite
 	h.HandleFunc("/m/invite/?", handlers.User(invitectrl.Email))
-	
+
+	// angularjs
+	h.HandleFunc("/j/teams/?", handlers.User(teamsctrl.IndexJson))
+
 	http.Handle("/", h)
 }
