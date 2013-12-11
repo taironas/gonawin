@@ -30,6 +30,7 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
+// user profile handler
 func Profile(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -60,6 +61,31 @@ func Profile(w http.ResponseWriter, r *http.Request){
 	}
 }
 
+// json user profile handler
+func ProfileJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	if r.Method == "GET" {
+
+		templateshlp.RenderJson(w, c, auth.CurrentUser(r, c))
+
+	}else if r.Method == "POST"{
+		currentUser := auth.CurrentUser(r, c)
+		
+		editUserName := r.FormValue("Username")
+		
+		if helpers.IsUsernameValid(editUserName) && editUserName != currentUser.Username{
+			currentUser.Username = editUserName
+			usermdl.Update(c, currentUser)
+		} else {
+			log.Errorf(c, " cannot update current user info")
+		}
+		
+		http.Redirect(w, r, "/j/settings/edit-profile", http.StatusFound)
+	}
+}
+
+// user social networks handler
 func Networks(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
@@ -71,6 +97,14 @@ func Networks(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderNetworks")
 }
 
+// user social networks handler
+func NetworksJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	templateshlp.RenderJson(w, c, nil)
+}
+
+// email handler
 func Email(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
@@ -80,4 +114,11 @@ func Email(w http.ResponseWriter, r *http.Request){
 	// no data
 	funcs := template.FuncMap{}
 	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderEmail")
+}
+
+// json email handler
+func EmailJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	templateshlp.RenderJson(w, c, nil)
 }

@@ -103,9 +103,13 @@ func init(){
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))
 	h.HandleFunc("/m/settings/networks/?", handlers.User(settingsctrl.Networks))
 	h.HandleFunc("/m/settings/email/?", handlers.User(settingsctrl.Email))
+	h.HandleFunc("/j/settings/edit-profile/?", handlers.User(settingsctrl.ProfileJson))
+	h.HandleFunc("/j/settings/networks/?", handlers.User(settingsctrl.NetworksJson))
+	h.HandleFunc("/j/settings/email/?", handlers.User(settingsctrl.EmailJson))
 	
 	// invite
 	h.HandleFunc("/m/invite/?", handlers.User(invitectrl.Email))
+	h.HandleFunc("/j/invite/?", handlers.User(invitectrl.EmailJson))
 
 	http.Handle("/", h)
 }

@@ -51,7 +51,7 @@ Your friends @ purple-wing
 
 
 `
-
+// Email invite handler
 func Email(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
@@ -99,4 +99,50 @@ func Email(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderEmail")
+}
+
+// Json Email invite handler
+func EmailJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	var form InviteForm
+	form.Name = auth.CurrentUser(r, c).Name
+	
+	if r.Method == "GET" {
+		form.EmailsList = ""
+		form.Error = ""
+	} else if r.Method == "POST" {
+		log.Infof(c, " Form Value = %v", r.FormValue("emails_area"))
+		form.EmailsList = r.FormValue("emails_area")
+		
+		if len(form.EmailsList) <= 0 {
+			form.Error = "No email address has been entered"
+		} else {
+			emails := strings.Split(form.EmailsList, ",")
+			
+			// validate emails
+			if !helpers.AreEmailsValid(emails) {
+				form.Error = "Your list of emails is not properly formatted"
+			} else {
+				url := fmt.Sprintf("http://%s/m/auth", r.Host) 
+				for _, email := range emails {
+					msg := &mail.Message{
+					Sender:  "No Reply purple-wing <no-reply@purple-wing.com>",
+					To:      []string{email},
+					Subject: auth.CurrentUser(r, c).Name + " wants you to join Purple-wing!",
+					Body:    fmt.Sprintf(inviteMessage, url),
+					}
+					
+					if err := mail.Send(c, msg); err != nil {
+						log.Errorf(c, " couldn't send email: %v", err)
+					}
+				}				
+				http.Redirect(w, r, "/j/", http.StatusFound)
+				return
+			} 
+		}
+	}else {
+		helpers.Error404(w)
+	}
+	templateshlp.RenderJson(w, c, form)
 }
