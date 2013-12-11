@@ -86,6 +86,10 @@ func init(){
 	h.HandleFunc("/m/tournaments/new/?", handlers.User(tournamentsctrl.New))
 	h.HandleFunc("/m/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.Show))
 	h.HandleFunc("/m/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.Edit))
+	h.HandleFunc("/j/tournaments/?", handlers.User(tournamentsctrl.IndexJson))
+	h.HandleFunc("/j/tournaments/new/?", handlers.User(tournamentsctrl.NewJson))
+	h.HandleFunc("/j/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.ShowJson))
+	h.HandleFunc("/j/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.EditJson))
 
 	// relationships
 	h.HandleFunc("/m/teamrels/[0-9]+/?", handlers.User(teamrelsctrl.Show))
