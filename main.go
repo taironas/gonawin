@@ -60,12 +60,21 @@ func init(){
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
 
 	// team
+	// server handler
 	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.Index))
 	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
 	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
 	h.HandleFunc("/m/teams/[0-9]+/invite/?", handlers.User(teamsctrl.Invite))
 	h.HandleFunc("/m/teams/[0-9]+/request/?", handlers.User(teamsctrl.Request))
+
+	// json handlers
+	h.HandleFunc("/j/teams/?", handlers.User(teamsctrl.IndexJson))
+	h.HandleFunc("/j/teams/new/?", handlers.User(teamsctrl.NewJson))
+	h.HandleFunc("/j/teams/[0-9]+/?", handlers.User(teamsctrl.ShowJson))
+	h.HandleFunc("/j/teams/[0-9]+/edit/?", handlers.User(teamsctrl.EditJson))
+	h.HandleFunc("/j/teams/[0-9]+/invite/?", handlers.User(teamsctrl.InviteJson))
+	h.HandleFunc("/j/teams/[0-9]+/request/?", handlers.User(teamsctrl.RequestJson))
 
 	// tournament
 	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))
@@ -85,12 +94,6 @@ func init(){
 	
 	// invite
 	h.HandleFunc("/m/invite/?", handlers.User(invitectrl.Email))
-
-	// angularjs
-	h.HandleFunc("/j/teams/?", handlers.User(teamsctrl.IndexJson))
-	h.HandleFunc("/j/teams/new/?", handlers.User(teamsctrl.NewJson))
-	h.HandleFunc("/j/teams/[0-9]+/?", handlers.User(teamsctrl.ShowJson))
-	h.HandleFunc("/j/teams/[0-9]+/edit/?", handlers.User(teamsctrl.EditJson))
 
 	http.Handle("/", h)
 }

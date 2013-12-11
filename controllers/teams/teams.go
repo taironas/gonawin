@@ -125,6 +125,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) {
 	} else {
 		helpers.Error404(w)
 	}
+
 	templateshlp.RenderJson(w, c, data)
 }
 
@@ -156,6 +157,7 @@ func New(w http.ResponseWriter, r *http.Request){
 			}
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
+			return
 		}
 	} else{
 		helpers.Error404(w)
@@ -196,11 +198,11 @@ func NewJson(w http.ResponseWriter, r *http.Request){
 				log.Errorf(c, " error when trying to create a team relationship: %v", err)
 			}
 			// redirect to the newly created team page
-			http.Redirect(w, r, "/m/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
+			http.Redirect(w, r, "/j/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
+			return
 		}
 	} else{
 		helpers.Error404(w)
-		return
 	}
 
 	templateshlp.RenderJson(w, c, form)
@@ -213,6 +215,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		return
 	} 
 
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
@@ -273,12 +276,29 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		log.Errorf(c, "Error parsing int ID")
-		helpers.Error404(w)
-		return	
+		http.Redirect(w,r, "/j/teams/", http.StatusFound)
+		return
 	} 
 
-	if (r.Method != "GET"){
+	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+		// delete all team-user relationships
+		for _, player := range teamrelshlp.Players(c, intID) {
+			if err := teamrelmdl.Destroy(c, intID, player.Id); err !=nil {
+				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete all tournament-team relationships
+		for _, tournament := range tournamentrelshlp.Teams(c, intID) {
+			if err := tournamentteamrelmdl.Destroy(c, tournament.Id, intID); err !=nil {
+				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete the team
+		teammdl.Destroy(c, intID)
+		
+		http.Redirect(w, r, "/j/teams", http.StatusFound)
+		return
+	} else if (r.Method != "GET"){
 		log.Errorf(c, " request method not supported")
 		helpers.Error404(w)
 		return	
@@ -286,7 +306,6 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 
 	var team *teammdl.Team
 	if team, err = teammdl.ById(c, intID); err != nil{
-		log.Errorf(c, "team ID not found %v, error: %v", intID, err)
 		helpers.Error404(w)
 		return
 	}
@@ -300,7 +319,9 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		team,
 		players,
 	}
-	templateshlp.RenderJson(w, c, teamData)}
+
+	templateshlp.RenderJson(w, c, teamData)
+}
 
 // Team Edit handler
 func Edit(w http.ResponseWriter, r *http.Request){
@@ -309,10 +330,12 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		return
 	}
 	
 	if !teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) {
 		http.Redirect(w, r, "/m", http.StatusFound)
+		return
 	}
 	
 	if r.Method == "GET" {
@@ -354,6 +377,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		}
 		url := fmt.Sprintf("/m/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
+		return
 	} else {
 		helpers.Error404(w)
 	}
@@ -365,13 +389,13 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		log.Errorf(c, "Error parsing int ID")
-		helpers.Error404(w)
-		return	
-	} 
+		http.Redirect(w,r, "/j/teams/", http.StatusFound)
+		return
+	}
 	
 	if !teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) {
-		http.Redirect(w, r, "/m", http.StatusFound)
+		http.Redirect(w, r, "/j", http.StatusFound)
+		return
 	}
 	
 	if r.Method == "GET" {
@@ -384,12 +408,37 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 			return
 		}
 		templateshlp.RenderJson(w, c, team)
+
+	} else if r.Method == "POST"{
+		
+		var team *teammdl.Team
+		team, err = teammdl.ById(c,intID)
+		if err != nil{
+			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)		
+			helpers.Error404(w)
+			return
+		}
+		// only work on name and private. Other values should not be editable
+		editName := r.FormValue("Name")
+		editPrivate := (r.FormValue("Visibility") == "Private")
+		log.Infof(c, " Name=%s, Private=%s", editName, editPrivate)
+
+		if helpers.IsStringValid(editName) && (editName != team.Name || editPrivate != team.Private) {
+			team.Name = editName
+			team.Private = editPrivate
+			teammdl.Update(c, intID, team)
+		}else{
+			log.Errorf(c, " cannot update isStringValid: %v", helpers.IsStringValid(editName))
+		}
+		url := fmt.Sprintf("/j/teams/%d",intID)
+		http.Redirect(w, r, url, http.StatusFound)
+		return
 	} else {
 		helpers.Error404(w)
-		return
 	}
 }
 
+// invite handler
 func Invite(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -406,9 +455,32 @@ func Invite(w http.ResponseWriter, r *http.Request){
 		
 		url := fmt.Sprintf("/m/teams/%d", intID)
 		http.Redirect(w, r, url, http.StatusFound)
+		return
 	}
 }
 
+// json Invite handler
+func InviteJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r, c, 3)
+	if err != nil{
+		http.Redirect(w,r, "/j/teams/", http.StatusFound)
+		return
+	}
+	
+	if r.Method == "POST"{
+		if _, err := teamrequestmdl.Create(c, intID, auth.CurrentUser(r, c).Id); err != nil {
+			log.Errorf(c, " teams.Invite, error when trying to create a team request: %v", err)
+		}
+		
+		url := fmt.Sprintf("/m/teams/%d", intID)
+		http.Redirect(w, r, url, http.StatusFound)
+		return
+	}
+}
+
+// Request handler
 func Request(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -432,5 +504,34 @@ func Request(w http.ResponseWriter, r *http.Request){
 		
 		url := fmt.Sprintf("/m/users/%d", auth.CurrentUser(r, c).Id)
 		http.Redirect(w, r, url, http.StatusFound)
+		return
+	}
+}
+
+// Json Request handler
+func RequestJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	if r.Method == "POST"{
+		
+		requestId, err := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
+		if err != nil {
+			log.Errorf(c, " teams.Request, string value could not be parsed: %v", err)
+		}
+		
+		if r.FormValue("SubmitButton") == "Accept" {
+			if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
+				// join user to the team
+				teammdl.Join(c, teamRequest.TeamId, teamRequest.UserId);
+			} else {
+				appengine.NewContext(r).Errorf(" cannot find team request with id=%d", requestId)
+			}
+		}
+		
+		teamrequestmdl.Destroy(c, requestId)
+		
+		url := fmt.Sprintf("/j/users/%d", auth.CurrentUser(r, c).Id)
+		http.Redirect(w, r, url, http.StatusFound)
+		return
 	}
 }
