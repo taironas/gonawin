@@ -37,10 +37,14 @@ func init(){
 	h := new(handlers.RegexpHandler)
 
 	// usual pages
+	// server handler
 	h.HandleFunc("/", pagesctrl.TempHome)
 	h.HandleFunc("/m/?", pagesctrl.Home)
 	h.HandleFunc("/m/about/?", pagesctrl.About)
 	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
+	h.HandleFunc("/j/?", pagesctrl.HomeJson)
+	h.HandleFunc("/j/about/?", pagesctrl.AboutJson)
+	h.HandleFunc("/j/contact/?", pagesctrl.ContactJson)
 
 	// session
 	h.HandleFunc("/m/auth/?", sessionsctrl.Authenticate)
@@ -54,10 +58,13 @@ func init(){
 
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
+	h.HandleFunc("/j/users/[0-9]+/?", handlers.User(usersctrl.ShowJson))
 
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
+	h.HandleFunc("/j/a/?", handlers.Admin(usersctrl.AdminShowJson))
+	h.HandleFunc("/j/a/users/?", handlers.Admin(usersctrl.AdminUsersJson))
 
 	// team
 	// server handler
@@ -67,8 +74,6 @@ func init(){
 	h.HandleFunc("/m/teams/[0-9]+/edit/?", handlers.User(teamsctrl.Edit))
 	h.HandleFunc("/m/teams/[0-9]+/invite/?", handlers.User(teamsctrl.Invite))
 	h.HandleFunc("/m/teams/[0-9]+/request/?", handlers.User(teamsctrl.Request))
-
-	// json handlers
 	h.HandleFunc("/j/teams/?", handlers.User(teamsctrl.IndexJson))
 	h.HandleFunc("/j/teams/new/?", handlers.User(teamsctrl.NewJson))
 	h.HandleFunc("/j/teams/[0-9]+/?", handlers.User(teamsctrl.ShowJson))

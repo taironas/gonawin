@@ -43,6 +43,17 @@ func About(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderAbout")
 }
 
+// json about handler: for about page
+func AboutJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	data := data{
+		auth.CurrentUser(r, c),		
+		"About handler",
+	}
+	
+	templateshlp.RenderJson(w, c, data)
+}
+
 
 
 

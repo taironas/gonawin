@@ -25,12 +25,12 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 )
 
-//temporary main handler: for landing page
+// temporary main handler: for landing page
 func TempHome(w http.ResponseWriter, r *http.Request){
 	fmt.Fprint(w, "Hello, purple wing!")
 }
 
-//main handler: for home page
+// main handler: for home page
 func Home(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	data := data{
@@ -47,4 +47,16 @@ func Home(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/pages/main.html"))
 
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderMain")
+}
+
+
+// json main handler: for home page
+func HomeJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	data := data{
+		auth.CurrentUser(r, c),		
+		"Home handler",
+	}
+	
+	templateshlp.RenderJson(w, c, data)
 }

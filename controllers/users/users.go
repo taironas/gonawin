@@ -44,6 +44,7 @@ type Form struct {
 	ErrorEmail string
 }
 
+// Show handler
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
@@ -89,4 +90,39 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
+}
+
+// Json Show handler
+func ShowJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	userId, err := handlers.PermalinkID(r, c, 3)
+	if err != nil{
+		http.Redirect(w,r, "/m/users/", http.StatusFound)
+		return
+	}
+	
+	var user *usermdl.User
+	user, err = usermdl.ById(c,userId)
+	if err != nil{
+		helpers.Error404(w)
+		return
+	}
+	
+	teams := teamrelshlp.Teams(c, userId)
+	tournaments := tournamentrelshlp.Tournaments(c, userId)
+	teamRequests := teamrelshlp.TeamsRequests(c, teams)
+	
+	userData := struct { 
+		User *usermdl.User
+		Teams []*teammdl.Team
+		Tournaments []*tournamentmdl.Tournament
+		TeamRequests []*teamrequestmdl.TeamRequest
+	}{
+		user,
+		teams,
+		tournaments,
+		teamRequests,
+	}
+	templateshlp.RenderJson(w, c, userData)
 }

@@ -27,7 +27,7 @@ import (
 
 )
 
-//contact handler: for contact page
+// contact handler: for contact page
 func Contact(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	data := data{
@@ -42,4 +42,14 @@ func Contact(w http.ResponseWriter, r *http.Request){
 		ParseFiles("templates/pages/contact.html"))
 
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderContact")
+}
+
+// json contact handler: for contact page
+func ContactJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	data := data{
+		auth.CurrentUser(r, c),		
+		"Contact handler",
+	}
+	templateshlp.RenderJson(w, c, data)
 }
