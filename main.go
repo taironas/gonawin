@@ -95,6 +95,9 @@ func init(){
 	h.HandleFunc("/m/teamrels/[0-9]+/?", handlers.User(teamrelsctrl.Show))
 	h.HandleFunc("/m/tournamentrels/[0-9]+/?", handlers.User(tournamentrelsctrl.Show))
 	h.HandleFunc("/m/tournamentteamrels/[0-9]+/?", handlers.User(tournamentteamrelsctrl.Show))
+	h.HandleFunc("/j/teamrels/[0-9]+/?", handlers.User(teamrelsctrl.ShowJson))
+	h.HandleFunc("/j/tournamentrels/[0-9]+/?", handlers.User(tournamentrelsctrl.ShowJson))
+	h.HandleFunc("/j/tournamentteamrels/[0-9]+/?", handlers.User(tournamentteamrelsctrl.ShowJson))
 	
 	// settings
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))

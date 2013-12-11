@@ -26,6 +26,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// show handler for tournament teams realtionship
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -53,3 +54,30 @@ func Show(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
 
+// show handler for tournament teams realtionship
+func ShowJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+	}
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+	}
+
+	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
+		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
+			log.Errorf(c, " tournamentteamrels.Show: %v", err)
+		}
+	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
+		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
+			log.Errorf(c, " tournamentteamrels.Show: %v", err)
+		}
+	}
+	
+	http.Redirect(w,r, "/j/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
+}

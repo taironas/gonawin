@@ -27,6 +27,7 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
+// show handler for tournament relationships
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -47,4 +48,27 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
+}
+
+// json show handler for tournament relationships
+func ShowJson(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournaments.Show, string value could not be parsed: %v", err)
+	}
+
+	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+			log.Errorf(c, " tournamentrels.Show: %v", err)
+		}
+	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
+		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+			log.Errorf(c, " tournamentrels.Show: %v", err)
+		}
+	}
+	
+	http.Redirect(w,r, "/j/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
