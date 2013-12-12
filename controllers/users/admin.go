@@ -42,11 +42,12 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 
 
 // Json Admin show handler
-func AdminShowJson(w http.ResponseWriter, r *http.Request){
+func AdminShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
-	templateshlp.RenderJson(w, c, nil)
+	return templateshlp.RenderJson(w, c, nil)
 }
 
+// Admin users handler
 func AdminUsers(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
@@ -67,7 +68,8 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, users, funcs, "renderAdminUsersShow")
 }
 
-func AdminUsersJson(w http.ResponseWriter, r *http.Request){
+// json admin users handler
+func AdminUsersJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
 	// sample of users
@@ -77,7 +79,7 @@ func AdminUsersJson(w http.ResponseWriter, r *http.Request){
 	users := [] usermdl.User{user1, user2, user3}
 	// end samlpe of users
 
-	templateshlp.RenderJson(w, c, users)
+	return templateshlp.RenderJson(w, c, users)
 }
 
 

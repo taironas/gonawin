@@ -93,20 +93,18 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // Json Show handler
-func ShowJson(w http.ResponseWriter, r *http.Request){
+func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
 	userId, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		http.Redirect(w,r, "/m/users/", http.StatusFound)
-		return
+		return helpers.BadRequest{err}
 	}
 	
 	var user *usermdl.User
 	user, err = usermdl.ById(c,userId)
 	if err != nil{
-		helpers.Error404(w)
-		return
+		return helpers.BadRequest{err}
 	}
 	
 	teams := teamrelshlp.Teams(c, userId)
@@ -124,5 +122,5 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		tournaments,
 		teamRequests,
 	}
-	templateshlp.RenderJson(w, c, userData)
+	return templateshlp.RenderJson(w, c, userData)
 }

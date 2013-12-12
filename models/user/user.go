@@ -79,7 +79,7 @@ func ById(c appengine.Context, id int64) (*User, error) {
 
 	if err := datastore.Get(c, key, &u); err != nil {
 		log.Errorf(c, " user not found : %v", err)
-		return &u, err
+		return nil, err
 	}
 	return &u, nil
 }

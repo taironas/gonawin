@@ -28,6 +28,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 
 )
+
 // is it a user?
 func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

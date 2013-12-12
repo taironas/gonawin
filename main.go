@@ -60,13 +60,13 @@ func init(){
 
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
-	h.HandleFunc("/j/users/[0-9]+/?", handlers.User(usersctrl.ShowJson))
+	h.HandleFunc("/j/users/[0-9]+/?", handlers.User(handlers.ErrorHandler(usersctrl.ShowJson)))
 
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
 	h.HandleFunc("/m/a/users/?", handlers.Admin(usersctrl.AdminUsers))
-	h.HandleFunc("/j/a/?", handlers.Admin(usersctrl.AdminShowJson))
-	h.HandleFunc("/j/a/users/?", handlers.Admin(usersctrl.AdminUsersJson))
+	h.HandleFunc("/j/a/?", handlers.Admin(handlers.ErrorHandler(usersctrl.AdminShowJson)))
+	h.HandleFunc("/j/a/users/?", handlers.Admin(handlers.ErrorHandler(usersctrl.AdminUsersJson)))
 
 	// team
 	// server handler
