@@ -27,3 +27,11 @@ func Error404(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	io.WriteString(w, "404: Not Found")
 }
+
+// inspired by https://github.com/campoy/todo
+
+// BadRequest is handled by setting the status code in the reply to StatusBadRequest.
+type BadRequest struct{error}
+
+// NotFound is handled by setting the status code in the reply to StatusNotFound.
+type NotFound struct{error}

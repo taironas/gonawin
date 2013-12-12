@@ -44,15 +44,25 @@ func About(w http.ResponseWriter, r *http.Request){
 }
 
 // json about handler: for about page
-func AboutJson(w http.ResponseWriter, r *http.Request){
+func AboutJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	data := data{
 		auth.CurrentUser(r, c),		
 		"About handler",
 	}
 	
-	templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, data)
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
