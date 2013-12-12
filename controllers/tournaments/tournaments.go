@@ -17,6 +17,7 @@
 package tournaments
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 	"fmt"
@@ -95,7 +96,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 }
 
 // json index tournaments handler
-func IndexJson(w http.ResponseWriter, r *http.Request){
+func IndexJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
 	var data indexData	
@@ -108,7 +109,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request){
 	} else if r.Method == "POST" {
 		if query := r.FormValue("TournamentInputSearch"); len(query) == 0 {
 			http.Redirect(w, r, "tournaments", http.StatusFound)
-			return
+			return nil
 		} else {
 			words := helpers.SetOfStrings(query)
 			ids, err := tournamentinvmdl.GetIndexes(c, words)
@@ -124,11 +125,10 @@ func IndexJson(w http.ResponseWriter, r *http.Request){
 			data.TournamentInputSearch = query
 		}
 	} else {
-		helpers.Error404(w)
-		return
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
 		
-	templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // new tournament handler
@@ -169,7 +169,7 @@ func New(w http.ResponseWriter, r *http.Request){
 }
 
 // json new tournament handler
-func NewJson(w http.ResponseWriter, r *http.Request){
+func NewJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	var form Form
@@ -190,14 +190,13 @@ func NewJson(w http.ResponseWriter, r *http.Request){
 			}
 			// redirect to the newly created tournament page
 			http.Redirect(w, r, "/j/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
-			return
+			return nil
 		}
 	} else {
-		helpers.Error404(w)
-		return
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
 		
-	templateshlp.RenderJson(w, c, form)
+	return templateshlp.RenderJson(w, c, form)
 }
 
 // show tournament handler
@@ -275,14 +274,13 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // Json show tournament handler
-func ShowJson(w http.ResponseWriter, r *http.Request){
+func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		log.Errorf(c, " Unable to find ID in request %v",r)
-		http.Redirect(w, r, "/j/tournaments/", http.StatusFound)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
@@ -302,19 +300,16 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		tournamentmdl.Destroy(c, intID)
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
-		return
+		return nil
 	} else if r.Method != "GET"{
 		log.Errorf(c, " request method not supported")
-		helpers.Error404(w)
-		return
+		return helpers.BadRequest{errors.New("Not supported.")}
 	}
 	
 	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(c, intID)
-	
+	tournament, err = tournamentmdl.ById(c, intID)	
 	if err != nil{
-		helpers.Error404(w)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	participants := tournamentrelshlp.Participants(c, intID)
@@ -332,7 +327,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		teams,
 		candidateTeams,
 	}
-	templateshlp.RenderJson(w, c, tournamentData)
+	return templateshlp.RenderJson(w, c, tournamentData)
 }
 
 //  Edit tournament handler
@@ -388,32 +383,28 @@ func Edit(w http.ResponseWriter, r *http.Request){
 }
 
 //  Json Edit tournament handler
-func EditJson(w http.ResponseWriter, r *http.Request){
+func EditJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		http.Redirect(w,r, "/j/tournaments/", http.StatusFound)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
 		http.Redirect(w, r, "/j", http.StatusFound)
-		return
+		return nil
 	}
 
 	var tournament *tournamentmdl.Tournament
 	tournament, err = tournamentmdl.ById(c, intID)
 	if err != nil{
 		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
-		helpers.Error404(w)
-		return
+		return helpers.NotFound{err}
 	}
 		
 	if r.Method == "GET" {
-
-		templateshlp.RenderJson(w, c, tournament)
-
+		return templateshlp.RenderJson(w, c, tournament)
 	} else if r.Method == "POST" {
 		
 		// only work on name other values should not be editable
@@ -427,8 +418,8 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 		}
 		url := fmt.Sprintf("/j/tournaments/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
-		return
+		return nil
 	} else {
-		helpers.Error404(w)
+		return helpers.BadRequest{errors.New("Not supported.")}
 	}
 }
