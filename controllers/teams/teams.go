@@ -17,6 +17,7 @@
 package teams
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -53,6 +54,7 @@ type indexData struct{
 	TeamInputSearch string	
 }
 
+// team handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	
@@ -82,6 +84,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		helpers.Error404(w)
+		return
 	}
 	
 	t := template.Must(template.New("tmpl_team_index").
@@ -95,7 +98,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 // json index handler
-func IndexJson(w http.ResponseWriter, r *http.Request) {
+func IndexJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	var data indexData
@@ -107,7 +110,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) {
 	} else if r.Method == "POST" {
 		if query := r.FormValue("TeamInputSearch"); len(query) == 0 {
 			http.Redirect(w, r, "teams", http.StatusFound)
-			return
+			return nil
 		} else {
 			words := helpers.SetOfStrings(query)
 			ids, err := teaminvidmdl.GetIndexes(c, words)
@@ -123,10 +126,10 @@ func IndexJson(w http.ResponseWriter, r *http.Request) {
 			data.TeamInputSearch = query
 		}
 	} else {
-		helpers.Error404(w)
+		return helpers.BadRequest{errors.New("not supported")}
 	}
 
-	templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Team new handler 
@@ -172,7 +175,7 @@ func New(w http.ResponseWriter, r *http.Request){
 }
 
 // Json Team new handler 
-func NewJson(w http.ResponseWriter, r *http.Request){
+func NewJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	var form NewForm
@@ -199,13 +202,13 @@ func NewJson(w http.ResponseWriter, r *http.Request){
 			}
 			// redirect to the newly created team page
 			http.Redirect(w, r, "/j/teams/" + fmt.Sprintf("%d", team.Id), http.StatusFound)
-			return
+			return nil
 		}
 	} else{
-		helpers.Error404(w)
+		return helpers.BadRequest{errors.New("not supported")}
 	}
 
-	templateshlp.RenderJson(w, c, form)
+	return templateshlp.RenderJson(w, c, form)
 }
 
 // Team show handler
@@ -271,13 +274,12 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // Json Team show handler
-func ShowJson(w http.ResponseWriter, r *http.Request){
+func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		http.Redirect(w,r, "/j/teams/", http.StatusFound)
-		return
+		return helpers.NotFound{err}
 	} 
 
 	if r.Method == "POST" && r.FormValue("Action") == "delete" {
@@ -297,17 +299,14 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		teammdl.Destroy(c, intID)
 		
 		http.Redirect(w, r, "/j/teams", http.StatusFound)
-		return
+		return nil
 	} else if (r.Method != "GET"){
-		log.Errorf(c, " request method not supported")
-		helpers.Error404(w)
-		return	
+		return helpers.BadRequest{errors.New("not supported")}
 	}
 
 	var team *teammdl.Team
 	if team, err = teammdl.ById(c, intID); err != nil{
-		helpers.Error404(w)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	players := teamrelshlp.Players(c, intID)
@@ -320,7 +319,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 		players,
 	}
 
-	templateshlp.RenderJson(w, c, teamData)
+	return templateshlp.RenderJson(w, c, teamData)
 }
 
 // Team Edit handler
@@ -384,18 +383,17 @@ func Edit(w http.ResponseWriter, r *http.Request){
 }
 
 // Team Edit handler
-func EditJson(w http.ResponseWriter, r *http.Request){
+func EditJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		http.Redirect(w,r, "/j/teams/", http.StatusFound)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	if !teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) {
 		http.Redirect(w, r, "/j", http.StatusFound)
-		return
+		return nil
 	}
 	
 	if r.Method == "GET" {
@@ -404,10 +402,9 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 		team, err = teammdl.ById(c, intID)
 
 		if err != nil{
-			helpers.Error404(w)
-			return
+			return helpers.NotFound{err}
 		}
-		templateshlp.RenderJson(w, c, team)
+		return templateshlp.RenderJson(w, c, team)
 
 	} else if r.Method == "POST"{
 		
@@ -415,8 +412,7 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 		team, err = teammdl.ById(c,intID)
 		if err != nil{
 			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)		
-			helpers.Error404(w)
-			return
+			return helpers.NotFound{err}
 		}
 		// only work on name and private. Other values should not be editable
 		editName := r.FormValue("Name")
@@ -432,9 +428,9 @@ func EditJson(w http.ResponseWriter, r *http.Request){
 		}
 		url := fmt.Sprintf("/j/teams/%d",intID)
 		http.Redirect(w, r, url, http.StatusFound)
-		return
+		return nil
 	} else {
-		helpers.Error404(w)
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
 }
 
@@ -460,13 +456,12 @@ func Invite(w http.ResponseWriter, r *http.Request){
 }
 
 // json Invite handler
-func InviteJson(w http.ResponseWriter, r *http.Request){
+func InviteJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		http.Redirect(w,r, "/j/teams/", http.StatusFound)
-		return
+		return helpers.NotFound{err}
 	}
 	
 	if r.Method == "POST"{
@@ -476,8 +471,10 @@ func InviteJson(w http.ResponseWriter, r *http.Request){
 		
 		url := fmt.Sprintf("/m/teams/%d", intID)
 		http.Redirect(w, r, url, http.StatusFound)
-		return
+		return nil
 	}
+	return helpers.NotFound{errors.New("Not supported.")}
+	
 }
 
 // Request handler
@@ -509,7 +506,7 @@ func Request(w http.ResponseWriter, r *http.Request){
 }
 
 // Json Request handler
-func RequestJson(w http.ResponseWriter, r *http.Request){
+func RequestJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST"{
@@ -517,6 +514,7 @@ func RequestJson(w http.ResponseWriter, r *http.Request){
 		requestId, err := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
 		if err != nil {
 			log.Errorf(c, " teams.Request, string value could not be parsed: %v", err)
+			return helpers.NotFound{err}
 		}
 		
 		if r.FormValue("SubmitButton") == "Accept" {
@@ -532,6 +530,7 @@ func RequestJson(w http.ResponseWriter, r *http.Request){
 		
 		url := fmt.Sprintf("/j/users/%d", auth.CurrentUser(r, c).Id)
 		http.Redirect(w, r, url, http.StatusFound)
-		return
+		return nil
 	}
+	return helpers.BadRequest{errors.New("not supported.")}
 }
