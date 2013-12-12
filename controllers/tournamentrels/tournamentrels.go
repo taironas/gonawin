@@ -22,6 +22,7 @@ import (
 	
 	"appengine"
 
+	"github.com/santiaago/purple-wing/helpers"	
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
@@ -51,13 +52,14 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // json show handler for tournament relationships
-func ShowJson(w http.ResponseWriter, r *http.Request){
+func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
 		log.Errorf(c, " tournaments.Show, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
 	}
 
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
@@ -71,4 +73,5 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 	}
 	
 	http.Redirect(w,r, "/j/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
+	return nil
 }

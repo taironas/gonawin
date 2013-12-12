@@ -62,13 +62,11 @@ func Profile(w http.ResponseWriter, r *http.Request){
 }
 
 // json user profile handler
-func ProfileJson(w http.ResponseWriter, r *http.Request){
+func ProfileJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "GET" {
-
-		templateshlp.RenderJson(w, c, auth.CurrentUser(r, c))
-
+		return templateshlp.RenderJson(w, c, auth.CurrentUser(r, c))
 	}else if r.Method == "POST"{
 		currentUser := auth.CurrentUser(r, c)
 		
@@ -83,6 +81,7 @@ func ProfileJson(w http.ResponseWriter, r *http.Request){
 		
 		http.Redirect(w, r, "/j/settings/edit-profile", http.StatusFound)
 	}
+	return nil
 }
 
 // user social networks handler
@@ -98,10 +97,10 @@ func Networks(w http.ResponseWriter, r *http.Request){
 }
 
 // user social networks handler
-func NetworksJson(w http.ResponseWriter, r *http.Request){
+func NetworksJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
-	templateshlp.RenderJson(w, c, nil)
+	return templateshlp.RenderJson(w, c, nil)
 }
 
 // email handler
@@ -117,8 +116,8 @@ func Email(w http.ResponseWriter, r *http.Request){
 }
 
 // json email handler
-func EmailJson(w http.ResponseWriter, r *http.Request){
+func EmailJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
-	templateshlp.RenderJson(w, c, nil)
+	return templateshlp.RenderJson(w, c, nil)
 }

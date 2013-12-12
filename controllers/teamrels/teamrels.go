@@ -22,6 +22,7 @@ import (
 	
 	"appengine"
 
+	"github.com/santiaago/purple-wing/helpers"	
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	teammdl "github.com/santiaago/purple-wing/models/team"
@@ -55,13 +56,14 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // json show handler for team relations
-func ShowJson(w http.ResponseWriter, r *http.Request){
+func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
 	if err != nil {
 		log.Errorf(c, " teamRels.Show, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
 	}
 	
 	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
@@ -79,5 +81,6 @@ func ShowJson(w http.ResponseWriter, r *http.Request){
 	}
 	
 	http.Redirect(w,r, "/j/teams/"+r.FormValue("TeamId"), http.StatusFound)
+	return nil
 }
 

@@ -17,6 +17,7 @@
 package invite
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -102,7 +103,7 @@ func Email(w http.ResponseWriter, r *http.Request){
 }
 
 // Json Email invite handler
-func EmailJson(w http.ResponseWriter, r *http.Request){
+func EmailJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
 	var form InviteForm
@@ -138,11 +139,11 @@ func EmailJson(w http.ResponseWriter, r *http.Request){
 					}
 				}				
 				http.Redirect(w, r, "/j/", http.StatusFound)
-				return
+				return nil
 			} 
 		}
 	}else {
-		helpers.Error404(w)
+		return helpers.BadRequest{errors.New("Not supported.")}
 	}
-	templateshlp.RenderJson(w, c, form)
+	return templateshlp.RenderJson(w, c, form)
 }
