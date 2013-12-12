@@ -1,42 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="purpleWingApp">
   
-<head>
-  <title>purple-wing</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link type="text/css" rel="stylesheet" href="/static/css/main.css" />
-  
-  <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-  <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
-  <link href="/static/css/social-buttons.css" rel="stylesheet">
-</head>
-
+	<head>
+		<title>purple-wing</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="/static/css/main.css" />
+		
+		<link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+		<link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
+		<link href="/static/css/social-buttons.css" rel="stylesheet">
+	</head>
   <body>
     
 		<div class="container">
-			<div class="navigation">
-				<ul class="nav nav-pills pull-right">
-					
+			<div ng-controller="SessionController">
+				<div class="navigation">
+					<ul class="nav nav-pills pull-right">
+							<li ng-show="loggedIn"><button class="btn btn-info" ng-click="disconnect()">logout</button></li>	
+					</ul>
+					<h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
+				</div>
+
+				<div class="hero-unit">
+						<h1>Welcome!</h1><br>
+						<p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
+						<div ng-hide="loggedIn">
+							<div id="login-button"></div>
+						</div>
+				</div>
+				<h4>Home page</h4>
+				<p>Home handler</p>
+				<hr>
+				<br>
+				<b>Contributors:</b>
+				<ul>
+					<li>Santiago (sar)</li>
+					<li>Carlos (cab)</li>
+					<li>Remy (rej)</li>
 				</ul>
-				<h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
-			</div>
-
-			<div class="hero-unit">
-				<h1>Welcome!</h1><br>
-				<p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
-				<a href="/ng/auth" class="btn btn-large btn-success">Sign in</a>
-			</div>
-			<h4>Home page</h4>
-			<p>Home handler</p>
-			<hr>
-			<br>
-			<b>Contributors:</b>
-			<ul>
-				<li>Santiago (sar)</li>
-				<li>Carlos (cab)</li>
-				<li>Remy (rej)</li>
-			</ul>
-
+			</div> <!-- end SessionController -->
 			<br>
 				
 			<div class="footer">
@@ -46,5 +48,12 @@
 
 		<script src="/static/lib/jquery-1.10.2.min.js"></script>
 		<script src="/static/lib/bootstrap.min.js"></script>
+		<script src="https://apis.google.com/js/plusone.js"></script>
+		<script src="/static/lib/angular/angular.js"></script>
+		<script src="/static/lib/angular/angular-sanitize.js"></script>
+		<script src="/static/lib/angular/angular-cookies.js"></script>
+		<script src="/static/js/app.js"></script>
+		<script src="/static/js/controllers/SessionController.js"></script>
+		<script src="/static/js/directives/google-plus-signin.js"></script>
   </body>
 </html>

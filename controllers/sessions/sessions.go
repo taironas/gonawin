@@ -18,9 +18,9 @@ package sessions
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"net/url"
-	"html/template"
 	"strconv"
 	"time"
 	
@@ -35,6 +35,8 @@ import (
 	
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const root string = "/m"
@@ -106,6 +108,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)	
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
+	
 	t := &oauth2.Transport{
 		Config: googleConfig(r.Host),
 		Transport: &urlfetch.Transport{
@@ -113,17 +116,24 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 		},
 	}
 	
+	var err error
 	var userInfo *userhlp.GPlusUserInfo
+	var user *usermdl.User
 	
-	if _, err := t.Exchange(code); err == nil {
+	if _, err = t.Exchange(code); err == nil {
 		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
 	if authhlp.IsAuthorizedWithGoogle(userInfo) {
-		if err := authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if user, err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
+		
+		// set 'auth' cookie
+		authhlp.SetAuthCookie(w, user.Auth)
+		// store in memcache auth key in memcaches
+		authhlp.StoreAuthKey(c, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -187,7 +197,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	}
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
-		if err := authhlp.SignupUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
+		if _, err := authhlp.SignupUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
 			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -254,7 +264,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	if authhlp.IsAuthorizedWithFacebook(userInfo){
-		if err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if _, err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 			log.Errorf(c, " SignupUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return

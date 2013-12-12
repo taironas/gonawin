@@ -145,7 +145,7 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	return nil
 }
 
-func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) error{
+func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*usermdl.User, error) {
 
 	c := appengine.NewContext(r)
 	var user *usermdl.User
@@ -156,7 +156,7 @@ func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	} else if queryName == "Username" {
 		queryValue = username
 	} else {
-		return errors.New("helpers/auth: no valid query name.")
+		return nil, errors.New("helpers/auth: no valid query name.")
 	}
 	
 	// find user
@@ -164,14 +164,11 @@ func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 		// create user if it does not exist
 		if userCreate, err := usermdl.Create(c, email, username, name, GenerateAuthKey()); err != nil{
 			log.Errorf(c, "Signup: %v", err)
-			return errors.New("helpers/auth: Unable to create user.")
+			return nil, errors.New("helpers/auth: Unable to create user.")
 		}else{
 			user = userCreate
 		}
 	}
-	// set 'auth' cookie
-	SetAuthCookie(w, user.Auth)
-	// store in memcache auth key in memcaches
-	StoreAuthKey(c, user.Id, user.Auth)
-	return nil
+	
+	return user, nil
 }

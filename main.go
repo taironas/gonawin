@@ -55,6 +55,8 @@ func init(){
 	h.HandleFunc("/m/auth/twitter/?", sessionsctrl.AuthenticateWithTwitter)
 	h.HandleFunc("/m/auth/twitter/callback/?", sessionsctrl.TwitterAuthCallback)
 	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
+	// session - json
+	h.HandleFunc("/ng/auth/google/callback/?", sessionsctrl.JsonGoogleAuth)
 
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))

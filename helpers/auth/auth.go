@@ -26,10 +26,10 @@ import (
 const kOfflineMode bool = false
 
 const kEmailRjourde = "remy.jourde@gmail.com"
-const kEemailSarias = "santiago.ariassar@gmail.com"
+const kEmailSarias = "santiago.ariassar@gmail.com"
 
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
 
 func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
@@ -37,7 +37,7 @@ func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
 }
 
 func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEemailSarias)
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property

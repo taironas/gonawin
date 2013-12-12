@@ -20,6 +20,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	
+	"appengine"
+	
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 
@@ -59,8 +63,10 @@ type MetadataType struct{
 }
 
 func FetchGPlusUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error) {
+	co := appengine.NewContext(r)	
 	// Make the request.
 	request, err := c.Get("https://www.googleapis.com/oauth2/v1/userinfo?alt=json")
+	log.Infof(co, "FetchGPlusUserInfo request: %q", request)
 	
 	if err != nil {
 		return nil, err
@@ -70,11 +76,13 @@ func FetchGPlusUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error)
 	
 	if body, err := ioutil.ReadAll(request.Body); err == nil {
 		var ui *GPlusUserInfo
-
+		log.Infof(co, "FetchGPlusUserInfo body: %q", body)
 		if err := json.Unmarshal(body, &ui); err == nil {
 			return ui, err
 		}	
 	}
+	
+	log.Infof(co, "FetchGPlusUserInfo err: %v", err)
 
 	return nil, err
 }
