@@ -23,6 +23,7 @@ import (
 
 	"appengine"	
 	
+	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
 
@@ -58,4 +59,24 @@ func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error
 		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v",path[level], err)
 	}
 	return intID, err
+}
+
+
+func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc{
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := f(w, r)
+		if err == nil{
+			return
+		}
+		switch err.(type){
+		case helpers.BadRequest:
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		case helpers.NotFound:
+			http.Error(w, err.Error(), http.StatusNotFound)
+		default:
+			c := appengine.NewContext(r)
+			log.Errorf(c, "%v", err)
+			http.Error(w, "Sorry, something went wrong.", http.StatusInternalServerError)
+		}
+	}
 }

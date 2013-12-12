@@ -45,11 +45,11 @@ func Contact(w http.ResponseWriter, r *http.Request){
 }
 
 // json contact handler: for contact page
-func ContactJson(w http.ResponseWriter, r *http.Request){
+func ContactJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	data := data{
 		auth.CurrentUser(r, c),		
 		"Contact handler",
 	}
-	templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, data)
 }

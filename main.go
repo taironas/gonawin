@@ -19,11 +19,7 @@ package pw
 import (
 	"net/http"
 
-	"appengine"
-
 	"github.com/santiaago/purple-wing/helpers/handlers"
-	"github.com/santiaago/purple-wing/helpers/log"
-	"github.com/santiaago/purple-wing/helpers"
 	
 	pagesctrl "github.com/santiaago/purple-wing/controllers/pages"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
@@ -37,26 +33,6 @@ import (
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 )
 
-func errorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc{
-	return func(w http.ResponseWriter, r *http.Request) {
-		err := f(w, r)
-		if err == nil{
-			return
-		}
-		switch err.(type){
-		case helpers.BadRequest:
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		case helpers.NotFound:
-			http.Error(w, err.Error(), http.StatusNotFound)
-		default:
-			c := appengine.NewContext(r)
-			log.Errorf(c, "%v", err)
-			http.Error(w, "Sorry, something went wrong.", http.StatusInternalServerError)
-		}
-	}
-}
-
-
 func init(){
 	h := new(handlers.RegexpHandler)
 
@@ -66,9 +42,9 @@ func init(){
 	h.HandleFunc("/m/?", pagesctrl.Home)
 	h.HandleFunc("/m/about/?", pagesctrl.About)
 	h.HandleFunc("/m/contact/?", pagesctrl.Contact)
-	h.HandleFunc("/j/?", pagesctrl.HomeJson)
-	h.HandleFunc("/j/about/?", errorHandler(pagesctrl.AboutJson))
-	h.HandleFunc("/j/contact/?", pagesctrl.ContactJson)
+	h.HandleFunc("/j/?", handlers.ErrorHandler(pagesctrl.HomeJson))
+	h.HandleFunc("/j/about/?", handlers.ErrorHandler(pagesctrl.AboutJson))
+	h.HandleFunc("/j/contact/?", handlers.ErrorHandler(pagesctrl.ContactJson))
 
 	// session
 	h.HandleFunc("/m/auth/?", sessionsctrl.Authenticate)

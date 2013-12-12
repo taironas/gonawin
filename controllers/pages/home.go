@@ -51,12 +51,12 @@ func Home(w http.ResponseWriter, r *http.Request){
 
 
 // json main handler: for home page
-func HomeJson(w http.ResponseWriter, r *http.Request){
+func HomeJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	data := data{
 		auth.CurrentUser(r, c),		
 		"Home handler",
 	}
 	
-	templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, data)
 }
