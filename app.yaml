@@ -6,11 +6,11 @@ api_version: go1
 handlers:
 
 - url: /ng
-  static_files: index.html
-  upload: index\.html
+  static_files: static/index.html
+  upload: static/index.html
 
 - url: /static
-  static_dir: static/
+  static_dir: static
   
 - url: /.*
   script: _go_app
