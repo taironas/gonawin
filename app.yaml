@@ -11,6 +11,9 @@ handlers:
 
 - url: /static
   static_dir: static
-  
+
+- url: /templates
+  static_dir: static/templates
+
 - url: /.*
   script: _go_app
