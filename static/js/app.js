@@ -15,6 +15,11 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 			    {
 				templateUrl: 'templates/contact.html'
 			    });
+	$routeProvider.when('/users/:userId',
+			    {
+				templateUrl: 'templates/user_show.html',
+				controller: 'UserShowController'
+			    });
 	$routeProvider.otherwise( {redirectTo: '/'});
     })
     .factory('myCache', function($cacheFactory){
