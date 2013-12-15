@@ -40,6 +40,26 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 				templateUrl: 'templates/teams_edit.html',
 				controller: 'TeamsEditController'
 			    });
+	$routeProvider.when('/tournaments',
+			    {
+				templateUrl: 'templates/tournaments.html',
+				controller: 'TournamentsController'
+			    });
+	$routeProvider.when('/tournaments/new',
+			    {
+				templateUrl: 'templates/tournaments_new.html',
+				controller: 'TournamentsNewController'
+			    });
+	$routeProvider.when('/tournaments/:tournamentId',
+			    {
+				templateUrl: 'templates/tournaments_show.html',
+				controller: 'TournamentsShowController'
+			    });
+	$routeProvider.when('/tournaments/:tournamentId/edit',
+			    {
+				templateUrl: 'templates/tournaments_edit.html',
+				controller: 'TournamentsEditController'
+			    });
 	$routeProvider.when('/settings/edit-profile',
 			    {
 				templateUrl: 'templates/settings_edit-profile.html',

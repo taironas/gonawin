@@ -1,0 +1,34 @@
+<div class="page-header">
+  <h1><a href="/m/tournaments">Tournaments</a></h1>
+  
+  <div class="btn-toolbar">
+    <a class="btn btn-primary" href="/ng#/tournaments/new"><i class="icon-plus icon-white"></i> Create</a>
+    <!-- search box -->
+    <div class="control-group search-box">
+      <div class="controls">
+	<div class="input-prepend">
+	  <span class="add-on"><i class="icon-search"></i></span>
+	  <form method="post" action="/ng#/tournaments">
+	    <input class="span2" id="inputIcon" type="text" name="TournamentInputSearch" value="{{tournamentsData.TournamentInputSearch}}">
+	  </form>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-content">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Id</th>
+	<th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="tournament in tournamentsData.Tournaments">
+	<td>{{tournament.Id}}</td>
+	<td><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
