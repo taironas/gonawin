@@ -1,0 +1,42 @@
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="page-header">
+	<h1>Email Invitation</h1>
+      </div>
+      
+      <h3>Invite people you know to join purple-wing</h3>
+      <p>We'll be sending them a message that looks like this. Enter their email address below (separated by commas, please).</p>
+      <br />
+
+      <div ng-show={{inviteData.Error}}>
+	<div class="alert alert-error">
+	  {{inviteData.Error}}.
+	</div>
+      </div>
+      <form accept-charset="UTF-8" action="/m/invite" method="post">
+
+	<div id="email">
+	  <p>
+	    From: {{inviteData.Name}}<br />
+	    Subject: <strong>{{inviteData.Name}} wants you to join Purple-wing!</strong>
+	  </p>
+	  <p class="email-body">
+	    Hi there -<br />
+	    Join us on Purple-wing.<br /><br />
+	    You will be able to bet on tournament and win some rewards!<br /><br />
+	    Sign in here: http://localhost:8080/m/auth<br /><br />
+	    Have fun,<br />
+	    Your friends @ purple-wing
+	  </p>
+	</div>
+
+	<div id="invite">
+	  <textarea rows="4" name="emails_area" cols="50">{{inviteData.EmailsList}}</textarea>
+	  <input class="btn" name="invite" type="submit" value="Invite friends" />
+	</div>
+
+      </form>
+    </div>
+  </div>
+</div>
