@@ -9,8 +9,11 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 			    });
 	$routeProvider.when('/about',
 			    {
-				templateUrl: 'templates/about.html',
-				controller: 'AboutController'
+				templateUrl: 'templates/about.html'
+			    });
+	$routeProvider.when('/contact',
+			    {
+				templateUrl: 'templates/contact.html'
 			    });
 	$routeProvider.otherwise( {redirectTo: '/'});
     })
