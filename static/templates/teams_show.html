@@ -41,7 +41,7 @@
 <!-- {{if IsTeamAdmin}} -->
 	<div class="form-actions">
 		<form accept-charset="UTF-8" action="/m/teams/{{teamData.Team.Id}}" class="form-horizontal" method="post">
-			<a href="/m/teams/{{teamData.Team.Id}}/edit" class="btn"><span>Edit</span></a>
+			<a href="/ng#/teams/{{teamData.Team.Id}}/edit" class="btn"><span>Edit</span></a>
 			<input id="action" name="Action" type="hidden" value="delete" />
 			<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');">Delete</button>
 		</form>
