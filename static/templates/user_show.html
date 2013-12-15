@@ -1,6 +1,7 @@
 <div class="page-header">
 	<h1>ng User</h1>
 </div>
+<!-- User: -->
 <dl class="dl-horizontal">
 	<dt><strong>Id:</strong></dt>
 	<dd>{{userData.User.Id}}</dd>
@@ -11,3 +12,20 @@
 	<dt><strong>Email:</strong></dt>
 	<dd>{{userData.User.Email}}</dd>
 </dl>
+<!-- /User -->
+<!-- Team: -->
+<div class="teams">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Teams</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="team in userData.Teams">
+	<td><a href="/m/teams/{{team.Id}}">{{team.Name}}</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- /Team -->
