@@ -1,16 +1,16 @@
 <div class="page-header">
-	<h1>ng User</h1>
+  <h4>ng User</h1>
 </div>
 <!-- User: -->
 <dl class="dl-horizontal">
-	<dt><strong>Id:</strong></dt>
-	<dd>{{userData.User.Id}}</dd>
-	<dt><strong>Username:</strong></dt>
-	<dd>{{userData.User.Username}}</dd>
-	<dt><strong>Name:</strong></dt>
-	<dd>{{userData.User.Name}}</dd>
-	<dt><strong>Email:</strong></dt>
-	<dd>{{userData.User.Email}}</dd>
+  <dt><strong>Id:</strong></dt>
+  <dd>{{userData.User.Id}}</dd>
+  <dt><strong>Username:</strong></dt>
+  <dd>{{userData.User.Username}}</dd>
+  <dt><strong>Name:</strong></dt>
+  <dd>{{userData.User.Name}}</dd>
+  <dt><strong>Email:</strong></dt>
+  <dd>{{userData.User.Email}}</dd>
 </dl>
 <!-- /User -->
 <!-- Team: -->
@@ -29,3 +29,40 @@
   </table>
 </div>
 <!-- /Team -->
+<!-- Tournaments: -->
+<div class="tournaments">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Tournaments</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="tournament in userData.Tournaments">
+	<td><a href="/m/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- /Tournaments -->
+<!-- Requests: -->
+<div class="requests">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Requests</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="request in userData.Requests">
+	<form accept-charset="UTF-8" action="/m/teams/{{request.TeamId}}/request" class="form-horizontal" method="post">
+	  <td><a href="/m/users/{{request..UserId}}">User {{request..UserId}}</a> wants to join <a href="/m/teams/{{request..TeamId}}">Team {{request..TeamId}}</a></td>
+	  <input id="request_id" name="RequestId" type="hidden" value="{{request..Id}}" />
+	  <td><button class="btn btn-success" name="SubmitButton" type="submit" value="Accept"><i class="icon-ok icon-white"></td>
+	  <td><button class="btn btn-danger" name="SubmitButton" type="submit" value="Deny"><i class="icon-remove icon-white"></td>
+	</form>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- /Requests -->
