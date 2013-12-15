@@ -1,0 +1,27 @@
+<div class="page-header">
+  <h1>New Team</h1>
+</div>
+<div ng-show="{{teamsNewData.Error}}">
+  <div class="alert alert-error">
+    {{teamsNewData.Error}}.
+  </div>
+</div>
+<form accept-charset="UTF-8" action="/m/teams/new" class="form-horizontal" method="post">
+  <div class="control-group">
+    <label class="control-label" for="team_name">Name</label>
+    <div class="controls">
+      <input class="text_field" id="team_name" name="Name" size="30" type="text" value="{{teamsNewData.Name}}"/>
+    </div>
+  </div>
+  <div class="control-group">
+    <label class="control-label" for="team_name">Visibility</label>
+    <div class="controls">
+      <input class="radio" id="team_visibility" name="Visibility" type="radio" value="Public" checked/> Public (Anyone can subscribe to this team)<br>
+      <input class="radio" id="team_visibility" name="Visibility" type="radio" value="Private" /> Private (users need to request an invitation)
+    </div>
+  </div>
+  <div class="form-actions">
+    <input class="btn btn-primary" name="commit" type="submit" value="Create Team" />
+    <a href="/m/teams" class="btn">Cancel</a>
+  </div>
+</form>
