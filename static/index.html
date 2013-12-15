@@ -20,12 +20,18 @@
 	  </ul>
 	  <h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
 	</div>
-
-	<div class="hero-unit">
-	  <h1>Welcome!</h1><br>
-	  <p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
-	  <div ng-hide="loggedIn">
-	    <div id="login-button"></div>
+	<!-- 
+	     sar: 
+	     add ng-hide for better testing
+	     we need to externalize the session controller from the index.html
+	  -->
+	<div ng-hide="1">
+	  <div class="hero-unit">
+	    <h1>Welcomee!</h1><br>
+	    <p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
+	    <div ng-hide="loggedIn">
+	      <div id="login-button"></div>
+	    </div>
 	  </div>
 	</div>
       </div> <!-- end SessionController -->
@@ -33,7 +39,7 @@
       <ng-view></ng-view>
       <br>      
       <div class="footer">
-	<p>Content &copy; 2013 | Santiago Arias | Remy Jourde | Carlos Bernal | <a href="/ng/about">About</a> | <a href="/ng/contact">Contact</a></p>
+	<p>Content &copy; 2013 | Santiago Arias | Remy Jourde | Carlos Bernal | <a href="/ng#/about">About</a> | <a href="/ng#/contact">Contact</a></p>
       </div>
     </div> 
 

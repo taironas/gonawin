@@ -1,37 +1,37 @@
 /*main.css*/
 
 body {
-	padding-top: 20px;
-	padding-bottom: 40px;
+    padding-top: 20px;
+    padding-bottom: 40px;
 }
 
 .container {
-	margin: 0 auto;
-	max-width: 900px;
+    margin: 0 auto;
+    max-width: 900px;
 }
 .container > hr {
-	margin: 30px 0;
+    margin: 30px 0;
 }
 
 .footer p {
-	text-align: center;
+    text-align: center;
 }
 
 .search-box {
-	float: right;
+    float: right;
 }
 
 #email {
-	width: 400px;
-	float: left;
+    width: 400px;
+    float: left;
 }
 
 #invite {
-	width: 350px;
-	float: right;
+    width: 350px;
+    float: right;
 }
 
 .email-body {
-	color: #cb8a41;
-	font-family: monospace;
+    color: #cb8a41;
+    font-family: monospace;
 }

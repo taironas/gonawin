@@ -13,7 +13,7 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 				controller: 'AboutController'
 			    });
 	$routeProvider.otherwise( {redirectTo: '/'});
-	})
+    })
     .factory('myCache', function($cacheFactory){
 	return $cacheFactory('myCache', {capacity:3})
     });
