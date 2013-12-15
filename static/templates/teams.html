@@ -1,0 +1,37 @@
+<div class="page-header">
+  <h1><a href="/m/teams">Teams</a></h1>  
+  <div class="btn-toolbar">
+    <a class="btn btn-primary" href="/ng#/teams/new"><i class="icon-plus icon-white"></i> Create new team</a>
+    <!-- search box -->
+    <div class="control-group search-box">
+      <div class="controls">
+	<div class="input-prepend">
+	  <span class="add-on"><i class="icon-search"></i></span>
+	  <form method="post" action="/j/teams">
+	    <input class="span2" id="inputIcon" type="text" name="TeamInputSearch" value="{{teamsData.TeamInputSearch}}">
+	  </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-content">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Id</th>
+	<th>Name</th>
+	<th>Admin Id</th>
+	<th>Private</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="team in teamsData.Teams">
+	<td>{{team.Id}}</td>
+	<td><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></td>
+	<td>{{team.AdminId}}</td>
+	<td>{{team.Private}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

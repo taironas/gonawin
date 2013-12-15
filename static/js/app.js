@@ -20,6 +20,11 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 				templateUrl: 'templates/user_show.html',
 				controller: 'UserShowController'
 			    });
+	$routeProvider.when('/teams',
+			    {
+				templateUrl: 'templates/teams.html',
+				controller: 'TeamsController'
+			    });
 	$routeProvider.when('/settings/edit-profile',
 			    {
 				templateUrl: 'templates/settings_edit-profile.html',
