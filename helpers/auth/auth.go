@@ -18,9 +18,12 @@ package auth
 
 import (
 	"net/http"
+	
 	"appengine"
+	"appengine/urlfetch"
 
 	user "github.com/santiaago/purple-wing/helpers/user"
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 const kOfflineMode bool = false
@@ -28,6 +31,19 @@ const kOfflineMode bool = false
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 
+func CheckUserValidity(accessToken string, r *http.Request) bool {
+	c := appengine.NewContext(r)
+	client := urlfetch.Client(c)
+	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token="+accessToken)
+	if err != nil {
+		log.Errorf(c, " CheckUserValidity: %v", err)
+		return false
+	}
+	
+	log.Infof(c, " CheckUserValidity: %v", resp)
+		
+	return true
+}
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }

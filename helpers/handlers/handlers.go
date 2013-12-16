@@ -74,6 +74,10 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		case helpers.NotFound:
 			http.Error(w, err.Error(), http.StatusNotFound)
+		case helpers.Forbidden:
+			http.Error(w, err.Error(), http.StatusForbidden)
+		case helpers.InternalServerError:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			c := appengine.NewContext(r)
 			log.Errorf(c, "%v", err)

@@ -124,8 +124,8 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
 	if authhlp.IsAuthorizedWithGoogle(userInfo) {
-		if user, err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
-			log.Errorf(c, " SignupUser: %v", err)
+		if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
@@ -197,8 +197,8 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	}
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
-		if _, err := authhlp.SignupUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
-			log.Errorf(c, " SignupUser: %v", err)
+		if _, err := authhlp.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
+			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
@@ -264,8 +264,8 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	if authhlp.IsAuthorizedWithFacebook(userInfo){
-		if _, err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
-			log.Errorf(c, " SignupUser: %v", err)
+		if _, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}

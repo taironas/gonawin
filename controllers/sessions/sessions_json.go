@@ -17,51 +17,39 @@
 package sessions
 
 import (
-	"encoding/json"
-	"fmt"
-	//"io/ioutil"
+	"errors"
 	"net/http"
 	
 	"appengine"
 	
+	"github.com/santiaago/purple-wing/helpers"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) {
+func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-	
-	access_token := r.FormValue("access_token")
-	id := r.FormValue("id")
-	name := r.FormValue("name")
-	email := r.FormValue("email")
-	
-	userInfo := userhlp.GPlusUserInfo{id, email, name}
+
+	userInfo := userhlp.GPlusUserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
 	
 	var err error
 	var user *usermdl.User
 	
-	log.Infof(c, "JsonGoogleAuth: access_token=%s, name=%s, email=%s", access_token, name, email)
-	
-	if authhlp.IsAuthorizedWithGoogle(&userInfo) {
-		if user, err = authhlp.SignupUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
-			log.Errorf(c, " SignupUser: %v", err)
-			http.Redirect(w, r, root, http.StatusFound)
-			return
-		}
-		
-		// store in memcache auth key in memcaches
-		authhlp.StoreAuthKey(c, user.Id, user.Auth)
+	if !authhlp.CheckUserValidity(r.FormValue("access_token"), r) {
+		return helpers.InternalServerError{errors.New("Access token is not valid")}
 	}
-}
-
-func renderJson(w http.ResponseWriter, data interface{}) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	
-	js, _ := json.Marshal(data)
-	
-	fmt.Fprint(w, js)
+	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
+		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
+	}	
+	if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
+	}
+	// store in memcache auth key in memcache
+	authhlp.StoreAuthKey(c, user.Id, user.Auth)
+	// return user
+	return templateshlp.RenderJson(w, c, user)
 }

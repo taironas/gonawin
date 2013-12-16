@@ -145,7 +145,7 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	return nil
 }
 
-func SignupUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*usermdl.User, error) {
+func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*usermdl.User, error) {
 
 	c := appengine.NewContext(r)
 	var user *usermdl.User
