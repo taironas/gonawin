@@ -37,13 +37,11 @@ func CheckUserValidity(accessToken string, r *http.Request) bool {
 	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token="+accessToken)
 	if err != nil {
 		log.Errorf(c, " CheckUserValidity: %v", err)
-		return false
 	}
 	
-	log.Infof(c, " CheckUserValidity: %v", resp)
-		
-	return true
+	return resp.StatusCode == 200
 }
+
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }

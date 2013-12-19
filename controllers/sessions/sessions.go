@@ -132,8 +132,6 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 		
 		// set 'auth' cookie
 		authhlp.SetAuthCookie(w, user.Auth)
-		// store in memcache auth key in memcaches
-		authhlp.StoreAuthKey(c, user.Id, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)

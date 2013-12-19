@@ -25,7 +25,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
-	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	
 	usermdl "github.com/santiaago/purple-wing/models/user"
@@ -48,8 +47,7 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
 	}
-	// store in memcache auth key in memcache
-	authhlp.StoreAuthKey(c, user.Id, user.Auth)
+
 	// return user
 	return templateshlp.RenderJson(w, c, user)
 }

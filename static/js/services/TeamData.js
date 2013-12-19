@@ -5,7 +5,7 @@ purpleWingApp.factory('teamData', function($http, $log, $q){
 	    var deferred = $q.defer();
             $http({method: 'GET', url:'/j/teams/'+teamId}).
                 success(function(data,status,headers,config){
-                    deferred.resolve(data);
+										deferred.resolve(data);
                     $log.info(data, status, headers() ,config);
                 }).
                 error(function (data, status, headers, config){

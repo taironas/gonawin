@@ -1,32 +1,21 @@
 'use strict';
-function google_plus_sign_in_render(){
-  angular.element($('#login-button')).scope().render();
-}
-
-purpleWingApp.controller('SessionController', function ($scope, $http, $cookieStore) {
+purpleWingApp.controller('SessionController', function ($scope, $http, $log, $q, $cookieStore) {
 	console.log('SessionController module');
 	$scope.loggedIn = false;
 	$scope.currentUser = undefined;
-	render();
-	function render(){
-		gapi.signin.render('login-button', {
-	    'callback' : function(authResult){
-				$scope.checkAuth(authResult);
-	    },
-	    'clientid': '36368233290',
-	    'cookiepolicy': 'single_host_origin',
-	    'requestvisibleactions': 'http://schemas.google.com/AddActivity',
-	    'scope': 'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email',
-	    width: 'wide'
-		});
-  };
+	$scope.$on('event:google-plus-signin-success', function (event, authResult) {
+		// User successfully authorized the G+ App!
+		console.log('Signed in!');
+		$scope.checkAuth(authResult)
+	});
+	$scope.$on('event:google-plus-signin-failure', function (event, authResult) {
+		// User has not authorized the G+ App!
+		console.log('Not signed into Google Plus.');
+	});
   $scope.checkAuth = function(authResult){
 		if(authResult.access_token){
-	    $scope.loggedIn = true;
-	    $cookieStore.put('access_token', authResult.access_token );
-	    $scope.login();
+	    $scope.login(authResult.access_token);
 	    $scope.$apply();
-
 	    return true;
 		}
 		else {
@@ -36,52 +25,37 @@ purpleWingApp.controller('SessionController', function ($scope, $http, $cookieSt
 	    return false;
 		}
   };
-  $scope.login = function(){
-		var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token='+$cookieStore.get('access_token');
-		$.ajax({
-	    type: 'GET',
-	    url: peopleUrl,
-	    contentType: 'application/json',
-	    dataType: 'jsonp',
-	    success: function(result) {
-				$scope.completeLogin(result)
-	    }
-		});
+  $scope.login = function(accessToken){
+		var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token='+accessToken;
+		$http({ method: 'GET', url: peopleUrl, contentType: 'application/json' }).
+	    success(function(result) { $scope.completeLogin(accessToken, result) });
   };
-  $scope.completeLogin = function(userInfo){
-		var authUrl = window.location.href + 'ng/auth/google'
-
-		$.ajax({
-	    type: 'GET',
-	    url: authUrl,
-	    contentType: 'application/json',
-	    dataType: 'jsonp',
-	    success: function(result) {
+  $scope.completeLogin = function(accessToken, userInfo){
+		var authUrl = '/j/auth/google';
+		$http({ 
+			method: 'GET', 
+			url: authUrl, 
+			contentType: 'application/json', 
+			params:{ access_token: accessToken, id: userInfo.id, name: userInfo.displayName, email: userInfo.emails[0].value} }).
+	    success(function(data, status, headers, config) { 
 				console.log('completeLogin successfully');
-				console.log(result);
-	    },
-	    data: {
-				access_token: $cookieStore.get('access_token'),
-				id: userInfo.id,
-				name: userInfo.displayName,
-				email: userInfo.emails[0].value
-	    }
-		});
+				$scope.currentUser = data
+				$cookieStore.put('access_token', accessToken);
+				$cookieStore.put('auth', $scope.currentUser.Auth);			
+				$scope.loggedIn = true;
+			}).
+			error(function(result) { console.log('completeLogin failed') });
   };
 
-  $scope.disconnect = function(access_token){
+  $scope.disconnect = function(){
 		var revokeUrl = 'https://accounts.google.com/o/oauth2/revoke?token='+$cookieStore.get('access_token');
-		$.ajax({
-	    type: 'GET',
-	    url: revokeUrl,
-	    async: false,
-	    contentType: "application/json",
-	    dataType: 'jsonp',
-	    success: function(nullResponse){
-				$scope.loggedIn = false;
-				$scope.currentUser = undefined;
+		$http({ method: 'GET', url: revokeUrl, contentType: 'application/json'}).
+	    success(function(nullResponse){ 
+				$cookieStore.remove('auth');
+				$cookieStore.remove('access_token');
+				$scope.currentUser = undefined; 
+				$scope.loggedIn = false; 
 				$scope.$apply();
-	    }
-		})
-  };
+			});
+	};
 });

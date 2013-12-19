@@ -1,7 +1,7 @@
 'use strict';
 
 var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+signin', 'ngCookies'])
-	.config(function($routeProvider, $locationProvider){
+	.config(function($routeProvider, $locationProvider, $httpProvider){
 		$routeProvider.
 			when('/', { templateUrl: 'templates/main.html', controller: 'MainController' }).
 			when('/about', { templateUrl: 'templates/about.html' }).
@@ -21,7 +21,9 @@ var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'directive.g+
 			when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteController' }).
 			otherwise( {redirectTo: '/'});
 			
-		$locationProvider.html5Mode(true);
+		//$locationProvider.html5Mode(true);
+		// rjo: workaround. Need to be removed with new Angular version
+		delete $httpProvider.defaults.headers.common["X-Requested-With"]
 	})
 	.factory('myCache', function($cacheFactory){
 		return $cacheFactory('myCache', {capacity:3})
