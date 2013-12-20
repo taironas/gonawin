@@ -14,8 +14,21 @@
     <div class="container">
       <div ng-controller="SessionController">
 				<div class="navigation">
-					<ul class="nav nav-pills pull-right">
-						<li ng-show="loggedIn"><button class="btn btn-info" ng-click="disconnect()">logout</button></li>	
+					<ul class="nav nav-pills pull-right" ng-show="loggedIn">
+							<li><a href="/m/teams">Teams</a></li>
+							<li><a href="/m/tournaments">Tournaments</a></li>
+							<li class="dropdown">
+								<a class="dropdown-toggle" data-toggle="dropdown" href="">
+								{{currentUser.Username}}
+								<b class="caret"></b>
+								</a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+								<li><a href="/m/users/{{currentUser.Id}}">Profile</a></li>
+								<li><a href="/m/settings/edit-profile">Settings</a></li>
+								<li><a href="/m/invite">Invite</a></li>
+								<li><a href="" ng-click="disconnect()">Logout</a></li>	
+								</ul>
+							</li>
 					</ul>
 					<h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
 				</div>
@@ -26,7 +39,7 @@
 				-->
 				<div ng-hide="0">
 					<div class="hero-unit">
-						<h1>Welcome!</h1><br>
+						<h1>Welcome {{currentUser.Username}}!</h1><br>
 						<p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
 						<div ng-hide="loggedIn">
 							<google-plus-signin clientid="36368233290"></google-plus-signin>
