@@ -49,13 +49,20 @@ purpleWingApp.controller('SessionController', function ($scope, $http, $log, $q,
 
   $scope.disconnect = function(){
 		var revokeUrl = 'https://accounts.google.com/o/oauth2/revoke?token='+$cookieStore.get('access_token');
-		$http({ method: 'GET', url: revokeUrl, contentType: 'application/json'}).
-	    success(function(nullResponse){ 
+		$.ajax({ 
+			type: 'GET', 
+			url: revokeUrl, 
+			async: false, 
+			contentType: 'application/json', 
+			dataType: 'jsonp',
+	    success: function(result){ 
+				console.log('disconnected!');
 				$cookieStore.remove('auth');
 				$cookieStore.remove('access_token');
 				$scope.currentUser = undefined; 
 				$scope.loggedIn = false; 
 				$scope.$apply();
-			});
+			}
+		});
 	};
 });
