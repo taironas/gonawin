@@ -26,18 +26,18 @@
 								<li><a href="/m/users/{{currentUser.Id}}">Profile</a></li>
 								<li><a href="/m/settings/edit-profile">Settings</a></li>
 								<li><a href="/m/invite">Invite</a></li>
-								<li><a href="" ng-click="disconnect()">Logout</a></li>	
+								<li><a href="" ng-click="disconnect()">Logout</a></li>
 								</ul>
 							</li>
 					</ul>
 					<h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
 				</div>
-				<!-- 
-				 sar: 
+				<!--
+				 sar:
 				 add ng-hide for better testing
 				 we need to externalize the session controller from the index.html
 				-->
-				<div ng-hide="0">
+				<div class="content" ng-hide="0">
 					<div class="hero-unit">
 						<h1>Welcome {{currentUser.Username}}!</h1><br>
 						<p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
@@ -49,11 +49,9 @@
 			</div> <!-- end SessionController -->
 
       <ng-view></ng-view>
-      <br>      
-      <div class="footer">
-				<p>Content &copy; 2013 | Santiago Arias | Remy Jourde | Carlos Bernal | <a href="/ng#/about">About</a> | <a href="/ng#/contact">Contact</a></p>
-      </div>
-    </div> 
+      <br>
+      <div ng-include src="'templates/partials/footer.html'"></div>
+    </div>
 
     <script src="/static/lib/jquery-1.10.2.min.js"></script>
     <script src="/static/lib/bootstrap.min.js"></script>
