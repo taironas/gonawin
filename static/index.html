@@ -14,23 +14,8 @@
     <div class="container">
       <div ng-controller="SessionController">
 				<div ng-include src="'templates/partials/navigation.html'"></div>
-				<!--
-				 sar:
-				 add ng-hide for better testing
-				 we need to externalize the session controller from the index.html
-				-->
-				<div class="content" ng-hide="0">
-					<div class="hero-unit">
-						<h1>Welcome {{currentUser.Username}}!</h1><br>
-						<p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
-						<div ng-hide="loggedIn">
-							<google-plus-signin clientid="36368233290"></google-plus-signin>
-						</div>
-					</div>
-				</div>
+				<ng-view></ng-view>
 			</div> <!-- end SessionController -->
-
-      <ng-view></ng-view>
       <br>
       <div ng-include src="'templates/partials/footer.html'"></div>
     </div>
