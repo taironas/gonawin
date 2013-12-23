@@ -32,11 +32,8 @@
 
 {{if IsTournamentAdmin}}
 <div class="form-actions">
-	<form accept-charset="UTF-8" action="/m/tournaments/{{.Tournament.Id}}" class="form-horizontal" method="post">
-		<a href="/m/tournaments/{{.Tournament.Id}}/edit" class="btn"><span>Edit</span></a>
-		<input id="action" name="Action" type="hidden" value="delete" />
-		<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');">Delete</button>
-	</form>
+	<a href="/m/tournaments/{{.Tournament.Id}}/edit" class="btn"><span>Edit</span></a>
+	<a href="javascript:post('/m/tournaments/destroy/{{.Tournament.Id}}')" class="btn btn-danger" onclick="return confirm('Are you sure?');"><span>Delete</span></a>
 </div>
 {{end}}
 

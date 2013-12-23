@@ -210,67 +210,76 @@ func Show(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+	if r.Method == "GET" {
+		funcs := template.FuncMap{
+			"Joined": func() bool { return tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
+			"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(c, intID, teamId) },
+			"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) },
+		}
+		
+		t := template.Must(template.New("tmpl_tournament_show").
+			Funcs(funcs).
+			ParseFiles("templates/tournament/show.html",
+			"templates/tournament/participants.html",
+			"templates/tournament/teams.html",
+			"templates/tournament/candidateTeams.html"))
+
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, intID)
+		
+		if err != nil{
+			helpers.Error404(w)
+			return
+		}
+		
+		participants := tournamentrelshlp.Participants(c, intID)
+		teams := tournamentrelshlp.Teams(c, intID)
+		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
+		
+		tournamentData := struct { 
+			Tournament *tournamentmdl.Tournament
+			Participants []*usermdl.User
+			Teams []*teammdl.Team
+			CandidateTeams []*teammdl.Team
+		}{
+			tournament,
+			participants,
+			teams,
+			candidateTeams,
+		}
+		templateshlp.RenderWithData(w, r, c, t, tournamentData, funcs, "renderTournamentShow")
+	}
+}
+
+// Tournament destroy handler
+func Destroy(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	tournamentID, err := handlers.PermalinkID(r, c, 4)
+	if err != nil{
+		http.Redirect(w, r, "/m/tournaments/", http.StatusFound)
+		return
+	}
+	
+	if r.Method == "POST" {
 		// delete all tournament-user relationships
-		for _, participant := range tournamentrelshlp.Participants(c, intID) {
-			if err := tournamentrelmdl.Destroy(c, intID, participant.Id); err !=nil {
+		for _, participant := range tournamentrelshlp.Participants(c, tournamentID) {
+			if err := tournamentrelmdl.Destroy(c, tournamentID, participant.Id); err !=nil {
 			log.Errorf(c, " error when trying to destroy tournament relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
-		for _, team := range tournamentrelshlp.Teams(c, intID) {
-			if err := tournamentteamrelmdl.Destroy(c, intID, team.Id); err !=nil {
+		for _, team := range tournamentrelshlp.Teams(c, tournamentID) {
+			if err := tournamentteamrelmdl.Destroy(c, tournamentID, team.Id); err !=nil {
 			log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete the tournament
-		tournamentmdl.Destroy(c, intID)
+		tournamentmdl.Destroy(c, tournamentID)
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 		return
-	} else if r.Method != "GET"{
-		log.Errorf(c, " request method not supported")
-		helpers.Error404(w)
-		return
-	}
-	
-	funcs := template.FuncMap{
-		"Joined": func() bool { return tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
-		"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(c, intID, teamId) },
-		"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) },
-	}
-	
-	t := template.Must(template.New("tmpl_tournament_show").
-		Funcs(funcs).
-		ParseFiles("templates/tournament/show.html",
-		"templates/tournament/participants.html",
-		"templates/tournament/teams.html",
-		"templates/tournament/candidateTeams.html"))
-
-	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(c, intID)
-	
-	if err != nil{
-		helpers.Error404(w)
-		return
-	}
-	
-	participants := tournamentrelshlp.Participants(c, intID)
-	teams := tournamentrelshlp.Teams(c, intID)
-	candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
-	
-	tournamentData := struct { 
-		Tournament *tournamentmdl.Tournament
-		Participants []*usermdl.User
-		Teams []*teammdl.Team
-		CandidateTeams []*teammdl.Team
-	}{
-		tournament,
-		participants,
-		teams,
-		candidateTeams,
-	}
-	templateshlp.RenderWithData(w, r, c, t, tournamentData, funcs, "renderTournamentShow")
+	} 
 }
 
 // Json show tournament handler
@@ -279,11 +288,47 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
-		log.Errorf(c, " Unable to find ID in request %v",r)
 		return helpers.NotFound{err}
 	}
 	
-	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+	if r.Method == "GET"{
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, intID)	
+		if err != nil{
+			return helpers.NotFound{err}
+		}
+		
+		participants := tournamentrelshlp.Participants(c, intID)
+		teams := tournamentrelshlp.Teams(c, intID)
+		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
+		
+		tournamentData := struct { 
+			Tournament *tournamentmdl.Tournament
+			Participants []*usermdl.User
+			Teams []*teammdl.Team
+			CandidateTeams []*teammdl.Team
+		}{
+			tournament,
+			participants,
+			teams,
+			candidateTeams,
+		}
+		return templateshlp.RenderJson(w, c, tournamentData)
+	} else {
+		return helpers.BadRequest{errors.New("Not supported.")}
+	}
+}
+
+// Json tournament destroy handler
+func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r, c, 4)
+	if err != nil{
+		return helpers.NotFound{err}
+	}
+	
+	if r.Method == "POST" {
 		// delete all tournament-user relationships
 		for _, participant := range tournamentrelshlp.Participants(c, intID) {
 			if err := tournamentrelmdl.Destroy(c, intID, participant.Id); err !=nil {
@@ -299,35 +344,11 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		// delete the tournament
 		tournamentmdl.Destroy(c, intID)
 		
-		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
-		return nil
-	} else if r.Method != "GET"{
-		log.Errorf(c, " request method not supported")
+		// return destroyed status
+		return templateshlp.RenderJson(w, c, "tournament has been destroyed")
+	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
-	
-	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(c, intID)	
-	if err != nil{
-		return helpers.NotFound{err}
-	}
-	
-	participants := tournamentrelshlp.Participants(c, intID)
-	teams := tournamentrelshlp.Teams(c, intID)
-	candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
-	
-	tournamentData := struct { 
-		Tournament *tournamentmdl.Tournament
-		Participants []*usermdl.User
-		Teams []*teammdl.Team
-		CandidateTeams []*teammdl.Team
-	}{
-		tournament,
-		participants,
-		teams,
-		candidateTeams,
-	}
-	return templateshlp.RenderJson(w, c, tournamentData)
 }
 
 //  Edit tournament handler
