@@ -221,56 +221,66 @@ func Show(w http.ResponseWriter, r *http.Request){
 		return
 	} 
 
-	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+	if (r.Method == "GET"){
+		funcs := template.FuncMap{
+			"Joined": func() bool { return teammdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
+			"IsTeamAdmin": func() bool { return teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) },
+			"RequestSent": func() bool { return teamrequestmdl.Sent(c, intID, auth.CurrentUser(r, c).Id) },
+		}
+		
+		t := template.Must(template.New("tmpl_team_show").
+			Funcs(funcs).
+			ParseFiles("templates/team/show.html",
+			"templates/team/players.html"))
+
+		var team *teammdl.Team
+		if team, err = teammdl.ById(c, intID); err != nil{
+			helpers.Error404(w)
+			return
+		}
+		
+		players := teamrelshlp.Players(c, intID)
+		
+		teamData := struct { 
+			Team *teammdl.Team
+			Players []*usermdl.User 
+		}{
+			team,
+			players,
+		}
+		templateshlp.RenderWithData(w, r, c, t, teamData, funcs, "renderTeamShow")
+	}
+}
+
+// Team destroy handler
+func Destroy(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+	
+	teamID, err := handlers.PermalinkID(r, c, 4)
+	if err != nil{
+		http.Redirect(w,r, "/m/teams/", http.StatusFound)
+		return
+	} 
+
+	if r.Method == "POST" {
 		// delete all team-user relationships
-		for _, player := range teamrelshlp.Players(c, intID) {
-			if err := teamrelmdl.Destroy(c, intID, player.Id); err !=nil {
+		for _, player := range teamrelshlp.Players(c, teamID) {
+			if err := teamrelmdl.Destroy(c, teamID, player.Id); err !=nil {
 				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
-		for _, tournament := range tournamentrelshlp.Teams(c, intID) {
-			if err := tournamentteamrelmdl.Destroy(c, tournament.Id, intID); err !=nil {
+		for _, tournament := range tournamentrelshlp.Teams(c, teamID) {
+			if err := tournamentteamrelmdl.Destroy(c, tournament.Id, teamID); err !=nil {
 				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete the team
-		teammdl.Destroy(c, intID)
+		teammdl.Destroy(c, teamID)
 		
 		http.Redirect(w, r, "/m/teams", http.StatusFound)
 		return
-	} else if (r.Method != "GET"){
-		log.Errorf(c, " request method not supported")
-		helpers.Error404(w)
-		return	
 	}
-	funcs := template.FuncMap{
-		"Joined": func() bool { return teammdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
-		"IsTeamAdmin": func() bool { return teammdl.IsTeamAdmin(c, intID, auth.CurrentUser(r, c).Id) },
-		"RequestSent": func() bool { return teamrequestmdl.Sent(c, intID, auth.CurrentUser(r, c).Id) },
-	}
-	
-	t := template.Must(template.New("tmpl_team_show").
-		Funcs(funcs).
-		ParseFiles("templates/team/show.html",
-		"templates/team/players.html"))
-
-	var team *teammdl.Team
-	if team, err = teammdl.ById(c, intID); err != nil{
-		helpers.Error404(w)
-		return
-	}
-	
-	players := teamrelshlp.Players(c, intID)
-	
-	teamData := struct { 
-		Team *teammdl.Team
-		Players []*usermdl.User 
-	}{
-		team,
-		players,
-	}
-	templateshlp.RenderWithData(w, r, c, t, teamData, funcs, "renderTeamShow")
 }
 
 // Json Team show handler
@@ -282,7 +292,38 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		return helpers.NotFound{err}
 	} 
 
-	if r.Method == "POST" && r.FormValue("Action") == "delete" {
+	if (r.Method == "GET"){
+		var team *teammdl.Team
+		if team, err = teammdl.ById(c, intID); err != nil{
+			return helpers.NotFound{err}
+		}
+		
+		players := teamrelshlp.Players(c, intID)
+		
+		teamData := struct { 
+			Team *teammdl.Team
+			Players []*usermdl.User 
+		}{
+			team,
+			players,
+		}
+
+		return templateshlp.RenderJson(w, c, teamData)
+	} else {
+		return helpers.BadRequest{errors.New("not supported")}
+	}
+}
+
+// Json Team destroy handler
+func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	intID, err := handlers.PermalinkID(r, c, 4)
+	if err != nil{
+		return helpers.NotFound{err}
+	} 
+
+	if r.Method == "POST" {
 		// delete all team-user relationships
 		for _, player := range teamrelshlp.Players(c, intID) {
 			if err := teamrelmdl.Destroy(c, intID, player.Id); err !=nil {
@@ -298,28 +339,11 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		// delete the team
 		teammdl.Destroy(c, intID)
 		
-		http.Redirect(w, r, "/j/teams", http.StatusFound)
-		return nil
-	} else if (r.Method != "GET"){
+		// return destroyed status
+		return templateshlp.RenderJson(w, c, "team has been destroyed")
+	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
-
-	var team *teammdl.Team
-	if team, err = teammdl.ById(c, intID); err != nil{
-		return helpers.NotFound{err}
-	}
-	
-	players := teamrelshlp.Players(c, intID)
-	
-	teamData := struct { 
-		Team *teammdl.Team
-		Players []*usermdl.User 
-	}{
-		team,
-		players,
-	}
-
-	return templateshlp.RenderJson(w, c, teamData)
 }
 
 // Team Edit handler
