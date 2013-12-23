@@ -25,62 +25,106 @@ import (
 	"github.com/santiaago/purple-wing/helpers"	
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
-// show handler for team relations
-func Show(w http.ResponseWriter, r *http.Request){
+// create handler for team relations
+func Create(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " teamRels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
 	}
 	
-	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+	if r.Method == "POST" {
 		if err := teammdl.Join(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " teamRels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
-			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-				log.Errorf(c, " teamRels.Show: %v", err)
-			}
-		} else {
-			log.Errorf(c, " teamRels.Show, Team administrator cannot leave the team")
+			log.Errorf(c, " teamRels.Create: %v", err)
 		}
 	}
 	
 	http.Redirect(w,r, "/m/teams/"+r.FormValue("TeamId"), http.StatusFound)
 }
 
-// json show handler for team relations
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+// destroy handler for team relations
+func Destroy(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " teamRels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " teamRels.Destroy, string value could not be parsed: %v", err)
+	}
+	
+	if r.Method == "POST" {
+		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
+			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
+				log.Errorf(c, " teamRels.Destroy: %v", err)
+			}
+		} else {
+			log.Errorf(c, " teamRels.Drestroy, Team administrator cannot leave the team")
+		}
+	}
+	
+	http.Redirect(w,r, "/m/teams/"+r.FormValue("TeamId"), http.StatusFound)
+}
+
+// json create handler for team relations
+func CreateJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
 		return helpers.NotFound{err}
 	}
 	
-	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+	if r.Method == "POST" {
 		if err := teammdl.Join(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " teamRels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
-			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-				log.Errorf(c, " teamRels.Show: %v", err)
-			}
-		} else {
-			log.Errorf(c, " teamRels.Show, Team administrator cannot leave the team")
+			log.Errorf(c, " teamRels.Create: %v", err)
+			return helpers.InternalServerError{err}
 		}
 	}
 	
-	http.Redirect(w,r, "/j/teams/"+r.FormValue("TeamId"), http.StatusFound)
-	return nil
+	// return the joined team
+	var team *teammdl.Team
+	if team, err = teammdl.ById(c, teamId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, team)
+}
+
+// json destroy handler for team relations
+func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " teamRels.Destroy, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
+	}
+	
+	if r.Method == "POST" {
+		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
+			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
+				log.Errorf(c, " teamRels.Destroy: %v", err)
+				return helpers.InternalServerError{err}
+			}
+		} else {
+			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
+			return helpers.Forbidden{err}
+		}
+	}
+	
+	// return the left team
+	var team *teammdl.Team
+	if team, err = teammdl.ById(c, teamId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, team)
 }
 

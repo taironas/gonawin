@@ -12,16 +12,14 @@
 				{{end}}
 				</form>
 			{{else}}
-				<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
+				<form accept-charset="UTF-8" action="/m/teamrels/create" class="form-horizontal" method="post">
 					<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
-					<input id="action" name="Action" type="hidden" value="post_action" />
 					<input class="btn btn-primary" name="commit" type="submit" value="Join" />
 				</form>
 			{{end}}
 		{{else}}
-			<form accept-charset="UTF-8" action="/m/teamrels/{{.Team.Id}}" class="form-horizontal" method="post">
+			<form accept-charset="UTF-8" action="/m/teamrels/destroy" class="form-horizontal" method="post">
 				<input id="team_id" name="TeamId" type="hidden" value="{{.Team.Id}}" />
-				<input id="action" name="Action" type="hidden" value="delete_action" />
 				<input class="btn btn-primary" name="commit" type="submit" value="Leave" />
 			</form>
 		{{end}}
