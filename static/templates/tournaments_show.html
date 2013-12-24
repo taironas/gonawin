@@ -2,7 +2,6 @@
   <h1>Tournament</h1>
   <form accept-charset="UTF-8" action="/ng#/tournamentrels/{{tournamentData.Tournament.Id}}" class="form-horizontal" method="post">
     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-    <!-- <input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} /> -->
     <!-- <input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} /> -->
     <a href="#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
   </form>

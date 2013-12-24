@@ -25,53 +25,96 @@ import (
 	"github.com/santiaago/purple-wing/helpers"	
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
-// show handler for tournament relationships
-func Show(w http.ResponseWriter, r *http.Request){
+// create handler for tournament relationships
+func Create(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournaments.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
 	}
 
-	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
+	if r.Method == "POST" {
 		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
-		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Show: %v", err)
+			log.Errorf(c, " tournamentrels.Create: %v", err)
 		}
 	}
 	
 	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
 
-// json show handler for tournament relationships
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+// destroy handler for tournament relationships
+func Destroy(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournaments.Show, string value could not be parsed: %v", err)
-		return helpers.NotFound{err}
+		log.Errorf(c, " tournaments.Destroy, string value could not be parsed: %v", err)
 	}
 
-	if r.Method == "POST" && r.FormValue("Action") == "post_action" {
-		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action") == "delete_action" {
+	if r.Method == "POST" {
 		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Show: %v", err)
+			log.Errorf(c, " tournamentrels.Destroy: %v", err)
 		}
 	}
 	
-	http.Redirect(w,r, "/j/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-	return nil
+	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
+}
+
+// json create handler for tournament relationships
+func CreateJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
+	}
+
+	if r.Method == "POST" {
+		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+			log.Errorf(c, " tournamentrels.Create: %v", err)
+			return helpers.InternalServerError{err}
+		}
+	}
+	
+	// return the joined tournament
+	var tournament *tournamentmdl.Tournament
+	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, tournament)
+}
+
+// json destroy handler for tournament relationships
+func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournaments.Destroy, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
+	}
+
+	if r.Method == "POST" {
+		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+			log.Errorf(c, " tournamentrels.Destroy: %v", err)
+			return helpers.InternalServerError{err}
+		}
+	}
+	
+	// return the left tournament
+	var tournament *tournamentmdl.Tournament
+	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, tournament)
 }

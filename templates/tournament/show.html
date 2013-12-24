@@ -1,9 +1,8 @@
 {{define "tmpl_tournament_show"}}
 <div class="page-header">
 	<h1>Tournament</h1>
-	<form accept-charset="UTF-8" action="/m/tournamentrels/{{.Tournament.Id}}" class="form-horizontal" method="post">
+	<form accept-charset="UTF-8" {{if Joined}}action="/m/tournamentrels/destroy"{{else}}action="/m/tournamentrels/create"{{end}} class="form-horizontal" method="post">
 		<input id="tournament_id" name="TournamentId" type="hidden" value="{{.Tournament.Id}}" />
-		<input id="action" name="Action" type="hidden" {{if Joined}}value="delete_action"{{else}}value="post_action"{{end}} />
 		<input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
 		<a href="#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
 	</form>

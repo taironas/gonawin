@@ -127,4 +127,3 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 	return templateshlp.RenderJson(w, c, team)
 }
-
