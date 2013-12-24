@@ -14,10 +14,7 @@
 		<h3 id="myModalLabel">Add Team</h3>
 	  </div>
 	  <div class="modal-body">
-			<form accept-charset="UTF-8" action="/m/tournamentteamrels/{{.Tournament.Id}}" class="form-horizontal" method="post">
-				<input id="tournament_id" name="TournamentId" type="hidden" value="{{.Tournament.Id}}" />
-				{{template "tmpl_tournament_candidateTeams" .CandidateTeams}}
-			</form>
+			{{template "tmpl_tournament_candidateTeams" .CandidateTeams}}
 	  </div>
 	</div>
 </div>

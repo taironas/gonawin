@@ -102,12 +102,14 @@ func init(){
 	h.HandleFunc("/m/teamrels/destroy/?", handlers.User(teamrelsctrl.Destroy))
 	h.HandleFunc("/m/tournamentrels/create/?", handlers.User(tournamentrelsctrl.Create))
 	h.HandleFunc("/m/tournamentrels/destroy/?", handlers.User(tournamentrelsctrl.Destroy))
-	h.HandleFunc("/m/tournamentteamrels/[0-9]+/?", handlers.User(tournamentteamrelsctrl.Show))
+	h.HandleFunc("/m/tournamentteamrels/create/?", handlers.User(tournamentteamrelsctrl.Create))
+	h.HandleFunc("/m/tournamentteamrels/destroy/?", handlers.User(tournamentteamrelsctrl.Destroy))
 	h.HandleFunc("/j/teamrels/create/?", handlers.User(handlers.ErrorHandler(teamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/teamrels/destroy/?", handlers.User(handlers.ErrorHandler(teamrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentrels/create/?", handlers.User(handlers.ErrorHandler(tournamentrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentrels/destroy/?", handlers.User(handlers.ErrorHandler(tournamentrelsctrl.DestroyJson)))
-	h.HandleFunc("/j/tournamentteamrels/[0-9]+/?", handlers.User(handlers.ErrorHandler(tournamentteamrelsctrl.ShowJson)))
+	h.HandleFunc("/j/tournamentteamrels/create/?", handlers.User(handlers.ErrorHandler(tournamentteamrelsctrl.CreateJson)))
+	h.HandleFunc("/j/tournamentteamrels/destroy/?", handlers.User(handlers.ErrorHandler(tournamentteamrelsctrl.DestroyJson)))
 	
 	// settings
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))

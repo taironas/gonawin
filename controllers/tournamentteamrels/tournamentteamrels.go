@@ -22,65 +22,119 @@ import (
 	
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers"	
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"	
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
-// show handler for tournament teams realtionship
-func Show(w http.ResponseWriter, r *http.Request){
+// create handler for tournament teams realtionship
+func Create(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
 	}
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
 	}
 
-	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
+	if r.Method == "POST" {
 		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
-		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Show: %v", err)
+			log.Errorf(c, " tournamentteamrels.Create: %v", err)
 		}
 	}
 	
 	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
 }
 
-// show handler for tournament teams realtionship
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+// destroy handler for tournament teams realtionship
+func Destroy(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
+	}
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
+	}
+
+	if r.Method == "POST" {
+		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
+			log.Errorf(c, " tournamentteamrels.Destroy: %v", err)
+		}
+	}
+	
+	http.Redirect(w,r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
+}
+
+// create handler for tournament teams realtionship
+func CreateJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
 		return helpers.NotFound{err}
 	}
 	// get team id
 	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
 	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Show, string value could not be parsed: %v", err)
+		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
 	}
 
-	if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "post_action" {
+	if r.Method == "POST" {
 		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Show: %v", err)
-		}
-	} else if r.Method == "POST" && r.FormValue("Action_" + r.FormValue("TeamIdButton")) == "delete_action" {
-		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Show: %v", err)
+			log.Errorf(c, " tournamentteamrels.Create: %v", err)
+			return helpers.InternalServerError{err}
 		}
 	}
 	
-	http.Redirect(w,r, "/j/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-	return nil
+	// return the joined tournament
+	var tournament *tournamentmdl.Tournament
+	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, tournament)
+}
+
+// destroy handler for tournament teams realtionship
+func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	// get tournament id
+	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
+		return helpers.NotFound{err}
+	}
+	// get team id
+	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
+	if err != nil {
+		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
+	}
+
+	if r.Method == "POST" {
+		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
+			log.Errorf(c, " tournamentteamrels.Destroy: %v", err)
+			return helpers.InternalServerError{err}
+		}
+	}
+	
+	// return the left tournament
+	var tournament *tournamentmdl.Tournament
+	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
+		return helpers.NotFound{err}
+	}
+	return templateshlp.RenderJson(w, c, tournament)
 }
