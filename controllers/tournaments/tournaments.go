@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"time"
 
-	"appengine"	
+	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
@@ -55,7 +55,7 @@ type indexData struct{
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
-	var data indexData	
+	var data indexData
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(c)
 
@@ -99,7 +99,7 @@ func Index(w http.ResponseWriter, r *http.Request){
 func IndexJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
-	var data indexData	
+	var data indexData
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(c)
 
@@ -236,7 +236,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		teams := tournamentrelshlp.Teams(c, intID)
 		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
 		
-		tournamentData := struct { 
+		tournamentData := struct {
 			Tournament *tournamentmdl.Tournament
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
@@ -279,7 +279,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 		
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 		return
-	} 
+	}
 }
 
 // Json show tournament handler
@@ -293,7 +293,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	
 	if r.Method == "GET"{
 		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, intID)	
+		tournament, err = tournamentmdl.ById(c, intID)
 		if err != nil{
 			return helpers.NotFound{err}
 		}
@@ -302,7 +302,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		teams := tournamentrelshlp.Teams(c, intID)
 		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
 		
-		tournamentData := struct { 
+		tournamentData := struct {
 			Tournament *tournamentmdl.Tournament
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
@@ -403,8 +403,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-//  Json Edit tournament handler
-func EditJson(w http.ResponseWriter, r *http.Request) error{
+//  Json Update tournament handler
+func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)

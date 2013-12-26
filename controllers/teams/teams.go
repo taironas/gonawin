@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"appengine"	
+	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
@@ -51,7 +51,7 @@ type NewForm struct {
 
 type indexData struct{
 	Teams []*teammdl.Team
-	TeamInputSearch string	
+	TeamInputSearch string
 }
 
 // team handler
@@ -132,7 +132,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) error{
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Team new handler 
+// Team new handler
 func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	
@@ -174,7 +174,7 @@ func New(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderTeamNew")
 }
 
-// Json Team new handler 
+// Json Team new handler
 func NewJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
@@ -219,7 +219,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
 		return
-	} 
+	}
 
 	if (r.Method == "GET"){
 		funcs := template.FuncMap{
@@ -241,9 +241,9 @@ func Show(w http.ResponseWriter, r *http.Request){
 		
 		players := teamrelshlp.Players(c, intID)
 		
-		teamData := struct { 
+		teamData := struct {
 			Team *teammdl.Team
-			Players []*usermdl.User 
+			Players []*usermdl.User
 		}{
 			team,
 			players,
@@ -260,7 +260,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 	if err != nil{
 		http.Redirect(w,r, "/m/teams/", http.StatusFound)
 		return
-	} 
+	}
 
 	if r.Method == "POST" {
 		// delete all team-user relationships
@@ -290,7 +290,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		return helpers.NotFound{err}
-	} 
+	}
 
 	if (r.Method == "GET"){
 		var team *teammdl.Team
@@ -300,9 +300,9 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		
 		players := teamrelshlp.Players(c, intID)
 		
-		teamData := struct { 
+		teamData := struct {
 			Team *teammdl.Team
-			Players []*usermdl.User 
+			Players []*usermdl.User
 		}{
 			team,
 			players,
@@ -321,7 +321,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	intID, err := handlers.PermalinkID(r, c, 4)
 	if err != nil{
 		return helpers.NotFound{err}
-	} 
+	}
 
 	if r.Method == "POST" {
 		// delete all team-user relationships
@@ -382,7 +382,7 @@ func Edit(w http.ResponseWriter, r *http.Request){
 		var team *teammdl.Team
 		team, err = teammdl.ById(c,intID)
 		if err != nil{
-			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)		
+			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)
 			helpers.Error404(w)
 			return
 		}
@@ -406,8 +406,8 @@ func Edit(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-// Team Edit handler
-func EditJson(w http.ResponseWriter, r *http.Request) error{
+// Team Update handler
+func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
@@ -430,12 +430,12 @@ func EditJson(w http.ResponseWriter, r *http.Request) error{
 		}
 		return templateshlp.RenderJson(w, c, team)
 
-	} else if r.Method == "POST"{
+	} else if r.Method == "POST" {
 		
 		var team *teammdl.Team
 		team, err = teammdl.ById(c,intID)
 		if err != nil{
-			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)		
+			log.Errorf(c, " Team Edit handler: team not found. id: %v",intID)
 			return helpers.NotFound{err}
 		}
 		// only work on name and private. Other values should not be editable

@@ -54,13 +54,13 @@ func init(){
 	h.HandleFunc("/m/auth/google/callback/?", sessionsctrl.GoogleAuthCallback)
 	h.HandleFunc("/m/auth/twitter/?", sessionsctrl.AuthenticateWithTwitter)
 	h.HandleFunc("/m/auth/twitter/callback/?", sessionsctrl.TwitterAuthCallback)
-	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))	
+	h.HandleFunc("/m/logout/?", handlers.User(sessionsctrl.SessionLogout))
 	// session - json
 	h.HandleFunc("/j/auth/google/?", handlers.ErrorHandler(sessionsctrl.JsonGoogleAuth))
 
 	// user
 	h.HandleFunc("/m/users/[0-9]+/?", handlers.User(usersctrl.Show))
-	h.HandleFunc("/j/users/[0-9]+/?", handlers.User(handlers.ErrorHandler(usersctrl.ShowJson)))
+	h.HandleFunc("/j/users/show/?", handlers.User(handlers.ErrorHandler(usersctrl.ShowJson)))
 
 	// admin
 	h.HandleFunc("/m/a/?", handlers.Admin(usersctrl.AdminShow))
@@ -69,7 +69,6 @@ func init(){
 	h.HandleFunc("/j/a/users/?", handlers.Admin(handlers.ErrorHandler(usersctrl.AdminUsersJson)))
 
 	// team
-	// server handler
 	h.HandleFunc("/m/teams/?", handlers.User(teamsctrl.Index))
 	h.HandleFunc("/m/teams/new/?", handlers.User(teamsctrl.New))
 	h.HandleFunc("/m/teams/[0-9]+/?", handlers.User(teamsctrl.Show))
@@ -77,13 +76,14 @@ func init(){
 	h.HandleFunc("/m/teams/destroy/[0-9]+/?", handlers.User(teamsctrl.Destroy))
 	h.HandleFunc("/m/teams/[0-9]+/invite/?", handlers.User(teamsctrl.Invite))
 	h.HandleFunc("/m/teams/[0-9]+/request/?", handlers.User(teamsctrl.Request))
+	// team - json
 	h.HandleFunc("/j/teams/?", handlers.User(handlers.ErrorHandler(teamsctrl.IndexJson)))
 	h.HandleFunc("/j/teams/new/?", handlers.User(handlers.ErrorHandler(teamsctrl.NewJson)))
-	h.HandleFunc("/j/teams/[0-9]+/?", handlers.User(handlers.ErrorHandler(teamsctrl.ShowJson)))
-	h.HandleFunc("/j/teams/[0-9]+/edit/?", handlers.User(handlers.ErrorHandler(teamsctrl.EditJson)))
-	h.HandleFunc("/m/teams/[0-9]+/destroy/?", handlers.User(handlers.ErrorHandler(teamsctrl.DestroyJson)))
-	h.HandleFunc("/j/teams/[0-9]+/invite/?", handlers.User(handlers.ErrorHandler(teamsctrl.InviteJson)))
-	h.HandleFunc("/j/teams/[0-9]+/request/?", handlers.User(handlers.ErrorHandler(teamsctrl.RequestJson)))
+	h.HandleFunc("/j/teams/show/?", handlers.User(handlers.ErrorHandler(teamsctrl.ShowJson)))
+	h.HandleFunc("/j/teams/update/?", handlers.User(handlers.ErrorHandler(teamsctrl.UpdateJson)))
+	h.HandleFunc("/j/teams/destroy/?", handlers.User(handlers.ErrorHandler(teamsctrl.DestroyJson)))
+	h.HandleFunc("/j/teams/invite/?", handlers.User(handlers.ErrorHandler(teamsctrl.InviteJson)))
+	h.HandleFunc("/j/teams/request/?", handlers.User(handlers.ErrorHandler(teamsctrl.RequestJson)))
 	
 	// tournament
 	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))
@@ -91,11 +91,12 @@ func init(){
 	h.HandleFunc("/m/tournaments/[0-9]+/?", handlers.User(tournamentsctrl.Show))
 	h.HandleFunc("/m/tournaments/[0-9]+/edit/?", handlers.User(tournamentsctrl.Edit))
 	h.HandleFunc("/m/tournaments/destroy/[0-9]+/?", handlers.User(tournamentsctrl.Destroy))
+	// tournament - json
 	h.HandleFunc("/j/tournaments/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.IndexJson)))
 	h.HandleFunc("/j/tournaments/new/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.NewJson)))
-	h.HandleFunc("/j/tournaments/[0-9]+/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.ShowJson)))
-	h.HandleFunc("/j/tournaments/[0-9]+/edit/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.EditJson)))
-	h.HandleFunc("/j/tournaments/destroy/[0-9]+/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournaments/show/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.ShowJson)))
+	h.HandleFunc("/j/tournaments/update/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.UpdateJson)))
+	h.HandleFunc("/j/tournaments/destroy/?", handlers.User(handlers.ErrorHandler(tournamentsctrl.DestroyJson)))
 
 	// relationships
 	h.HandleFunc("/m/teamrels/create/?", handlers.User(teamrelsctrl.Create))
@@ -104,6 +105,7 @@ func init(){
 	h.HandleFunc("/m/tournamentrels/destroy/?", handlers.User(tournamentrelsctrl.Destroy))
 	h.HandleFunc("/m/tournamentteamrels/create/?", handlers.User(tournamentteamrelsctrl.Create))
 	h.HandleFunc("/m/tournamentteamrels/destroy/?", handlers.User(tournamentteamrelsctrl.Destroy))
+	// relationships - json
 	h.HandleFunc("/j/teamrels/create/?", handlers.User(handlers.ErrorHandler(teamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/teamrels/destroy/?", handlers.User(handlers.ErrorHandler(teamrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentrels/create/?", handlers.User(handlers.ErrorHandler(tournamentrelsctrl.CreateJson)))
@@ -115,6 +117,7 @@ func init(){
 	h.HandleFunc("/m/settings/edit-profile/?", handlers.User(settingsctrl.Profile))
 	h.HandleFunc("/m/settings/networks/?", handlers.User(settingsctrl.Networks))
 	h.HandleFunc("/m/settings/email/?", handlers.User(settingsctrl.Email))
+	// settings - json
 	h.HandleFunc("/j/settings/edit-profile/?", handlers.User(handlers.ErrorHandler(settingsctrl.ProfileJson)))
 	h.HandleFunc("/j/settings/networks/?", handlers.User(handlers.ErrorHandler(settingsctrl.NetworksJson)))
 	h.HandleFunc("/j/settings/email/?", handlers.User(handlers.ErrorHandler(settingsctrl.EmailJson)))
