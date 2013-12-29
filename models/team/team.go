@@ -25,7 +25,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers/log"	
+	"github.com/santiaago/purple-wing/helpers/log"
 	"github.com/santiaago/purple-wing/helpers"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
@@ -82,7 +82,7 @@ func Destroy(c appengine.Context, teamId int64) error {
 	} else {
 		key := datastore.NewKey(c, "Team", "", team.Id, nil)
 			
-		return datastore.Delete(c, key)	
+		return datastore.Delete(c, key)
 	}
 }
 
@@ -120,7 +120,8 @@ func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 }
 
 func Update(c appengine.Context, id int64, t *Team) error {
-
+	// update key name
+	t.KeyName = helpers.TrimLower(t.Name)
 	k := KeyById(c, id)
 	oldTeam := new(Team)
 	if err := datastore.Get(c,k, oldTeam);err == nil {

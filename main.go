@@ -77,13 +77,13 @@ func init(){
 	h.HandleFunc("/m/teams/[0-9]+/invite/?", handlers.User(teamsctrl.Invite))
 	h.HandleFunc("/m/teams/[0-9]+/request/?", handlers.User(teamsctrl.Request))
 	// team - json
-	h.HandleFunc("/j/teams/?", handlers.User(handlers.ErrorHandler(teamsctrl.IndexJson)))
-	h.HandleFunc("/j/teams/new/?", handlers.User(handlers.ErrorHandler(teamsctrl.NewJson)))
-	h.HandleFunc("/j/teams/show/?", handlers.User(handlers.ErrorHandler(teamsctrl.ShowJson)))
-	h.HandleFunc("/j/teams/update/?", handlers.User(handlers.ErrorHandler(teamsctrl.UpdateJson)))
-	h.HandleFunc("/j/teams/destroy/?", handlers.User(handlers.ErrorHandler(teamsctrl.DestroyJson)))
-	h.HandleFunc("/j/teams/invite/?", handlers.User(handlers.ErrorHandler(teamsctrl.InviteJson)))
-	h.HandleFunc("/j/teams/request/?", handlers.User(handlers.ErrorHandler(teamsctrl.RequestJson)))
+	h.HandleFunc("/j/teams/?", handlers.ErrorHandler(teamsctrl.IndexJson))
+	h.HandleFunc("/j/teams/new/?", handlers.ErrorHandler(teamsctrl.NewJson))
+	h.HandleFunc("/j/teams/show/[0-9]+/?", handlers.ErrorHandler(teamsctrl.ShowJson))
+	h.HandleFunc("/j/teams/update/[0-9]+/?", handlers.ErrorHandler(teamsctrl.UpdateJson))
+	h.HandleFunc("/j/teams/destroy/[0-9]+/?", handlers.ErrorHandler(teamsctrl.DestroyJson))
+	h.HandleFunc("/j/teams/invite/?", handlers.ErrorHandler(teamsctrl.InviteJson))
+	h.HandleFunc("/j/teams/request/?", handlers.ErrorHandler(teamsctrl.RequestJson))
 	
 	// tournament
 	h.HandleFunc("/m/tournaments/?", handlers.User(tournamentsctrl.Index))

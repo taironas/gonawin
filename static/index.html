@@ -13,9 +13,9 @@
   <body>
     <div class="container">
       <div ng-controller="SessionController">
-				<div ng-include src="'templates/partials/navigation.html'"></div>
-				<ng-view></ng-view>
-			</div> <!-- end SessionController -->
+		<div ng-include src="'templates/partials/navigation.html'"></div>
+		<ng-view></ng-view>
+	   </div> <!-- end SessionController -->
       <br>
       <div ng-include src="'templates/partials/footer.html'"></div>
     </div>
@@ -25,6 +25,7 @@
     <script src="https://apis.google.com/js/plusone.js"></script>
     <script src="/static/lib/angular/angular.js"></script>
     <script src="/static/lib/angular/angular-route.js"></script>
+    <script src="/static/lib/angular/angular-resource.js"></script>
     <script src="/static/lib/angular/angular-sanitize.js"></script>
     <script src="/static/lib/angular/angular-cookies.js"></script>
 
@@ -35,14 +36,7 @@
     <script src="/static/js/controllers/InviteController.js"></script>
     <script src="/static/js/controllers/SettingsEditProfileController.js"></script>
 
-    <script src="/static/js/controllers/TeamsController.js"></script>
-    <script src="/static/js/controllers/TeamsNewController.js"></script>
-    <script src="/static/js/controllers/TeamsShowController.js"></script>
-    <script src="/static/js/controllers/TeamsEditController.js"></script>
-    <script src="/static/js/controllers/TeamsController.js"></script>
-    <script src="/static/js/controllers/TeamsNewController.js"></script>
-    <script src="/static/js/controllers/TeamsShowController.js"></script>
-    <script src="/static/js/controllers/TeamsEditController.js"></script>
+    <script src="/static/js/controllers/teamControllers.js"></script>
 
     <script src="/static/js/controllers/TournamentsController.js"></script>
     <script src="/static/js/controllers/TournamentsNewController.js"></script>
@@ -53,9 +47,7 @@
     <script src="/static/js/services/InviteData.js"></script>
     <script src="/static/js/services/ProfileData.js"></script>
 
-    <script src="/static/js/services/TeamsData.js"></script>
-    <script src="/static/js/services/TeamData.js"></script>
-    <script src="/static/js/services/TeamsNewData.js"></script>
+    <script src="/static/js/services/teamServices.js"></script>
 
     <script src="/static/js/services/TournamentsData.js"></script>
     <script src="/static/js/services/TournamentData.js"></script>

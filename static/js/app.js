@@ -1,18 +1,27 @@
 'use strict';
 
-var purpleWingApp = angular.module('purpleWingApp', ['ngSanitize', 'ngRoute', 'directive.g+signin', 'ngCookies']);
+var purpleWingApp = angular.module('purpleWingApp', [
+	'ngSanitize',
+	'ngRoute',
+	'ngResource',
+	'ngCookies',
+	'directive.g+signin',
+	
+	'teamControllers',
+	'teamServices'
+]);
 
 purpleWingApp.config(['$routeProvider',
-	function($routeProvider, $httpProvider) {
+	function($routeProvider) {
 		$routeProvider.
 			when('/', { templateUrl: 'templates/main.html', controller: 'MainController' }).
 			when('/about', { templateUrl: 'templates/about.html' }).
 			when('/contact', { templateUrl: 'templates/contact.html' }).
 			when('/users/:userId', { templateUrl: 'templates/user_show.html', controller: 'UserShowController' }).
-			when('/teams', { templateUrl: 'templates/teams.html', controller: 'TeamsController' }).
-			when('/teams/new', { templateUrl: 'templates/teams_new.html', controller: 'TeamsNewController' }).
-			when('/teams/:teamId', { templateUrl: 'templates/teams_show.html', controller: 'TeamsShowController' }).
-			when('/teams/:teamId/edit', { templateUrl: 'templates/teams_edit.html', controller: 'TeamsEditController' }).
+			when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl' }).
+			when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl' }).
+			when('/teams/show/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl' }).
+			when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl' }).
 			when('/tournaments', { templateUrl: 'templates/tournaments.html', controller: 'TournamentsController' }).
 			when('/tournaments/new', { templateUrl: 'templates/tournaments_new.html', controller: 'TournamentsNewController' }).
 			when('/tournaments/:tournamentId', { templateUrl: 'templates/tournaments_show.html', controller: 'TournamentsShowController' }).
