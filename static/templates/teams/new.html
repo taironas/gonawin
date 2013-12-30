@@ -1,8 +1,8 @@
 <div class="page-header">
   <h1>New Team</h1>
 </div>
-<div ng-controller="TeamNewCtrl">
-  <form class="newTeamForm form-horizontal">
+<div>
+  <form class="newTeamForm form-horizontal" ng-controller="TeamNewCtrl">
     <div class="control-group">
       <label class="control-label">Name</label>
       <div class="controls">
@@ -12,8 +12,8 @@
     <div class="control-group">
       <label class="control-label">Visibility</label>
       <div class="controls">
-        <input class="radio" name="Visibility" type="radio" value="Public" checked ng-model="team.visibility"/> Public (Anyone can subscribe to this team)<br>
-        <input class="radio" name="Visibility" type="radio" value="Private" ng-model="team.visibility"/> Private (users need to request an invitation)
+        <input class="radio" name="visibility" type="radio" value="Public" ng-model="team.visibility" ng-init="team.visibility='Public'"/> Public (Anyone can subscribe to this team)<br>
+        <input class="radio" name="visibility" type="radio" value="Private" ng-model="team.visibility"/> Private (users need to request an invitation)
       </div>
     </div>
     <div class="form-actions">
