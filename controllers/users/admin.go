@@ -40,13 +40,6 @@ func AdminShow(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAdminShow")
 }
 
-
-// Json Admin show handler
-func AdminShowJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-	return templateshlp.RenderJson(w, c, nil)
-}
-
 // Admin users handler
 func AdminUsers(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -62,24 +55,10 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	
 	t := template.Must(template.New("tmpl_admin_users_show").
 		Funcs(funcs).
-		ParseFiles("templates/admin/users.html", 
+		ParseFiles("templates/admin/users.html",
 		"templates/user/info.html"))
 		
 	templateshlp.RenderWithData(w, r, c, t, users, funcs, "renderAdminUsersShow")
-}
-
-// json admin users handler
-func AdminUsersJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-
-	// sample of users
-	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
-	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
-	user3 := usermdl.User{ 1, "test3@example.com", "jdoe3", "John Doe 3", "", time.Now() }
-	users := [] usermdl.User{user1, user2, user3}
-	// end samlpe of users
-
-	return templateshlp.RenderJson(w, c, users)
 }
 
 

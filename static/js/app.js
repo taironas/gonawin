@@ -7,6 +7,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
 	'ngCookies',
 	'directive.g+signin',
 	
+	'userControllers',
 	'teamControllers',
 	'tournamentControllers',
 	'dataServices'
@@ -18,7 +19,8 @@ purpleWingApp.config(['$routeProvider',
 			when('/', { templateUrl: 'templates/main.html', controller: 'MainController' }).
 			when('/about', { templateUrl: 'templates/about.html' }).
 			when('/contact', { templateUrl: 'templates/contact.html' }).
-			when('/users/:userId', { templateUrl: 'templates/user_show.html', controller: 'UserShowController' }).
+			when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl' }).
+			when('/users/show/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl' }).
 			when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl' }).
 			when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl' }).
 			when('/teams/show/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl' }).
@@ -27,7 +29,7 @@ purpleWingApp.config(['$routeProvider',
 			when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl' }).
 			when('/tournaments/show/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl' }).
 			when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl' }).
-			when('/settings/edit-profile', { templateUrl: 'templates/settings_edit-profile.html', controller: 'SettingsEditProfileController' }).
+			when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl' }).
 			when('/settings/networks', { templateUrl: 'templates/settings_networks.html' }).
 			when('/settings/email', { templateUrl: 'templates/settings_email.html' }).
 			when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteController' }).

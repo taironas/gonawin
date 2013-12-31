@@ -1,6 +1,13 @@
 'use strict'
 var dataServices = angular.module('dataServices', ['ngResource']);
 
+dataServices.factory('User', function($resource) {
+	return $resource('j/users/:id', {id:'@id'}, {
+		get: { method: 'GET', url: 'j/users/show/:id' },
+		update: { method: 'POST', url: 'j/users/update/:id' },
+	})
+});
+
 dataServices.factory('Team', function($resource) {
 	return $resource('j/teams/:id', {id:'@id'}, {
 		get: { method: 'GET', url: 'j/teams/show/:id' },

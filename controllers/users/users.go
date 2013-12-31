@@ -17,13 +17,16 @@
 package users
 
 import (
+	"errors"
 	"html/template"
 	"net/http"
 
 	"appengine"
 
+	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
@@ -44,6 +47,12 @@ type Form struct {
 	ErrorEmail string
 }
 
+type UserData struct {
+	Username string
+	Name string
+	Email string
+}
+
 // Show handler
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -60,7 +69,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	
 	t := template.Must(template.New("tmpl_user_show").
 		Funcs(funcs).
-		ParseFiles("templates/user/show.html", 
+		ParseFiles("templates/user/show.html",
 		"templates/user/info.html",
 		"templates/user/teams.html",
 		"templates/user/tournaments.html",
@@ -77,7 +86,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 	tournaments := tournamentrelshlp.Tournaments(c, userId)
 	teamRequests := teamrelshlp.TeamsRequests(c, teams)
 	
-	userData := struct { 
+	userData := struct {
 		User *usermdl.User
 		Teams []*teammdl.Team
 		Tournaments []*tournamentmdl.Tournament
@@ -92,11 +101,24 @@ func Show(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
 }
 
-// Json Show handler
+// json index user handler
+func IndexJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	if r.Method == "GET"{
+		users := usermdl.FindAll(c)
+		return templateshlp.RenderJson(w, c, users)
+	
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
+	}
+}
+
+// Json show user handler
 func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 
-	userId, err := handlers.PermalinkID(r, c, 3)
+	userId, err := handlers.PermalinkID(r, c, 4)
 	if err != nil{
 		return helpers.BadRequest{err}
 	}
@@ -107,20 +129,39 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 		return helpers.BadRequest{err}
 	}
 	
-	teams := teamrelshlp.Teams(c, userId)
-	tournaments := tournamentrelshlp.Tournaments(c, userId)
-	teamRequests := teamrelshlp.TeamsRequests(c, teams)
-	
-	userData := struct { 
-		User *usermdl.User
-		Teams []*teammdl.Team
-		Tournaments []*tournamentmdl.Tournament
-		TeamRequests []*teamrequestmdl.TeamRequest
-	}{
-		user,
-		teams,
-		tournaments,
-		teamRequests,
+	return templateshlp.RenderJson(w, c, user)
+}
+
+// json update user handler
+func UpdateJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST"{
+		currentUser := auth.CurrentUser(r, c)
+		
+		// only work on name other values should not be editable
+		defer r.Body.Close()
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			return helpers.InternalServerError{ errors.New("Error when reading request body") }
+		}
+		log.Infof(c, "Body=%s", body)
+		var updatedData UserData
+		err = json.Unmarshal(body, &updatedData)
+		if err != nil {
+				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
+		}
+
+		if helpers.IsUsernameValid(updatedData.Username) && updatedData.Username != currentUser.Username{
+			currentUser.Username = updatedData.Username
+			usermdl.Update(c, currentUser)
+		} else {
+			log.Errorf(c, " cannot update current user info")
+		}
+		
+		// return updated user
+		return templateshlp.RenderJson(w, c, currentUser)
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
-	return templateshlp.RenderJson(w, c, userData)
 }

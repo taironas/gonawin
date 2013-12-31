@@ -72,6 +72,18 @@ func Find(c appengine.Context, filter string, value interface{}) *User {
 	}
 }
 
+func FindAll(c appengine.Context) []*User {
+	q := datastore.NewQuery("User")
+
+	var users []*User
+
+	if _, err := q.GetAll(c, &users); err != nil {
+		log.Errorf(c, " User.FindAll, error occurred during GetAll call: %v", err)
+	}
+
+	return users
+}
+
 func ById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
