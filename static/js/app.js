@@ -8,7 +8,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
 	'directive.g+signin',
 	
 	'teamControllers',
-	'teamServices'
+	'dataServices'
 ]);
 
 purpleWingApp.config(['$routeProvider',
