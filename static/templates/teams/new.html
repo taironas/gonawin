@@ -2,11 +2,12 @@
   <h1>New Team</h1>
 </div>
 <div>
-  <form class="newTeamForm form-horizontal" ng-controller="TeamNewCtrl">
-    <div class="control-group">
+  <form name="newTeamForm" class="form-horizontal" ng-controller="TeamNewCtrl">
+    <div class="control-group" ng-class="{error: newTeamForm.name.$invalid}">
       <label class="control-label">Name</label>
       <div class="controls">
         <input class="text_field" name="name" size="30" type="text" ng-model="team.name" required/>
+        <span ng-show="newTeamForm.name.$error.required" class="help-inline"> Required</span>
       </div>
     </div>
     <div class="control-group">
@@ -17,8 +18,8 @@
       </div>
     </div>
     <div class="form-actions">
-      <input class="btn btn-primary" name="commit" value="Create Team" ng-click="addTeam()"/>
       <a href="/ng#/teams" class="btn">Cancel</a>
+      <button class="btn btn-primary" ng-click="addTeam()" ng-disabled="newTeamForm.$invalid">Create Team</button>
     </div>
   </form>
 </div>
