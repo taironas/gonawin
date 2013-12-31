@@ -8,6 +8,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
 	'directive.g+signin',
 	
 	'teamControllers',
+	'tournamentControllers',
 	'dataServices'
 ]);
 
@@ -22,10 +23,10 @@ purpleWingApp.config(['$routeProvider',
 			when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl' }).
 			when('/teams/show/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl' }).
 			when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl' }).
-			when('/tournaments', { templateUrl: 'templates/tournaments.html', controller: 'TournamentsController' }).
-			when('/tournaments/new', { templateUrl: 'templates/tournaments_new.html', controller: 'TournamentsNewController' }).
-			when('/tournaments/:tournamentId', { templateUrl: 'templates/tournaments_show.html', controller: 'TournamentsShowController' }).
-			when('/tournaments/:tournamentId/edit', { templateUrl: 'templates/tournaments_edit.html', controller: 'TournamentsEditController' }).
+			when('/tournaments', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentListCtrl' }).
+			when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl' }).
+			when('/tournaments/show/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl' }).
+			when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl' }).
 			when('/settings/edit-profile', { templateUrl: 'templates/settings_edit-profile.html', controller: 'SettingsEditProfileController' }).
 			when('/settings/networks', { templateUrl: 'templates/settings_networks.html' }).
 			when('/settings/email', { templateUrl: 'templates/settings_email.html' }).

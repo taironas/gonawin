@@ -76,7 +76,7 @@ func Destroy(c appengine.Context, tournamentId int64) error {
 	} else {
 		key := datastore.NewKey(c, "Tournament", "", tournament.Id, nil)
 
-		return datastore.Delete(c, key)  
+		return datastore.Delete(c, key)
 	}
 }
 
@@ -115,7 +115,8 @@ func KeyById(c appengine.Context, id int64)(*datastore.Key){
 }
 
 func Update(c appengine.Context, id int64, t *Tournament) error {
-	
+	// update key name
+	t.KeyName = helpers.TrimLower(t.Name)
 	k := KeyById(c, id)
 	oldTournament := new(Tournament)
 	if err := datastore.Get(c, k, oldTournament); err == nil {

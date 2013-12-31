@@ -17,8 +17,10 @@
 package tournaments
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 	"fmt"
 	"time"
@@ -44,6 +46,10 @@ import (
 type Form struct {
 	Name string
 	Error string
+}
+
+type TournamentData struct {
+	Name string
 }
 
 type indexData struct{
@@ -95,42 +101,6 @@ func Index(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderTournamentIndex")
 }
 
-// json index tournaments handler
-func IndexJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-
-	var data indexData
-	if r.Method == "GET"{
-		tournaments := tournamentmdl.FindAll(c)
-
-		data.Tournaments = tournaments
-		data.TournamentInputSearch = ""
-		
-	} else if r.Method == "POST" {
-		if query := r.FormValue("TournamentInputSearch"); len(query) == 0 {
-			http.Redirect(w, r, "tournaments", http.StatusFound)
-			return nil
-		} else {
-			words := helpers.SetOfStrings(query)
-			ids, err := tournamentinvmdl.GetIndexes(c, words)
-			
-			if err != nil {
-				log.Errorf(c, " tournaments.Index, error occurred when getting indexes of words: %v", err)
-			}
-			
-			result := searchmdl.TournamentScore(c, query, ids)
-			
-			tournaments := tournamentmdl.ByIds(c, result)
-			data.Tournaments = tournaments
-			data.TournamentInputSearch = query
-		}
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
-	}
-		
-	return templateshlp.RenderJson(w, c, data)
-}
-
 // new tournament handler
 func New(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -168,55 +138,24 @@ func New(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderTournamentNew")
 }
 
-// json new tournament handler
-func NewJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-	
-	var form Form
-	if r.Method == "GET" {
-		form.Name = ""
-		form.Error = ""
-	} else if r.Method == "POST" {
-		form.Name = r.FormValue("Name")
-		
-		if len(form.Name) <= 0 {
-			form.Error = "'Name' field cannot be empty"
-		} else if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(form.Name)); t != nil {
-			form.Error = "That tournament name already exists."
-		} else {
-			tournament, err := tournamentmdl.Create(c, form.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r, c).Id)
-			if err != nil {
-				log.Errorf(c, " error when trying to create a tournament: %v", err)
-			}
-			// redirect to the newly created tournament page
-			http.Redirect(w, r, "/j/tournaments/" + fmt.Sprintf("%d", tournament.Id), http.StatusFound)
-			return nil
-		}
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
-	}
-		
-	return templateshlp.RenderJson(w, c, form)
-}
-
 // show tournament handler
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	
+
 	intID, err := handlers.PermalinkID(r, c, 3)
 	if err != nil{
 		log.Errorf(c, " Unable to find ID in request %v",r)
 		http.Redirect(w, r, "/m/tournaments/", http.StatusFound)
 		return
 	}
-	
+
 	if r.Method == "GET" {
 		funcs := template.FuncMap{
 			"Joined": func() bool { return tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id) },
 			"TeamJoined": func(teamId int64) bool { return tournamentmdl.TeamJoined(c, intID, teamId) },
 			"IsTournamentAdmin": func() bool { return tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) },
 		}
-		
+
 		t := template.Must(template.New("tmpl_tournament_show").
 			Funcs(funcs).
 			ParseFiles("templates/tournament/show.html",
@@ -226,16 +165,16 @@ func Show(w http.ResponseWriter, r *http.Request){
 
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(c, intID)
-		
+
 		if err != nil{
 			helpers.Error404(w)
 			return
 		}
-		
+
 		participants := tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
 		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
-		
+
 		tournamentData := struct {
 			Tournament *tournamentmdl.Tournament
 			Participants []*usermdl.User
@@ -251,16 +190,68 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 }
 
+//  Edit tournament handler
+func Edit(w http.ResponseWriter, r *http.Request){
+	c := appengine.NewContext(r)
+
+	intID, err := handlers.PermalinkID(r, c, 3)
+	if err != nil{
+		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
+		return
+	}
+
+	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
+		http.Redirect(w, r, "/m", http.StatusFound)
+		return
+	}
+
+	var tournament *tournamentmdl.Tournament
+	tournament, err = tournamentmdl.ById(c, intID)
+	if err != nil{
+		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
+		helpers.Error404(w)
+		return
+	}
+
+	if r.Method == "GET" {
+
+		funcs := template.FuncMap{}
+
+		t := template.Must(template.New("tmpl_tournament_edit").
+			ParseFiles("templates/tournament/edit.html"))
+
+		templateshlp.RenderWithData(w, r, c, t, tournament, funcs, "renderTournamentEdit")
+		return
+	} else if r.Method == "POST" {
+
+		// only work on name other values should not be editable
+		editName := r.FormValue("Name")
+
+		if helpers.IsStringValid(editName) && editName != tournament.Name{
+			tournament.Name = editName
+			tournamentmdl.Update(c, intID, tournament)
+		} else {
+			log.Errorf(c, " cannot update %v", helpers.IsStringValid(editName))
+		}
+		url := fmt.Sprintf("/m/tournaments/%d",intID)
+		http.Redirect(w, r, url, http.StatusFound)
+		return
+	} else {
+		helpers.Error404(w)
+		return
+	}
+}
+
 // Tournament destroy handler
 func Destroy(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	
+
 	tournamentID, err := handlers.PermalinkID(r, c, 4)
 	if err != nil{
 		http.Redirect(w, r, "/m/tournaments/", http.StatusFound)
 		return
 	}
-	
+
 	if r.Method == "POST" {
 		// delete all tournament-user relationships
 		for _, participant := range tournamentrelshlp.Participants(c, tournamentID) {
@@ -276,9 +267,57 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 		}
 		// delete the tournament
 		tournamentmdl.Destroy(c, tournamentID)
-		
+
 		http.Redirect(w, r, "/m/tournaments", http.StatusFound)
 		return
+	}
+}
+
+// json index tournaments handler
+func IndexJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET"{
+		tournaments := tournamentmdl.FindAll(c)
+		return templateshlp.RenderJson(w, c, tournaments)
+
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
+	}
+}
+
+// json new tournament handler
+func NewJson(w http.ResponseWriter, r *http.Request) error{
+	c := appengine.NewContext(r)
+	
+	if r.Method == "POST" {
+		defer r.Body.Close()
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			return helpers.InternalServerError{ errors.New("Error when reading request body") }
+		}
+		
+		var data TournamentData
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
+		}
+		
+		if len(data.Name) <= 0 {
+			return helpers.InternalServerError{errors.New("'Name' field cannot be empty")}
+		} else if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
+			return helpers.InternalServerError{ errors.New("That tournament name already exists") }
+		} else {
+			tournament, err := tournamentmdl.Create(c, data.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r, c).Id)
+			if err != nil {
+				log.Errorf(c, " error when trying to create a tournament: %v", err)
+				return helpers.InternalServerError{ errors.New("error when trying to create a tournament") }
+			}
+			// return the newly created tournament
+			return templateshlp.RenderJson(w, c, tournament)
+		}
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
 }
 
@@ -286,7 +325,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 func ShowJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
-	intID, err := handlers.PermalinkID(r, c, 3)
+	intID, err := handlers.PermalinkID(r, c, 4)
 	if err != nil{
 		return helpers.NotFound{err}
 	}
@@ -298,22 +337,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 			return helpers.NotFound{err}
 		}
 		
-		participants := tournamentrelshlp.Participants(c, intID)
-		teams := tournamentrelshlp.Teams(c, intID)
-		candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
-		
-		tournamentData := struct {
-			Tournament *tournamentmdl.Tournament
-			Participants []*usermdl.User
-			Teams []*teammdl.Team
-			CandidateTeams []*teammdl.Team
-		}{
-			tournament,
-			participants,
-			teams,
-			candidateTeams,
-		}
-		return templateshlp.RenderJson(w, c, tournamentData)
+		return templateshlp.RenderJson(w, c, tournament)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
@@ -351,95 +375,49 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 }
 
-//  Edit tournament handler
-func Edit(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)
-	
-	intID, err := handlers.PermalinkID(r, c, 3)
-	if err != nil{
-		http.Redirect(w,r, "/m/tournaments/", http.StatusFound)
-		return
-	}
-	
-	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
-		http.Redirect(w, r, "/m", http.StatusFound)
-		return
-	}
-
-	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(c, intID)
-	if err != nil{
-		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
-		helpers.Error404(w)
-		return
-	}
-		
-	if r.Method == "GET" {
-
-		funcs := template.FuncMap{}
-		
-		t := template.Must(template.New("tmpl_tournament_edit").
-			ParseFiles("templates/tournament/edit.html"))
-
-		templateshlp.RenderWithData(w, r, c, t, tournament, funcs, "renderTournamentEdit")
-		return
-	} else if r.Method == "POST" {
-		
-		// only work on name other values should not be editable
-		editName := r.FormValue("Name")
-
-		if helpers.IsStringValid(editName) && editName != tournament.Name{
-			tournament.Name = editName
-			tournamentmdl.Update(c, intID, tournament)
-		} else {
-			log.Errorf(c, " cannot update %v", helpers.IsStringValid(editName))
-		}
-		url := fmt.Sprintf("/m/tournaments/%d",intID)
-		http.Redirect(w, r, url, http.StatusFound)
-		return
-	} else {
-		helpers.Error404(w)
-		return
-	}
-}
-
 //  Json Update tournament handler
 func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 	c := appengine.NewContext(r)
 	
-	intID, err := handlers.PermalinkID(r, c, 3)
+	intID, err := handlers.PermalinkID(r, c, 4)
 	if err != nil{
 		return helpers.NotFound{err}
 	}
 	
 	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
-		http.Redirect(w, r, "/j", http.StatusFound)
-		return nil
-	}
-
-	var tournament *tournamentmdl.Tournament
-	tournament, err = tournamentmdl.ById(c, intID)
-	if err != nil{
-		log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
-		return helpers.NotFound{err}
+		return helpers.Forbidden{errors.New("tournament can only be updated by the tournament administrator")}
 	}
 		
-	if r.Method == "GET" {
-		return templateshlp.RenderJson(w, c, tournament)
-	} else if r.Method == "POST" {
+	if r.Method == "POST" {
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, intID)
+		if err != nil{
+			log.Errorf(c, " Tournament Edit handler: tournament not found. id: %v",intID)
+			return helpers.NotFound{err}
+		}
 		
 		// only work on name other values should not be editable
-		editName := r.FormValue("Name")
-
-		if helpers.IsStringValid(editName) && editName != tournament.Name{
-			tournament.Name = editName
+		defer r.Body.Close()
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			return helpers.InternalServerError{ errors.New("Error when reading request body") }
+		}
+		log.Infof(c, "Body=%s", body)
+		var updatedData TournamentData
+		err = json.Unmarshal(body, &updatedData)
+		if err != nil {
+				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
+		}
+		
+		if helpers.IsStringValid(updatedData.Name) && updatedData.Name != tournament.Name{
+			tournament.Name = updatedData.Name
 			tournamentmdl.Update(c, intID, tournament)
 		} else {
-			log.Errorf(c, " cannot update %v", helpers.IsStringValid(editName))
+			log.Errorf(c, "Cannot update because updated data are not valid")
+			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
-		url := fmt.Sprintf("/j/tournaments/%d",intID)
-		http.Redirect(w, r, url, http.StatusFound)
-		return nil
+		// return the updated tournament
+		return templateshlp.RenderJson(w, c, tournament)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}

@@ -1,0 +1,18 @@
+<div class="page-header">
+	<h1>Edit Tournament</h1>
+</div>
+<div ng-controller="TournamentEditCtrl">
+	<form name="editTournamentForm" class="form-horizontal">
+	  	<div class="control-group" ng-class="{error: editTournamentForm.name.$invalid}">
+			<label class="control-label">Name</label>
+			<div class="controls">
+		  		<input class="text_field" name="name" size="30" type="text" ng-model="tournament.Name" required/>
+		  		<span ng-show="editTournamentForm.name.$error.required" class="help-inline"> Required</span>
+			</div>
+	  	</div>
+	  	<div class="form-actions">
+			<a href="/ng#/tournaments/show/{{tournament.Id}}" class="btn">Cancel</a>
+			<button class="btn btn-primary" ng-click="updateTournament()" ng-disabled="editTournamentForm.$invalid">Update Tournament</button>
+	  	</div>
+	</form>
+</div>
