@@ -1,7 +1,10 @@
 'use strict';
 
-purpleWingApp.controller('InviteController',
-		     function InviteController($scope, inviteData, $location, $routeParams){
-			 $scope.inviteData = inviteData.getData();
-		     }
-		    );
+var inviteController = angular.module('inviteController', []);
+
+inviteController.controller('InviteCtrl', ['$scope', '$location', function($scope, $location) {
+
+	$scope.inviteFriends = function() {
+		console.log('Invite friends');
+	}
+}]);

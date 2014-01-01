@@ -17,8 +17,10 @@
 package users
 
 import (
+	"encoding/json"
 	"errors"
 	"html/template"
+	"io/ioutil"
 	"net/http"
 
 	"appengine"

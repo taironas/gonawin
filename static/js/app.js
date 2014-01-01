@@ -10,6 +10,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
 	'userControllers',
 	'teamControllers',
 	'tournamentControllers',
+	'inviteController',
 	'dataServices'
 ]);
 
@@ -32,6 +33,6 @@ purpleWingApp.config(['$routeProvider',
 			when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl' }).
 			when('/settings/networks', { templateUrl: 'templates/settings_networks.html' }).
 			when('/settings/email', { templateUrl: 'templates/settings_email.html' }).
-			when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteController' }).
+			when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl' }).
 			otherwise( {redirectTo: '/'});
 }]);
