@@ -7,6 +7,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
 	'ngCookies',
 	'directive.g+signin',
 	
+	'sessionController',
 	'userControllers',
 	'teamControllers',
 	'tournamentControllers',

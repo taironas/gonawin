@@ -12,7 +12,7 @@
   </head>
   <body>
     <div class="container">
-      <div ng-controller="SessionController">
+      <div ng-controller="SessionCtrl">
 		<div ng-include src="'templates/partials/navigation.html'"></div>
 		<ng-view></ng-view>
 	   </div> <!-- end SessionController -->
@@ -31,13 +31,13 @@
 
     <script src="/static/js/app.js"></script>
     <script src="/static/js/controllers/MainController.js"></script>
-    <script src="/static/js/controllers/SessionController.js"></script>
-    <script src="/static/js/controllers/InviteController.js"></script>
-
+    <script src="/static/js/controllers/sessionController.js"></script>
+    <script src="/static/js/controllers/inviteController.js"></script>
     <script src="/static/js/controllers/userControllers.js"></script>
     <script src="/static/js/controllers/teamControllers.js"></script>
     <script src="/static/js/controllers/tournamentControllers.js"></script>
 
+    <script src="/static/js/services/sessionService.js"></script>
     <script src="/static/js/services/dataServices.js"></script>
     
     <script src="/static/js/services/InviteData.js"></script>
