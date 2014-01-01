@@ -2,10 +2,11 @@
 
 var sessionController = angular.module('sessionController', []);
 
-sessionController.controller('SessionCtrl', ['$scope', '$http' '$cookieStore', 'SessionService',
+sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 'SessionService',
 	function ($scope, $http, $cookieStore, SessionService) {
 		console.log('SessionController module');
 		$scope.loggedIn = false;
+		$scope.currentUser = undefined;
 		$scope.$on('event:google-plus-signin-success', function (event, authResult) {
 			// User successfully authorized the G+ App!
 			console.log('Signed in!');
@@ -23,6 +24,7 @@ sessionController.controller('SessionCtrl', ['$scope', '$http' '$cookieStore', '
 			}
 			else {
 		    $scope.loggedIn = false;
+		    $scope.currentUser = undefined;
 		    $scope.$apply();
 		    return false;
 			}
@@ -42,6 +44,7 @@ sessionController.controller('SessionCtrl', ['$scope', '$http' '$cookieStore', '
 		    success(function(data, status, headers, config) {
 					console.log('completeLogin successfully');
 					SessionService.setCurrentUser(data);
+					$scope.currentUser = SessionService.getCurrentUser();
 					$cookieStore.put('access_token', accessToken);
 					$cookieStore.put('auth', SessionService.getCurrentUser.Auth);
 					$scope.loggedIn = true;
