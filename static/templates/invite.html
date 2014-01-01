@@ -9,27 +9,32 @@
       <p>We'll be sending them a message that looks like this. Enter their email address below (separated by commas, please).</p>
       <br />
 
-	    <form name="inviteForm">
-				<div id="email">
-					<p>
-					  From: {{invite.name}}<br />
-					  Subject: <strong>{{invite.name}} wants you to join Purple-wing!</strong>
-					</p>
-					<p class="email-body">
-					  Hi there -<br />
-					  Join us on Purple-wing.<br /><br />
-					  You will be able to bet on tournament and win some rewards!<br /><br />
-					  Sign in here: http://localhost:8080/ng#/<br /><br />
-					  Have fun,<br />
-					  Your friends @ purple-wing
-					</p>
-				</div>
-			
-				<div id="invite">
-					<textarea rows="4" name="emails_area" cols="50" ng-model="invite.emailsList"></textarea>
-					<button class="btn" ng-click="inviteFriends()">Invite friends</button>
-				</div>
-	    </form>
+			<div ng-controller="InviteCtrl" ng-dirty>
+		    <form name="inviteForm">
+					<div id="email">
+						<p>
+						  From: {{currentUser.Name}}<br />
+						  Subject: {{currentUser.Name}} wants you to join Purple-wing!</strong>
+						</p>
+						<p class="email-body">
+						  Hi there -<br />
+						  Join us on Purple-wing.<br /><br />
+						  You will be able to bet on tournament and win some rewards!<br /><br />
+						  Sign in here: http://localhost:8080/ng#/<br /><br />
+						  Have fun,<br />
+						  Your friends @ purple-wing
+						</p>
+					</div>
+				
+					<div id="invite">
+						<div class="control-group" ng-class="{error: inviteForm.emails.$invalid}">
+							<textarea rows="4" name="emails" cols="50" ng-model="invite.emails" emails></textarea>
+							<span ng-show="inviteForm.emails.$error.emails" class="help-inline"> List is not well formatted</span>
+						</div>
+						<button class="btn" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
+					</div>
+		    </form>
+	  		</div>
     </div>
   </div>
 </div>
