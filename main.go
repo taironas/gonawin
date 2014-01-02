@@ -113,9 +113,6 @@ func init(){
 	h.HandleFunc("/j/tournamentrels/destroy/?", handlers.User(handlers.ErrorHandler(tournamentrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentteamrels/create/?", handlers.User(handlers.ErrorHandler(tournamentteamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentteamrels/destroy/?", handlers.User(handlers.ErrorHandler(tournamentteamrelsctrl.DestroyJson)))
-	// settings - json
-	h.HandleFunc("/j/settings/networks/?", handlers.User(handlers.ErrorHandler(settingsctrl.NetworksJson)))
-	h.HandleFunc("/j/settings/email/?", handlers.User(handlers.ErrorHandler(settingsctrl.EmailJson)))
 	// invite -json
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 

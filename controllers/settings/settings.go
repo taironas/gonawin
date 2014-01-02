@@ -84,17 +84,3 @@ func Email(w http.ResponseWriter, r *http.Request){
 	funcs := template.FuncMap{}
 	templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderEmail")
 }
-
-// user social networks handler
-func NetworksJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-
-	return templateshlp.RenderJson(w, c, nil)
-}
-
-// json email handler
-func EmailJson(w http.ResponseWriter, r *http.Request) error{
-	c := appengine.NewContext(r)
-
-	return templateshlp.RenderJson(w, c, nil)
-}
