@@ -116,6 +116,8 @@ func init(){
 	// settings - json
 	h.HandleFunc("/j/settings/networks/?", handlers.User(handlers.ErrorHandler(settingsctrl.NetworksJson)))
 	h.HandleFunc("/j/settings/email/?", handlers.User(handlers.ErrorHandler(settingsctrl.EmailJson)))
+	// invite -json
+	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 
 	http.Handle("/", h)
 }

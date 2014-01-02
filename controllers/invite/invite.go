@@ -17,6 +17,7 @@
 package invite
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -99,4 +100,42 @@ func Email(w http.ResponseWriter, r *http.Request){
 	
 	funcs := template.FuncMap{}
 	templateshlp.RenderWithData(w, r, c, t, form, funcs, "renderEmail")
+}
+
+// invite json handler
+func InviteJson(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST" {
+		emailsList := r.FormValue("emails")
+		name := r.FormValue("name")
+
+		if len(emailsList) <= 0 {
+			return helpers.InternalServerError{ errors.New("No email address has been entered") }
+		} else {
+			emails := strings.Split(emailsList, ",")
+			// validate emails
+			if !helpers.AreEmailsValid(emails) {
+				return helpers.InternalServerError{ errors.New("Emails list is not properly formatted") }
+			} else {
+				url := fmt.Sprintf("http://%s/ng#", r.Host)
+				for _, email := range emails {
+					msg := &mail.Message{
+					Sender:  "No Reply purple-wing <no-reply@purple-wing.com>",
+					To:      []string{email},
+					Subject: name + " wants you to join Purple-wing!",
+					Body:    fmt.Sprintf(inviteMessage, url),
+					}
+					
+					if err := mail.Send(c, msg); err != nil {
+						log.Errorf(c, " couldn't send email: %v", err)
+						return helpers.InternalServerError{ errors.New("Email has not been sent") }
+					}
+				}
+				return templateshlp.RenderJson(w, c, "Email has been sent successfully")
+			}
+		}
+	} else {
+		return helpers.BadRequest{errors.New("not supported")}
+	}
 }
