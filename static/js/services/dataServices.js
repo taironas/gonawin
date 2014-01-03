@@ -25,3 +25,25 @@ dataServices.factory('Tournament', function($resource) {
 		delete: { method: 'POST', url: 'j/tournaments/destroy/:id' }
 	})
 });
+
+dataServices.factory('Invite', function($http, $log, $q){
+    return {
+			send: function(currentUser, emails){
+				var deferred = $q.defer();
+					$http({
+						method: 'POST',
+						url: '/j/invite',
+						contentType: 'application/json',
+						params:{ emails: emails, name: currentUser.Name } }).
+						success(function(data,status,headers,config){
+							deferred.resolve(data);
+							$log.info(data, status, headers() ,config);
+						}).
+						error(function (data, status, headers, config){
+							$log.warn(data, status, headers(), config);
+							deferred.reject(status);
+						});
+					return deferred.promise;
+			}
+    };
+});
