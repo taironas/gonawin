@@ -46,7 +46,7 @@ sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 
 					SessionService.setCurrentUser(data);
 					$scope.currentUser = SessionService.getCurrentUser();
 					$cookieStore.put('access_token', accessToken);
-					$cookieStore.put('auth', SessionService.getCurrentUser.Auth);
+					$cookieStore.put('auth', $scope.currentUser.Auth);
 					$scope.loggedIn = true;
 				}).
 				error(function(result) { console.log('completeLogin failed') });
