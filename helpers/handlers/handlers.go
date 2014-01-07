@@ -85,3 +85,13 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 		}
 	}
 }
+
+func Authorized(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !auth.CheckAuthenticationData(r) {
+			http.Error(w, "Bad Authentication data", http.StatusBadRequest)
+		} else{
+			f(w, r)
+		}
+	}
+}

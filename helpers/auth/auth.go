@@ -24,6 +24,8 @@ import (
 
 	user "github.com/santiaago/purple-wing/helpers/user"
 	"github.com/santiaago/purple-wing/helpers/log"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const kOfflineMode bool = false
@@ -40,6 +42,15 @@ func CheckUserValidity(accessToken string, r *http.Request) bool {
 	}
 	
 	return resp.StatusCode == 200
+}
+
+func CheckAuthenticationData(r *http.Request) bool {
+	c := appengine.NewContext(r)
+	authToken := r.Header.Get("Authorization")
+	log.Errorf(c, "CheckAuthenticationData, Authentication = %s", authToken)
+	user := usermdl.Find(c, "Auth", authToken)
+	
+	return user != nil
 }
 
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
