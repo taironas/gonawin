@@ -44,13 +44,8 @@ func CheckUserValidity(accessToken string, r *http.Request) bool {
 	return resp.StatusCode == 200
 }
 
-func CheckAuthenticationData(r *http.Request) bool {
-	c := appengine.NewContext(r)
-	authToken := r.Header.Get("Authorization")
-	log.Errorf(c, "CheckAuthenticationData, Authentication = %s", authToken)
-	user := usermdl.Find(c, "Auth", authToken)
-	
-	return user != nil
+func CheckAuthenticationData(r *http.Request) *usermdl.User {
+	return usermdl.Find(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {

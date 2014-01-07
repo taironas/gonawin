@@ -26,7 +26,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
-
 )
 
 // is it a user?
@@ -63,7 +62,7 @@ func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error
 }
 
 
-func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc{
+func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := f(w, r)
 		if err == nil{
@@ -88,7 +87,8 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 
 func Authorized(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if !auth.CheckAuthenticationData(r) {
+		user := auth.CheckAuthenticationData(r)
+		if user == nil {
 			http.Error(w, "Bad Authentication data", http.StatusBadRequest)
 		} else{
 			f(w, r)
