@@ -5,8 +5,9 @@ var sessionController = angular.module('sessionController', []);
 sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 'SessionService',
 	function ($scope, $http, $cookieStore, SessionService) {
 		console.log('SessionController module');
-		$scope.loggedIn = false;
 		$scope.currentUser = undefined;
+		$scope.loggedIn = false;
+		
 		$scope.$on('event:google-plus-signin-success', function (event, authResult) {
 			// User successfully authorized the G+ App!
 			console.log('Signed in!');
@@ -19,13 +20,9 @@ sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 
 	  $scope.checkAuth = function(authResult){
 			if(authResult.access_token){
 		    $scope.login(authResult.access_token);
-		    $scope.$apply();
 		    return true;
 			}
 			else {
-		    $scope.loggedIn = false;
-		    $scope.currentUser = undefined;
-		    $scope.$apply();
 		    return false;
 			}
 	  };
@@ -44,10 +41,11 @@ sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 
 		    success(function(data, status, headers, config) {
 					console.log('completeLogin successfully');
 					SessionService.setCurrentUser(data);
-					$scope.currentUser = SessionService.getCurrentUser();
+					$scope.currentUser = data;
+					SessionService.setUserLoggedIn(true);
+					$scope.loggedIn = true;
 					$cookieStore.put('access_token', accessToken);
 					$cookieStore.put('auth', $scope.currentUser.Auth);
-					$scope.loggedIn = true;
 				}).
 				error(function(result) { console.log('completeLogin failed') });
 	  };
@@ -65,6 +63,8 @@ sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 
 					$cookieStore.remove('auth');
 					$cookieStore.remove('access_token');
 					SessionService.setCurrentUser(undefined);
+					$scope.currentUser = undefined;
+					SessionService.setUserLoggedIn(false);
 					$scope.loggedIn = false;
 					$scope.$apply();
 				}

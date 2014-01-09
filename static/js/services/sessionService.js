@@ -4,6 +4,7 @@ var sessionService = angular.module('sessionService', []);
 
 sessionService.factory('SessionService', function() {
 	var currentUser = undefined;
+	var userIsLoggedIn = false;
 	
 	return {
 		setCurrentUser: function(user) {
@@ -11,6 +12,12 @@ sessionService.factory('SessionService', function() {
 		},
 		getCurrentUser: function() {
 			return currentUser;
+		},
+		setUserLoggedIn: function(value) {
+			userIsLoggedIn = value;
+		},
+		getUserLoggedIn: function() {
+			return userIsLoggedIn;
 		}
 	};
 });
