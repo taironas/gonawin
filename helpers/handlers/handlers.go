@@ -17,6 +17,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"strconv"
@@ -26,6 +27,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // is it a user?
@@ -62,6 +65,8 @@ func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error
 }
 
 
+type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
+ 
 func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := f(w, r)
@@ -85,13 +90,13 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 	}
 }
 
-func Authorized(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
 		user := auth.CheckAuthenticationData(r)
 		if user == nil {
-			http.Error(w, "Bad Authentication data", http.StatusBadRequest)
+			return helpers.BadRequest{errors.New("Bad Authentication data")}
 		} else{
-			f(w, r)
+			return f(w, r, user)
 		}
 	}
 }

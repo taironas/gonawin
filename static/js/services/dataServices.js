@@ -10,7 +10,7 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 	})
 });
 
-dataServices.factory('Team', function($http, $resource) {
+dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	$http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 	
 	return $resource('j/teams/:id', {id:'@id'}, {
@@ -21,7 +21,7 @@ dataServices.factory('Team', function($http, $resource) {
 	})
 });
 
-dataServices.factory('Tournament', function($http, $resource) {
+dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 	$http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 	
 	return $resource('j/tournaments/:id', {id:'@id'}, {
@@ -32,7 +32,7 @@ dataServices.factory('Tournament', function($http, $resource) {
 	})
 });
 
-dataServices.factory('Invite', function($http, $log, $q){
+dataServices.factory('Invite', function($http, $log, $q, $cookieStore){
 	$http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 	
 	return {

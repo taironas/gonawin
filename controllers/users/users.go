@@ -25,7 +25,6 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
@@ -104,7 +103,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 }
 
 // json index user handler
-func IndexJson(w http.ResponseWriter, r *http.Request) error{
+func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "GET"{
@@ -117,7 +116,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // Json show user handler
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 
 	userId, err := handlers.PermalinkID(r, c, 4)
@@ -135,11 +134,17 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json update user handler
-func UpdateJson(w http.ResponseWriter, r *http.Request) error{
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST"{
-		currentUser := auth.CurrentUser(r, c)
+		userId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil{
+			return helpers.BadRequest{err}
+		}
+		if userId != u.Id {
+			return helpers.BadRequest{errors.New("User cannot be updated")}
+		}
 		
 		// only work on name other values should not be editable
 		defer r.Body.Close()
@@ -147,22 +152,22 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 		if err != nil {
 			return helpers.InternalServerError{ errors.New("Error when reading request body") }
 		}
-		log.Infof(c, "Body=%s", body)
+
 		var updatedData UserData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
 				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
 		}
 
-		if helpers.IsUsernameValid(updatedData.Username) && updatedData.Username != currentUser.Username{
-			currentUser.Username = updatedData.Username
-			usermdl.Update(c, currentUser)
+		if helpers.IsUsernameValid(updatedData.Username) && updatedData.Username != u.Username{
+			u.Username = updatedData.Username
+			usermdl.Update(c, u)
 		} else {
 			log.Errorf(c, " cannot update current user info")
 		}
 		
 		// return updated user
-		return templateshlp.RenderJson(w, c, currentUser)
+		return templateshlp.RenderJson(w, c, u)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}

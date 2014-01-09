@@ -25,6 +25,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"	
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
@@ -77,7 +79,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 }
 
 // create handler for tournament teams realtionship
-func CreateJson(w http.ResponseWriter, r *http.Request) error{
+func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get tournament id
@@ -109,7 +111,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // destroy handler for tournament teams realtionship
-func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get tournament id

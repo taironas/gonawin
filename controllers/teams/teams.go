@@ -328,7 +328,7 @@ func Request(w http.ResponseWriter, r *http.Request){
 }
 
 // json index handler
-func IndexJson(w http.ResponseWriter, r *http.Request) error{
+func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -340,7 +340,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json new handler
-func NewJson(w http.ResponseWriter, r *http.Request) error{
+func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST" {
@@ -361,13 +361,13 @@ func NewJson(w http.ResponseWriter, r *http.Request) error{
 		} else if t := teammdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			return helpers.InternalServerError{ errors.New("That team name already exists") }
 		} else {
-			team, err := teammdl.Create(c, data.Name, auth.CurrentUser(r, c).Id, data.Visibility == "Private")
+			team, err := teammdl.Create(c, data.Name, u.Id, data.Visibility == "Private")
 			if err != nil {
 				log.Errorf(c, "error when trying to create a team: %v", err)
 				return helpers.InternalServerError{ errors.New("error when trying to create a team") }
 			}
 			// join the team
-			_, err = teamrelmdl.Create(c, team.Id, auth.CurrentUser(r, c).Id)
+			_, err = teamrelmdl.Create(c, team.Id, u.Id)
 			if err != nil {
 				log.Errorf(c, " error when trying to create a team relationship: %v", err)
 				return helpers.InternalServerError{ errors.New("error when trying to create a team relationship") }
@@ -381,7 +381,7 @@ func NewJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json show handler
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 4)
@@ -402,7 +402,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json update handler
-func UpdateJson(w http.ResponseWriter, r *http.Request) error{
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	teamID, err := handlers.PermalinkID(r, c, 4)
@@ -410,12 +410,11 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 		return helpers.NotFound{err}
 	}
 	
-	if !teammdl.IsTeamAdmin(c, teamID, auth.CurrentUser(r, c).Id) {
-		return helpers.Forbidden{errors.New("team can only be updated by the team administrator")}
-	}
-	
 	if r.Method == "POST" {
-		
+		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
+			return helpers.BadRequest{errors.New("Team can only be updated by the team administrator")}
+		}
+	
 		var team *teammdl.Team
 		team, err = teammdl.ById(c, teamID)
 		if err != nil{
@@ -428,7 +427,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 		if err != nil {
 			return helpers.InternalServerError{ errors.New("Error when reading request body") }
 		}
-		log.Infof(c, "Body=%s", body)
+		
 		var updatedData TeamData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
@@ -454,7 +453,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json destroy handler
-func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 
 	teamID, err := handlers.PermalinkID(r, c, 4)
@@ -463,6 +462,10 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 
 	if r.Method == "POST" {
+		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
+			return helpers.BadRequest{errors.New("Team can only be deleted by the team administrator")}
+		}
+		
 		// delete all team-user relationships
 		for _, player := range teamrelshlp.Players(c, teamID) {
 			if err := teamrelmdl.Destroy(c, teamID, player.Id); err !=nil {
@@ -486,7 +489,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json invite handler
-func InviteJson(w http.ResponseWriter, r *http.Request) error{
+func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 3)
@@ -495,7 +498,7 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error{
 	}
 	
 	if r.Method == "POST"{
-		if _, err := teamrequestmdl.Create(c, intID, auth.CurrentUser(r, c).Id); err != nil {
+		if _, err := teamrequestmdl.Create(c, intID, u.Id); err != nil {
 			log.Errorf(c, " teams.Invite, error when trying to create a team request: %v", err)
 		}
 		
@@ -504,11 +507,10 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error{
 		return nil
 	}
 	return helpers.NotFound{errors.New("Not supported.")}
-	
 }
 
 // json request handler
-func RequestJson(w http.ResponseWriter, r *http.Request) error{
+func RequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST"{
@@ -530,7 +532,7 @@ func RequestJson(w http.ResponseWriter, r *http.Request) error{
 		
 		teamrequestmdl.Destroy(c, requestId)
 		
-		url := fmt.Sprintf("/j/users/%d", auth.CurrentUser(r, c).Id)
+		url := fmt.Sprintf("/j/users/%d", u.Id)
 		http.Redirect(w, r, url, http.StatusFound)
 		return nil
 	}

@@ -26,6 +26,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
@@ -72,7 +73,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 }
 
 // json create handler for team relations
-func CreateJson(w http.ResponseWriter, r *http.Request) error{
+func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get team id
@@ -83,7 +84,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request) error{
 	}
 	
 	if r.Method == "POST" {
-		if err := teammdl.Join(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
+		if err := teammdl.Join(c, teamId, u.Id); err != nil {
 			log.Errorf(c, " teamRels.Create: %v", err)
 			return helpers.InternalServerError{err}
 		}
@@ -98,7 +99,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json destroy handler for team relations
-func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get team id
@@ -109,14 +110,14 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 	
 	if r.Method == "POST" {
-		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
-			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
+		if !teammdl.IsTeamAdmin(c, teamId, u.Id) {
+			if err := teammdl.Leave(c, teamId, u.Id); err != nil {
 				log.Errorf(c, " teamRels.Destroy: %v", err)
 				return helpers.InternalServerError{err}
 			}
 		} else {
 			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
-			return helpers.Forbidden{err}
+			return helpers.BadRequest{err}
 		}
 	}
 	

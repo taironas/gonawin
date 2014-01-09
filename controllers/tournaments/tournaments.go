@@ -274,7 +274,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 }
 
 // json index tournaments handler
-func IndexJson(w http.ResponseWriter, r *http.Request) error{
+func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET"{
@@ -287,7 +287,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json new tournament handler
-func NewJson(w http.ResponseWriter, r *http.Request) error{
+func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST" {
@@ -308,7 +308,7 @@ func NewJson(w http.ResponseWriter, r *http.Request) error{
 		} else if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			return helpers.InternalServerError{ errors.New("That tournament name already exists") }
 		} else {
-			tournament, err := tournamentmdl.Create(c, data.Name, "description foo",time.Now(),time.Now(), auth.CurrentUser(r, c).Id)
+			tournament, err := tournamentmdl.Create(c, data.Name, "description foo",time.Now(),time.Now(), u.Id)
 			if err != nil {
 				log.Errorf(c, " error when trying to create a tournament: %v", err)
 				return helpers.InternalServerError{ errors.New("error when trying to create a tournament") }
@@ -322,7 +322,7 @@ func NewJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // Json show tournament handler
-func ShowJson(w http.ResponseWriter, r *http.Request) error{
+func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 4)
@@ -344,7 +344,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // Json tournament destroy handler
-func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 4)
@@ -353,6 +353,10 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 	
 	if r.Method == "POST" {
+		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
+			return helpers.Forbidden{errors.New("tournament can only be deleted by the tournament administrator")}
+		}
+	
 		// delete all tournament-user relationships
 		for _, participant := range tournamentrelshlp.Participants(c, intID) {
 			if err := tournamentrelmdl.Destroy(c, intID, participant.Id); err !=nil {
@@ -376,7 +380,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 //  Json Update tournament handler
-func UpdateJson(w http.ResponseWriter, r *http.Request) error{
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	intID, err := handlers.PermalinkID(r, c, 4)
@@ -384,7 +388,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 		return helpers.NotFound{err}
 	}
 	
-	if !tournamentmdl.IsTournamentAdmin(c, intID, auth.CurrentUser(r, c).Id) {
+	if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
 		return helpers.Forbidden{errors.New("tournament can only be updated by the tournament administrator")}
 	}
 		
@@ -402,7 +406,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request) error{
 		if err != nil {
 			return helpers.InternalServerError{ errors.New("Error when reading request body") }
 		}
-		log.Infof(c, "Body=%s", body)
+
 		var updatedData TournamentData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {

@@ -26,6 +26,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"	
 	"github.com/santiaago/purple-wing/helpers/auth"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	
+	usermdl "github.com/santiaago/purple-wing/models/user"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
@@ -68,7 +70,7 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 }
 
 // json create handler for tournament relationships
-func CreateJson(w http.ResponseWriter, r *http.Request) error{
+func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get tournament id
@@ -79,7 +81,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request) error{
 	}
 
 	if r.Method == "POST" {
-		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+		if err := tournamentmdl.Join(c, tournamentId, u.Id); err != nil {
 			log.Errorf(c, " tournamentrels.Create: %v", err)
 			return helpers.InternalServerError{err}
 		}
@@ -94,7 +96,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request) error{
 }
 
 // json destroy handler for tournament relationships
-func DestroyJson(w http.ResponseWriter, r *http.Request) error{
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	// get tournament id
@@ -105,7 +107,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request) error{
 	}
 
 	if r.Method == "POST" {
-		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
+		if err := tournamentmdl.Leave(c, tournamentId, u.Id); err != nil {
 			log.Errorf(c, " tournamentrels.Destroy: %v", err)
 			return helpers.InternalServerError{err}
 		}
