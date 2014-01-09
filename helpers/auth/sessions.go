@@ -170,8 +170,5 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 		}
 	}
 	
-	// store in memcache auth key in memcache
-	StoreAuthKey(c, user.Id, user.Auth)
-	
 	return user, nil
 }

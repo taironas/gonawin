@@ -129,7 +129,8 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
-		
+		// store in memcache auth key in memcache
+		authhlp.StoreAuthKey(c, user.Id, user.Auth)
 		// set 'auth' cookie
 		authhlp.SetAuthCookie(w, user.Auth)
 	}
@@ -195,11 +196,16 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	}
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
-		if _, err := authhlp.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
+		var user *usermdl.User
+		if user, err = authhlp.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
+		// store in memcache auth key in memcache
+		authhlp.StoreAuthKey(c, user.Id, user.Auth)
+		// set 'auth' cookie
+		authhlp.SetAuthCookie(w, user.Auth)
 	}
 
 	http.Redirect(w, r, root, http.StatusFound)
@@ -262,11 +268,16 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	if authhlp.IsAuthorizedWithFacebook(userInfo){
-		if _, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		var user *usermdl.User
+		if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
+		// store in memcache auth key in memcache
+		authhlp.StoreAuthKey(c, user.Id, user.Auth)
+		// set 'auth' cookie
+		authhlp.SetAuthCookie(w, user.Auth)
 	}
 	http.Redirect(w, r, root, http.StatusFound)
 }
