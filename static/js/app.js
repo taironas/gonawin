@@ -13,7 +13,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
     'userControllers',
     'teamControllers',
     'tournamentControllers',
-    'inviteController',
+    'inviteControllers',
     
     'sessionService',
     'dataServices'
