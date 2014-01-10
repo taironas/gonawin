@@ -9,7 +9,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
     'directive.formValidation',
     
     'mainControllers',
-    'sessionController',
+    'sessionControllers',
     'userControllers',
     'teamControllers',
     'tournamentControllers',
