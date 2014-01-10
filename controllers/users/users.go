@@ -27,7 +27,6 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
-	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
@@ -139,6 +138,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 
 	if r.Method == "POST"{
 		userId, err := handlers.PermalinkID(r, c, 4)
+
 		if err != nil{
 			return helpers.BadRequest{err}
 		}
@@ -158,12 +158,9 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if err != nil {
 				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
 		}
-
-		if helpers.IsUsernameValid(updatedData.Username) && updatedData.Username != u.Username{
-			u.Username = updatedData.Username
+		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email{
+			u.Email = updatedData.Email
 			usermdl.Update(c, u)
-		} else {
-			log.Errorf(c, " cannot update current user info")
 		}
 		
 		// return updated user
