@@ -36,8 +36,8 @@ purpleWingApp.config(['$routeProvider',
 			      when('/tournaments/show/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
 			      when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
 			      when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
-			      when('/settings/networks', { templateUrl: 'templates/settings_networks.html', requireLogin: true }).
-			      when('/settings/email', { templateUrl: 'templates/settings_email.html', requireLogin: true }).
+			      when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
+			      when('/settings/email', { templateUrl: 'templates/settings/email.html', requireLogin: true }).
 			      when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
 			      otherwise( {redirectTo: '/'});
 		      }]);
