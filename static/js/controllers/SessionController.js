@@ -2,8 +2,8 @@
 
 var sessionController = angular.module('sessionController', []);
 
-sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 'SessionService',
-	function ($scope, $http, $cookieStore, SessionService) {
+sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', '$location', 'SessionService',
+	function ($scope, $http, $cookieStore, $location, SessionService) {
 		console.log('SessionController module');
 		$scope.currentUser = undefined;
 		$scope.loggedIn = false;
@@ -67,6 +67,8 @@ sessionController.controller('SessionCtrl', ['$scope', '$http', '$cookieStore', 
 					SessionService.setUserLoggedIn(false);
 					$scope.loggedIn = false;
 					$scope.$apply();
+					// redirect to home page
+					$location.path('/');
 				}
 			});
 		};
