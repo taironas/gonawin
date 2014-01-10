@@ -5,12 +5,12 @@
     <!-- search box -->
     <div class="control-group search-box">
       <div class="controls">
-				<div class="input-prepend">
-	  				<span class="add-on"><i class="icon-search"></i></span>
-	 			 	<form method="post" action="/j/tournaments">
-	    				<input class="span2" id="inputIcon" type="text" name="TournamentInputSearch" value="{{tournamentsData.TournamentInputSearch}}">
-	  				</form>
-				</div>
+	<div class="input-prepend">
+	  <span class="add-on"><i class="icon-search"></i></span>
+	  <form method="post" action="/j/tournaments">
+	    <input class="span2" id="inputIcon" type="text" name="TournamentInputSearch" value="{{tournamentsData.TournamentInputSearch}}">
+	  </form>
+	</div>
       </div>
     </div>
   </div>
@@ -19,14 +19,14 @@
   <table class="table table-striped">
     <thead>
       <tr>
-				<th>Id</th>
-				<th>Name</th>
+	<th>Id</th>
+	<th>Name</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="tournament in tournaments | filter:query">
-				<td>{{tournament.Id}}</td>
-				<td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
+	<td>{{tournament.Id}}</td>
+	<td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
       </tr>
     </tbody>
   </table>
