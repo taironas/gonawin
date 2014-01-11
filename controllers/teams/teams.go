@@ -538,3 +538,32 @@ func RequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	}
 	return helpers.BadRequest{errors.New("not supported.")}
 }
+
+// json search handler
+func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+	c := appengine.NewContext(r)
+	log.Infof(c, "json search handler.")
+	keywords := r.FormValue("q")
+	if r.Method == "GET" && (len(keywords) > 0){
+		words := helpers.SetOfStrings(keywords)
+		ids, err := teaminvidmdl.GetIndexes(c, words)
+		if err != nil {
+			log.Errorf(c, " teams.Index, error occurred when getting indexes of words: %v", err)
+		}
+		result := searchmdl.TeamScore(c, keywords, ids)
+		log.Infof(c, "result from TeamScore: %v", result)
+		teams := teammdl.ByIds(c, result)
+		log.Infof(c, "ByIds result %v", teams)
+		if len(teams) == 0{
+			// we build an array instead to returning "null" which is what the json encoder encodes when data is empty.
+			// as angularjs expects either an array or an object, in the search case we expect and array. 
+			// when there are not results found we build and empty array with a not found string.
+			data := [1]string{"Search result not found"}
+			return templateshlp.RenderJson(w, c, data)
+		} else{
+			return templateshlp.RenderJson(w, c, teams)
+		}
+	} else {
+		return helpers.BadRequest{errors.New("not supported")}
+	}
+}

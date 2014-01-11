@@ -100,6 +100,7 @@ func init(){
 	h.HandleFunc("/j/teams/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.DestroyJson)))
 	h.HandleFunc("/j/teams/invite/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.InviteJson)))
 	h.HandleFunc("/j/teams/request/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RequestJson)))
+	h.HandleFunc("/j/teams/search/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SearchJson)))
 	// tournament - json
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.IndexJson)))
 	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewJson)))
@@ -118,3 +119,5 @@ func init(){
 
 	http.Handle("/", h)
 }
+
+

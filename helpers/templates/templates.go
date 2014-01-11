@@ -102,7 +102,7 @@ func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) er
 	return json.NewEncoder(w).Encode(data)
 }
 
-// set all navigation pages to false caller should define only the active one
+// Set all navigation pages to false caller should define only the active one
 func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request, c appengine.Context) {
 	
 	if pfuncs != nil{
