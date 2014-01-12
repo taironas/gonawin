@@ -90,7 +90,7 @@ func Destroy(c appengine.Context, teamId int64) error {
 
 // given a filter and a value look query the datastore for teams and returns an array of team pointers.
 func Find(c appengine.Context, filter string, value interface{}) []*Team {
-	
+
 	q := datastore.NewQuery("Team").Filter(filter + " =", value)
 	
 	var teams []*Team

@@ -25,6 +25,8 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
 }]);
 
 tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
+    console.log('Tournament New controller');
+
     $scope.addTournament = function() {
 	Tournament.save($scope.tournament,
 			function(tournament) {
@@ -36,19 +38,25 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
     };
 }]);
 
-tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location',
-	function($scope, $routeParams, Tournament, $location) {
-		$scope.tournament = Tournament.get({ id:$routeParams.id });
-	
-		$scope.deleteTournament = function() {
-			Tournament.delete({ id:$routeParams.id },
-				function(){
-					$location.path('/');
-				},
-				function(err) {
-					console.log('delete failed: ', err.data);
-				});
-		};
+tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+    console.log('Tournament Show controller');
+    
+    $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
+    
+    $scope.deleteTournament = function() {
+	Tournament.delete({ id:$routeParams.id },
+			  function(){
+			      $location.path('/');
+			  },
+			  function(err) {
+			      console.log('delete failed: ', err.data);
+			  });
+    };
+    $scope.joinTournament = function(){
+	console.log('join tournament');
+	console.log('routeParams: ', $routeParams);
+	Tournament.join( {id:$routeParams.id});
+    };
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',
