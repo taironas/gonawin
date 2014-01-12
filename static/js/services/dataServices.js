@@ -18,18 +18,19 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	save: { method: 'POST', url: 'j/teams/new' },
 	update: { method: 'POST', url: 'j/teams/update/:id' },
 	delete: { method: 'POST', url: 'j/teams/destroy/:id' },
-	search: {method: 'GET', url: 'j/teams/search?q=:q', isArray: true}
+	search: { method: 'GET', url: 'j/teams/search?q=:q', isArray: true}
     })
 });
 
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
     
-    return $resource('j/tournaments/:id', {id:'@id'}, {
+    return $resource('j/tournaments/:id', {id:'@id', q:'@q'}, {
 	get: { method: 'GET', url: 'j/tournaments/show/:id' },
 	save: { method: 'POST', url: 'j/tournaments/new' },
 	update: { method: 'POST', url: 'j/tournaments/update/:id' },
-	delete: { method: 'POST', url: 'j/tournaments/destroy/:id' }
+	delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
+	search: { method: 'GET', url: 'j/tournaments/search?q=:q', isArray: true}
     })
 });
 

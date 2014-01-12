@@ -195,12 +195,11 @@ func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
-	
 	for _, w := range words {
 		l := ""
-		
 		res, err := Find(c, "KeyName", w)
 		if err != nil {
+			log.Infof(c, "tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res !=nil {
 			strTournamentIds := string(res.TournamentIds)
@@ -217,16 +216,22 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 			strMerge = helpers.Intersect(strMerge,l)
 		}
 	}
+	// no need to continue if no results were found, just return empty array
+	if len(strMerge) == 0{
+		intIds := make([]int64, 0)
+		return intIds, err1
+	}
 	strIds := strings.Split(strMerge, " ")
 	intIds := make([]int64, len(strIds)) 
-
 	i := 0
 	for _, w := range strIds {
-		if n, err := strconv.ParseInt(w,10,64); err == nil {
-			intIds[i] = n
-			i = i + 1
-		} else {
-			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err))
+		if len(w) > 0{
+			if n, err := strconv.ParseInt(w,10,64); err == nil {
+				intIds[i] = n
+				i = i + 1
+			} else {
+				log.Infof(c, "tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err)
+			}
 		}
 	}
 	return intIds, err1	

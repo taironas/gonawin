@@ -219,7 +219,7 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 		l := ""
 		res, err := Find(c, "KeyName", w)
 		if err != nil {
-			log.Infof(c, " teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
+			log.Infof(c, "teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res !=nil {
 			strTeamIds := string(res.TeamIds)

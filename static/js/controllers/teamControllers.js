@@ -2,8 +2,8 @@
 
 var teamControllers = angular.module('teamControllers', []);
 
-teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location',function($scope, Team, $location) {
-    console.log('TeamListCtrl:');
+teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
+    console.log('Team list controller:');
     $scope.teams = Team.query();
     $scope.searchTeam = function(){
 	console.log('TeamListCtrl: searchTeam');
@@ -13,7 +13,7 @@ teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location',functi
 }]);
 
 teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-    console.log('search controller');
+    console.log('Team search controller');
     console.log('routeParams: ', $routeParams);
     $scope.teams = Team.search( {q:$routeParams.q});
     $scope.searchTeam = function(){

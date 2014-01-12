@@ -107,6 +107,7 @@ func init(){
 	h.HandleFunc("/j/tournaments/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.ShowJson)))
 	h.HandleFunc("/j/tournaments/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateJson)))
 	h.HandleFunc("/j/tournaments/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournaments/search/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.SearchJson)))
 	// relationships - json
 	h.HandleFunc("/j/teamrels/create/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/teamrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.DestroyJson)))
