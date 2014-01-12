@@ -33,6 +33,7 @@ import (
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 )
 
+// entry point of application
 func init(){
 	h := new(handlers.RegexpHandler)
 

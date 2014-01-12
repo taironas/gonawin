@@ -66,7 +66,8 @@ func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error
 
 
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
- 
+
+// Error handler returns the proper error handler function with respecto to the error rised by the function called.
 func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := f(w, r)
@@ -90,6 +91,7 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 	}
 }
 
+// Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error hanlder if authentication fails.
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		user := auth.CheckAuthenticationData(r)

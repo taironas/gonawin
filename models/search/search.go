@@ -33,6 +33,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// given a query string and an array of ids, computes a score vector that
+// has the doc ids and the score of each id with respect to the query
 func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -86,6 +88,9 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	return getKeysFromPairList(sortedScore)
 }
 
+
+// given a query string and an array of ids, computes a score vector that
+// has the doc ids and the score of each id with respect to the query
 func TeamScore(c appengine.Context, query string, ids []int64)[]int64{
 
 	words := strings.Split(query, " ")
@@ -174,6 +179,7 @@ func sortMapByValueDesc(m map[int64]float64) PairList {
 	return p
 }
 
+// from a pair list returns an array of keys present in the pair list
 func getKeysFromPairList(p PairList) []int64{
 	keys := make([]int64, len(p))
 	i := 0
@@ -184,6 +190,7 @@ func getKeysFromPairList(p PairList) []int64{
 	return keys
 }
 
+// compute the dot product of two float vectors
 func dotProduct(vec1 []float64,vec2 []float64)float64{
 	if len(vec1) != len(vec2){
 		return 0

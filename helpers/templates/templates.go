@@ -40,7 +40,7 @@ type Content struct{
 type UserData struct{
 	User *usermdl.User
 }
-
+// Executes and Render template with the data structure and the func map passed as argument
 func Render(w http.ResponseWriter, 
 	r *http.Request,
 	c appengine.Context,

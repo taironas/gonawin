@@ -39,6 +39,7 @@ type WordCountTeam struct{
 	Count int64
 }
 
+// Create a teaminvertedindex entity given a word and a list of ids as a string
 func Create(c appengine.Context, word string, teamIds string) (*TeamInvertedIndex, error) {
 	
 	id, _, err := datastore.AllocateIDs(c, "TeamInvertedIndex", nil, 1)
@@ -193,6 +194,7 @@ func addWord(c appengine.Context, word string, id int64) error {
 	return Add(c, word, id)
 }
 
+// given a filter and a value look for an entity in the datastore
 func Find(c appengine.Context, filter string, value interface{}) (*TeamInvertedIndex, error) {
 	q := datastore.NewQuery("TeamInvertedIndex").Filter(filter + " =", value).Limit(1)
 	
@@ -205,6 +207,7 @@ func Find(c appengine.Context, filter string, value interface{}) (*TeamInvertedI
 	}
 }
 
+// given an id returns a pointer to the corresponding key if found.
 func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
@@ -212,6 +215,8 @@ func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 	return key
 }
 
+// given an array of words returns an array of ids that correspond to the 
+// inverted indexes ids.
 func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
@@ -257,6 +262,7 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 	return intIds, err1
 }
 
+// increment the word count team counter
 func incrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountTeam
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -269,6 +275,7 @@ func incrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
+// decrement the word count team counter
 func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountTeam
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -281,6 +288,7 @@ func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
+// returns the current word count on teams
 func GetWordCount(c appengine.Context)(int64, error) {
 	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
 	var x WordCountTeam
@@ -290,6 +298,7 @@ func GetWordCount(c appengine.Context)(int64, error) {
 	return x.Count, nil
 }
 
+// get the frequency of a word with respect to the teams
 func GetTeamFrequencyForWord(c appengine.Context, word string) (int64, error) {
 	
 	if invId, err := Find(c, "KeyName", word); err != nil {

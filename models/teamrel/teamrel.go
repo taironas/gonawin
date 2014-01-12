@@ -34,6 +34,7 @@ type TeamRelationship struct {
 	Created time.Time
 }
 
+// Create a teamrel entity given a team id and a user id
 func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship, error) {
 	// create new team relationship
 	teamRelationshipId, _, err := datastore.AllocateIDs(c, "TeamRelationship", nil, 1)
@@ -53,6 +54,7 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship,
 	return teamRelationship, nil
 }
 
+// Destroy a teamrel relationship given a team id and a user id
 func Destroy(c appengine.Context, teamId int64, userId int64) error {
 	
 	if teamRel := FindByTeamIdAndUserId(c, teamId, userId); teamRel == nil {
@@ -64,6 +66,7 @@ func Destroy(c appengine.Context, teamId int64, userId int64) error {
 	}
 }
 
+// look for a relationship given a team id and user id pair
 func FindByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRelationship {
 	
 	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
@@ -78,6 +81,7 @@ func FindByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 	}
 }
 
+// search for teamrels with respect to the filter and value 
 func Find(c appengine.Context, filter string, value interface{}) []*TeamRelationship{
 	
 	q := datastore.NewQuery("TeamRelationship").Filter(filter + " =", value)

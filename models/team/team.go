@@ -45,6 +45,7 @@ type TeamCounter struct {
 	Count int64
 }
 
+// Create a team given a name, an admin id and a private mode
 func Create(c appengine.Context, name string, adminId int64, private bool) (*Team, error) {
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
@@ -75,6 +76,7 @@ func Create(c appengine.Context, name string, adminId int64, private bool) (*Tea
 	return team, err
 }
 
+// Destroy a team given a team id
 func Destroy(c appengine.Context, teamId int64) error {
 	
 	if team, err := ById(c, teamId); err != nil {
@@ -86,6 +88,7 @@ func Destroy(c appengine.Context, teamId int64) error {
 	}
 }
 
+// given a filter and a value look query the datastore for teams and returns an array of team pointers.
 func Find(c appengine.Context, filter string, value interface{}) []*Team {
 	
 	q := datastore.NewQuery("Team").Filter(filter + " =", value)
@@ -100,6 +103,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Team {
 	}
 }
 
+// get a team given an id
 func ById(c appengine.Context, id int64) (*Team, error) {
 	
 	var t Team
@@ -112,6 +116,7 @@ func ById(c appengine.Context, id int64) (*Team, error) {
 	return &t, nil
 }
 
+// get a team key given an id
 func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 
 	key := datastore.NewKey(c, "Team", "", id, nil)
@@ -119,6 +124,7 @@ func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 	return key
 }
 
+// update a team given an id and a team pointer
 func Update(c appengine.Context, id int64, t *Team) error {
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
@@ -134,6 +140,7 @@ func Update(c appengine.Context, id int64, t *Team) error {
 	return nil
 }
 
+// get all teams in datastore
 func FindAll(c appengine.Context) []*Team {
 	q := datastore.NewQuery("Team")
 	
@@ -160,11 +167,13 @@ func ByIds(c appengine.Context, ids []int64) []*Team {
 	return teams
 }
 
+// checkes if a user has joined a team or not
 func Joined(c appengine.Context, teamId int64, userId int64) bool {
 	teamRel := teamrelmdl.FindByTeamIdAndUserId(c, teamId, userId)
 	return teamRel != nil
 }
 
+// make a user join a team
 func Join(c appengine.Context, teamId int64, userId int64) error {
 	if _, err := teamrelmdl.Create(c, teamId, userId); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error during team relationship creation: %v", err))
@@ -173,10 +182,13 @@ func Join(c appengine.Context, teamId int64, userId int64) error {
 	return nil
 }
 
+// make a user leave a team
+// Todo: Should we check that the user is indeed a memeber of the team?
 func Leave(c appengine.Context, teamId int64, userId int64) error {
 	return teamrelmdl.Destroy(c, teamId, userId)
 }
 
+// check if user is admin of that team
 func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 	
 	if team, err := ById(c, teamId); err == nil {
@@ -187,6 +199,7 @@ func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 	}
 }
 
+// increment team counter to keep track of the number of teams present in datastore
 func incrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x TeamCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -199,6 +212,7 @@ func incrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error
 	return x.Count, nil
 }
 
+// decrement team counter to keep track of the number of teams present in datastore
 func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x TeamCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -210,7 +224,7 @@ func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error
 	}
 	return x.Count, nil
 }
-
+// get the current number of teams present in datastore
 func GetTeamCounter(c appengine.Context)(int64, error) {
 	key := datastore.NewKey(c, "TeamCounter", "singleton", 0, nil)
 	var x TeamCounter
@@ -220,6 +234,7 @@ func GetTeamCounter(c appengine.Context)(int64, error) {
 	return x.Count, nil
 }
 
+// given a id, and a word, get the frequency of that word in the team terms
 func GetWordFrequencyForTeam(c appengine.Context, id int64, word string)int64{
 
 	if teams := Find(c, "Id", id); teams != nil{

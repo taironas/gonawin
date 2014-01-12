@@ -24,6 +24,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// set a key value pair to memcache
 func Set(c appengine.Context, key string, value interface{}) {
 
 	var bytes []byte
@@ -44,6 +45,7 @@ func Set(c appengine.Context, key string, value interface{}) {
 	}
 }
 
+// get value from memcache with respect to a key string
 func Get(c appengine.Context, key string) (interface{}) {
 
 	// Get the item from the memcache

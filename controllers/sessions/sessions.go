@@ -17,6 +17,7 @@
 package sessions
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -29,7 +30,8 @@ import (
 	
 	oauth "github.com/garyburd/go-oauth/oauth"
 	oauth2 "code.google.com/p/goauth2/oauth"
-	
+
+	"github.com/santiaago/purple-wing/helpers"	
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	
@@ -75,10 +77,10 @@ func facebookConfig(host string) *oauth2.Config{
 	}
 }
 
+// ToDo: remove? not used anywhere
 func Authenticate(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	if !authhlp.LoggedIn(r, c) {
-		
+	if !authhlp.LoggedIn(r, c) {		
 		funcs := template.FuncMap{}
 		
 		t := template.Must(template.New("tmpl_auth").
@@ -103,7 +105,7 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, root, http.StatusFound)
 	}
 }
-
+// Google Authentication Callback
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)	
 	// Exchange code for an access token at OAuth provider.
@@ -157,6 +159,7 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 	}
 }
 
+// Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	// get the request token
@@ -223,6 +226,7 @@ func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 	}
 }
 
+// Facebook authentication callback
 func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){	
 	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
@@ -282,6 +286,8 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	http.Redirect(w, r, root, http.StatusFound)
 }
 
+// Verifies if token present in http.Response is valid.
+// Valid means: data is valid, app_id match to server app_id and applicatiion name match
 func isFacebookTokenValid(response *http.Response) (bool, error){
 
 	tokenData, err := userhlp.FetchFacebookTokenData(response)
@@ -295,8 +301,32 @@ func isFacebookTokenValid(response *http.Response) (bool, error){
 	return false, err
 }
 
+// Logout from session, clear authentication cookie and redirect to root.
 func SessionLogout(w http.ResponseWriter, r *http.Request){
 	authhlp.ClearAuthCookie(w)
 	
 	http.Redirect(w, r, root, http.StatusFound)
+}
+
+// json Google authentication handler
+func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+
+	userInfo := userhlp.GPlusUserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
+	
+	var err error
+	var user *usermdl.User
+	
+	if !authhlp.CheckUserValidity(r.FormValue("access_token"), r) {
+		return helpers.InternalServerError{errors.New("Access token is not valid")}
+	}
+	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
+		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
+	}	
+	if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
+	}
+
+	// return user
+	return templateshlp.RenderJson(w, c, user)
 }

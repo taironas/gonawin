@@ -48,6 +48,7 @@ type TournamentCounter struct {
 }
 
 
+// create tournament entity given a name and description
 func Create(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64 ) (*Tournament, error) {
 	// create new tournament
 	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
@@ -69,6 +70,7 @@ func Create(c appengine.Context, name string, description string, start time.Tim
 	return tournament, nil
 }
 
+// destroy a tournament given a tournament id
 func Destroy(c appengine.Context, tournamentId int64) error {
 
 	if tournament, err := ById(c, tournamentId); err != nil {
@@ -80,6 +82,7 @@ func Destroy(c appengine.Context, tournamentId int64) error {
 	}
 }
 
+// return an array of tournaments given a filter and value
 func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
 
 	q := datastore.NewQuery("Tournament").Filter(filter + " =", value)
@@ -94,6 +97,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
 	}
 }
 
+// returns a pointer to a tournament given a tournament id
 func ById(c appengine.Context, id int64)(*Tournament, error){
 
 	var t Tournament
@@ -106,7 +110,7 @@ func ById(c appengine.Context, id int64)(*Tournament, error){
 	return &t, nil
 }
 
-
+// return a pointer to a tournament key given a tournament id
 func KeyById(c appengine.Context, id int64)(*datastore.Key){
 
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
@@ -114,6 +118,7 @@ func KeyById(c appengine.Context, id int64)(*datastore.Key){
 	return key
 }
 
+// update a tournament given a tournament id and a tournament pointer.
 func Update(c appengine.Context, id int64, t *Tournament) error {
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
@@ -128,6 +133,7 @@ func Update(c appengine.Context, id int64, t *Tournament) error {
 	return nil
 }
 
+// returns an array of all tournaments in the datastore
 func FindAll(c appengine.Context) []*Tournament {
 	
 	q := datastore.NewQuery("Tournament")
@@ -155,11 +161,13 @@ func ByIds(c appengine.Context, ids []int64) []*Tournament {
 	return tournaments
 }
 
+// checks if a user has joined a tournament
 func Joined(c appengine.Context, tournamentId int64, userId int64) bool {
 	tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(c, tournamentId, userId)
 	return tournamentRel != nil
 }
 
+// makes a user join a tournament
 func Join(c appengine.Context, tournamentId int64, userId int64) error {
 	if tournamentRel, err := tournamentrelmdl.Create(c, tournamentId, userId); tournamentRel == nil {
 		return errors.New(fmt.Sprintf(" Tournament.Join, error during tournament relationship creation: %v", err))
@@ -168,10 +176,12 @@ func Join(c appengine.Context, tournamentId int64, userId int64) error {
 	return nil
 }
 
+// makes a user leave a tournament.
+// Todo: should we check that user is indeed a member of the tournament?
 func Leave(c appengine.Context, tournamentId int64, userId int64) error {
 	return tournamentrelmdl.Destroy(c, tournamentId, userId)
 }
-
+// checks if user is admin of given tournament
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
 	if tournament, err := ById(c, tournamentId); err == nil {
 		return tournament.AdminId == userId
@@ -200,6 +210,7 @@ func TeamLeave(c appengine.Context, tournamentId int64, teamId int64) error {
 	return tournamentteamrelmdl.Destroy(c, tournamentId, teamId)
 }
 
+// increment tournament counter
 func incrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x TournamentCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -212,6 +223,7 @@ func incrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64,
 	return x.Count, nil
 }
 
+// decrement tournament counter
 func decrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x TournamentCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -224,7 +236,7 @@ func decrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64,
 	return x.Count, nil
 }
 
-
+// get the current tournament counter 
 func GetTournamentCounter(c appengine.Context)(int64, error){
 	key := datastore.NewKey(c, "TournamentCounter", "singleton", 0, nil)
 	var x TournamentCounter
@@ -234,6 +246,7 @@ func GetTournamentCounter(c appengine.Context)(int64, error){
 	return x.Count, nil
 }
 
+// get the frequency of given word with respect to tournament id
 func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) int64 {
 
 	if tournaments := Find(c, "Id", id); tournaments != nil{

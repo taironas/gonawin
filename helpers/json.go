@@ -22,6 +22,7 @@ import (
 
 type JsonResponse map[string]interface{}
 
+// converts a json response to json string by marshaling it
 func (r JsonResponse) String() (s string) {
 	b, err := json.Marshal(r)
 	if err != nil {
