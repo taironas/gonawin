@@ -34,8 +34,7 @@ const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 
 // from an accessToken string, verify if google user account is valid
-// ToDo: Change function name as it is a Google.com verification
-func CheckUserValidity(accessToken string, r *http.Request) bool {
+func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
 	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token="+accessToken)
@@ -46,7 +45,7 @@ func CheckUserValidity(accessToken string, r *http.Request) bool {
 	return resp.StatusCode == 200
 }
 
-// Check if authorization information in HTTP.Request is valid, 
+// Check if authorization information in HTTP.Request is valid,
 // ie: if it matches a user.
 func CheckAuthenticationData(r *http.Request) *usermdl.User {
 	return usermdl.Find(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
@@ -72,8 +71,8 @@ func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
 func LoggedIn(r *http.Request, c appengine.Context) bool {
-	if kOfflineMode { 
-		return true 
+	if kOfflineMode {
+		return true
 	}
 	
 	if auth := GetAuthCookie(r); len(auth) > 0 {

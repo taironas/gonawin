@@ -31,7 +31,7 @@ import (
 	oauth "github.com/garyburd/go-oauth/oauth"
 	oauth2 "code.google.com/p/goauth2/oauth"
 
-	"github.com/santiaago/purple-wing/helpers"	
+	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
 	
@@ -80,7 +80,7 @@ func facebookConfig(host string) *oauth2.Config{
 // ToDo: remove? not used anywhere
 func Authenticate(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
-	if !authhlp.LoggedIn(r, c) {		
+	if !authhlp.LoggedIn(r, c) {
 		funcs := template.FuncMap{}
 		
 		t := template.Must(template.New("tmpl_auth").
@@ -94,7 +94,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request){
 	}
 }
 
-// Google 
+// Google
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	if !authhlp.LoggedIn(r, c) {
@@ -107,7 +107,7 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 }
 // Google Authentication Callback
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
-	c := appengine.NewContext(r)	
+	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
 	
@@ -227,7 +227,7 @@ func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 }
 
 // Facebook authentication callback
-func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){	
+func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
@@ -236,7 +236,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		Transport: &urlfetch.Transport{
 			Context: appengine.NewContext(r),
 		},
-	}	
+	}
 	
 	if v, err := t.Exchange(code); err != nil {
 		log.Errorf(c, " FacebookAuthCallback, error occurred during exchange: %v, returned value: %v", err, v)
@@ -292,7 +292,7 @@ func isFacebookTokenValid(response *http.Response) (bool, error){
 
 	tokenData, err := userhlp.FetchFacebookTokenData(response)
 	if err == nil{
-		if tokenData.Data.Is_valid && 
+		if tokenData.Data.Is_valid &&
 			(strconv.Itoa(tokenData.Data.App_id) == FACEBOOK_CLIENT_ID) &&
 			(tokenData.Data.Application == "purple-wing"){
 			return true, err
@@ -317,12 +317,12 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	var err error
 	var user *usermdl.User
 	
-	if !authhlp.CheckUserValidity(r.FormValue("access_token"), r) {
+	if !authhlp.CheckGoogleUserValidity(r.FormValue("access_token"), r) {
 		return helpers.InternalServerError{errors.New("Access token is not valid")}
 	}
 	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
 		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
-	}	
+	}
 	if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
 	}
