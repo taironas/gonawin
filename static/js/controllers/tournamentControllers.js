@@ -57,6 +57,11 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	console.log('routeParams: ', $routeParams);
 	Tournament.join( {id:$routeParams.id});
     };
+    $scope.addTeam = function(){
+	console.log('add Team');
+	//Tournament.addTeam with tournament.Id and team.Id
+	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
+    };
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',

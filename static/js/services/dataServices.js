@@ -31,7 +31,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 	update: { method: 'POST', url: 'j/tournaments/update/:id' },
 	delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
 	search: { method: 'GET', url: 'j/tournaments/search?q=:q', isArray: true},
-	join: {method: 'POST', url: 'j/tournamentrels/create?id=:id'}
+	join: {method: 'POST', url: 'j/tournamentrels/create?id=:id'},
+	addTeam: {method: 'POST', url: 'j/tournamentteamrels/create?tournamentId=:tournamentId&teamId=:teamId'}
     })
 });
 

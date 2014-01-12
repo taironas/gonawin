@@ -4,21 +4,44 @@
     <form accept-charset="UTF-8" class="form-horizontal" method="post">
       <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournament.Tournament.Id}}" />
       <input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" /> <!-- {{if Joined}}value="Leave"{{else}}value="Join"{{end}} /> -->
-      <a href="#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
+      <a href="/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     </form>
     <!-- Modal -->
-    <!-- <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> -->
-    <!--   <div class="modal-header"> -->
-    <!--     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
-    <!--     <h3 id="myModalLabel">Add Team</h3> -->
-    <!--   </div> -->
-    <!--   <div class="modal-body"> -->
-    <!--     <form accept-charset="UTF-8" action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" class="form-horizontal" method="post"> -->
-    <!-- 	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" /> -->
-    <!-- 	     {{template "tmpl_tournament_candidateTeams" .CandidateTeams}} -->
-    <!--     </form> -->
-    <!--   </div> -->
-    <!-- </div> -->
+    <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Add Team</h3>
+      </div>
+      <div class="modal-body">
+        <form accept-charset="UTF-8" ng-sumbit="addTeam()" class="form-horizontal" method="post">
+    	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
+    	     <!-- {{template "tmpl_tournament_candidateTeams" .CandidateTeams}} -->
+	     <table class="table table-hover">
+	       <tbody>
+		 <!-- {{range $index, $team := .}} -->
+		 <!-- Note: doing repeat with participants for testing. -->
+		 <!-- need to connect candidates data. -->
+		 <tr ng-repeat="p in tournamentData.Participants">
+  		   <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
+		   <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
+		     <tr>
+		       <td><a href="/m/teams/{p.Id}}">{{p.Name}}</a></td>
+		       <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{p.Id}}" >Join</button></td>
+		     </tr>
+		   </form>
+		 </tr>
+	       </tbody>
+	     </table>
+	     <!-- {{else}} -->
+	     <!-- <div id="no_team"> -->
+	     <!--   <p>No team has been created by you.</p> -->
+	     <!--   <a href="/m/teams/new" class="btn btn-primary"><span>Create new team</span></a> -->
+	     <!-- </div> -->
+	     <!-- {{end}} -->
+	     <!-- end of candidates -->
+        </form>
+      </div>
+    </div>
   </div>
   
   <dl class="dl-horizontal">
