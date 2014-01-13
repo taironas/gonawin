@@ -42,7 +42,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     console.log('Tournament Show controller');
     
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
-    
+    console.log('tournamentData', $scope.tournamentData);
     $scope.deleteTournament = function() {
 	Tournament.delete({ id:$routeParams.id },
 			  function(){

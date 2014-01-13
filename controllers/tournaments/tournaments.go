@@ -338,21 +338,17 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		}
 		participants := tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
-		user := auth.CurrentUser(r, c)
-		log.Infof(c, "user: %v", user)
-		// ToDo: auth.CurrentUser returns nil hence a panic occurs when .Id is called.
-		// this should be changed.
-		//candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
+		candidateTeams := teammdl.Find(c, "AdminId", u.Id)
 		data := struct {
 			Tournament *tournamentmdl.Tournament
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
-			//CandidateTeams []*teammdl.Team
+			CandidateTeams []*teammdl.Team
 		}{
 			tournament,
 			participants,
 			teams,
-			//candidateTeams,
+			candidateTeams,
 		}
 		log.Infof(c, "rendering data.");		
 		return templateshlp.RenderJson(w, c, data)

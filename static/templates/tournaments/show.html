@@ -15,19 +15,12 @@
       <div class="modal-body">
         <form accept-charset="UTF-8" ng-sumbit="addTeam()" class="form-horizontal" method="post">
     	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-    	     <!-- {{template "tmpl_tournament_candidateTeams" .CandidateTeams}} -->
 	     <table class="table table-hover">
 	       <tbody>
-		 <!-- {{range $index, $team := .}} -->
-		 <!-- Note: doing repeat with participants for testing. -->
-		 <!-- need to connect candidates data. -->
-		 <tr ng-repeat="p in tournamentData.Participants">
-  		   <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
+		 <tr ng-repeat="t in tournamentData.CandidateTeams">
 		   <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
-		     <tr>
-		       <td><a href="/m/teams/{p.Id}}">{{p.Name}}</a></td>
-		       <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{p.Id}}" >Join</button></td>
-		     </tr>
+		     <td><a href="/m/teams/{{t.Id}}">{{t.Name}}</a></td>
+		     <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{t.Id}}" >Join</button></td>
 		   </form>
 		 </tr>
 	       </tbody>
@@ -65,7 +58,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
-  	       <th>Participants</th>
+  	  <th>Participants</th>
         </tr>
       </thead>
       <tbody>
