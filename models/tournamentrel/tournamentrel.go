@@ -34,6 +34,7 @@ type TournamentRelationship struct {
 	Created time.Time
 }
 
+// create a tournamentrel entity given a tournament and a user id pair
 func Create(c appengine.Context, tournamentId int64, userId int64) (*TournamentRelationship, error) {
 	// create new tournament relationship
 	tournamentRelationshipId, _, err := datastore.AllocateIDs(c, "TournamentRelationship", nil, 1)
@@ -53,6 +54,7 @@ func Create(c appengine.Context, tournamentId int64, userId int64) (*TournamentR
 	return tournamentRelationship, nil
 }
 
+// destroy a tournamentrel given a pair tournamentid and userid
 func Destroy(c appengine.Context, tournamentId int64, userId int64) error {
 	
 	if tournamentRel := FindByTournamentIdAndUserId(c, tournamentId, userId); tournamentRel == nil {
@@ -64,6 +66,7 @@ func Destroy(c appengine.Context, tournamentId int64, userId int64) error {
 	}
 }
 
+//  return a pointer to a tournament relationship entity given a pair tournamentid, userid
 func FindByTournamentIdAndUserId(c appengine.Context, tournamentId int64, userId int64) *TournamentRelationship {
 	
 	q := datastore.NewQuery("TournamentRelationship").Filter("TournamentId =", tournamentId).Filter("UserId =", userId).Limit(1)
@@ -78,6 +81,7 @@ func FindByTournamentIdAndUserId(c appengine.Context, tournamentId int64, userId
 	}
 }
 
+// return an array of tournament rels given a filter, value pair
 func Find(c appengine.Context, filter string, value interface{}) []*TournamentRelationship {
 	
 	q := datastore.NewQuery("TournamentRelationship").Filter(filter + " =", value)

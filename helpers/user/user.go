@@ -62,6 +62,7 @@ type MetadataType struct{
 	Sso string
 }
 
+// unmarshal google plus response for googleapi.com request
 func FetchGPlusUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error) {
 	co := appengine.NewContext(r)	
 	// Make the request.
@@ -87,6 +88,7 @@ func FetchGPlusUserInfo(r *http.Request, c *http.Client) (*GPlusUserInfo, error)
 	return nil, err
 }
 
+// unmarshal twitter response
 func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	defer r.Body.Close()
 	

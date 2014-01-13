@@ -1,8 +1,8 @@
 'use strict';
 
-var sessionController = angular.module('sessionController', []);
+var sessionControllers = angular.module('sessionControllers', []);
 
-sessionController.controller('SessionCtrl', ['$scope', '$location', 'SessionService',
+sessionControllers.controller('SessionCtrl', ['$scope', '$location', 'SessionService',
 	function ($scope, $location, SessionService) {
 		console.log('SessionController module');
 		$scope.currentUser = undefined;

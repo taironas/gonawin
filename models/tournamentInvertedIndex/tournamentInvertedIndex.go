@@ -39,6 +39,7 @@ type WordCountTournament struct{
 	Count int64
 }
 
+// Create a tournament inverted index
 func Create(c appengine.Context, name string, tournamentIds string) (*TournamentInvertedIndex, error) {
 	
 	id, _, err := datastore.AllocateIDs(c, "TournamentInvertedIndex", nil, 1)
@@ -94,6 +95,7 @@ func Add(c appengine.Context, name string, id int64) error {
 	return nil
 }
 
+// update a team inverted index given an oldname, a new name and an id
 func Update(c appengine.Context, oldname string, newname string, id int64) error {
 	
 	var err error
@@ -185,6 +187,7 @@ func Find(c appengine.Context, filter string, value interface{}) (*TournamentInv
 	}
 }
 
+// get key pointer to tournament inverted index given an id
 func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 
 	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
@@ -192,15 +195,15 @@ func KeyById(c appengine.Context, id int64) (*datastore.Key) {
 	return key
 }
 
+// get an array of ids given a set of words pass as paramenters.
 func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
-	
 	for _, w := range words {
 		l := ""
-		
 		res, err := Find(c, "KeyName", w)
 		if err != nil {
+			log.Infof(c, "tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res !=nil {
 			strTournamentIds := string(res.TournamentIds)
@@ -217,21 +220,28 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 			strMerge = helpers.Intersect(strMerge,l)
 		}
 	}
+	// no need to continue if no results were found, just return empty array
+	if len(strMerge) == 0{
+		intIds := make([]int64, 0)
+		return intIds, err1
+	}
 	strIds := strings.Split(strMerge, " ")
 	intIds := make([]int64, len(strIds)) 
-
 	i := 0
 	for _, w := range strIds {
-		if n, err := strconv.ParseInt(w,10,64); err == nil {
-			intIds[i] = n
-			i = i + 1
-		} else {
-			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err))
+		if len(w) > 0{
+			if n, err := strconv.ParseInt(w,10,64); err == nil {
+				intIds[i] = n
+				i = i + 1
+			} else {
+				log.Infof(c, "tournamentinvid.GetIndexes, unable to parse %v, error:%v", w, err)
+			}
 		}
 	}
 	return intIds, err1	
 }
 
+// increment word count for tournaments
 func incrementWordCountTournament(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountTournament
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -244,6 +254,7 @@ func incrementWordCountTournament(c appengine.Context, key *datastore.Key) (int6
 	return x.Count, nil
 }
 
+// decrement word count for tournaments
 func decrementWordCountTournament(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountTournament
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -256,6 +267,7 @@ func decrementWordCountTournament(c appengine.Context, key *datastore.Key) (int6
 	return x.Count, nil
 }
 
+// get current word count in tournaments
 func GetWordCount(c appengine.Context)(int64, error) {
 	key := datastore.NewKey(c, "WordCountTournament", "singleton", 0, nil)
 	var x WordCountTournament
@@ -265,6 +277,7 @@ func GetWordCount(c appengine.Context)(int64, error) {
 	return x.Count, nil
 }
 
+// get frequency of a given word base on tournamentinverted index data
 func GetTournamentFrequencyForWord(c appengine.Context, word string) (int64, error) {
 	
 	if invId, err := Find(c, "KeyName", word); err != nil {

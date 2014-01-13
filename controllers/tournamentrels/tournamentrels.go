@@ -17,6 +17,7 @@
 package tournamentrels
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	
@@ -73,26 +74,29 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
-	// get tournament id
-	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
-		return helpers.NotFound{err}
-	}
-
 	if r.Method == "POST" {
+		// get tournament id
+		id := r.FormValue("id")
+		tournamentId , err := strconv.ParseInt(id, 10, 64)
+		if err != nil {
+			log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
+			return helpers.NotFound{err}
+		}
+		
 		if err := tournamentmdl.Join(c, tournamentId, u.Id); err != nil {
 			log.Errorf(c, " tournamentrels.Create: %v", err)
 			return helpers.InternalServerError{err}
 		}
+		// return the joined tournament
+		var tournament *tournamentmdl.Tournament
+		if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
+			return helpers.NotFound{err}
+		}
+		return templateshlp.RenderJson(w, c, tournament)
+		
+	} else{
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
-	
-	// return the joined tournament
-	var tournament *tournamentmdl.Tournament
-	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
-		return helpers.NotFound{err}
-	}
-	return templateshlp.RenderJson(w, c, tournament)
 }
 
 // json destroy handler for tournament relationships

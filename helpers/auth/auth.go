@@ -33,7 +33,8 @@ const kOfflineMode bool = false
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 
-func CheckUserValidity(accessToken string, r *http.Request) bool {
+// from an accessToken string, verify if google user account is valid
+func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
 	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token="+accessToken)
@@ -44,26 +45,34 @@ func CheckUserValidity(accessToken string, r *http.Request) bool {
 	return resp.StatusCode == 200
 }
 
+// Check if authorization information in HTTP.Request is valid,
+// ie: if it matches a user.
 func CheckAuthenticationData(r *http.Request) *usermdl.User {
 	return usermdl.Find(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
+// Ckeck if googple plus user is admin.
+// Todo: Should change func name or implementation to a more specific one.
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
 
+// Ckeck if twitter user is admin.
+// Todo: Should change func name or implementation to a more specific one.
 func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
 	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
 }
 
+// Ckeck if facebook user is admin.
+// Todo: Should change func name or implementation to a more specific one.
 func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
 
 // LoggedIn is true is the AuthCookie exist and match your user.Auth property
 func LoggedIn(r *http.Request, c appengine.Context) bool {
-	if kOfflineMode { 
-		return true 
+	if kOfflineMode {
+		return true
 	}
 	
 	if auth := GetAuthCookie(r); len(auth) > 0 {

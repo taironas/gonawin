@@ -1,46 +1,66 @@
-<div ng-controller="TournamentShowCtrl">
+<div>
   <div class="page-header">
     <h1>Tournament</h1>
-    <!--
-    <form accept-charset="UTF-8" action="/ng#/tournamentrels/{{tournamentData.Tournament.Id}}" class="form-horizontal" method="post">
-      <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-      <input class="btn btn-primary btn-join" name="commit" type="submit" {{if Joined}}value="Leave"{{else}}value="Join"{{end}} />
-      <a href="#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
+    <form accept-charset="UTF-8" class="form-horizontal" method="post">
+      <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournament.Tournament.Id}}" />
+      <input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" /> <!-- {{if Joined}}value="Leave"{{else}}value="Join"{{end}} /> -->
+      <a href="/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     </form>
-    -->
     <!-- Modal -->
-    <!--
     <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="myModalLabel">Add Team</h3>
       </div>
       <div class="modal-body">
-        <form accept-charset="UTF-8" action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" class="form-horizontal" method="post">
-  	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-  	     {{template "tmpl_tournament_candidateTeams" .CandidateTeams}}
+        <form accept-charset="UTF-8" ng-sumbit="addTeam()" class="form-horizontal" method="post">
+    	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
+    	     <!-- {{template "tmpl_tournament_candidateTeams" .CandidateTeams}} -->
+	     <table class="table table-hover">
+	       <tbody>
+		 <!-- {{range $index, $team := .}} -->
+		 <!-- Note: doing repeat with participants for testing. -->
+		 <!-- need to connect candidates data. -->
+		 <tr ng-repeat="p in tournamentData.Participants">
+  		   <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
+		   <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
+		     <tr>
+		       <td><a href="/m/teams/{p.Id}}">{{p.Name}}</a></td>
+		       <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{p.Id}}" >Join</button></td>
+		     </tr>
+		   </form>
+		 </tr>
+	       </tbody>
+	     </table>
+	     <!-- {{else}} -->
+	     <!-- <div id="no_team"> -->
+	     <!--   <p>No team has been created by you.</p> -->
+	     <!--   <a href="/m/teams/new" class="btn btn-primary"><span>Create new team</span></a> -->
+	     <!-- </div> -->
+	     <!-- {{end}} -->
+	     <!-- end of candidates -->
         </form>
       </div>
-    </div>-->
+    </div>
   </div>
   
   <dl class="dl-horizontal">
     <dt><strong>Id:</strong></dt>
-    <dd>{{tournament.Id}}</dd>
+    <dd>{{tournamentData.Tournament.Id}}</dd>
     <dt><strong>Name:</strong></dt>
-    <dd>{{tournament.Name}}</dd>
+    <dd>{{tournamentData.Tournament.Name}}</dd>
   </dl>
   
   <!-- {{if IsTournamentAdmin}} -->
   <div class="form-actions">
     <form class="form-horizontal">
-      <a href="/ng#/tournaments/edit/{{tournament.Id}}" class="btn"><span>Edit</span></a>
+      <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn"><span>Edit</span></a>
       <input id="action" name="Action" type="hidden" value="delete" />
       <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
     </form>
   </div>
   <!-- {{end}} -->
-  <!-- participants
+  <!-- participants -->
   <div class="participants">
     <table class="table table-striped">
       <thead>
@@ -55,8 +75,8 @@
       </tbody>
     </table>
   </div>
-  -->
-  <!-- Teams
+  <!-- / participants -->
+  <!-- Teams -->
   <div class="teams">
     <table class="table table-striped">
       <thead>
@@ -71,5 +91,5 @@
       </tbody>
     </table>
   </div>
-  -->
+  <!-- / Teams -->
 </div>

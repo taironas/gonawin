@@ -40,7 +40,7 @@ type Content struct{
 type UserData struct{
 	User *usermdl.User
 }
-
+// Executes and Render template with the data structure and the func map passed as argument
 func Render(w http.ResponseWriter, 
 	r *http.Request,
 	c appengine.Context,
@@ -102,7 +102,7 @@ func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) er
 	return json.NewEncoder(w).Encode(data)
 }
 
-// set all navigation pages to false caller should define only the active one
+// Set all navigation pages to false caller should define only the active one
 func initNavFuncMap(pfuncs *template.FuncMap, r *http.Request, c appengine.Context) {
 	
 	if pfuncs != nil{

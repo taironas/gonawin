@@ -34,6 +34,7 @@ type TeamRequest struct {
 	Created time.Time
 }
 
+// Create a teamrequest with params teamid and userid
 func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
 	// create new team request
 	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
@@ -53,6 +54,7 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, erro
 	return teamRequest, nil
 }
 
+// destroy a team request given a teamrequestid
 func Destroy(c appengine.Context, teamRequestId int64) error {
 	
 	if teamRequest, err := ById(c, teamRequestId); err != nil {
@@ -64,6 +66,7 @@ func Destroy(c appengine.Context, teamRequestId int64) error {
 	}
 }
 
+// search for a teamequest array given a filter and a value
 func Find(c appengine.Context, filter string, value interface{}) []*TeamRequest {
 	
 	q := datastore.NewQuery("TeamRequest").Filter(filter + " =", value)
@@ -77,6 +80,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*TeamRequest 
 	return teamRequests
 }
 
+// search a request by team id and user id pair
 func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRequest {
 	
 	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
@@ -91,6 +95,7 @@ func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 	}
 }
 
+// return a teamrequest if it exist given a teamrequestid
 func ById(c appengine.Context, id int64) (*TeamRequest, error) {
 	
 	var tr TeamRequest
@@ -103,6 +108,7 @@ func ById(c appengine.Context, id int64) (*TeamRequest, error) {
 	return &tr, nil
 }
 
+// checks if for a team id, user id pair, a request was sent
 func Sent(c appengine.Context, teamId int64, userId int64) bool {
 	return findByTeamIdAndUserId(c, teamId, userId) != nil
 }

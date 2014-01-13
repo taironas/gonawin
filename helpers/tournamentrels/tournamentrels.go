@@ -27,6 +27,7 @@ import (
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
+// from a tournamentId returns an array of users the participate in it.
 func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {	
 	var users []*usermdl.User
 	
@@ -44,6 +45,7 @@ func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {
 	return users
 }
 
+// from a tournamentid returns an array of teams involved in tournament
 func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
@@ -62,6 +64,7 @@ func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
 	return teams
 }
 
+// from a user id return an array of tournament the user is involved in.
 func Tournaments(c appengine.Context, userId int64) []*tournamentmdl.Tournament {
 	
 	var tournaments []*tournamentmdl.Tournament

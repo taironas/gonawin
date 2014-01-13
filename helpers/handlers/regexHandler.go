@@ -33,10 +33,13 @@ type RegexpHandler struct {
     routes []*route
 }
 
+
+// Handler that appends a new pattern, handler pair to the RegexpHandler routes.
 func (h *RegexpHandler) Handler(pattern *regexp.Regexp, handler http.Handler) {
     h.routes = append(h.routes, &route{pattern, handler})
 }
 
+// main handler function used, it encapsulate string pattern start and end.
 func (h *RegexpHandler) HandleFunc(strPattern string, handler func(http.ResponseWriter, *http.Request)) {
 	// encapsulate string pattern with start and end constraints
 	// so that HandleFunc would work as for Python GAE
@@ -44,6 +47,7 @@ func (h *RegexpHandler) HandleFunc(strPattern string, handler func(http.Response
 	h.routes = append(h.routes, &route{pattern, http.HandlerFunc(handler)})
 }
 
+// looks for a matching route among the regexpHandler routes returns 404 if no match is found
 func (h *RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, route := range h.routes {
 			if route.pattern.MatchString(r.URL.Path) {

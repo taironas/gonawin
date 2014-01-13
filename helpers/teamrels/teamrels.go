@@ -26,6 +26,7 @@ import (
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
+// from a team id return an array of users/ players that participates in it.
 func Players(c appengine.Context, teamId int64) []*usermdl.User {
 	
 	var users []*usermdl.User
@@ -44,6 +45,7 @@ func Players(c appengine.Context, teamId int64) []*usermdl.User {
 	return users
 }
 
+// from a user id returns an array of teams the user iq involved participates.
 func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
@@ -62,6 +64,7 @@ func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	return teams
 }
 
+// build a teamRequest array from an array of teams
 func TeamsRequests(c appengine.Context, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
 	var teamRequests []*teamrequestmdl.TeamRequest
 	

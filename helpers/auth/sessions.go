@@ -40,6 +40,7 @@ type AuthKey struct {
 	Created time.Time
 }
 
+// Store authentication key in datastore and update memcache
 func StoreAuthKey(c appengine.Context, uid int64, auth string) {
 	
 	uidStr := fmt.Sprintf("%d", uid)
@@ -71,6 +72,7 @@ func StoreAuthKey(c appengine.Context, uid int64, auth string) {
 	}
 }
 
+// fetch Authentication key with respect to auth string from memcache or datastore
 func fetchAuthKey(r *http.Request, auth string) string {
 	c := appengine.NewContext(r)
 
@@ -93,6 +95,7 @@ func fetchAuthKey(r *http.Request, auth string) string {
 	return ""
 }
 
+// Set cookie with authentication string
 func SetAuthCookie(w http.ResponseWriter, auth string) {
 	cookie := &http.Cookie{ 
 		Name: "auth", 
@@ -102,6 +105,7 @@ func SetAuthCookie(w http.ResponseWriter, auth string) {
 	http.SetCookie(w, cookie)
 }
 
+// extract authentication value from http.Request cookie
 func GetAuthCookie(r *http.Request) string {
 	if cookie, err := r.Cookie("auth"); err == nil {
 		return cookie.Value
@@ -109,6 +113,7 @@ func GetAuthCookie(r *http.Request) string {
 	return ""
 }
 
+// clear authentication cookie
 func ClearAuthCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    "auth",
@@ -117,6 +122,7 @@ func ClearAuthCookie(w http.ResponseWriter) {
 	})
 }
 
+// generate authentication string key
 func GenerateAuthKey() string {
 	b := make([]byte, 16)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
@@ -125,6 +131,7 @@ func GenerateAuthKey() string {
 	return fmt.Sprintf("%x", b)
 }
 
+// returns pointer to current user, from authentication cookie.
 func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	if kOfflineMode {
 		return usermdl.Find(c, "Username", "purple")
@@ -145,6 +152,7 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	return nil
 }
 
+// create user from params in datastore and return a pointer to it.
 func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*usermdl.User, error) {
 
 	c := appengine.NewContext(r)

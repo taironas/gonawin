@@ -33,6 +33,7 @@ import (
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 )
 
+// entry point of application
 func init(){
 	h := new(handlers.RegexpHandler)
 
@@ -100,12 +101,14 @@ func init(){
 	h.HandleFunc("/j/teams/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.DestroyJson)))
 	h.HandleFunc("/j/teams/invite/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.InviteJson)))
 	h.HandleFunc("/j/teams/request/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RequestJson)))
+	h.HandleFunc("/j/teams/search/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SearchJson)))
 	// tournament - json
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.IndexJson)))
 	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewJson)))
 	h.HandleFunc("/j/tournaments/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.ShowJson)))
 	h.HandleFunc("/j/tournaments/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateJson)))
 	h.HandleFunc("/j/tournaments/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournaments/search/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.SearchJson)))
 	// relationships - json
 	h.HandleFunc("/j/teamrels/create/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/teamrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.DestroyJson)))
@@ -118,3 +121,5 @@ func init(){
 
 	http.Handle("/", h)
 }
+
+

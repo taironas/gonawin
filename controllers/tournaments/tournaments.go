@@ -336,8 +336,26 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if err != nil{
 			return helpers.NotFound{err}
 		}
-		
-		return templateshlp.RenderJson(w, c, tournament)
+		participants := tournamentrelshlp.Participants(c, intID)
+		teams := tournamentrelshlp.Teams(c, intID)
+		user := auth.CurrentUser(r, c)
+		log.Infof(c, "user: %v", user)
+		// ToDo: auth.CurrentUser returns nil hence a panic occurs when .Id is called.
+		// this should be changed.
+		//candidateTeams := teammdl.Find(c, "AdminId", auth.CurrentUser(r, c).Id)
+		data := struct {
+			Tournament *tournamentmdl.Tournament
+			Participants []*usermdl.User
+			Teams []*teammdl.Team
+			//CandidateTeams []*teammdl.Team
+		}{
+			tournament,
+			participants,
+			teams,
+			//candidateTeams,
+		}
+		log.Infof(c, "rendering data.");		
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
@@ -426,3 +444,32 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
 }
+
+// json search tournaments handler
+func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+	c := appengine.NewContext(r)
+	log.Infof(c, "json search handler.")
+	keywords := r.FormValue("q")
+	if r.Method == "GET" && (len(keywords) > 0){
+		words := helpers.SetOfStrings(keywords)
+		ids, err := tournamentinvmdl.GetIndexes(c, words)
+		if err != nil {
+			log.Errorf(c, " tournaments.Index, error occurred when getting indexes of words: %v", err)
+		}
+		result := searchmdl.TournamentScore(c, keywords, ids)
+		log.Infof(c, "result from TournamentScore: %v", result)
+		tournaments := tournamentmdl.ByIds(c, result)
+		log.Infof(c, "ByIds result %v", tournaments)
+		if len(tournaments) == 0{
+			// we build an array instead to returning string "null" which is what the json encoder does when data is empty.
+			// as angularjs expects either an array or an object, in the search case we expect an array. 
+			// when there are not results found we build and empty array with a "not found" string.
+			data := [1]string{"Search result not found"}
+			return templateshlp.RenderJson(w, c, data)
+		}
+		return templateshlp.RenderJson(w, c, tournaments)
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
+	}
+}
+

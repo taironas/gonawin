@@ -87,19 +87,3 @@ func CountTerm(words []string, w string)int64{
 	}
 	return c
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

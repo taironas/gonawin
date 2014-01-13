@@ -5,20 +5,20 @@
   <table class="table table-striped">
     <thead>
       <tr>
-				<th>Id</th>
-				<th>Name</th>
-				<th>Username</th>
-				<th>Email</th>
-				<th>Created at</th>
+	<th>Id</th>
+	<th>Name</th>
+	<th>Username</th>
+	<th>Email</th>
+	<th>Created at</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="user in users | filter:query">
-				<td>{{user.Id}}</td>
-				<td><a href="/ng#/users/show/{{user.Id}}">{{user.Name}}</a></td>
-				<td>{{user.Username}}</td>
-				<td>{{user.Email}}</td>
-				<td>{{user.Created}}</td>
+	<td>{{user.Id}}</td>
+	<td><a href="/ng#/users/show/{{user.Id}}">{{user.Name}}</a></td>
+	<td>{{user.Username}}</td>
+	<td>{{user.Email}}</td>
+	<td>{{user.Created}}</td>
       </tr>
     </tbody>
   </table>
