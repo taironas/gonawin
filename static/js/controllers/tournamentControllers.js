@@ -66,6 +66,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	Tournament.leave( {id:$routeParams.id});
     };
 
+    $scope.leaveTournamentAsTeam = function(teamId){
+	console.log('team leave tournament ');
+    };
+
+    $scope.joinTournamentAsTeam = function(teamId){
+	console.log('team leave tournament ');
+    };
+
     $scope.addTeam = function(){
 	console.log('add Team');
 	//Tournament.addTeam with tournament.Id and team.Id
@@ -77,14 +85,20 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	console.log('admin id: ', $scope.tournamentData.Tournament.AdminId);
 	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
 	return $scope.tournamentData.Tournament.AdminId == 1002;
-    }
+    };
 
     $scope.joined = function(){
 	console.log('joined ?');
 	// query tournamentrel for pair(tournament.id, user.id);
 	// or add information to json of show.
 	return false;
-    }
+    };
+
+    $scope.teamJoined = function(teamId){
+	console.log('is team joined to tournament?');
+	return false;
+    };
+
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {

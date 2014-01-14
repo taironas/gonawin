@@ -8,7 +8,7 @@
       <div ng-if="!joined()">
 	<input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" value="Join" />
       </div>
-      <a href="/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
+      <a href="/ng#/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     </form>
     <!-- Modal -->
     <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -25,8 +25,13 @@
 	      <tbody>
 		<tr ng-repeat="t in tournamentData.CandidateTeams">
 		  <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
-		    <td><a href="/m/teams/{{t.Id}}">{{t.Name}}</a></td>
-		    <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{t.Id}}" >Join</button></td>
+		    <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+		    <div ng-if="teamJoined(t.Id)">
+		      <td><button class="btn btn-primary btn-join pull-right" ng-click="leaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Leave</button></td>
+		    </div>
+		    <div ng-if="!teamJoined(t.Id)">
+		      <td><button class="btn btn-primary btn-join pull-right" ng-click="joinTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Join</button></td>
+		    </div>
 		  </form>
 		</tr>
 	      </tbody>
@@ -35,7 +40,7 @@
 	  <div ng-if="!tournamentData.CandidateTeams || tournamentData.CandidateTeams.length == 0">
 	    <div id="no_team">
 	      <p>No team has been created by you.</p>
-	      <a href="/m/teams/new" class="btn btn-primary"><span>Create new team</span></a>
+	      <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
 	    </div>
 	  </div>
 	  <!-- end of candidates -->
@@ -70,7 +75,7 @@
       </thead>
       <tbody>
         <tr ng-repeat="p in tournamentData.Participants">
-  	       <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
+  	       <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
         </tr>
       </tbody>
     </table>
