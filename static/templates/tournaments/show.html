@@ -3,7 +3,12 @@
     <h1>Tournament</h1>
     <form accept-charset="UTF-8" class="form-horizontal" method="post">
       <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournament.Tournament.Id}}" />
-      <input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" /> <!-- {{if Joined}}value="Leave"{{else}}value="Join"{{end}} /> -->
+      <div ng-if="joined()">
+	<input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" value="Leave"/>
+      </div>
+      <div ng-if="!joined()">
+	<input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" value="Join" />
+      </div>
       <a href="/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     </form>
     <!-- Modal -->

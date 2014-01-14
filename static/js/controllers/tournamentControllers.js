@@ -68,6 +68,12 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
 	return $scope.tournamentData.Tournament.AdminId == 28001;
     }
+    $scope.joined = function(){
+	console.log('joined ?');
+	// query tournamentrel for pair(tournament.id, user.id);
+	// or add information to json of show.
+	return false;
+    }
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
