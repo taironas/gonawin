@@ -42,6 +42,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     console.log('Tournament Show controller');
     
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
+
     console.log('tournamentData', $scope.tournamentData);
     $scope.deleteTournament = function() {
 	Tournament.delete({ id:$routeParams.id },
@@ -52,22 +53,32 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 			      console.log('delete failed: ', err.data);
 			  });
     };
+
     $scope.joinTournament = function(){
 	console.log('join tournament');
 	console.log('routeParams: ', $routeParams);
 	Tournament.join( {id:$routeParams.id});
     };
+
+    $scope.leaveTournament = function(){
+	console.log('leave tournament');
+	console.log('routeParams: ', $routeParams);
+	Tournament.leave( {id:$routeParams.id});
+    };
+
     $scope.addTeam = function(){
 	console.log('add Team');
 	//Tournament.addTeam with tournament.Id and team.Id
 	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
+
     $scope.isTournamentAdmin = function(){
 	console.log('is tournament admin ?');
 	console.log('admin id: ', $scope.tournamentData.Tournament.AdminId);
 	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
-	return $scope.tournamentData.Tournament.AdminId == 28001;
+	return $scope.tournamentData.Tournament.AdminId == 1002;
     }
+
     $scope.joined = function(){
 	console.log('joined ?');
 	// query tournamentrel for pair(tournament.id, user.id);
