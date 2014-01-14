@@ -181,6 +181,7 @@ func Join(c appengine.Context, tournamentId int64, userId int64) error {
 func Leave(c appengine.Context, tournamentId int64, userId int64) error {
 	return tournamentrelmdl.Destroy(c, tournamentId, userId)
 }
+
 // checks if user is admin of given tournament
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
 	if tournament, err := ById(c, tournamentId); err == nil {

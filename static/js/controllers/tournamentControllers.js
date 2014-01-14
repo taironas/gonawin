@@ -62,20 +62,25 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	//Tournament.addTeam with tournament.Id and team.Id
 	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
+    $scope.isTournamentAdmin = function(){
+	console.log('is tournament admin ?');
+	console.log('admin id: ', $scope.tournamentData.Tournament.AdminId);
+	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
+	return $scope.tournamentData.Tournament.AdminId == 28001;
+    }
 }]);
 
-tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',
-	function($scope, $routeParams, Tournament, $location) {
-		$scope.tournament = Tournament.get({ id:$routeParams.id });
-	
-		$scope.updateTournament = function() {
-			var tournament = Tournament.get({ id:$routeParams.id });
-			Tournament.update({ id:$routeParams.id }, $scope.tournament,
-				function(){
-					$location.path('/tournaments/show/' + $routeParams.id);
-				},
-			function(err) {
-				console.log('update failed: ', err.data);
-			});
-		}
+tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+    $scope.tournament = Tournament.get({ id:$routeParams.id });
+    
+    $scope.updateTournament = function() {
+	var tournament = Tournament.get({ id:$routeParams.id });
+	Tournament.update({ id:$routeParams.id }, $scope.tournament,
+			  function(){
+			      $location.path('/tournaments/show/' + $routeParams.id);
+			  },
+			  function(err) {
+			      console.log('update failed: ', err.data);
+			  });
+    }
 }]);
