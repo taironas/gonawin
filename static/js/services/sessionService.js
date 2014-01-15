@@ -2,28 +2,57 @@
 
 var sessionService = angular.module('sessionService', []);
 
-sessionService.factory('SessionService', ['$cookieStore', '$http', function($cookieStore, $http) {
+sessionService.factory('SessionService', ['$cookieStore', '$http', '$q', 'User', function($cookieStore, $http, $q, User) {
 	var currentUser = undefined;
 	var userIsLoggedIn = false;
 	
 	return {
-		setCurrentUser: function(user) {
-			currentUser = user;
-		},
 		getCurrentUser: function() {
-			return currentUser;
-		},
-		setUserLoggedIn: function(value) {
-			userIsLoggedIn = value;
+			var deferred = $q.defer();
+			
+			if(userIsLoggedIn && !currentUser)
+			{
+				currentUser = User.get({ id:$cookieStore.get('user_id') });
+			}
+			deferred.resolve(currentUser);
+			
+			return deferred.promise;
 		},
 		getUserLoggedIn: function() {
-			return userIsLoggedIn;
+			var deferred = $q.defer();
+
+			if(userIsLoggedIn) {
+				deferred.resolve(true);
+			}
+
+			if(!$cookieStore.get('access_token') || !$cookieStore.get('user_id')) {
+				userIsLoggedIn = false;
+				deferred.resolve(false);
+			} 
+			else {
+				User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(result){
+					currentUser = result;
+
+					if(currentUser.Auth == $cookieStore.get('auth'))
+					{
+						userIsLoggedIn = true;
+						deferred.resolve(true);
+					} 
+					else 
+					{
+						userIsLoggedIn = false;
+						deferred.resolve(false);
+					}
+				});
+			}
+			
+			return deferred.promise;
 		},
 		
-		login: function(authResult) {
+		fetchUserInfo: function(access_token) {
 			var service = this;
-			if(authResult.access_token){
-		    var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token='+authResult.access_token;
+			if(access_token){
+		    var peopleUrl = 'https://www.googleapis.com/plus/v1/people/me?access_token='+access_token;
 				var promise = $http({ method: 'GET', url: peopleUrl, contentType: 'application/json' });
 				return promise;
 			}
@@ -32,7 +61,7 @@ sessionService.factory('SessionService', ['$cookieStore', '$http', function($coo
 			}
 	  },
 		
-		completeLogin: function(accessToken, userInfo) {
+		fetchUser: function(accessToken, userInfo) {
 			var authUrl = '/j/auth/google';
 			var promise = $http({
 				method: 'GET',
@@ -45,8 +74,9 @@ sessionService.factory('SessionService', ['$cookieStore', '$http', function($coo
 					
 					$cookieStore.put('access_token', accessToken);
 					$cookieStore.put('auth', currentUser.Auth);
+					$cookieStore.put('user_id', currentUser.Id);
 				}).
-				error(function(result) { console.log('completeLogin failed') });
+				error(function(result) { console.log('fetchUser failed') });
 			
 			return promise;
 	  },
@@ -56,18 +86,18 @@ sessionService.factory('SessionService', ['$cookieStore', '$http', function($coo
 			$.ajax({
 				type: 'GET',
 				url: revokeUrl,
-				async: false,
+				async: true,
 				contentType: 'application/json',
-				dataType: 'jsonp',
-		    success: function(result){
-					console.log('user has been logged out!');
-					$cookieStore.remove('auth');
-					$cookieStore.remove('access_token');
-
-					currentUser = undefined;
-					userIsLoggedIn = false;
-				}
+				dataType: 'jsonp'
 			});
+			
+			console.log('user has been logged out!');
+			$cookieStore.remove('auth');
+			$cookieStore.remove('access_token');
+			$cookieStore.remove('user_id');
+
+			currentUser = undefined;
+			userIsLoggedIn = false;
 		}
 	};
 }]);
