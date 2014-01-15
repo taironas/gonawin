@@ -52,19 +52,19 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 }
 
 // Ckeck if googple plus user is admin.
-// Todo: Should change func name or implementation to a more specific one.
+// #196: Should be removed when deployed in production.
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
 
 // Ckeck if twitter user is admin.
-// Todo: Should change func name or implementation to a more specific one.
+// #196: Should be removed when deployed in production.
 func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
 	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
 }
 
 // Ckeck if facebook user is admin.
-// Todo: Should change func name or implementation to a more specific one.
+// #196: Should be removed when deployed in production.
 func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
 }
