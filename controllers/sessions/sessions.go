@@ -77,6 +77,22 @@ func facebookConfig(host string) *oauth2.Config{
 	}
 }
 
+// Authenticate handler for m/auth
+func Authenticate(w http.ResponseWriter, r *http.Request){
+        c := appengine.NewContext(r)
+        if !authhlp.LoggedIn(r, c) {
+                funcs := template.FuncMap{}
+                
+                t := template.Must(template.New("tmpl_auth").
+                        Funcs(funcs).
+                        ParseFiles("templates/session/auth.html"))
+                // no data needed
+                templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAuth")
+        } else {
+                //redirect to home page
+                http.Redirect(w, r, root, http.StatusFound)
+        }
+}
 // Google
 func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)

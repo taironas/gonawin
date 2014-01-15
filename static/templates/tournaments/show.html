@@ -2,9 +2,13 @@
   <div class="page-header">
     <h1>Tournament</h1>
     <form accept-charset="UTF-8" class="form-horizontal" method="post">
-      <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournament.Tournament.Id}}" />
-      <input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" /> <!-- {{if Joined}}value="Leave"{{else}}value="Join"{{end}} /> -->
-      <a href="/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
+      <div ng-if="joined()">
+	<input class="btn btn-primary btn-join" ng-click="leaveTournament()" name="commit" type="submit" value="Leave"/>
+      </div>
+      <div ng-if="!joined()">
+	<input class="btn btn-primary btn-join" ng-click="joinTournament()" name="commit" type="submit" value="Join" />
+      </div>
+      <a href="/ng#/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     </form>
     <!-- Modal -->
     <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -14,31 +18,32 @@
       </div>
       <div class="modal-body">
         <form accept-charset="UTF-8" ng-sumbit="addTeam()" class="form-horizontal" method="post">
-    	     <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-    	     <!-- {{template "tmpl_tournament_candidateTeams" .CandidateTeams}} -->
-	     <table class="table table-hover">
-	       <tbody>
-		 <!-- {{range $index, $team := .}} -->
-		 <!-- Note: doing repeat with participants for testing. -->
-		 <!-- need to connect candidates data. -->
-		 <tr ng-repeat="p in tournamentData.Participants">
-  		   <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
-		   <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
-		     <tr>
-		       <td><a href="/m/teams/{p.Id}}">{{p.Name}}</a></td>
-		       <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{p.Id}}" >Join</button></td>
-		     </tr>
-		   </form>
-		 </tr>
-	       </tbody>
-	     </table>
-	     <!-- {{else}} -->
-	     <!-- <div id="no_team"> -->
-	     <!--   <p>No team has been created by you.</p> -->
-	     <!--   <a href="/m/teams/new" class="btn btn-primary"><span>Create new team</span></a> -->
-	     <!-- </div> -->
-	     <!-- {{end}} -->
-	     <!-- end of candidates -->
+	  <!-- candidates -->
+	  <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
+	  <div ng-if="tournamentData.CandidateTeams.length > 0">
+	    <table class="table table-hover">
+	      <tbody>
+		<tr ng-repeat="t in tournamentData.CandidateTeams">
+		  <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
+		    <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+		    <div ng-if="teamJoined(t.Id)">
+		      <td><button class="btn btn-primary btn-join pull-right" ng-click="leaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Leave</button></td>
+		    </div>
+		    <div ng-if="!teamJoined(t.Id)">
+		      <td><button class="btn btn-primary btn-join pull-right" ng-click="joinTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Join</button></td>
+		    </div>
+		  </form>
+		</tr>
+	      </tbody>
+	    </table>
+	  </div>
+	  <div ng-if="!tournamentData.CandidateTeams || tournamentData.CandidateTeams.length == 0">
+	    <div id="no_team">
+	      <p>No team has been created by you.</p>
+	      <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
+	    </div>
+	  </div>
+	  <!-- end of candidates -->
         </form>
       </div>
     </div>
@@ -51,26 +56,26 @@
     <dd>{{tournamentData.Tournament.Name}}</dd>
   </dl>
   
-  <!-- {{if IsTournamentAdmin}} -->
-  <div class="form-actions">
-    <form class="form-horizontal">
-      <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn"><span>Edit</span></a>
-      <input id="action" name="Action" type="hidden" value="delete" />
-      <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
-    </form>
+  <div ng-if="isTournamentAdmin()">
+    <div class="form-actions">
+      <form class="form-horizontal">
+	<a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn"><span>Edit</span></a>
+	<input id="action" name="Action" type="hidden" value="delete" />
+	<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
+      </form>
+    </div>
   </div>
-  <!-- {{end}} -->
   <!-- participants -->
   <div class="participants">
     <table class="table table-striped">
       <thead>
         <tr>
-  	       <th>Participants</th>
+  	  <th>Participants</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="p in tournamentData.Participants">
-  	       <td><a href="/m/users/{{p.Id}}">{{p.Username}}</a></td>
+  	       <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
         </tr>
       </tbody>
     </table>
@@ -81,12 +86,12 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          	<th>Teams</th>
+          <th>Teams</th>
         </tr>
       </thead>
       <tbody>
         <tr ng-repeat="t in tournamentData.Teams">
-          	<td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+          <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
         </tr>
       </tbody>
     </table>

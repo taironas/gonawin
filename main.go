@@ -112,8 +112,8 @@ func init(){
 	// relationships - json
 	h.HandleFunc("/j/teamrels/create/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/teamrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.DestroyJson)))
-	h.HandleFunc("/j/tournamentrels/create/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.CreateJson)))
-	h.HandleFunc("/j/tournamentrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournamentrels/create/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.CreateJson)))
+	h.HandleFunc("/j/tournamentrels/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentteamrels/create/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentteamrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.DestroyJson)))
 	// invite -json

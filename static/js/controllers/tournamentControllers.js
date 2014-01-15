@@ -42,7 +42,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     console.log('Tournament Show controller');
     
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
-    
+
+    console.log('tournamentData', $scope.tournamentData);
     $scope.deleteTournament = function() {
 	Tournament.delete({ id:$routeParams.id },
 			  function(){
@@ -52,30 +53,65 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 			      console.log('delete failed: ', err.data);
 			  });
     };
+
     $scope.joinTournament = function(){
 	console.log('join tournament');
 	console.log('routeParams: ', $routeParams);
 	Tournament.join( {id:$routeParams.id});
     };
+
+    $scope.leaveTournament = function(){
+	console.log('leave tournament');
+	console.log('routeParams: ', $routeParams);
+	Tournament.leave( {id:$routeParams.id});
+    };
+
+    $scope.leaveTournamentAsTeam = function(teamId){
+	console.log('team leave tournament ');
+    };
+
+    $scope.joinTournamentAsTeam = function(teamId){
+	console.log('team leave tournament ');
+    };
+
     $scope.addTeam = function(){
 	console.log('add Team');
 	//Tournament.addTeam with tournament.Id and team.Id
 	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
+
+    $scope.isTournamentAdmin = function(){
+	console.log('is tournament admin ?');
+	console.log('admin id: ', $scope.tournamentData.Tournament.AdminId);
+	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
+	return $scope.tournamentData.Tournament.AdminId == 1002;
+    };
+
+    $scope.joined = function(){
+	console.log('joined ?');
+	// query tournamentrel for pair(tournament.id, user.id);
+	// or add information to json of show.
+	return false;
+    };
+
+    $scope.teamJoined = function(teamId){
+	console.log('is team joined to tournament?');
+	return false;
+    };
+
 }]);
 
-tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',
-	function($scope, $routeParams, Tournament, $location) {
-		$scope.tournament = Tournament.get({ id:$routeParams.id });
-	
-		$scope.updateTournament = function() {
-			var tournament = Tournament.get({ id:$routeParams.id });
-			Tournament.update({ id:$routeParams.id }, $scope.tournament,
-				function(){
-					$location.path('/tournaments/show/' + $routeParams.id);
-				},
-			function(err) {
-				console.log('update failed: ', err.data);
-			});
-		}
+tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+    $scope.tournament = Tournament.get({ id:$routeParams.id });
+    
+    $scope.updateTournament = function() {
+	var tournament = Tournament.get({ id:$routeParams.id });
+	Tournament.update({ id:$routeParams.id }, $scope.tournament,
+			  function(){
+			      $location.path('/tournaments/show/' + $routeParams.id);
+			  },
+			  function(err) {
+			      console.log('update failed: ', err.data);
+			  });
+    }
 }]);

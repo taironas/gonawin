@@ -4,10 +4,10 @@
 		<tbody>
 		{{range $index, $team := .}}
 		<form accept-charset="UTF-8" {{if TeamJoined $team.Id}}action="/m/tournamentteamrels/destroy"{{else}}action="/m/tournamentteamrels/create"{{end}} class="form-horizontal" method="post">
-			<tr>
-				<td><a href="/m/teams/{{$team.Id}}">{{$team.Name}}</a></td>
-				<td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{$team.Id}}" >{{if TeamJoined $team.Id}}Leave{{else}}Join{{end}}</button></td>
-			</tr>
+		  <tr>
+		    <td><a href="/m/teams/{{$team.Id}}">{{$team.Name}}</a></td>
+		    <td><button class="btn btn-primary btn-join pull-right" name="TeamIdButton" type="submit" value="{{$team.Id}}" >{{if TeamJoined $team.Id}}Leave{{else}}Join{{end}}</button></td>
+		  </tr>
 		</form>
 		{{end}}
 		</tbody>
