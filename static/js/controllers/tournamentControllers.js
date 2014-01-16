@@ -80,12 +80,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
 
-    $scope.isTournamentAdmin = function(){
-	console.log('is tournament admin ?');
-	console.log('admin id: ', $scope.tournamentData.Tournament.AdminId);
-	// Todo: waiting for #194: change 28001 by getCurrentUser().id service
-	return $scope.tournamentData.Tournament.AdminId == 1002;
-    };
+    $scope.isTournamentAdmin = $scope.tournamentData.$promise.then(function(result){
+    	    console.log('tournament is admin ready!');
+    	    if(result.Tournament.AdminId == $scope.currentUser.Id){
+    		return true;
+    	    }else{
+    		return false;
+    	    }
+    });
 
     $scope.joined = function(){
 	console.log('joined ?');
