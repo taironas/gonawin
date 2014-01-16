@@ -1,19 +1,23 @@
 <div class="navigation" ng-init="initSession()">
-  <ul class="nav nav-pills pull-right" ng-show="loggedIn">
-    <li><a href="/ng#/teams">Teams</a></li>
-    <li><a href="/ng#/tournaments">Tournaments</a></li>
-    <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" href="">
-	{{currentUser.Username}}
-	<b class="caret"></b>
-      </a>
-      <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-	<li><a href="/ng#/users/show/{{currentUser.Id}}">Profile</a></li>
-	<li><a href="/ng#/settings/edit-profile">Settings</a></li>
-	<li><a href="/ng#/invite">Invite</a></li>
-	<li><a href="" ng-click="disconnect()">Logout</a></li>
+  <div class="navbar" bs-navbar>
+    <div class="navbar-inner">
+      <a class="brand" href="#">purple-wing - ng</a>
+      <ul class="nav pull-right">
+        <li data-match-route="/teams"><a href="/ng#/teams">Teams</a></li>
+        <li data-match-route="/tournaments"><a href="/ng#/tournaments">Tournaments</a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="">
+            {{currentUser.Username}}
+            <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li><a href="/ng#/users/show/{{currentUser.Id}}">Profile</a></li>
+            <li><a href="/ng#/settings/edit-profile">Settings</a></li>
+            <li><a href="/ng#/invite">Invite</a></li>
+            <li><a href="" ng-click="disconnect()">Logout</a></li>
+          </ul>
+        </li>
       </ul>
-    </li>
-  </ul>
-  <h3 class="muted"><a href="/ng" style="text-decoration:none;">purple-wing - ng</a></h3>
+    </div>
+  </div>
 </div>
