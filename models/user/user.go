@@ -17,7 +17,11 @@
 package user
 
 import (
+  "crypto/rand"
 	"errors"
+  "fmt"
+  "io"
+  "net/http"
 	"time"
 	
 	"appengine"
@@ -115,6 +119,44 @@ func Update(c appengine.Context, u *User) error {
 		return err
 	}
 	return nil
+}
+
+// create user from params in datastore and return a pointer to it.
+func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*User, error) {
+
+	c := appengine.NewContext(r)
+	var user *User
+	
+	queryValue := ""
+	if queryName == "Email" {
+		queryValue = email
+	} else if queryName == "Username" {
+		queryValue = username
+	} else {
+		return nil, errors.New("models/user: no valid query name.")
+	}
+	
+	// find user
+	if user = Find(c, queryName, queryValue); user == nil {
+		// create user if it does not exist
+		if userCreate, err := Create(c, email, username, name, generateAuthKey()); err != nil {
+			log.Errorf(c, "Signup: %v", err)
+			return nil, errors.New("models/user: Unable to create user.")
+		} else {
+			user = userCreate
+		}
+	}
+	
+	return user, nil
+}
+
+// generate authentication string key
+func generateAuthKey() string {
+	b := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+			return ""
+	}
+	return fmt.Sprintf("%x", b)
 }
 
 // return an array of teams given a user id.

@@ -125,7 +125,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
 	if authhlp.IsAuthorizedWithGoogle(userInfo) {
-		if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -199,7 +199,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
 		var user *usermdl.User
-		if user, err = authhlp.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -272,7 +272,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 	}
 	if authhlp.IsAuthorizedWithFacebook(userInfo){
 		var user *usermdl.User
-		if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -322,7 +322,7 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
 		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
 	}
-	if user, err = authhlp.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
 		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
 	}
 

@@ -18,10 +18,7 @@ package auth
 
 import (
 	"net/http"
-	"io"
-	"errors"
 	"fmt"
-	"crypto/rand"
 	"strconv"
 	"time"
 	
@@ -122,15 +119,6 @@ func ClearAuthCookie(w http.ResponseWriter) {
 	})
 }
 
-// generate authentication string key
-func GenerateAuthKey() string {
-	b := make([]byte, 16)
-	if _, err := io.ReadFull(rand.Reader, b); err != nil {
-			return ""
-	}
-	return fmt.Sprintf("%x", b)
-}
-
 // returns pointer to current user, from authentication cookie.
 func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	if kOfflineMode {
@@ -150,33 +138,4 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	}
 
 	return nil
-}
-
-// create user from params in datastore and return a pointer to it.
-func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*usermdl.User, error) {
-
-	c := appengine.NewContext(r)
-	var user *usermdl.User
-	
-	queryValue := ""
-	if queryName == "Email" {
-		queryValue = email
-	} else if queryName == "Username" {
-		queryValue = username
-	} else {
-		return nil, errors.New("helpers/auth: no valid query name.")
-	}
-	
-	// find user
-	if user = usermdl.Find(c, queryName, queryValue); user == nil {
-		// create user if it does not exist
-		if userCreate, err := usermdl.Create(c, email, username, name, GenerateAuthKey()); err != nil{
-			log.Errorf(c, "Signup: %v", err)
-			return nil, errors.New("helpers/auth: Unable to create user.")
-		}else{
-			user = userCreate
-		}
-	}
-	
-	return user, nil
 }
