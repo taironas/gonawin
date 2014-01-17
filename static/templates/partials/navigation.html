@@ -2,7 +2,7 @@
   <div class="navbar" bs-navbar>
     <div class="navbar-inner">
       <a class="brand" href="#">purple-wing - ng</a>
-      <ul class="nav pull-right">
+      <ul class="nav pull-right" ng-show="loggedIn">
         <li data-match-route="/teams.*"><a href="/ng#/teams">Teams</a></li>
         <li data-match-route="/tournaments.*"><a href="/ng#/tournaments">Tournaments</a></li>
         <li class="dropdown">
