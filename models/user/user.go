@@ -139,7 +139,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	// find user
 	if user = Find(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		if userCreate, err := Create(c, email, username, name, generateAuthKey()); err != nil {
+		if userCreate, err := Create(c, email, username, name, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
 			return nil, errors.New("models/user: Unable to create user.")
 		} else {
@@ -151,7 +151,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 }
 
 // generate authentication string key
-func generateAuthKey() string {
+func GenerateAuthKey() string {
 	b := make([]byte, 16)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
 			return ""

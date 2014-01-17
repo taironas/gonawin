@@ -93,7 +93,11 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 
 // Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error hanlder if authentication fails.
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) error {
+  return func(w http.ResponseWriter, r *http.Request) error {
+    if auth.KOfflineMode {
+      return f(w, r, auth.CurrentUser(r, appengine.NewContext(r)))
+    }
+    
 		user := auth.CheckAuthenticationData(r)
 		if user == nil {
 			return helpers.BadRequest{errors.New("Bad Authentication data")}

@@ -121,8 +121,13 @@ func ClearAuthCookie(w http.ResponseWriter) {
 
 // returns pointer to current user, from authentication cookie.
 func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
-	if kOfflineMode {
-		return usermdl.Find(c, "Username", "purple")
+	if KOfflineMode {
+		currentUser := usermdl.Find(c, "Username", "purple")
+    
+    if currentUser == nil {
+      currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", usermdl.GenerateAuthKey())
+    }
+    return currentUser
 	}
 	
 	if auth := GetAuthCookie(r); len(auth) > 0 {
