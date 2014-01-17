@@ -17,34 +17,26 @@
         <h3 id="myModalLabel">Add Team</h3>
       </div>
       <div class="modal-body">
-        <form accept-charset="UTF-8" ng-sumbit="addTeam()" class="form-horizontal" method="post">
-	  <!-- candidates -->
-	  <input id="tournament_id" name="TournamentId" type="hidden" value="{{tournamentData.Tournament.Id}}" />
-	  <div ng-if="tournamentData.CandidateTeams.length > 0">
-	    <table class="table table-hover">
-	      <tbody>
-		<tr ng-repeat="t in tournamentData.CandidateTeams">
-		  <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
-		    <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-		    <div ng-if="teamJoined(t)">
-		      <td><button class="btn btn-primary btn-join pull-right" ng-click="leaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Leave</button></td>
-		    </div>
-		    <div ng-if="!teamJoined(t.Id)">
-		      <td><button class="btn btn-primary btn-join pull-right" ng-click="joinTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Join</button></td>
-		    </div>
-		  </form>
-		</tr>
-	      </tbody>
-	    </table>
+	<!-- candidates -->
+	<div ng-if="tournamentData.CandidateTeams.length > 0">
+	  <table class="table table-hover">
+	    <tbody>
+	      <tr ng-repeat="t in tournamentData.CandidateTeams">
+		<form accept-charset="UTF-8" class="form-horizontal" method="post">
+		  <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+		  <td><button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" ><div ng-if="teamJoined()">Join</div><div ng-if="!teamJoined()">Leave</div></button></td>
+		</form>
+	      </tr>
+	    </tbody>
+	  </table>
+	</div>
+	<div ng-if="!tournamentData.CandidateTeams || tournamentData.CandidateTeams.length == 0">
+	  <div id="no_team">
+	    <p>No team has been created by you.</p>
+	    <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
 	  </div>
-	  <div ng-if="!tournamentData.CandidateTeams || tournamentData.CandidateTeams.length == 0">
-	    <div id="no_team">
-	      <p>No team has been created by you.</p>
-	      <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
-	    </div>
-	  </div>
-	  <!-- end of candidates -->
-        </form>
+	</div>
+	<!-- end of candidates -->
       </div>
     </div>
   </div>

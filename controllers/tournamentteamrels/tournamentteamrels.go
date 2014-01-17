@@ -84,6 +84,12 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	
 	// get tournament id
 	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
+	// intID, err := handlers.PermalinkID(r, c, 4)
+	// intID2, err1 := handlers.PermalinkID(r, c, 5)
+	// log.Infof(c, "tournamentID: %v", intID)
+	// log.Infof(c, "teamID: %v", intID2)
+	// tournamentId := intID
+
 	if err != nil {
 		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
 		return helpers.NotFound{err}
