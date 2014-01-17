@@ -26,7 +26,7 @@
 		<tr ng-repeat="t in tournamentData.CandidateTeams">
 		  <form accept-charset="UTF-8" action="/m/tournamentteamrels/create" class="form-horizontal" method="post">
 		    <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-		    <div ng-if="teamJoined(t.Id)">
+		    <div ng-if="teamJoined(t)">
 		      <td><button class="btn btn-primary btn-join pull-right" ng-click="leaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >Leave</button></td>
 		    </div>
 		    <div ng-if="!teamJoined(t.Id)">

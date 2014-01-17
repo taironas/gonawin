@@ -71,13 +71,13 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
-	console.log('team leave tournament ');
+	console.log('team join tournament ');
     };
 
     $scope.addTeam = function(){
 	console.log('add Team');
 	//Tournament.addTeam with tournament.Id and team.Id
-	//action="/ng#/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
+	//action="/j/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
 
     $scope.isTournamentAdmin = $scope.tournamentData.$promise.then(function(result){
@@ -95,7 +95,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	return result.Joined;
     });
 
-    $scope.teamJoined = function(teamId){
+    $scope.teamJoined = function(){
 	console.log('is team joined to tournament?');
 	return false;
     };

@@ -339,18 +339,31 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		participants := tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
 		candidateTeams := teammdl.Find(c, "AdminId", u.Id)
+
+		// build teamjoined datastructure
+		// right now we put this code in the show json handler. 
+		// this will move to the CandidateTeams json handler once decoupled from tournament.show
+		teamsJoinedTournament := make([]bool, len(candidateTeams))
+		teamCounter := 0
+		for _, teamCandidate := range(candidateTeams){
+			teamsJoinedTournament[teamCounter] = tournamentmdl.TeamJoined(c, intID, teamCandidate.Id)
+			teamCounter++
+		}
+
 		data := struct {
 			Tournament *tournamentmdl.Tournament
 			Joined bool
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
 			CandidateTeams []*teammdl.Team
+			CandidateTeamsJoined []bool
 		}{
 			tournament,
 			tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id),
 			participants,
 			teams,
 			candidateTeams,
+			teamsJoinedTournament,
 		}
 		log.Infof(c, "rendering data.");		
 		return templateshlp.RenderJson(w, c, data)

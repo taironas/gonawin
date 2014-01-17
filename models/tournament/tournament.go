@@ -191,7 +191,7 @@ func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bo
 	return false
 }
 
-// Check if a Team has joined the tournament so update relations
+// Check if a Team has joined the tournament
 func TeamJoined(c appengine.Context, tournamentId int64, teamId int64) bool {
 	tournamentteamRel := tournamentteamrelmdl.FindByTournamentIdAndTeamId(c, tournamentId, teamId)
 	return tournamentteamRel != nil
