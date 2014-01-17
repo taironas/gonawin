@@ -341,11 +341,13 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		candidateTeams := teammdl.Find(c, "AdminId", u.Id)
 		data := struct {
 			Tournament *tournamentmdl.Tournament
+			Joined bool
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
 			CandidateTeams []*teammdl.Team
 		}{
 			tournament,
+			tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id),
 			participants,
 			teams,
 			candidateTeams,

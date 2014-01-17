@@ -89,12 +89,11 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     	    }
     });
 
-    $scope.joined = function(){
-	console.log('joined ?');
-	// query tournamentrel for pair(tournament.id, user.id);
-	// or add information to json of show.
-	return false;
-    };
+    // checks if user has joined a tournament
+    $scope.joined = $scope.tournamentData.$promise.then(function(result){
+	console.log('tournament joined ready!');
+	return result.Joined;
+    });
 
     $scope.teamJoined = function(teamId){
 	console.log('is team joined to tournament?');
