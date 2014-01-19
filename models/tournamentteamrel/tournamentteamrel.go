@@ -72,10 +72,12 @@ func FindByTournamentIdAndTeamId(c appengine.Context, tournamentId int64, teamId
 	
 	if _, err := q.GetAll(c, &tournamentteamRels); err == nil && len(tournamentteamRels) > 0 {
 		return tournamentteamRels[0]
-	} else {
-		log.Errorf(c, " tournamentteamrel.FindByTournamentIdAndTeamId, error occurred during GetAll: %v", err)
-		return nil
+	} else if len(tournamentteamRels) == 0 {
+		log.Infof(c, " tournamentteamrel.FindByTournamentIdAndTeamId, relation not found  during GetAll.")
+	} else if len(tournamentteamRels) == 0 {
+		log.Errorf(c, " tournamentteamrel.FindByTournamentIdAndTeamId, relation not found  during GetAll. err: %v", err)
 	}
+	return nil
 }
 
 func Find(c appengine.Context, filter string, value interface{}) []*TournamentTeamRelationship {

@@ -12,7 +12,6 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     };
 }]);
 
-
 tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
     console.log('Tournament search controller');
     console.log('routeParams: ', $routeParams);
@@ -95,10 +94,10 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	return result.Joined;
     });
 
-    $scope.teamJoined = function(){
-	console.log('is team joined to tournament?');
-	return false;
-    };
+    $scope.candidates = Tournament.candidates( {id:$routeParams.id});
+    $scope.candidates.$promise.then(function(result){
+	console.log('candidates ready!', result);
+    });
 
 }]);
 

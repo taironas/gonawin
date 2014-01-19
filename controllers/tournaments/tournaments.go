@@ -57,6 +57,12 @@ type indexData struct{
 	TournamentInputSearch string
 }
 
+type TeamCandidate struct{
+	Id int64
+	Name string
+	Joined bool
+}
+
 // index tournaments handler
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -338,34 +344,18 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		}
 		participants := tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
-		candidateTeams := teammdl.Find(c, "AdminId", u.Id)
-
-		// build teamjoined datastructure
-		// right now we put this code in the show json handler. 
-		// this will move to the CandidateTeams json handler once decoupled from tournament.show
-		teamsJoinedTournament := make([]bool, len(candidateTeams))
-		teamCounter := 0
-		for _, teamCandidate := range(candidateTeams){
-			teamsJoinedTournament[teamCounter] = tournamentmdl.TeamJoined(c, intID, teamCandidate.Id)
-			teamCounter++
-		}
 
 		data := struct {
 			Tournament *tournamentmdl.Tournament
 			Joined bool
 			Participants []*usermdl.User
 			Teams []*teammdl.Team
-			CandidateTeams []*teammdl.Team
-			CandidateTeamsJoined []bool
 		}{
 			tournament,
 			tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id),
 			participants,
 			teams,
-			candidateTeams,
-			teamsJoinedTournament,
 		}
-		log.Infof(c, "rendering data.");		
 		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
@@ -484,3 +474,34 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	}
 }
 
+// json team candidates for a specific tournament:
+func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+	c := appengine.NewContext(r)
+	log.Infof(c, "json team candidates handler.")
+
+	if r.Method == "GET"{
+		tournamentId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil{
+			return helpers.NotFound{err}
+		}
+
+		if _, err1 := tournamentmdl.ById(c, tournamentId); err1 != nil{
+			return helpers.NotFound{err}
+		}
+		// query teams
+		teams := teammdl.Find(c, "AdminId", u.Id)
+		// build candidate data structure from team and teamjoined info
+		teamCandidates := make([]TeamCandidate, len(teams))
+		teamCounter := 0
+		for _, t := range(teams){
+			teamCandidates[teamCounter].Id = t.Id
+			teamCandidates[teamCounter].Name = t.Name
+			teamCandidates[teamCounter].Joined = tournamentmdl.TeamJoined(c, tournamentId, t.Id)
+			
+			teamCounter++
+		}
+		return templateshlp.RenderJson(w, c, teamCandidates)
+	} else {
+		return helpers.BadRequest{errors.New("Not supported.")}
+	}	
+}

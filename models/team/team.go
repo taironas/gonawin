@@ -40,7 +40,6 @@ type Team struct {
 	Created time.Time
 }
 
-
 type TeamCounter struct {
 	Count int64
 }

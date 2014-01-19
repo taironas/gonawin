@@ -75,8 +75,11 @@ func FindByTournamentIdAndUserId(c appengine.Context, tournamentId int64, userId
 	
 	if _, err := q.GetAll(c, &tournamentRels); err == nil && len(tournamentRels) > 0 {
 		return tournamentRels[0]
+	} else if len(tournamentRels) == 0 {
+		log.Infof(c, " tournamentrel.FindByTournamentIdAndUserId, no relation found during GetAll")
+		return nil
 	} else {
-		log.Errorf(c, " tournamentrel.FindByTournamentIdAndUserId, error occurred during GetAll: %v", err)
+		log.Errorf(c, " tournamentrel.FindByTournamentIdAndUserId, error during GetAll: %v", err)
 		return nil
 	}
 }
@@ -94,3 +97,5 @@ func Find(c appengine.Context, filter string, value interface{}) []*TournamentRe
 	
 	return tournamentRels
 }
+
+
