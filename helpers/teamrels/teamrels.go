@@ -20,10 +20,11 @@ import (
 	"appengine"
 	
 	"github.com/santiaago/purple-wing/helpers/log"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+  
+  usermdl "github.com/santiaago/purple-wing/models/user"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+  teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 // from a team id return an array of users/ players that participates in it.
@@ -43,25 +44,6 @@ func Players(c appengine.Context, teamId int64) []*usermdl.User {
 	}
 
 	return users
-}
-
-// from a user id returns an array of teams the user iq involved participates.
-func Teams(c appengine.Context, userId int64) []*teammdl.Team {
-	
-	var teams []*teammdl.Team
-	
-	teamRels := teamrelmdl.Find(c, "UserId", userId)
-
-	for _, teamRel := range teamRels {
-		team, err := teammdl.ById(c, teamRel.TeamId)
-		if err != nil {
-			log.Errorf(c, " Teams, cannot find team with ID=%", teamRel.TeamId)
-		} else {
-			teams = append(teams, team)
-		}
-	}
-
-	return teams
 }
 
 // build a teamRequest array from an array of teams

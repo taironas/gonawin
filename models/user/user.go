@@ -29,7 +29,7 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	teammdl "github.com/santiaago/purple-wing/models/team"
+  teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
@@ -159,19 +159,17 @@ func GenerateAuthKey() string {
 	return fmt.Sprintf("%x", b)
 }
 
-// return an array of teams given a user id.
-// the array of teams correspond to the teams that that user participates on
+// from a user id returns an array of teams the user iq involved participates.
 func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	
 	var teams []*teammdl.Team
 	
 	teamRels := teamrelmdl.Find(c, "UserId", userId)
-	
+
 	for _, teamRel := range teamRels {
 		team, err := teammdl.ById(c, teamRel.TeamId)
-		
 		if err != nil {
-			log.Errorf(c, " User.Teams, cannot find team with ID=%", teamRel.TeamId)
+			log.Errorf(c, " Teams, cannot find team with ID=%", teamRel.TeamId)
 		} else {
 			teams = append(teams, team)
 		}

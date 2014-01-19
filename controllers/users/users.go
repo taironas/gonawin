@@ -82,7 +82,7 @@ func Show(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	teams := teamrelshlp.Teams(c, userId)
+	teams := usermdl.Teams(c, userId)
 	tournaments := tournamentrelshlp.Tournaments(c, userId)
 	teamRequests := teamrelshlp.TeamsRequests(c, teams)
 	
