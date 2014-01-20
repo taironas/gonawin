@@ -68,13 +68,27 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     $scope.leaveTournamentAsTeam = function(teamId){
 	console.log('team leave tournament ');
 	console.log(teamId);
-	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId});
+	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId},
+			       function(tournament) {
+				   console.log('success leave as a team');
+				   $location.path('/tournaments/show/' + tournament.Id);
+			       },
+			       function(err) {
+				   console.log('leave as a team failed: ', err.data);
+			       });
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
 	console.log('team join tournament ');
 	console.log(teamId);
-	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId});
+	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId},
+			      function(tournament) {
+				  console.log('success join as a team');
+				  $location.path('/tournaments/show/' + tournament.Id);
+			      },
+			      function(err) {
+				  console.log('join as a team failed: ', err.data);
+			      });
     };
 
     $scope.joinOrLeaveTournamentAsTeam = function(team){
@@ -85,11 +99,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 	}else{
 	    $scope.joinTournamentAsTeam(team.Id);
 	}
-    };
-    $scope.addTeam = function(){
-	console.log('add Team');
-	//Tournament.addTeam with tournament.Id and team.Id
-	//action="/j/tournamentteamrels/{{tournamentData.Tournament.Id}}" 
     };
 
     $scope.isTournamentAdmin = $scope.tournamentData.$promise.then(function(result){

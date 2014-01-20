@@ -22,7 +22,7 @@
 	  <table class="table table-hover">
 	    <tbody>
 	      <tr ng-repeat="t in candidates">
-		<form accept-charset="UTF-8" class="form-horizontal" method="post">
+		<form accept-charset="UTF-8" class="form-horizontal">
 		  <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
 		  <td>
 		    <button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t)" name="TeamIdButton" type="submit" value="{{t.Id}}" >
