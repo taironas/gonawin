@@ -72,10 +72,12 @@ func Find(c appengine.Context, filter string, value interface{}) *User {
 	
 	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
 		return users[0]
-	} else {
+	} else if len(users) == 0{
+		log.Infof(c, " User.Find, error occurred during GetAll")
+	} else{
 		log.Errorf(c, " User.Find, error occurred during GetAll: %v", err)
-		return nil
 	}
+	return nil
 }
 
 // find all users present in datastore

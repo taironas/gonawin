@@ -67,10 +67,12 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 
     $scope.leaveTournamentAsTeam = function(teamId){
 	console.log('team leave tournament ');
+	console.log(teamId);
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
 	console.log('team join tournament ');
+	console.log(teamId);
     };
 
     $scope.addTeam = function(){

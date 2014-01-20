@@ -285,6 +285,14 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(c)
+		if len(tournaments) == 0{
+			// we build an array instead to returning string "null" which is what the json encoder does when data is empty.
+			// as angularjs expects either an array or an object, in the search case we expect an array. 
+			// when there are not results found we build and empty array with a "not found" string.
+			data := [1]string{"No tournaments"}
+			return templateshlp.RenderJson(w, c, data)
+		}
+		
 		return templateshlp.RenderJson(w, c, tournaments)
 
 	} else {
@@ -352,7 +360,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 			Teams []*teammdl.Team
 		}{
 			tournament,
-			tournamentmdl.Joined(c, intID, auth.CurrentUser(r, c).Id),
+			tournamentmdl.Joined(c, intID, u.Id),
 			participants,
 			teams,
 		}
@@ -484,7 +492,6 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		if err != nil{
 			return helpers.NotFound{err}
 		}
-
 		if _, err1 := tournamentmdl.ById(c, tournamentId); err1 != nil{
 			return helpers.NotFound{err}
 		}
@@ -492,6 +499,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		teams := teammdl.Find(c, "AdminId", u.Id)
 		// build candidate data structure from team and teamjoined info
 		teamCandidates := make([]TeamCandidate, len(teams))
+
 		teamCounter := 0
 		for _, t := range(teams){
 			teamCandidates[teamCounter].Id = t.Id

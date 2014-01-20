@@ -104,7 +104,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Team {
 
 // get a team given an id
 func ById(c appengine.Context, id int64) (*Team, error) {
-	
+
 	var t Team
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
