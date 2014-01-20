@@ -17,12 +17,14 @@
 package tournamentteamrels
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"	
 	
@@ -82,67 +84,63 @@ func Destroy(w http.ResponseWriter, r *http.Request){
 func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
-	// get tournament id
-	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	// intID, err := handlers.PermalinkID(r, c, 4)
-	// intID2, err1 := handlers.PermalinkID(r, c, 5)
-	// log.Infof(c, "tournamentID: %v", intID)
-	// log.Infof(c, "teamID: %v", intID2)
-	// tournamentId := intID
-
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
-		return helpers.NotFound{err}
-	}
-	// get team id
-	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
-		return helpers.NotFound{err}
-	}
-
 	if r.Method == "POST" {
+		// get tournament and team id
+		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
+		teamId, err2 := handlers.PermalinkID(r, c, 5)
+		if err1 != nil || err2 != nil {
+			log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v, %v", err1, err2)
+			if err1 != nil{
+				return helpers.NotFound{err1}
+			}else if err2 != nil{
+				return helpers.NotFound{err2}
+			}
+		}
+
 		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, " tournamentteamrels.Create: %v", err)
 			return helpers.InternalServerError{err}
 		}
+		// return the joined tournament
+		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil{
+			return helpers.NotFound{err}
+		}else{
+			return templateshlp.RenderJson(w, c, tournament)
+		}
+	}else{
+		return helpers.BadRequest{errors.New("Not supported.")}
 	}
-	
-	// return the joined tournament
-	var tournament *tournamentmdl.Tournament
-	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
-		return helpers.NotFound{err}
-	}
-	return templateshlp.RenderJson(w, c, tournament)
 }
 
 // destroy handler for tournament teams realtionship
 func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
-	
-	// get tournament id
-	tournamentId , err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
-		return helpers.NotFound{err}
-	}
-	// get team id
-	teamId , err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
-	}
 
 	if r.Method == "POST" {
+
+		// get tournament and team id
+		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
+		teamId, err2 := handlers.PermalinkID(r, c, 5)
+		if err1 != nil || err2 != nil {
+			log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v, %v", err1, err2)
+			if err1 != nil{
+				return helpers.NotFound{err1}
+			}else if err2 != nil{
+				return helpers.NotFound{err2}
+			}
+		}
+		// leave team
 		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, " tournamentteamrels.Destroy: %v", err)
 			return helpers.InternalServerError{err}
 		}
+		// return the left tournament
+		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil{
+			return helpers.NotFound{err}
+		}else{
+			return templateshlp.RenderJson(w, c, tournament)
+		}
+	}else{
+		return helpers.BadRequest{errors.New("Not supported.")}
 	}
-	
-	// return the left tournament
-	var tournament *tournamentmdl.Tournament
-	if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil{
-		return helpers.NotFound{err}
-	}
-	return templateshlp.RenderJson(w, c, tournament)
 }

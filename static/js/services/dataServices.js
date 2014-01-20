@@ -25,7 +25,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
     
-    return $resource('j/tournaments/:id', {id:'@id', q:'@q'}, {
+    return $resource('j/tournaments/:id', {id:'@id', q:'@q', teamId:'@teamId'}, {
 	get: { method: 'GET', url: 'j/tournaments/show/:id' },
 	save: { method: 'POST', url: 'j/tournaments/new' },
 	update: { method: 'POST', url: 'j/tournaments/update/:id' },
@@ -33,7 +33,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 	search: { method: 'GET', url: 'j/tournaments/search?q=:q', isArray: true},
 	join: {method: 'POST', url: 'j/tournamentrels/create/:id'},
 	leave: {method: 'POST', url: 'j/tournamentrels/destroy/:id'},
-	addTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
+	joinAsTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
+	leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
 	candidates: {method: 'GET', url: 'j/tournaments/candidates/:id', isArray: true}
     })
 });

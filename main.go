@@ -117,11 +117,9 @@ func init(){
 	h.HandleFunc("/j/tournamentrels/create/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentrels/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentteamrels/create/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.CreateJson)))
-	h.HandleFunc("/j/tournamentteamrels/destroy/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournamentteamrels/destroy/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.DestroyJson)))
 	// invite -json
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 
 	http.Handle("/", h)
 }
-
-

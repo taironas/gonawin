@@ -25,9 +25,9 @@
 		<form accept-charset="UTF-8" class="form-horizontal" method="post">
 		  <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
 		  <td>
-		    <button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t.Id)" name="TeamIdButton" type="submit" value="{{t.Id}}" >
-		      <div ng-if="t.Joined">Join</div>
-		      <div ng-if="!t.Joined">Leave</div>
+		    <button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t)" name="TeamIdButton" type="submit" value="{{t.Id}}" >
+		      <div ng-if="t.Joined">Leave</div>
+		      <div ng-if="!t.Joined">Join</div>
 		    </button>
 		  </td>
 		</form>
