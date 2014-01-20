@@ -1,0 +1,25 @@
+<!-- candidates -->
+<div ng-if="candidates.length > 0">
+  <table class="table table-hover">
+    <tbody>
+      <tr ng-repeat="t in candidates">
+	<form accept-charset="UTF-8" class="form-horizontal">
+	  <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+	  <td>
+	    <button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t)" name="TeamIdButton" type="submit" value="{{t.Id}}" >
+	      <div ng-if="t.Joined">Leave</div>
+	      <div ng-if="!t.Joined">Join</div>
+	    </button>
+	  </td>
+	</form>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div ng-if="!candidates || candidates.length == 0">
+  <div id="no_team">
+    <p>No team has been created by you.</p>
+    <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
+  </div>
+</div>
+<!-- end of candidates -->
