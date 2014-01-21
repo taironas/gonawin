@@ -286,7 +286,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	if r.Method == "GET"{
 		tournaments := tournamentmdl.FindAll(c)
 		if len(tournaments) == 0{
-			return templateshlp.RenderEmptyJson(w, c)
+			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 		
 		return templateshlp.RenderJson(w, c, tournaments)

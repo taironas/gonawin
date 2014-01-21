@@ -104,6 +104,12 @@ func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) er
 
 // renders empty data to json and writes it to response writer
 func RenderEmptyJson(w http.ResponseWriter, c appengine.Context) error {
+	type EmptyStruct struct {}
+  return json.NewEncoder(w).Encode(EmptyStruct {})
+}
+
+// renders empty data to json and writes it to response writer
+func RenderEmptyJsonArray(w http.ResponseWriter, c appengine.Context) error {
 	var data [0]string
   return json.NewEncoder(w).Encode(data)
 }
