@@ -98,8 +98,14 @@ func RenderWithData(w http.ResponseWriter, r *http.Request, c appengine.Context,
 }
 
 // renders data to json and writes it to response writer
-func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) error{
+func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) error {
 	return json.NewEncoder(w).Encode(data)
+}
+
+// renders empty data to json and writes it to response writer
+func RenderEmptyJson(w http.ResponseWriter, c appengine.Context) error {
+	var data [0]string
+  return json.NewEncoder(w).Encode(data)
 }
 
 // Set all navigation pages to false caller should define only the active one

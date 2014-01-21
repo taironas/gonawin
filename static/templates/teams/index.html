@@ -17,22 +17,23 @@
   </div>
 </div>
 <div class="page-content">
-  <table class="table table-striped">
+  <table class="table table-striped" ng-show="teams.length">
     <thead>
       <tr>
-	<th>Id</th>
-	<th>Name</th>
-	<th>Admin Id</th>
-	<th>Private</th>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Admin Id</th>
+        <th>Private</th>
       </tr>
     </thead>
     <tbody>
       <tr ng-repeat="team in teams | filter:query">
-	<td>{{team.Id}}</td>
-	<td><a href="/ng#/teams/show/{{team.Id}}">{{team.Name}}</a></td>
-	<td>{{team.AdminId}}</td>
-	<td>{{team.Private}}</td>
+        <td>{{team.Id}}</td>
+        <td><a href="/ng#/teams/show/{{team.Id}}">{{team.Name}}</a></td>
+        <td>{{team.AdminId}}</td>
+        <td>{{team.Private}}</td>
       </tr>
     </tbody>
   </table>
+  <h3 ng-show="!teams.length" style="text-align: center">You have no team</h3>
 </div>

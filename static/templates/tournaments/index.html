@@ -16,19 +16,22 @@
     <!-- / search box -->
   </div>
 </div>
-<div class="page-content">
-  <table class="table table-striped">
-    <thead>
-      <tr>
-	<th>Id</th>
-	<th>Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="tournament in tournaments | filter:query">
-	<td>{{tournament.Id}}</td>
-	<td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
-      </tr>
-    </tbody>
-  </table>
+<div class="page-content" ng-init="(tournaments | filter:query)">
+  <div ng-switch="(tournaments | filter:query).length">
+    <h3 ng-switch-when="0" style="text-align: center">You have no tournament</h3>
+    <table class="table table-striped" ng-switch-default>
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="tournament in tournaments">
+          <td>{{tournament.Id}}</td>
+          <td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

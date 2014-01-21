@@ -6,9 +6,9 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     console.log('Tournament list controller');
     $scope.tournaments = Tournament.query();
     $scope.searchTournament = function(){
-	console.log('TournamentListCtrl: searchTournament');
-	console.log('keywords: ', $scope.keywords)
-	$location.search('q', $scope.keywords).path('/tournaments/search');
+      console.log('TournamentListCtrl: searchTournament');
+      console.log('keywords: ', $scope.keywords)
+      $location.search('q', $scope.keywords).path('/tournaments/search');
     };
 }]);
 
@@ -17,9 +17,9 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
     console.log('routeParams: ', $routeParams);
     $scope.tournaments = Tournament.search( {q:$routeParams.q});
     $scope.searchTournament = function(){
-	console.log('TournamentListCtrl: searchTournament');
-	console.log('keywords: ', $scope.keywords)
-	$location.search('q', $scope.keywords).path('/tournaments/search');
+      console.log('TournamentListCtrl: searchTournament');
+      console.log('keywords: ', $scope.keywords)
+      $location.search('q', $scope.keywords).path('/tournaments/search');
     };
 }]);
 
@@ -29,10 +29,10 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
     $scope.addTournament = function() {
 	Tournament.save($scope.tournament,
 			function(tournament) {
-			    $location.path('/tournaments/show/' + tournament.Id);
+        $location.path('/tournaments/show/' + tournament.Id);
 			},
 			function(err) {
-			    console.log('save failed: ', err.data);
+        console.log('save failed: ', err.data);
 			});
     };
 }]);
@@ -46,49 +46,49 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     $scope.deleteTournament = function() {
 	Tournament.delete({ id:$routeParams.id },
 			  function(){
-			      $location.path('/');
+          $location.path('/');
 			  },
 			  function(err) {
-			      console.log('delete failed: ', err.data);
+          console.log('delete failed: ', err.data);
 			  });
     };
 
     $scope.joinTournament = function(){
-	console.log('join tournament');
-	console.log('routeParams: ', $routeParams);
-	Tournament.join( {id:$routeParams.id});
+      console.log('join tournament');
+      console.log('routeParams: ', $routeParams);
+      Tournament.join( {id:$routeParams.id});
     };
 
     $scope.leaveTournament = function(){
-	console.log('leave tournament');
-	console.log('routeParams: ', $routeParams);
-	Tournament.leave( {id:$routeParams.id});
+      console.log('leave tournament');
+      console.log('routeParams: ', $routeParams);
+      Tournament.leave( {id:$routeParams.id});
     };
 
     $scope.leaveTournamentAsTeam = function(teamId){
-	console.log('team leave tournament ');
-	console.log(teamId);
-	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId},
-			       function(tournament) {
-				   console.log('success leave as a team');
-				   $location.path('/tournaments/show/' + tournament.Id);
-			       },
-			       function(err) {
-				   console.log('leave as a team failed: ', err.data);
-			       });
+      console.log('team leave tournament ');
+      console.log(teamId);
+      Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId},
+        function(tournament) {
+          console.log('success leave as a team');
+          $location.path('/tournaments/show/' + tournament.Id);
+        },
+        function(err) {
+          console.log('leave as a team failed: ', err.data);
+        });
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
-	console.log('team join tournament ');
-	console.log(teamId);
-	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId},
-			      function(tournament) {
-				  console.log('success join as a team');
-				  $location.path('/tournaments/show/' + tournament.Id);
-			      },
-			      function(err) {
-				  console.log('join as a team failed: ', err.data);
-			      });
+      console.log('team join tournament ');
+      console.log(teamId);
+      Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId},
+        function(tournament) {
+          console.log('success join as a team');
+          $location.path('/tournaments/show/' + tournament.Id);
+        },
+        function(err) {
+          console.log('join as a team failed: ', err.data);
+      });
     };
 
     $scope.joinOrLeaveTournamentAsTeam = function(team){
