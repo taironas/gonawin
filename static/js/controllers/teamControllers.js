@@ -49,13 +49,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 			console.log('delete failed: ', err.data);
 		    });
     };
+    $scope.team.$promise.then(function(res){console.log('teamas:',res)});
 
     // set isTeamAdmin boolean
     $scope.team.$promise.then(function(teamResult){
 	console.log('team is admin ready');
 	// as it depends of currentUser, make a promise
 	var deferred = $q.defer();
-	$scope.$parent.currentUser.$promise.then(function(currentUserResult){
+	$scope.currentUser.$promise.then(function(currentUserResult){
 	    console.log('is team admin: ', (teamResult.AdminId == currentUserResult.Id));
 	    deferred.resolve((teamResult.AdminId == currentUserResult.Id));
 	});
@@ -63,6 +64,18 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     }).then(function(result){
 	$scope.isTeamAdmin = result;
     });
+
+    $scope.requestInvitation = function(){
+	console.log('team request invitation');
+    };
+    
+    $scope.joinTeam = function(){
+	console.log('team join team');
+    };
+   
+    $scope.leaveTeam = function(){
+	console.log('team leave team');
+    };
     
 }]);
 

@@ -384,6 +384,15 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	}
 }
 
+type teamJson struct{
+	Id int64
+	Name string
+	Private bool
+	Joined bool
+	RequestSent bool
+	AdminId int64
+}
+
 // json show handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
@@ -398,8 +407,15 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if team, err = teammdl.ById(c, intID); err != nil{
 			return helpers.NotFound{err}
 		}
+		var teamData teamJson
+		teamData.Id = team.Id
+		teamData.Name = team.Name
+		teamData.Private = team.Private
+		teamData.Joined = teammdl.Joined(c, intID, u.Id)
+		teamData.RequestSent = 	teamrequestmdl.Sent(c, intID, u.Id)
+		teamData.AdminId = team.AdminId
 
-		return templateshlp.RenderJson(w, c, team)
+		return templateshlp.RenderJson(w, c, teamData)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
