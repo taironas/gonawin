@@ -39,26 +39,10 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     })
 });
 
-dataServices.factory('Invite', function($http, $log, $q, $cookieStore){
+dataServices.factory('Invite', function($http, $log, $q, $cookieStore, $resource){
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
     
-    return {
-	send: function(currentUser, emails){
-	    var deferred = $q.defer();
-	    $http({
-		method: 'POST',
-		url: '/j/invite',
-		contentType: 'application/json',
-		params:{ emails: emails, name: currentUser.Name } }).
-		success(function(data,status,headers,config){
-		    deferred.resolve(data);
-		    $log.info(data, status, headers() ,config);
-		}).
-		error(function (data, status, headers, config){
-		    $log.warn(data, status, headers(), config);
-		    deferred.reject(status);
-					});
-	    return deferred.promise;
-	}
-    };
+    return $resource('j/invite', {emails: '@emails'}, {
+	send: {method: 'POST', params: {emails: '@emails'}, url: 'j/invite'}
+    })
 });
