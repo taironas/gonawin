@@ -53,18 +53,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 			  });
     };
 
-    $scope.joinTournament = function(){
-      console.log('join tournament');
-      console.log('routeParams: ', $routeParams);
-      Tournament.join( {id:$routeParams.id});
-    };
-
-    $scope.leaveTournament = function(){
-      console.log('leave tournament');
-      console.log('routeParams: ', $routeParams);
-      Tournament.leave( {id:$routeParams.id});
-    };
-
     $scope.leaveTournamentAsTeam = function(teamId){
       console.log('team leave tournament ');
       console.log(teamId);
