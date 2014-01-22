@@ -25,30 +25,45 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
 }]);
 
 teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
-	$scope.addTeam = function() {
-	    console.log('TeamNewCtrl: AddTeam');
-	    Team.save($scope.team,
-		      function(team) {
-			  $location.path('/teams/show/' + team.Id);
-		      },
-		      function(err) {
-			  console.log('save failed: ', err.data);
-		      });
-	};
+    $scope.addTeam = function() {
+	console.log('TeamNewCtrl: AddTeam');
+	Team.save($scope.team,
+		  function(team) {
+		      $location.path('/teams/show/' + team.Id);
+		  },
+		  function(err) {
+		      console.log('save failed: ', err.data);
+		  });
+    };
 }]);
 
-teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-	$scope.team = Team.get({ id:$routeParams.id });
+teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', function($scope, $routeParams, Team, $location, $q) {
+    $scope.team = Team.get({ id:$routeParams.id });
     
-	$scope.deleteTeam = function() {
-		Team.delete({ id:$routeParams.id },
-			function(){
-				$location.path('/');
-			},
-			function(err) {
-				console.log('delete failed: ', err.data);
-			});
-	};
+    $scope.deleteTeam = function() {
+	Team.delete({ id:$routeParams.id },
+		    function(){
+			$location.path('/');
+		    },
+		    function(err) {
+			console.log('delete failed: ', err.data);
+		    });
+    };
+
+    // set isTeamAdmin boolean
+    $scope.team.$promise.then(function(teamResult){
+	console.log('team is admin ready');
+	// as it depends of currentUser, make a promise
+	var deferred = $q.defer();
+	$scope.$parent.currentUser.$promise.then(function(currentUserResult){
+	    console.log('is team admin: ', (teamResult.AdminId == currentUserResult.Id));
+	    deferred.resolve((teamResult.AdminId == currentUserResult.Id));
+	});
+	return deferred.promise;
+    }).then(function(result){
+	$scope.isTeamAdmin = result;
+    });
+    
 }]);
 
 teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
