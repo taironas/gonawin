@@ -1,6 +1,9 @@
 <div>
 	<div class="page-header">
 		<h1>Team</h1>
+		<div ng-if="!isTeamAdmin">
+		  <p>debug: team not admin</p>
+		</div>
 		<!-- {{if not IsTeamAdmin}}
 			{{if not Joined}}
 				{{if teamData.Team.Private}}
@@ -39,14 +42,16 @@
 		<dd>{{team.Private}}</dd>
 	</dl>
 	
-	<!-- {{if IsTeamAdmin}} -->
-		<div class="form-actions">
-			<form class="form-horizontal">
-				<a href="/ng#/teams/edit/{{team.Id}}" class="btn"><span>Edit</span></a>
-				<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
-			</form>
-		</div>
-	<!-- {{end}} -->
-	
+	<div ng-if="isTeamAdmin">
+	  <p>debug: team  admin</p>
+	  <!-- {{if IsTeamAdmin}} -->
+	  <div class="form-actions">
+	    <form class="form-horizontal">
+	      <a href="/ng#/teams/edit/{{team.Id}}" class="btn"><span>Edit</span></a>
+	      <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
+	    </form>
+	  </div>
+	  <!-- {{end}} -->
+	</div>
 	<!-- template "tmpl_team_players" .Players -->
 </div>
