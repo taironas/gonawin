@@ -1,16 +1,19 @@
-angular.module('directive.joinbutton', []).directive('joinBtn', [
+'use strict'
+
+angular.module('directive.joinButton', []).directive('joinButton', [
   'Tournament', '$compile', '$routeParams', function(Tournament, $compile, $routeParams) {
     return {
-      restrict: 'A',
+      restrict: 'E',
       scope: {
-        tournamentData: '=joinBtn'
+        target: '='
       },
+      replace: true,
       link: function(scope, element, attrs) {
         var createJoinBtn, createLeaveBtn, join_btn, leave_btn;
         join_btn = null;
         leave_btn = null;
         createJoinBtn = function() {
-          join_btn = angular.element("<button class=\"btn btn-primary\" ng-disabled='submitting'>" + "Join</button>");
+          join_btn = angular.element('<button class="btn btn-primary" ng-disabled="submitting">Join</button>');
           $compile(join_btn)(scope);
           element.append(join_btn);
           return join_btn.bind('click', function(e) {
@@ -26,7 +29,7 @@ angular.module('directive.joinbutton', []).directive('joinBtn', [
           });
         };
         createLeaveBtn = function() {
-          leave_btn = angular.element("<button class=\"btn btn-primary\" ng-disabled='submitting'>" + "Leave</button>");
+          leave_btn = angular.element('<button class="btn btn-primary" ng-disabled="submitting">Leave</button>');
           $compile(leave_btn)(scope);
           element.append(leave_btn);
           return leave_btn.bind('click', function(e) {
@@ -41,9 +44,10 @@ angular.module('directive.joinbutton', []).directive('joinBtn', [
             return scope.$apply();
           });
         };
-        return scope.$watch('tournamentData', function(val) {
-          if (scope.tournamentData) {
-            return scope.tournamentData.$promise.then(function(result){
+        return scope.$watch('target', function(val) {
+          console.log('target = ', scope.target);
+          if (scope.target) {
+            return scope.target.$promise.then(function(result){
               if (result.Joined) {
                 return createLeaveBtn();
               } else {

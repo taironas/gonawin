@@ -1,3 +1,5 @@
+'use strict'
+
 angular.module('directive.formValidation', []).
 directive('emails', function () {
 	return {
