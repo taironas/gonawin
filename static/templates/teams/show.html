@@ -15,21 +15,13 @@
     	  </form>
     	</div>
     	<div ng-if="!team.Private">
-    	  <form accept-charset="UTF-8" class="form-horizontal" method="post">
-    	    <input id="team_id" name="TeamId" type="hidden" value="{{team.Id}}" />
-    	    <input id="action" name="Action" type="hidden" value="post_action" />
-    	    <input class="btn btn-primary" name="commit" ng-click="joinTeam()" type="submit" value="Join" />
-    	  </form>
+    	  <joinbutton target="team" resource="team" />
     	</div>
     </div>
     <!-- end if !isTeamAdmin && team.Joined -->
     <!-- start if !isTeamAdmin && !team.Joined -->
     <div ng-if="!isTeamAdmin && !team.Joined">
-      	<form accept-charset="UTF-8" class="form-horizontal" method="post">
-	  <input id="team_id" name="TeamId" type="hidden" value="{{team.Id}}" />
-	  <input id="action" name="Action" type="hidden" value="delete_action" />
-	  <input class="btn btn-primary" name="commit" ng-click="leaveTeam()" type="submit" value="Leave" />
-	</form>
+      <joinbutton target="team" resource="team" />
     </div>
     <!-- end if !isTeamAdmin && team && !team.Joined -->
   </div>
@@ -49,8 +41,8 @@
     <p>debug: team  admin</p>
     <div class="form-actions">
       <form class="form-horizontal">
-	<a href="/ng#/teams/edit/{{team.Id}}" class="btn"><span>Edit</span></a>
-	<button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
+        <a href="/ng#/teams/edit/{{team.Id}}" class="btn"><span>Edit</span></a>
+        <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
       </form>
     </div>
   </div>
