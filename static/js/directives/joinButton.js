@@ -1,6 +1,6 @@
 'use strict'
 
-angular.module('directive.joinButton', []).directive('joinButton', [
+angular.module('directive.joinButton', []).directive('joinbutton', [
   'Tournament', '$compile', '$routeParams', function(Tournament, $compile, $routeParams) {
     return {
       restrict: 'E',
