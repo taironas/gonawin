@@ -6,7 +6,8 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
       restrict: 'E',
       scope: {
         target: '=',    // Bind the target to the object given
-        resource: '@'   // Store the string associated by resource
+        resource: '@',   // Store the string associated by resource
+        method: '@'
       },
       replace: true,
       link: function(scope, element, attrs) {
@@ -22,9 +23,11 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
             if(scope.resource == 'tournament')
             {
               Tournament.join({id:$routeParams.id}, function(response) {
-                scope.submitting = false;
-                join_btn.remove();
-                return createLeaveBtn();
+                Tournament.get({id:response.Id}, function(response){
+                  scope.$parent.tournamentData = response;
+                  scope.submitting = false;
+                  join_btn.remove();
+                });
               }, function(error) {
                 return scope.submitting = false;
               });
@@ -39,6 +42,7 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
                 return scope.submitting = false;
               });
             }
+
             return scope.$apply();
           });
         };
@@ -51,9 +55,11 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
             if(scope.resource == 'tournament')
             {
               Tournament.leave({id:$routeParams.id}, function(response) {
-                scope.submitting = false;
-                leave_btn.remove();
-                return createJoinBtn();
+                Tournament.get({id:response.Id}, function(response){
+                  scope.$parent.tournamentData = response;
+                  scope.submitting = false;
+                  leave_btn.remove();
+                });
               }, function(error) {
                 return scope.submitting = false;
               });
@@ -68,11 +74,11 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
                 return scope.submitting = false;
               });
             }
+
             return scope.$apply();
           });
         };
         return scope.$watch('target', function(val) {
-          console.log('target = ', scope.target);
           if (scope.target) {
             return scope.target.$promise.then(function(result){
               if (result.Joined) {

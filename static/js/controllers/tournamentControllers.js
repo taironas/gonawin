@@ -37,14 +37,14 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
     };
 }]);
 
-tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
     console.log('Tournament Show controller');
     
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
 
     console.log('tournamentData', $scope.tournamentData);
     $scope.deleteTournament = function() {
-	Tournament.delete({ id:$routeParams.id },
+      Tournament.delete({ id:$routeParams.id },
 			  function(){
           $location.path('/');
 			  },
@@ -80,48 +80,47 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     };
 
     $scope.joinOrLeaveTournamentAsTeam = function(team){
-	console.log('join or leave tournament as team');
-	console.log('id', team.Id);
-	if(team.Joined){
-	    $scope.leaveTournamentAsTeam(team.Id);
-	}else{
-	    $scope.joinTournamentAsTeam(team.Id);
-	}
+    console.log('join or leave tournament as team');
+    console.log('id', team.Id);
+      if(team.Joined){
+        $scope.leaveTournamentAsTeam(team.Id);
+      }else{
+        $scope.joinTournamentAsTeam(team.Id);
+      }
     };
 
     $scope.isTournamentAdmin = $scope.tournamentData.$promise.then(function(result){
-    	    console.log('tournament is admin ready!');
-    	    if(result.Tournament.AdminId == $scope.currentUser.Id){
-    		return true;
-    	    }else{
-    		return false;
-    	    }
+      console.log('tournament is admin ready!');
+      if(result.Tournament.AdminId == $scope.currentUser.Id){
+        return true;
+      }else{
+        return false;
+      }
     });
 
     // checks if user has joined a tournament
     $scope.joined = $scope.tournamentData.$promise.then(function(result){
-	console.log('tournament joined ready!');
-	return result.Joined;
+      console.log('tournament joined ready!');
+      return result.Joined;
     });
 
     $scope.candidates = Tournament.candidates( {id:$routeParams.id});
     $scope.candidates.$promise.then(function(result){
-	console.log('candidates ready!', result);
+      console.log('candidates ready!', result);
     });
-
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
     $scope.tournament = Tournament.get({ id:$routeParams.id });
     
     $scope.updateTournament = function() {
-	var tournament = Tournament.get({ id:$routeParams.id });
-	Tournament.update({ id:$routeParams.id }, $scope.tournament,
+      var tournament = Tournament.get({ id:$routeParams.id });
+      Tournament.update({ id:$routeParams.id }, $scope.tournament,
 			  function(){
-			      $location.path('/tournaments/show/' + $routeParams.id);
+          $location.path('/tournaments/show/' + $routeParams.id);
 			  },
 			  function(err) {
-			      console.log('update failed: ', err.data);
+          console.log('update failed: ', err.data);
 			  });
     }
 }]);

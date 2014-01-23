@@ -1,7 +1,7 @@
 <div>
   <div class="page-header">
     <h1>Tournament</h1>
-    <joinbutton target="tournamentData" resource="tournament" />
+    <joinbutton target="tournamentData" resource="tournament" method="updateParticipants()" />
     <a href="/ng#/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
     <!-- Modal -->
     <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
