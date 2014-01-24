@@ -2,11 +2,25 @@
 
 angular.module('directive.joinButton', []).directive('joinbutton', [
   'Team','Tournament', '$compile', '$routeParams', function(Team, Tournament, $compile, $routeParams) {
+    var IsTeamJoined = function(teamId, teams) {
+      if(!teamId || !teams) {
+        return false;
+      }
+      for (var i=0 ; i<teams.length; i++)
+      {
+        if(teams[i].Id == teamId)
+        {
+          return true;
+        }
+      }
+    };
+    
     return {
       restrict: 'E',
       scope: {
-        target: '=',    // Bind the target to the object given
-        resource: '@'   // Store the string associated by resource
+        target: '=',      // Bind the target to the object given
+        resource: '@',    // Store the string associated by resource
+        teamid: '='
       },
       replace: true,
       link: function(scope, element, attrs) {
@@ -21,18 +35,28 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
             scope.submitting = true;
             if(scope.resource == 'tournament')
             {
-              Tournament.join({id:$routeParams.id}, function(response) {
-                Tournament.get({id:response.Id}, function(response){
-                  scope.$parent.tournamentData = response;
-                  scope.submitting = false;
-                  join_btn.remove();
+              if(scope.teamid) {
+                Tournament.joinAsTeam({id:$routeParams.id, teamId:scope.teamid}, function(response) {
+                  Tournament.get({id:response.Id}, function(response){
+                    scope.$parent.tournamentData = response;
+                    scope.submitting = false;
+                    join_btn.remove();
+                  });
+                }, function(error) {
+                  return scope.submitting = false;
                 });
-              }, function(error) {
-                return scope.submitting = false;
-              });
-            }
-            else if(scope.resource == 'team')
-            {
+              } else {
+                Tournament.join({id:$routeParams.id}, function(response) {
+                  Tournament.get({id:response.Id}, function(response){
+                    scope.$parent.tournamentData = response;
+                    scope.submitting = false;
+                    join_btn.remove();
+                  });
+                }, function(error) {
+                  return scope.submitting = false;
+                });
+              }
+            } else if(scope.resource == 'team') {
               Team.join({id:$routeParams.id}, function(response) {
                 scope.submitting = false;
                 join_btn.remove();
@@ -53,18 +77,28 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
             scope.submitting = true;
             if(scope.resource == 'tournament')
             {
-              Tournament.leave({id:$routeParams.id}, function(response) {
-                Tournament.get({id:response.Id}, function(response){
-                  scope.$parent.tournamentData = response;
-                  scope.submitting = false;
-                  leave_btn.remove();
+              if(scope.teamid) {
+                Tournament.leaveAsTeam({id:$routeParams.id, teamId:scope.teamid}, function(response) {
+                  Tournament.get({id:response.Id}, function(response){
+                    scope.$parent.tournamentData = response;
+                    scope.submitting = false;
+                    leave_btn.remove();
+                  });
+                }, function(error) {
+                  return scope.submitting = false;
                 });
-              }, function(error) {
-                return scope.submitting = false;
-              });
-            }
-            else if(scope.resource == 'team')
-            {
+              } else {
+                Tournament.leave({id:$routeParams.id}, function(response) {
+                  Tournament.get({id:response.Id}, function(response){
+                    scope.$parent.tournamentData = response;
+                    scope.submitting = false;
+                    leave_btn.remove();
+                  });
+                }, function(error) {
+                  return scope.submitting = false;
+                });
+              }
+            } else if(scope.resource == 'team') {
               Team.leave({id:$routeParams.id}, function(response) {
                 scope.submitting = false;
                 leave_btn.remove();
@@ -80,7 +114,7 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
         return scope.$watch('target', function(val) {
           if (scope.target) {
             return scope.target.$promise.then(function(result){
-              if (result.Joined) {
+              if (result.Joined || IsTeamJoined(scope.teamid, scope.target.Teams)) {
                 return createLeaveBtn();
               } else {
                 return createJoinBtn();

@@ -3,15 +3,12 @@
   <table class="table table-hover">
     <tbody>
       <tr ng-repeat="t in candidates">
-	<form accept-charset="UTF-8" class="form-horizontal">
-	  <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	  <td>
-	    <button class="btn btn-primary btn-join pull-right" ng-click="joinOrLeaveTournamentAsTeam(t)" name="TeamIdButton" type="submit" value="{{t.Id}}" >
-	      <div ng-if="t.Joined">Leave</div>
-	      <div ng-if="!t.Joined">Join</div>
-	    </button>
-	  </td>
-	</form>
+        <form accept-charset="UTF-8" class="form-horizontal">
+          <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+          <td>
+            <joinbutton class="pull-right" target="tournamentData" resource="tournament" teamid="t.Id" />
+          </td>
+        </form>
       </tr>
     </tbody>
   </table>
