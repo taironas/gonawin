@@ -32,6 +32,7 @@ const KOfflineMode bool = false
 
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
+const kEmailGonawinTest = "gonawin.test@gmail.com"
 
 // from an accessToken string, verify if google user account is valid
 func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
@@ -54,7 +55,7 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 // Ckeck if googple plus user is admin.
 // #196: Should be removed when deployed in production.
 func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
 }
 
 // Ckeck if twitter user is admin.

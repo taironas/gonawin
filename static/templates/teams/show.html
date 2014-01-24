@@ -1,8 +1,8 @@
 <div>
   <div class="page-header">
     <h1>Team</h1>
-    <!-- start if !isTeamAdmin && team.Joined -->
-    <div ng-if="!isTeamAdmin && team.Joined">
+    <!-- start if !isTeamAdmin && !team.Joined -->
+    <div ng-if="!isTeamAdmin && !team.Joined">
       <p>debug: team not admin</p>
     	<div ng-if="team.Private">
     	  <form accept-charset="UTF-8" class="form-horizontal" method="post">
@@ -18,12 +18,12 @@
     	  <joinbutton target="team" resource="team" />
     	</div>
     </div>
-    <!-- end if !isTeamAdmin && team.Joined -->
-    <!-- start if !isTeamAdmin && !team.Joined -->
-    <div ng-if="!isTeamAdmin && !team.Joined">
+    <!-- end if !isTeamAdmin && !team.Joined -->
+    <!-- start if !isTeamAdmin && team.Joined -->
+    <div ng-if="!isTeamAdmin && team.Joined">
       <joinbutton target="team" resource="team" />
     </div>
-    <!-- end if !isTeamAdmin && team && !team.Joined -->
+    <!-- end if !isTeamAdmin && team && team.Joined -->
   </div>
   <!-- end page header -->
   <dl class="dl-horizontal">
