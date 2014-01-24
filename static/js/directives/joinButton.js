@@ -6,8 +6,7 @@ angular.module('directive.joinButton', []).directive('joinbutton', [
       restrict: 'E',
       scope: {
         target: '=',    // Bind the target to the object given
-        resource: '@',   // Store the string associated by resource
-        method: '@'
+        resource: '@'   // Store the string associated by resource
       },
       replace: true,
       link: function(scope, element, attrs) {
