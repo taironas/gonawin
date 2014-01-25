@@ -391,6 +391,12 @@ type teamJson struct{
 	Joined bool
 	RequestSent bool
 	AdminId int64
+	Players []playerJson
+}
+
+type playerJson struct{
+	Id int64
+	Username string
 }
 
 // json show handler
@@ -414,6 +420,16 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teamData.Joined = teammdl.Joined(c, intID, u.Id)
 		teamData.RequestSent = 	teamrequestmdl.Sent(c, intID, u.Id)
 		teamData.AdminId = team.AdminId
+		// get compress players data
+		playersFull := teamrelshlp.Players(c, intID)
+		playersCompress := make([]playerJson, len(playersFull))
+		playerCounter := 0
+		for _, player := range playersFull{
+			playersCompress[playerCounter].Id = player.Id
+			playersCompress[playerCounter].Username = player.Username
+			playerCounter++
+		}
+		teamData.Players = playersCompress
 
 		return templateshlp.RenderJson(w, c, teamData)
 	} else {
@@ -509,6 +525,8 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 }
 
 // json invite handler
+// use this handler when you wish to request an invitation to a team.
+// this is done when the team in set as 'private' and the user wishes to join it.
 func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 		

@@ -1,6 +1,9 @@
 <div>
   <div class="page-header">
     <h1>Team</h1>
+    <!-- uncomment this to debug -->
+    <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>team.Joined: {{team.Joined}}<br>team.Private: {{team.Private}}<br>team.RequestSent: {{team.RequestSent}}</p> -->
+
     <!-- start if !isTeamAdmin && !team.Joined -->
     <div ng-if="!isTeamAdmin && !team.Joined">
       <p>debug: team not admin</p>
@@ -46,5 +49,16 @@
       </form>
     </div>
   </div>
-  <!-- template "tmpl_team_players" .Players -->
+  <!-- start players -->
+  <div class="players">
+    <table class="table table-striped">
+      <thead><tr><th>Players</th></tr></thead>
+      <tbody>
+	<tr ng-repeat="player in team.Players">
+	  <td><a href="/m/users/{{player.Id}}">{{player.Username}}</a></td>
+	</tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- end players -->  
 </div>
