@@ -94,9 +94,9 @@ func fetchAuthKey(r *http.Request, auth string) string {
 
 // Set cookie with authentication string
 func SetAuthCookie(w http.ResponseWriter, auth string) {
-	cookie := &http.Cookie{ 
-		Name: "auth", 
-		Value: auth, 
+	cookie := &http.Cookie{
+		Name: "auth",
+		Value: auth,
 		Path: "/",
 	}
 	http.SetCookie(w, cookie)
@@ -125,7 +125,7 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 		currentUser := usermdl.Find(c, "Username", "purple")
     
     if currentUser == nil {
-      currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", usermdl.GenerateAuthKey())
+      currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", true, usermdl.GenerateAuthKey())
     }
     return currentUser
 	}

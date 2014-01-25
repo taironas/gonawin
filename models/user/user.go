@@ -38,12 +38,13 @@ type User struct {
 	Email string
 	Username string
 	Name string
+	IsAdmin bool
 	Auth string
 	Created time.Time
 }
 
-// creates a user entity, 
-func Create(c appengine.Context, email string, username string, name string, auth string) (*User, error) {
+// creates a user entity,
+func Create(c appengine.Context, email string, username string, name string, isAdmin bool, auth string) (*User, error) {
 	// create new user
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
@@ -52,7 +53,7 @@ func Create(c appengine.Context, email string, username string, name string, aut
 	
 	key := datastore.NewKey(c, "User", "", userId, nil)
 	
-	user := &User{ userId, email, username, name, auth, time.Now() }
+	user := &User{ userId, email, username, name, isAdmin, auth, time.Now() }
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -141,7 +142,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	// find user
 	if user = Find(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		if userCreate, err := Create(c, email, username, name, GenerateAuthKey()); err != nil {
+		if userCreate, err := Create(c, email, username, name, false, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
 			return nil, errors.New("models/user: Unable to create user.")
 		} else {

@@ -45,9 +45,9 @@ func AdminUsers(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
 
 	// sample of users
-	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", "", time.Now() }
-	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", "", time.Now() }
-	user3 := usermdl.User{ 1, "test3@example.com", "jdoe3", "John Doe 3", "", time.Now() }
+	user1 := usermdl.User{ 1, "test1@example.com", "jdoe1", "John Doe 1", false, "", time.Now() }
+	user2 := usermdl.User{ 1, "test2@example.com", "jdoe2", "John Doe 2", false, "", time.Now() }
+	user3 := usermdl.User{ 1, "test3@example.com", "jdoe3", "John Doe 3", false, "", time.Now() }
 	users := [] usermdl.User{user1, user2, user3}
 	// end samlpe of users
 
