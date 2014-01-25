@@ -5,15 +5,15 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
     
     return $resource('j/users/:id', {id:'@id'}, {
-      get: { method: 'GET', url: 'j/users/show/:id' },
-      update: { method: 'POST', url: 'j/users/update/:id' },
+	get: { method: 'GET', url: 'j/users/show/:id' },
+	update: { method: 'POST', url: 'j/users/update/:id' },
     })
 });
 
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
     console.log("Team data service");
-    return $resource('j/teams/:id', {id:'@id', q:'@q'}, {
+    return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId'}, {
 	get: { method: 'GET', url: 'j/teams/show/:id' },
 	save: { method: 'POST', url: 'j/teams/new' },
 	update: { method: 'POST', url: 'j/teams/update/:id' },
@@ -21,7 +21,9 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	search: { method: 'GET', url: 'j/teams/search?q=:q', isArray: true},
 	join: {method: 'POST', url: 'j/teamrels/create/:id'},
 	leave: {method: 'POST', url: 'j/teamrels/destroy/:id'},
-	invite: {method: 'POST', url: 'j/teams/invite/:id'}
+	invite: {method: 'POST', url: 'j/teams/invite/:id'},
+	allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
+	denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'}
     })
 });
 

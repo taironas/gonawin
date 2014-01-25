@@ -1,16 +1,12 @@
 <div class="requests">
   <table class="table table-striped">
-    <thead>
-      <tr>
-	<th>Requests</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Requests</th></tr></thead>
     <tbody>
       <tr ng-repeat="request in user.TeamRequests">
 	<form accept-charset="UTF-8" class="form-horizontal" method="post">
 	  <td><a href="/ng#/users/show/{{request.UserId}}">User {{request.UserId}}</a> wants to join <a href="/ng#/teams/show/{{request.TeamId}}">Team {{request.TeamId}}</a></td>
-	  <td><button class="btn btn-success" ng-click="acceptTeamRequest()" name="SubmitButton" type="submit" value="Accept"><i class="icon-ok icon-white"></td>
-	  <td><button class="btn btn-danger" ng-click="denyTeamRequest()" name="SubmitButton" type="submit" value="Deny"><i class="icon-remove icon-white"></td>
+	  <td><button class="btn btn-success" ng-click="acceptTeamRequest(request)" name="SubmitButton" type="submit" value="Accept"><i class="icon-ok icon-white"></td>
+	  <td><button class="btn btn-danger" ng-click="denyTeamRequest(request)" name="SubmitButton" type="submit" value="Deny"><i class="icon-remove icon-white"></td>
 	</form>
       </tr>
     </tbody>

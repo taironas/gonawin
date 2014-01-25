@@ -532,37 +532,61 @@ func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	return helpers.NotFound{errors.New("Not supported.")}
 }
 
-// json request handler
-func RequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+// Json Allow handler
+// use this handler to allow a request send by a user on a team.
+// after this, the user that that send the request will be part of the team
+func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST"{
-		
-		requestId, err := strconv.ParseInt(r.FormValue("RequestId"), 10,64)
+		requestId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, " teams.Request, string value could not be parsed: %v", err)
+			log.Errorf(c, " teams.AllowRequest, id could not be extracter from url: %v", err)
 			return helpers.NotFound{err}
 		}
 		
-		if r.FormValue("SubmitButton") == "Accept" {
-			if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
-				// join user to the team
-				teammdl.Join(c, teamRequest.TeamId, teamRequest.UserId);
-			} else {
-				appengine.NewContext(r).Errorf(" cannot find team request with id=%d", requestId)
-			}
+		if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
+			// join user to the team
+			teammdl.Join(c, teamRequest.TeamId, teamRequest.UserId);
+		} else {
+			appengine.NewContext(r).Errorf(" cannot find team request with id=%d", requestId)
 		}
-		
+		// request is no more needed so clear it from datastore
 		teamrequestmdl.Destroy(c, requestId)
 		
-		url := fmt.Sprintf("/j/users/%d", u.Id)
-		http.Redirect(w, r, url, http.StatusFound)
-		return nil
+		return templateshlp.RenderJson(w, c, "team request was handled")
+
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
-	return helpers.BadRequest{errors.New("not supported.")}
+}
+
+
+// Json Deny handler
+// use this handler to deny a request send by a user on a team.
+// the user will not be able to be part of the team
+func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+	c := appengine.NewContext(r)
+	
+	if r.Method == "POST"{
+		requestId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, " teams.AllowRequest, id could not be extracter from url: %v", err)
+			return helpers.NotFound{err}
+		}
+		
+		// request is no more needed so clear it from datastore
+		teamrequestmdl.Destroy(c, requestId)
+		
+		return templateshlp.RenderJson(w, c, "team request was handled")
+
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
+	}
 }
 
 // json search handler
+// use this handler to search for a team.
 func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	log.Infof(c, "json search handler.")
