@@ -384,21 +384,6 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	}
 }
 
-type teamJson struct{
-	Id int64
-	Name string
-	Private bool
-	Joined bool
-	RequestSent bool
-	AdminId int64
-	Players []playerJson
-}
-
-type playerJson struct{
-	Id int64
-	Username string
-}
-
 // json show handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
@@ -413,7 +398,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if team, err = teammdl.ById(c, intID); err != nil{
 			return helpers.NotFound{err}
 		}
-		var teamData teamJson
+		// get data for json team
+		var teamData helpers.TeamJson
 		teamData.Id = team.Id
 		teamData.Name = team.Name
 		teamData.Private = team.Private
@@ -422,7 +408,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teamData.AdminId = team.AdminId
 		// get compress players data
 		playersFull := teamrelshlp.Players(c, intID)
-		playersCompress := make([]playerJson, len(playersFull))
+		playersCompress := make([]helpers.UserJsonZip, len(playersFull))
 		playerCounter := 0
 		for _, player := range playersFull{
 			playersCompress[playerCounter].Id = player.Id

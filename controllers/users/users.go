@@ -26,6 +26,7 @@ import (
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
@@ -117,19 +118,42 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 // Json show user handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
+	log.Infof(c, "User Show Json Handler")
 
-	userId, err := handlers.PermalinkID(r, c, 4)
-	if err != nil{
-		return helpers.BadRequest{err}
+	if r.Method == "GET"{
+
+		userId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil{
+			return helpers.BadRequest{err}
+		}
+		
+		var user *usermdl.User
+		user, err = usermdl.ById(c,userId)
+		if err != nil{
+			return helpers.BadRequest{err}
+		}
+		teams := usermdl.Teams(c, userId)
+		teamsJson := make([]helpers.TeamJsonZip, len(teams))
+		counterTeams := 0
+		for _, team := range teams{
+			teamsJson[counterTeams].Id = team.Id
+			teamsJson[counterTeams].Name = team.Name
+			counterTeams++
+		}
+		var userJson helpers.UserJson
+		userJson.Id = user.Id
+		userJson.Username = user.Username
+		userJson.Name = user.Name
+		userJson.Email = user.Email
+		userJson.IsAdmin = user.IsAdmin
+		userJson.Auth = user.Auth
+		userJson.Created = user.Created
+		userJson.Teams = teamsJson
+
+		return templateshlp.RenderJson(w, c, userJson)
+	} else {
+		return helpers.BadRequest{errors.New("not supported.")}
 	}
-	
-	var user *usermdl.User
-	user, err = usermdl.ById(c,userId)
-	if err != nil{
-		return helpers.BadRequest{err}
-	}
-	
-	return templateshlp.RenderJson(w, c, user)
 }
 
 // json update user handler
