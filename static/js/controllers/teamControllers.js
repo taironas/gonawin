@@ -49,7 +49,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 			console.log('delete failed: ', err.data);
 		    });
     };
-    $scope.team.$promise.then(function(res){console.log('teamas:',res)});
 
     // set isTeamAdmin boolean
     $scope.team.$promise.then(function(teamResult){
@@ -67,12 +66,20 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     $scope.requestInvitation = function(){
 	console.log('team request invitation');
+	Team.invite( {id:$routeParams.id},
+		     function(){
+			 console.log('team invite successful');
+		     },
+		     function(err){
+			 console.log('invite failed ', err);
+		     });
     };
-    
+
+    // ToDo: remove function?
     $scope.joinTeam = function(){
 	console.log('team join team');
     };
-   
+    // ToDo: remove function?   
     $scope.leaveTeam = function(){
 	console.log('team leave team');
     };

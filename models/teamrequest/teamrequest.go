@@ -90,7 +90,7 @@ func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 	if _, err := q.GetAll(c, &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
 	} else if len(teamRequests) == 0{
-		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, no teamRequests found during GetAll")
+		log.Infof(c, " teamrequest.findByTeamIdAndUserId, no teamRequests found during GetAll")
 	} else {
 		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
 	}

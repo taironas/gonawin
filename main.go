@@ -99,7 +99,7 @@ func init(){
 	h.HandleFunc("/j/teams/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.ShowJson)))
 	h.HandleFunc("/j/teams/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.UpdateJson)))
 	h.HandleFunc("/j/teams/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.DestroyJson)))
-	h.HandleFunc("/j/teams/invite/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.InviteJson)))
+	h.HandleFunc("/j/teams/invite/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.InviteJson)))
 	h.HandleFunc("/j/teams/request/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RequestJson)))
 	h.HandleFunc("/j/teams/search/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SearchJson)))
 	// tournament - json

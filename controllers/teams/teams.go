@@ -511,20 +511,19 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 // json invite handler
 func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
-	
-	intID, err := handlers.PermalinkID(r, c, 3)
-	if err != nil{
-		return helpers.NotFound{err}
-	}
-	
+		
 	if r.Method == "POST"{
-		if _, err := teamrequestmdl.Create(c, intID, u.Id); err != nil {
-			log.Errorf(c, " teams.Invite, error when trying to create a team request: %v", err)
+		intID, err := handlers.PermalinkID(r, c, 4)
+		if err != nil{
+			return helpers.NotFound{err}
 		}
 		
-		url := fmt.Sprintf("/m/teams/%d", intID)
-		http.Redirect(w, r, url, http.StatusFound)
-		return nil
+		if _, err := teamrequestmdl.Create(c, intID, u.Id); err != nil {
+			log.Errorf(c, " teams.Invite, error when trying to create a team request: %v", err)
+			return helpers.InternalServerError{errors.New("Error when sending invite.")}
+		}
+		// return destroyed status
+		return templateshlp.RenderJson(w, c, "team request was created")
 	}
 	return helpers.NotFound{errors.New("Not supported.")}
 }
