@@ -132,7 +132,6 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if err != nil{
 			return helpers.BadRequest{err}
 		}
-		tournaments := tournamentrelshlp.Tournaments(c, userId)
 
 		// set teams info in user json
 		teams := usermdl.Teams(c, userId)
@@ -154,6 +153,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		userJson.Teams = teamsJson
 
 		// set tournament info in user json
+		tournaments := tournamentrelshlp.Tournaments(c, userId)
 		tournamentsJson := make([]helpers.TournamentJsonZip, len(tournaments))
 		counterTournaments := 0
 		for _, tournament := range tournaments{
@@ -162,19 +162,18 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 			counterTournaments++
 		}
 		userJson.Tournaments = tournamentsJson
-		// teamRequests := teamrelshlp.TeamsRequests(c, teams)
-		
-		// userData := struct {
-		// 	User *usermdl.User
-		// 	Teams []*teammdl.Team
-		// 	Tournaments []*tournamentmdl.Tournament
-		// 	TeamRequests []*teamrequestmdl.TeamRequest
-		// }{
-		// 	user,
-		// 	teams,
-		// 	tournaments,
-		// 	teamRequests,
-		// }
+
+		// set request info in user json
+		teamRequests := teamrelshlp.TeamsRequests(c, teams)
+		teamRequestsJson := make([]helpers.TeamRequestJsonZip, len(teamRequests))
+		counterRequests := 0
+		for _, request := range teamRequests{
+			teamRequestsJson[counterRequests].Id = request.Id
+			teamRequestsJson[counterRequests].UserId = request.UserId
+			teamRequestsJson[counterRequests].TeamId = request.TeamId
+			counterRequests++
+		}
+		userJson.TeamRequests = teamRequestsJson
 
 		return templateshlp.RenderJson(w, c, userJson)
 	} else {

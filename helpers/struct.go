@@ -20,6 +20,8 @@ import (
 	"time"
 )
 
+// data structures for json API
+
 type UserJson struct{
 	Id int64
 	Username string
@@ -30,6 +32,7 @@ type UserJson struct{
 	Created time.Time
 	Teams []TeamJsonZip
 	Tournaments []TournamentJsonZip
+	TeamRequests []TeamRequestJsonZip
 }
 
 type UserJsonZip struct{
@@ -37,7 +40,6 @@ type UserJsonZip struct{
 	Username string
 }
 
-// data structure for json API
 type TeamJson struct{
 	Id int64
 	Name string
@@ -48,7 +50,6 @@ type TeamJson struct{
 	Players []UserJsonZip
 }
 
-// data structure for json API
 type TeamJsonZip struct{
 	Id int64
 	Name string
@@ -57,4 +58,10 @@ type TeamJsonZip struct{
 type TournamentJsonZip struct{
 	Id int64
 	Name string
+}
+
+type TeamRequestJsonZip struct{
+	Id int64
+	TeamId int64
+	UserId int64
 }

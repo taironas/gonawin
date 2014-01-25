@@ -8,6 +8,13 @@ userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, U
 
 userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', '$location', function($scope, $routeParams, User, $location) {
     $scope.user = User.get({ id:$routeParams.id });
+
+    $scope.acceptTeamRequest = function(){
+	console.log('User show controller:: accept team Request');
+    };
+    $scope.denyTeamRequest = function(){
+	console.log('User show controller:: deny team Request');
+    };
 }]);
 
 userControllers.controller('UserEditCtrl', ['$scope', '$routeParams', 'User', 'SessionService', '$location', function($scope, $routeParams, User, SessionService, $location) {

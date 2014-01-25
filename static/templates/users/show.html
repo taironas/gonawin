@@ -17,25 +17,5 @@
   </dl>
   <div ng-include src="'templates/users/teams.html'"></div>
   <div ng-include src="'templates/users/tournaments.html'"></div>
-<!-- 	<\!-- Todo requests: should be done in another HTML file -\-> -->
-<!-- 	<\!-- div class="requests"> -->
-<!-- 	  <table class="table table-striped"> -->
-<!-- 	    <thead> -->
-<!-- 	      <tr> -->
-<!-- 		<th>Requests</th> -->
-<!-- 	      </tr> -->
-<!-- 	    </thead> -->
-<!-- 	    <tbody> -->
-<!-- 	      <tr ng-repeat="request in userData.Requests"> -->
-<!-- 		<form accept-charset="UTF-8" action="/m/teams/{{request.TeamId}}/request" class="form-horizontal" method="post"> -->
-<!-- 		  <td><a href="/m/users/{{request..UserId}}">User {{request..UserId}}</a> wants to join <a href="/m/teams/{{request..TeamId}}">Team {{request..TeamId}}</a></td> -->
-<!-- 		  <input id="request_id" name="RequestId" type="hidden" value="{{request..Id}}" /> -->
-<!-- 		  <td><button class="btn btn-success" name="SubmitButton" type="submit" value="Accept"><i class="icon-ok icon-white"></td> -->
-<!-- 		  <td><button class="btn btn-danger" name="SubmitButton" type="submit" value="Deny"><i class="icon-remove icon-white"></td> -->
-<!-- 		</form> -->
-<!-- 	      </tr> -->
-<!-- 	    </tbody> -->
-<!-- 	  </table> -->
-<!-- 	</div -\-> -->
-<!-- 	<\!-- /Requests -\-> -->
-<!-- </div> -->
+  <div ng-include src="'templates/users/teamRequests.html'"></div>
+</div>
