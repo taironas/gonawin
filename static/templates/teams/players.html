@@ -1,0 +1,10 @@
+<div class="players">
+  <table class="table table-striped">
+    <thead><tr><th>Players</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="player in team.Players">
+	<td><a href="/m/users/{{player.Id}}">{{player.Username}}</a></td>
+      </tr>
+      </tbody>
+  </table>
+</div>
