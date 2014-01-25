@@ -1,0 +1,14 @@
+<div class="tournaments">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+	<th>Tournaments</th>
+	</tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="tournament in user.Tournaments">
+	<td><a href="/j/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

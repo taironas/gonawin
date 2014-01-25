@@ -28,7 +28,8 @@ type UserJson struct{
 	IsAdmin bool
 	Auth string 
 	Created time.Time
-	Teams []TeamJsonZip	
+	Teams []TeamJsonZip
+	Tournaments []TournamentJsonZip
 }
 
 type UserJsonZip struct{
@@ -49,6 +50,11 @@ type TeamJson struct{
 
 // data structure for json API
 type TeamJsonZip struct{
+	Id int64
+	Name string
+}
+
+type TournamentJsonZip struct{
 	Id int64
 	Name string
 }
