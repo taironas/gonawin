@@ -16,17 +16,7 @@
     <dd>{{user.Created}}</dd>
   </dl>
   <!-- Todo teams: should be done in another HTML file -->
-  <div class="teams">
-    <table class="table table-striped">
-      <thead><tr><th>Teams</th></tr></thead>
-      <tbody>
-	<tr ng-repeat="team in user.Teams">
-	  <td><a href="ng#/teams/{{team.Id}}">{{team.Name}}</a></td>
-	</tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+  <div ng-include src="'templates/users/teams.html'"></div>
 <!-- 	<\!-- /Team -\-> -->
 		
 <!-- 	<\!-- /User -\-> -->
