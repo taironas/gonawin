@@ -61,6 +61,14 @@ type indexData struct{
 	TeamInputSearch string
 }
 
+// used by json api to send only needed info
+type teamJson struct{
+	Id int64
+	Name string
+	AdminId int64
+	Private bool
+}
+
 // team handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -336,8 +344,17 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if len(teams) == 0{
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-
-		return templateshlp.RenderJson(w, c, teams)
+		teamsJson := make([]teamJson, len(teams))
+		counterTeams := 0
+		for _, team := range teams{
+			teamsJson[counterTeams].Id = team.Id
+			teamsJson[counterTeams].Name = team.Name
+			teamsJson[counterTeams].AdminId = team.AdminId
+			teamsJson[counterTeams].Private = team.Private
+			counterTeams++
+		}		
+		
+		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}

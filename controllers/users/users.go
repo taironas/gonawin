@@ -55,6 +55,15 @@ type UserData struct {
 	Email string
 }
 
+// used by json api to send only needed info
+type userJson struct{
+	Id int64
+	Username string
+	Name string
+	Email string
+	Created time.Time
+}
+
 // Show handler
 func Show(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -101,14 +110,6 @@ func Show(w http.ResponseWriter, r *http.Request){
 	}
 	
 	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
-}
-
-type userJson struct{
-	Id int64
-	Username string
-	Name string
-	Email string
-	Created time.Time
 }
 
 // json index user handler
