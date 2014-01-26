@@ -421,17 +421,17 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 //  Json Update tournament handler
 func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
-	
-	intID, err := handlers.PermalinkID(r, c, 4)
-	if err != nil{
-		return helpers.NotFound{err}
-	}
-	
-	if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
-		return helpers.Forbidden{errors.New("tournament can only be updated by the tournament administrator")}
-	}
-		
+			
 	if r.Method == "POST" {
+		intID, err := handlers.PermalinkID(r, c, 4)
+		if err != nil{
+			return helpers.NotFound{err}
+		}
+		
+		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
+			return helpers.Forbidden{errors.New("tournament can only be updated by the tournament administrator")}
+		}
+
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(c, intID)
 		if err != nil{
@@ -460,7 +460,10 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
 		// return the updated tournament
-		return templateshlp.RenderJson(w, c, tournament)
+		var tJson tournamentJson
+		tJson.Id = tournament.Id
+		tJson.Name = tournament.Name
+		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
@@ -484,7 +487,16 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if len(tournaments) == 0{
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, tournaments)
+
+		tournamentsJson := make([]tournamentJson, len(tournaments))
+		counterTournaments := 0
+		for _, tournament := range tournaments{
+			tournamentsJson[counterTournaments].Id = tournament.Id
+			tournamentsJson[counterTournaments].Name = tournament.Name
+			counterTournaments++
+		}		
+
+		return templateshlp.RenderJson(w, c, tournamentsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
