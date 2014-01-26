@@ -602,9 +602,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teams := teammdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0{
-			// we build an array instead to returning "null" which is what the json encoder does when data is empty.
-			// as angularjs expects either an array or an object, in the search case we expect and array. 
-			// when there are not results found we build and empty array with a "not found" Message that should be handled by the client .
+			// we build and empty array with a "not found" Message that should be handled by the client .
 			msg := fmt.Sprintf("Your search - %s - did not match any team.", keywords)
 			type msgStruct struct{
 				Message string
