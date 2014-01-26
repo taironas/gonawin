@@ -603,7 +603,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0{
 			// we build an array instead to returning "null" which is what the json encoder does when data is empty.
-			// as angularjs expects either an array or an object, in the search case we expect and array. 
+			// as angularjs expects either an array or an object, in the search case we expect and array.
 			// when there are not results found we build and empty array with a "not found" string.
 			data := [1]string{"Search result not found"}
 			return templateshlp.RenderJson(w, c, data)
