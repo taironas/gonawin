@@ -15,6 +15,7 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', 'SessionSer
 	    
 	    if($scope.loggedIn) {
 		SessionService.getCurrentUser().then(function(result) {
+		    console.log('current user: ', $scope.currentUser);
 		    $scope.currentUser = result;
 		});
 	    }
@@ -27,6 +28,7 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', 'SessionSer
 	SessionService.fetchUserInfo(authResult.access_token).then(function(promise1) {
 	    SessionService.fetchUser(authResult.access_token, promise1.data).then(function(promise2) {
 		$scope.currentUser = promise2.data;
+		console.log('current user: ', $scope.currentUser);
 		$scope.loggedIn = true;
 	    });
 	});

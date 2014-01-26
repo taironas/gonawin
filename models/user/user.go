@@ -141,7 +141,8 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	// find user
 	if user = Find(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		if userCreate, err := Create(c, email, username, name, false, GenerateAuthKey()); err != nil {
+		isAdmin := false
+		if userCreate, err := Create(c, email, username, name, isAdmin, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
 			return nil, errors.New("models/user: Unable to create user.")
 		} else {
