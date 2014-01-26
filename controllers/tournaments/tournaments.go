@@ -337,7 +337,10 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 				return helpers.InternalServerError{ errors.New("error when trying to create a tournament") }
 			}
 			// return the newly created tournament
-			return templateshlp.RenderJson(w, c, tournament)
+			var tJson tournamentJson
+			tJson.Id = tournament.Id
+			tJson.Name = tournament.Name
+			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
