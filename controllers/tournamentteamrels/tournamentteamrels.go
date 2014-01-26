@@ -32,6 +32,12 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
+// struct used in api for returning json data.
+type tournamentJson struct{
+	Id int64
+	Name string
+}
+
 // create handler for tournament teams realtionship
 func Create(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -105,7 +111,10 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil{
 			return helpers.NotFound{err}
 		}else{
-			return templateshlp.RenderJson(w, c, tournament)
+			var tJson tournamentJson
+			tJson.Id = tournament.Id
+			tJson.Name = tournament.Name
+			return templateshlp.RenderJson(w, c, tJson)
 		}
 	}else{
 		return helpers.BadRequest{errors.New("Not supported.")}
@@ -138,6 +147,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil{
 			return helpers.NotFound{err}
 		}else{
+			
 			return templateshlp.RenderJson(w, c, tournament)
 		}
 	}else{

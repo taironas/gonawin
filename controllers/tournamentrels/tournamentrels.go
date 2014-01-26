@@ -33,7 +33,6 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 )
 
-
 // struct used in api for returning json data.
 type tournamentJson struct{
 	Id int64
