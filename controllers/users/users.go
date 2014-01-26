@@ -22,6 +22,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"appengine"
 
@@ -102,13 +103,31 @@ func Show(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
 }
 
+type userJson struct{
+	Id int64
+	Username string
+	Name string
+	Email string
+	Created time.Time
+}
+
 // json index user handler
 func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "GET"{
 		users := usermdl.FindAll(c)
-		return templateshlp.RenderJson(w, c, users)
+		usersJson := make([]userJson, len(users))
+		counterUsers := 0
+		for _, user := range users{
+			usersJson[counterUsers].Id = user.Id
+			usersJson[counterUsers].Username = user.Username
+			usersJson[counterUsers].Name = user.Name
+			usersJson[counterUsers].Email = user.Email
+			usersJson[counterUsers].Created = user.Created
+			counterUsers++
+		}		
+		return templateshlp.RenderJson(w, c, usersJson)
 	
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
