@@ -107,24 +107,24 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 	c := appengine.NewContext(r)
 	
 	if r.Method == "POST" {
-    // get team id
-    teamId, err := handlers.PermalinkID(r, c, 4)
-    if err != nil {
-      log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
-      return helpers.NotFound{err}
-    }
-  
+		// get team id
+		teamId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
+			return helpers.NotFound{err}
+		}
+		
 		if !teammdl.IsTeamAdmin(c, teamId, u.Id) {
 			if err := teammdl.Leave(c, teamId, u.Id); err != nil {
 				log.Errorf(c, " teamRels.Destroy: %v", err)
 				return helpers.InternalServerError{err}
 			}
-      // return the left team
-      var team *teammdl.Team
-      if team, err = teammdl.ById(c, teamId); err != nil{
-        return helpers.NotFound{err}
-      }
-    return templateshlp.RenderJson(w, c, team)
+			// return the left team
+			var team *teammdl.Team
+			if team, err = teammdl.ById(c, teamId); err != nil{
+				return helpers.NotFound{err}
+			}
+			return templateshlp.RenderJson(w, c, team)
 		} else {
 			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
 			return helpers.BadRequest{err}

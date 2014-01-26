@@ -63,6 +63,12 @@ type TeamCandidate struct{
 	Joined bool
 }
 
+// struct used in api for returning json data.
+type tournamentJson struct{
+	Id int64
+	Name string
+}
+
 // index tournaments handler
 func Index(w http.ResponseWriter, r *http.Request){
 	c := appengine.NewContext(r)
@@ -288,8 +294,15 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		if len(tournaments) == 0{
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		
-		return templateshlp.RenderJson(w, c, tournaments)
+		tournamentsJson := make([]tournamentJson, len(tournaments))
+		counterTournaments := 0
+		for _, tournament := range tournaments{
+			tournamentsJson[counterTournaments].Id = tournament.Id
+			tournamentsJson[counterTournaments].Name = tournament.Name
+			counterTournaments++
+		}		
+
+		return templateshlp.RenderJson(w, c, tournamentsJson)
 
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
