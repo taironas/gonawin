@@ -25,8 +25,8 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers/log"
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 )

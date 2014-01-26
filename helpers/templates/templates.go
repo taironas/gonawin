@@ -23,7 +23,7 @@ import (
 	"html/template"
 
 	"appengine"
-
+	
 	"github.com/santiaago/purple-wing/helpers/log"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 	"github.com/santiaago/purple-wing/helpers/auth"

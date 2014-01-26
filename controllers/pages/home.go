@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"fmt"
 	"appengine"
+
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
 )

@@ -16,8 +16,14 @@
     <!-- / search box -->
   </div>
 </div>
+<!-- alert message to display when search query does not bring up any results --> 
+<div class="alert alert-info" ng-show="teams[0].Message">
+  <button type="button" class="close" data-dismiss="alert">&times;</button>
+  <strong>Oops!</strong> {{teams[0].Message}}
+</div>
+
 <div class="page-content">
-  <table class="table table-striped" ng-show="teams.length">
+  <table class="table table-striped" ng-show="teams.length && !teams[0].Message">
     <thead>
       <tr>
         <th>Id</th>

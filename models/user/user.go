@@ -17,19 +17,18 @@
 package user
 
 import (
-  "crypto/rand"
+	"crypto/rand"
 	"errors"
-  "fmt"
-  "io"
-  "net/http"
+	"fmt"
+	"io"
+	"net/http"
 	"time"
 	
 	"appengine"
 	"appengine/datastore"
-
+	
 	"github.com/santiaago/purple-wing/helpers/log"
-
-  teammdl "github.com/santiaago/purple-wing/models/team"
+	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
