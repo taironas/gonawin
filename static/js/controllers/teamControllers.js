@@ -16,6 +16,10 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
     console.log('Team search controller');
     console.log('routeParams: ', $routeParams);
     $scope.teams = Team.search( {q:$routeParams.q});
+
+    $scope.query = $routeParams.q;
+    $scope.isSearching = true;
+
     $scope.searchTeam = function(){
 	console.log('TeamSearchCtrl: searchTeam');
 	console.log('keywords: ', $scope.keywords);

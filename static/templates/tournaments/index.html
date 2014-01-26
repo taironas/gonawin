@@ -17,12 +17,16 @@
   </div>
 </div>
 <!-- alert message to display when search query does not bring up any results --> 
-<div class="alert alert-info" ng-show="tournaments[0].Message">
+<div class="alert alert-info" ng-show="isSearching && !tournaments.length">
   <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <strong>Oops!</strong> {{tournaments[0].Message}}
+  <strong>Oops!</strong> Your search - <b>{{query}}</b> - did not match any tournament.
 </div>
 <div class="page-content">
-  <table class="table table-striped" ng-show="tournaments.length && !tournaments[0].Message">
+  <div class="alert alert-success" ng-show="isSearching && tournaments.length">
+    Results for <strong>{{query}}</strong>:
+  </div>
+  
+  <table class="table table-striped" ng-show="tournaments.length">
     <thead>
       <tr>
         <th>Id</th>
@@ -31,10 +35,10 @@
     </thead>
     <tbody>
       <tr ng-repeat="tournament in tournaments | filter:query">
-          <td>{{tournament.Id}}</td>
-          <td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
+        <td>{{tournament.Id}}</td>
+        <td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
       </tr>
     </tbody>
   </table>
-  <h3 ng-show="!tournaments.length" style="text-align: center">You have no team</h3>
+  <h3 ng-show="!tournaments.length && !isSearching" style="text-align: center">You have no team</h3>
 </div>

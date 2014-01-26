@@ -602,14 +602,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teams := teammdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0{
-			// we build and empty array with a "not found" Message that should be handled by the client .
-			msg := fmt.Sprintf("Your search - %s - did not match any team.", keywords)
-			type msgStruct struct{
-				Message string
-			}
-			var data [1]msgStruct
-			data[0].Message = msg
-			return templateshlp.RenderJson(w, c, data)
+			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 		return templateshlp.RenderJson(w, c, teams)
 	} else {

@@ -16,8 +16,11 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
     console.log('Tournament search controller');
     console.log('routeParams: ', $routeParams);
     $scope.tournaments = Tournament.search( {q:$routeParams.q});
+
+    $scope.query = $routeParams.q;
+    $scope.isSearching = true;
     $scope.searchTournament = function(){
-      console.log('TournamentListCtrl: searchTournament');
+      console.log('TournamentSearchCtrl: searchTournament');
       console.log('keywords: ', $scope.keywords)
       $location.search('q', $scope.keywords).path('/tournaments/search');
     };

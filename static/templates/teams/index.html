@@ -17,13 +17,15 @@
   </div>
 </div>
 <!-- alert message to display when search query does not bring up any results --> 
-<div class="alert alert-info" ng-show="teams[0].Message">
+<div class="alert alert-info" ng-show="isSearching && !teams.length">
   <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <strong>Oops!</strong> {{teams[0].Message}}
+  <strong>Oops!</strong> Your search - <b>{{query}}</b> - did not match any team.
 </div>
-
 <div class="page-content">
-  <table class="table table-striped" ng-show="teams.length && !teams[0].Message">
+  <div class="alert alert-success" ng-show="isSearching && teams.length">
+    Results for <strong>{{query}}</strong>:
+  </div>
+  <table class="table table-striped" ng-show="teams.length">
     <thead>
       <tr>
         <th>Id</th>
@@ -41,5 +43,5 @@
       </tr>
     </tbody>
   </table>
-  <h3 ng-show="!teams.length" style="text-align: center">You have no team</h3>
+  <h3 ng-show="!teams.length && !isSearching" style="text-align: center">You have no team</h3>
 </div>
