@@ -17,9 +17,9 @@
 package memcache
 
 import (
-	"fmt"
 	"appengine"
 	"appengine/memcache"
+	"fmt"
 
 	"github.com/santiaago/purple-wing/helpers/log"
 )
@@ -29,12 +29,12 @@ func Set(c appengine.Context, key string, value interface{}) {
 
 	var bytes []byte
 	switch v := value.(type) {
-		case string:
-			bytes = []byte(v)
-		case int64:
-			bytes = []byte(fmt.Sprintf("%d", v))
+	case string:
+		bytes = []byte(v)
+	case int64:
+		bytes = []byte(fmt.Sprintf("%d", v))
 	}
-	
+
 	item := &memcache.Item{
 		Key:   key,
 		Value: bytes,
@@ -46,10 +46,10 @@ func Set(c appengine.Context, key string, value interface{}) {
 }
 
 // get value from memcache with respect to a key string
-func Get(c appengine.Context, key string) (interface{}) {
+func Get(c appengine.Context, key string) interface{} {
 
 	// Get the item from the memcache
 	item, _ := memcache.Get(c, key)
-	
+
 	return item
 }

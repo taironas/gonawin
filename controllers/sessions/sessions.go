@@ -24,26 +24,27 @@ import (
 	"net/url"
 	"strconv"
 	"time"
-	
+
 	"appengine"
 	"appengine/urlfetch"
-	
-	oauth "github.com/garyburd/go-oauth/oauth"
+
 	oauth2 "code.google.com/p/goauth2/oauth"
+	oauth "github.com/garyburd/go-oauth/oauth"
 
 	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	userhlp "github.com/santiaago/purple-wing/helpers/user"
-	
+
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
-	
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 const root string = "/m"
+
 // Set up a configuration for google.
-func googleConfig(host string) *oauth2.Config{
+func googleConfig(host string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientId:     GOOGLE_CLIENT_ID,
 		ClientSecret: GOOGLE_CLIENT_SECRET,
@@ -53,9 +54,10 @@ func googleConfig(host string) *oauth2.Config{
 		RedirectURL:  fmt.Sprintf("http://%s%s/auth/google/callback", host, root),
 	}
 }
+
 // Set up a configuration for twitter.
 var twitterConfig = oauth.Client{
-	Credentials: oauth.Credentials{ Token:	CONSUMER_KEY, Secret: CONSUMER_SECRET },
+	Credentials:                   oauth.Credentials{Token: CONSUMER_KEY, Secret: CONSUMER_SECRET},
 	TemporaryCredentialRequestURI: "http://api.twitter.com/oauth/request_token",
 	ResourceOwnerAuthorizationURI: "http://api.twitter.com/oauth/authorize",
 	TokenRequestURI:               "http://api.twitter.com/oauth/access_token",
@@ -66,11 +68,11 @@ const kUrlFacebookMe = "https://graph.facebook.com/me"
 const kUrlFacebookDebugToken = "https://graph.facebook.com/debug_token?input_token=%s&access_token=%s|%s"
 
 // Set up a configuration for google.
-func facebookConfig(host string) *oauth2.Config{
+func facebookConfig(host string) *oauth2.Config {
 	return &oauth2.Config{
 		ClientId:     FACEBOOK_CLIENT_ID,
 		ClientSecret: FACEBOOK_CLIENT_SECRET,
-		Scope:"email",
+		Scope:        "email",
 		AuthURL:      "https://graph.facebook.com/oauth/authorize",
 		TokenURL:     "https://graph.facebook.com/oauth/access_token",
 		RedirectURL:  fmt.Sprintf("http://%s%s/auth/facebook/callback", host, root),
@@ -78,23 +80,24 @@ func facebookConfig(host string) *oauth2.Config{
 }
 
 // Authenticate handler for m/auth
-func Authenticate(w http.ResponseWriter, r *http.Request){
-        c := appengine.NewContext(r)
-        if !authhlp.LoggedIn(r, c) {
-                funcs := template.FuncMap{}
-                
-                t := template.Must(template.New("tmpl_auth").
-                        Funcs(funcs).
-                        ParseFiles("templates/session/auth.html"))
-                // no data needed
-                templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAuth")
-        } else {
-                //redirect to home page
-                http.Redirect(w, r, root, http.StatusFound)
-        }
+func Authenticate(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	if !authhlp.LoggedIn(r, c) {
+		funcs := template.FuncMap{}
+
+		t := template.Must(template.New("tmpl_auth").
+			Funcs(funcs).
+			ParseFiles("templates/session/auth.html"))
+		// no data needed
+		templateshlp.RenderWithData(w, r, c, t, nil, funcs, "renderAuth")
+	} else {
+		//redirect to home page
+		http.Redirect(w, r, root, http.StatusFound)
+	}
 }
+
 // Google
-func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
+func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	if !authhlp.LoggedIn(r, c) {
 		url := googleConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
@@ -104,28 +107,29 @@ func AuthenticateWithGoogle(w http.ResponseWriter, r *http.Request){
 		http.Redirect(w, r, root, http.StatusFound)
 	}
 }
+
 // Google Authentication Callback
-func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
+func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
-	
+
 	t := &oauth2.Transport{
 		Config: googleConfig(r.Host),
 		Transport: &urlfetch.Transport{
 			Context: appengine.NewContext(r),
 		},
 	}
-	
+
 	var err error
 	var userInfo *userhlp.GPlusUserInfo
 	var user *usermdl.User
-	
+
 	if _, err = t.Exchange(code); err == nil {
 		userInfo, _ = userhlp.FetchGPlusUserInfo(r, t.Client())
 	}
 	if authhlp.IsAuthorizedWithGoogle(userInfo) {
-		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -140,17 +144,17 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request){
 }
 
 // Twitter
-func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
+func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	if !authhlp.LoggedIn(r, c) {
-		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://" + r.Host + twitterCallbackURL, nil)
+		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
 		if err != nil {
 			log.Errorf(c, " AuthenticateWithTwitter, error getting temporary credentials: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
 		}
-		
-		http.SetCookie(w, &http.Cookie{ Name: "secret", Value: credentials.Secret, Path: "/m", })
+
+		http.SetCookie(w, &http.Cookie{Name: "secret", Value: credentials.Secret, Path: "/m"})
 		http.Redirect(w, r, twitterConfig.AuthorizationURL(credentials, nil), 302)
 	} else {
 		//redirect to home page
@@ -159,7 +163,7 @@ func AuthenticateWithTwitter(w http.ResponseWriter, r *http.Request){
 }
 
 // Twitter Authentication Callback
-func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
+func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	// get the request token
 	requestToken := r.FormValue("oauth_token")
@@ -171,17 +175,17 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 	} else {
 		log.Errorf(c, " TwitterAuthCallback, error getting 'secret' cookie: %v", err)
 	}
-	
+
 	// clear 'secret' cookie
-	http.SetCookie(w, &http.Cookie{ Name: "secret", Path: "/m", Expires: time.Now(), })
-	
+	http.SetCookie(w, &http.Cookie{Name: "secret", Path: "/m", Expires: time.Now()})
+
 	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
 		log.Errorf(c, " TwitterAuthCallback, error getting request token: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
-	
+
 	// get user info
 	urlValues := url.Values{}
 	urlValues.Set("user_id", values.Get("user_id"))
@@ -199,7 +203,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 
 	if authhlp.IsAuthorizedWithTwitter(userInfo) {
 		var user *usermdl.User
-		if user, err = usermdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -214,7 +218,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request){
 }
 
 // Facebook
-func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
+func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	if !authhlp.LoggedIn(r, c) {
 		url := facebookConfig(r.Host).AuthCodeURL(r.URL.RawQuery)
@@ -226,7 +230,7 @@ func AuthenticateWithFacebook(w http.ResponseWriter, r *http.Request){
 }
 
 // Facebook authentication callback
-func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
+func FacebookAuthCallback(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	// Exchange code for an access token at OAuth provider.
 	code := r.FormValue("code")
@@ -236,7 +240,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 			Context: appengine.NewContext(r),
 		},
 	}
-	
+
 	if v, err := t.Exchange(code); err != nil {
 		log.Errorf(c, " FacebookAuthCallback, error occurred during exchange: %v, returned value: %v", err, v)
 		http.Redirect(w, r, root, http.StatusFound)
@@ -252,7 +256,7 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	// verify if information from facebook is valid for current user.
-	if isValid, err := isFacebookTokenValid(accessTokenResponse); (err != nil || !isValid){
+	if isValid, err := isFacebookTokenValid(accessTokenResponse); err != nil || !isValid {
 		log.Errorf(c, " FacebookAuthCallback, isFacebookTokenValid: Is valid: %v, Error: %v", isValid, err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
@@ -265,14 +269,14 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	userInfo, err := userhlp.FetchFacebookUserInfo(graphResponse)
-	if err != nil{
+	if err != nil {
 		log.Errorf(c, " FacebookAuthCallback, error occurred when fetching facebook user info: %v", err)
 		http.Redirect(w, r, root, http.StatusFound)
 		return
 	}
-	if authhlp.IsAuthorizedWithFacebook(userInfo){
+	if authhlp.IsAuthorizedWithFacebook(userInfo) {
 		var user *usermdl.User
-		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+		if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 			log.Errorf(c, " SigninUser: %v", err)
 			http.Redirect(w, r, root, http.StatusFound)
 			return
@@ -287,13 +291,13 @@ func FacebookAuthCallback(w http.ResponseWriter, r *http.Request){
 
 // Verifies if token present in http.Response is valid.
 // Valid means: data is valid, app_id match to server app_id and applicatiion name match
-func isFacebookTokenValid(response *http.Response) (bool, error){
+func isFacebookTokenValid(response *http.Response) (bool, error) {
 
 	tokenData, err := userhlp.FetchFacebookTokenData(response)
-	if err == nil{
+	if err == nil {
 		if tokenData.Data.Is_valid &&
 			(strconv.Itoa(tokenData.Data.App_id) == FACEBOOK_CLIENT_ID) &&
-			(tokenData.Data.Application == "purple-wing"){
+			(tokenData.Data.Application == "purple-wing") {
 			return true, err
 		}
 	}
@@ -301,9 +305,9 @@ func isFacebookTokenValid(response *http.Response) (bool, error){
 }
 
 // Logout from session, clear authentication cookie and redirect to root.
-func SessionLogout(w http.ResponseWriter, r *http.Request){
+func SessionLogout(w http.ResponseWriter, r *http.Request) {
 	authhlp.ClearAuthCookie(w)
-	
+
 	http.Redirect(w, r, root, http.StatusFound)
 }
 
@@ -312,17 +316,17 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	userInfo := userhlp.GPlusUserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
-	
+
 	var err error
 	var user *usermdl.User
-	
+
 	if !authhlp.CheckGoogleUserValidity(r.FormValue("access_token"), r) {
 		return helpers.InternalServerError{errors.New("Access token is not valid")}
 	}
 	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
 		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
 	}
-	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil{
+	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
 	}
 

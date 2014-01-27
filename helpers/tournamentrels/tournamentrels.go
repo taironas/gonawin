@@ -13,24 +13,24 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
+
 package tournamentrels
 
-import (	
+import (
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers/log"	
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	"github.com/santiaago/purple-wing/helpers/log"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // from a tournamentId returns an array of users the participate in it.
-func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {	
+func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {
 	var users []*usermdl.User
-	
+
 	tournamentRels := tournamentrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentRel := range tournamentRels {
@@ -47,9 +47,9 @@ func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {
 
 // from a tournamentid returns an array of teams involved in tournament
 func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
-	
+
 	var teams []*teammdl.Team
-	
+
 	tournamentteamRels := tournamentteamrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentteamRel := range tournamentteamRels {
@@ -66,9 +66,9 @@ func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
 
 // from a user id return an array of tournament the user is involved in.
 func Tournaments(c appengine.Context, userId int64) []*tournamentmdl.Tournament {
-	
+
 	var tournaments []*tournamentmdl.Tournament
-	
+
 	tournamentRels := tournamentrelmdl.Find(c, "UserId", userId)
 
 	for _, tournamentRel := range tournamentRels {

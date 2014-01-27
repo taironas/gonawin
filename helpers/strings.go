@@ -12,7 +12,7 @@
 * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
 
 package helpers
 
@@ -21,18 +21,18 @@ import (
 )
 
 // TrimLower returns a lower case slice of the string s, with all leading and trailing white space removed, as defined by Unicode.
-func TrimLower(s string) string{
+func TrimLower(s string) string {
 	return strings.TrimSpace(strings.ToLower(s))
 }
 
-func SetOfStrings(s string) []string{
+func SetOfStrings(s string) []string {
 	slice := strings.Split(TrimLower(s), " ")
 	set := ""
-	for _,w := range slice{
-		if !StringContains(set, w){
-			if len(set) == 0{
+	for _, w := range slice {
+		if !StringContains(set, w) {
+			if len(set) == 0 {
 				set = w
-			}else{
+			} else {
 				set = set + " " + w
 			}
 		}
@@ -40,19 +40,19 @@ func SetOfStrings(s string) []string{
 	return strings.Split(set, " ")
 }
 
-func SliceContains(slice []string, s string)bool{
-	for _, w := range slice{
-		if w == s{
+func SliceContains(slice []string, s string) bool {
+	for _, w := range slice {
+		if w == s {
 			return true
 		}
 	}
 	return false
 }
 
-func StringContains(strToSplit string, s string)bool{
+func StringContains(strToSplit string, s string) bool {
 	slice := strings.Split(strToSplit, " ")
-	for _, w := range slice{
-		if w == s{
+	for _, w := range slice {
+		if w == s {
 			return true
 		}
 	}
@@ -62,15 +62,15 @@ func StringContains(strToSplit string, s string)bool{
 // from two strings with format "str1 str2" and "str2 str3"
 // compute the intersection of the two strings
 // in this example the result is "str2"
-func Intersect(a string, b string) string{
+func Intersect(a string, b string) string {
 	sa := SetOfStrings(a)
 	sb := SetOfStrings(b)
 	intersect := ""
-	for _, val := range sa{
-		if SliceContains(sb,val){
-			if len(intersect)==0{
+	for _, val := range sa {
+		if SliceContains(sb, val) {
+			if len(intersect) == 0 {
 				intersect = val
-			}else{
+			} else {
 				intersect = intersect + " " + val
 			}
 		}
@@ -78,10 +78,10 @@ func Intersect(a string, b string) string{
 	return intersect
 }
 
-func CountTerm(words []string, w string)int64{
+func CountTerm(words []string, w string) int64 {
 	var c int64 = 0
-	for _,wi := range words{
-		if wi == w{
+	for _, wi := range words {
+		if wi == w {
 			c = c + 1
 		}
 	}

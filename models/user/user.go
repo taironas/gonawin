@@ -23,23 +23,23 @@ import (
 	"io"
 	"net/http"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
-	
+
 	"github.com/santiaago/purple-wing/helpers/log"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type User struct {
-	Id int64
-	Email string
+	Id       int64
+	Email    string
 	Username string
-	Name string
-	IsAdmin bool
-	Auth string
-	Created time.Time
+	Name     string
+	IsAdmin  bool
+	Auth     string
+	Created  time.Time
 }
 
 // creates a user entity,
@@ -49,10 +49,10 @@ func Create(c appengine.Context, email string, username string, name string, isA
 	if err != nil {
 		log.Errorf(c, " User.Create: %v", err)
 	}
-	
+
 	key := datastore.NewKey(c, "User", "", userId, nil)
-	
-	user := &User{ userId, email, username, name, isAdmin, auth, time.Now() }
+
+	user := &User{userId, email, username, name, isAdmin, auth, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -65,16 +65,16 @@ func Create(c appengine.Context, email string, username string, name string, isA
 
 // search for a user entity given a filter and value
 func Find(c appengine.Context, filter string, value interface{}) *User {
-	
-	q := datastore.NewQuery("User").Filter(filter + " =", value)
-	
+
+	q := datastore.NewQuery("User").Filter(filter+" =", value)
+
 	var users []*User
-	
+
 	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
 		return users[0]
-	} else if len(users) == 0{
+	} else if len(users) == 0 {
 		log.Infof(c, " User.Find, error occurred during GetAll")
-	} else{
+	} else {
 		log.Errorf(c, " User.Find, error occurred during GetAll: %v", err)
 	}
 	return nil
@@ -107,7 +107,7 @@ func ById(c appengine.Context, id int64) (*User, error) {
 }
 
 // get key pointer given a user id
-func KeyById(c appengine.Context, id int64)(*datastore.Key) {
+func KeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "User", "", id, nil)
 
@@ -128,7 +128,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 
 	c := appengine.NewContext(r)
 	var user *User
-	
+
 	queryValue := ""
 	if queryName == "Email" {
 		queryValue = email
@@ -137,7 +137,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	} else {
 		return nil, errors.New("models/user: no valid query name.")
 	}
-	
+
 	// find user
 	if user = Find(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
@@ -149,7 +149,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 			user = userCreate
 		}
 	}
-	
+
 	return user, nil
 }
 
@@ -157,16 +157,16 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 func GenerateAuthKey() string {
 	b := make([]byte, 16)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
-			return ""
+		return ""
 	}
 	return fmt.Sprintf("%x", b)
 }
 
 // from a user id returns an array of teams the user iq involved participates.
 func Teams(c appengine.Context, userId int64) []*teammdl.Team {
-	
+
 	var teams []*teammdl.Team
-	
+
 	teamRels := teamrelmdl.Find(c, "UserId", userId)
 
 	for _, teamRel := range teamRels {
@@ -183,6 +183,6 @@ func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 
 // gets an array of teams whos admin id is passed as param
 func AdminTeams(c appengine.Context, adminId int64) []*teammdl.Team {
-	
+
 	return teammdl.Find(c, "AdminId", adminId)
 }

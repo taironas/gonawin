@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
 
@@ -28,9 +28,9 @@ import (
 )
 
 type TeamRelationship struct {
-	Id int64
-	TeamId int64
-	UserId int64
+	Id      int64
+	TeamId  int64
+	UserId  int64
 	Created time.Time
 }
 
@@ -41,10 +41,10 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "TeamRelationship", "", teamRelationshipId, nil)
 
-	teamRelationship := &TeamRelationship{ teamRelationshipId, teamId, userId, time.Now() }
+	teamRelationship := &TeamRelationship{teamRelationshipId, teamId, userId, time.Now()}
 
 	_, err = datastore.Put(c, key, teamRelationship)
 	if err != nil {
@@ -56,23 +56,23 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship,
 
 // Destroy a teamrel relationship given a team id and a user id
 func Destroy(c appengine.Context, teamId int64, userId int64) error {
-	
+
 	if teamRel := FindByTeamIdAndUserId(c, teamId, userId); teamRel == nil {
 		return errors.New(fmt.Sprintf("Cannot find team relationship for teamId=%d and userId=%d", teamId, userId))
 	} else {
 		key := datastore.NewKey(c, "TeamRelationship", "", teamRel.Id, nil)
-			
-		return datastore.Delete(c, key)	
+
+		return datastore.Delete(c, key)
 	}
 }
 
 // look for a relationship given a team id and user id pair
 func FindByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRelationship {
-	
+
 	q := datastore.NewQuery("TeamRelationship").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
-	
+
 	var teamRels []*TeamRelationship
-	
+
 	if _, err := q.GetAll(c, &teamRels); err == nil && len(teamRels) > 0 {
 		return teamRels[0]
 	} else {
@@ -81,16 +81,16 @@ func FindByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 	}
 }
 
-// search for teamrels with respect to the filter and value 
-func Find(c appengine.Context, filter string, value interface{}) []*TeamRelationship{
-	
-	q := datastore.NewQuery("TeamRelationship").Filter(filter + " =", value)
-	
+// search for teamrels with respect to the filter and value
+func Find(c appengine.Context, filter string, value interface{}) []*TeamRelationship {
+
+	q := datastore.NewQuery("TeamRelationship").Filter(filter+" =", value)
+
 	var teamRels []*TeamRelationship
-	
+
 	if _, err := q.GetAll(c, &teamRels); err != nil {
 		log.Errorf(c, " teamrel.Find, error occurred during GetAll: %v", err)
 	}
-	
+
 	return teamRels
 }

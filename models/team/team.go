@@ -21,20 +21,20 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 )
 
 type Team struct {
-	Id int64
+	Id      int64
 	KeyName string
-	Name string
+	Name    string
 	AdminId int64
 	Private bool
 	Created time.Time
@@ -51,10 +51,10 @@ func Create(c appengine.Context, name string, adminId int64, private bool) (*Tea
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 
-	team := &Team{ teamId, helpers.TrimLower(name), name, adminId, private, time.Now() }
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now()}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -77,12 +77,12 @@ func Create(c appengine.Context, name string, adminId int64, private bool) (*Tea
 
 // Destroy a team given a team id
 func Destroy(c appengine.Context, teamId int64) error {
-	
+
 	if team, err := ById(c, teamId); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find team with teamId=%d", teamId))
 	} else {
 		key := datastore.NewKey(c, "Team", "", team.Id, nil)
-			
+
 		return datastore.Delete(c, key)
 	}
 }
@@ -90,10 +90,10 @@ func Destroy(c appengine.Context, teamId int64) error {
 // given a filter and a value look query the datastore for teams and returns an array of team pointers.
 func Find(c appengine.Context, filter string, value interface{}) []*Team {
 
-	q := datastore.NewQuery("Team").Filter(filter + " =", value)
-	
+	q := datastore.NewQuery("Team").Filter(filter+" =", value)
+
 	var teams []*Team
-	
+
 	if _, err := q.GetAll(c, &teams); err == nil {
 		return teams
 	} else {
@@ -116,7 +116,7 @@ func ById(c appengine.Context, id int64) (*Team, error) {
 }
 
 // get a team key given an id
-func KeyById(c appengine.Context, id int64) (*datastore.Key) {
+func KeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Team", "", id, nil)
 
@@ -129,7 +129,7 @@ func Update(c appengine.Context, id int64, t *Team) error {
 	t.KeyName = helpers.TrimLower(t.Name)
 	k := KeyById(c, id)
 	oldTeam := new(Team)
-	if err := datastore.Get(c,k, oldTeam);err == nil {
+	if err := datastore.Get(c, k, oldTeam); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
@@ -142,19 +142,19 @@ func Update(c appengine.Context, id int64, t *Team) error {
 // get all teams in datastore
 func FindAll(c appengine.Context) []*Team {
 	q := datastore.NewQuery("Team")
-	
+
 	var teams []*Team
-	
+
 	if _, err := q.GetAll(c, &teams); err != nil {
 		log.Errorf(c, " Team.FindAll, error occurred during GetAll call: %v", err)
 	}
-	
+
 	return teams
 }
 
 // find with respect to array of ids
 func ByIds(c appengine.Context, ids []int64) []*Team {
-	
+
 	var teams []*Team
 	for _, id := range ids {
 		if team, err := ById(c, id); err == nil {
@@ -189,7 +189,7 @@ func Leave(c appengine.Context, teamId int64, userId int64) error {
 
 // check if user is admin of that team
 func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
-	
+
 	if team, err := ById(c, teamId); err == nil {
 		return team.AdminId == userId
 	} else {
@@ -223,8 +223,9 @@ func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error
 	}
 	return x.Count, nil
 }
+
 // get the current number of teams present in datastore
-func GetTeamCounter(c appengine.Context)(int64, error) {
+func GetTeamCounter(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "TeamCounter", "singleton", 0, nil)
 	var x TeamCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -234,10 +235,10 @@ func GetTeamCounter(c appengine.Context)(int64, error) {
 }
 
 // given a id, and a word, get the frequency of that word in the team terms
-func GetWordFrequencyForTeam(c appengine.Context, id int64, word string)int64{
+func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
 
-	if teams := Find(c, "Id", id); teams != nil{
-		return helpers.CountTerm(strings.Split(teams[0].KeyName, " "),word)
+	if teams := Find(c, "Id", id); teams != nil {
+		return helpers.CountTerm(strings.Split(teams[0].KeyName, " "), word)
 	}
 	return 0
 }

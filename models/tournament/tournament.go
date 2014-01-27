@@ -33,40 +33,39 @@ import (
 )
 
 type Tournament struct {
-	Id int64
-	KeyName string
-	Name string
+	Id          int64
+	KeyName     string
+	Name        string
 	Description string
-	Start time.Time
-	End time.Time
-	AdminId int64
-	Created time.Time
+	Start       time.Time
+	End         time.Time
+	AdminId     int64
+	Created     time.Time
 }
 
 type TournamentCounter struct {
 	Count int64
 }
 
-
 // create tournament entity given a name and description
-func Create(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64 ) (*Tournament, error) {
+func Create(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64) (*Tournament, error) {
 	// create new tournament
 	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
-	tournament := &Tournament{ tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now() }
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now()}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
 		return nil, err
 	}
 
-	tournamentinvidmdl.Add(c, helpers.TrimLower(name),tournamentID)
-	
+	tournamentinvidmdl.Add(c, helpers.TrimLower(name), tournamentID)
+
 	return tournament, nil
 }
 
@@ -85,7 +84,7 @@ func Destroy(c appengine.Context, tournamentId int64) error {
 // return an array of tournaments given a filter and value
 func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
 
-	q := datastore.NewQuery("Tournament").Filter(filter + " =", value)
+	q := datastore.NewQuery("Tournament").Filter(filter+" =", value)
 
 	var tournaments []*Tournament
 
@@ -98,7 +97,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
 }
 
 // returns a pointer to a tournament given a tournament id
-func ById(c appengine.Context, id int64)(*Tournament, error){
+func ById(c appengine.Context, id int64) (*Tournament, error) {
 
 	var t Tournament
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
@@ -111,7 +110,7 @@ func ById(c appengine.Context, id int64)(*Tournament, error){
 }
 
 // return a pointer to a tournament key given a tournament id
-func KeyById(c appengine.Context, id int64)(*datastore.Key){
+func KeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
 
@@ -135,7 +134,7 @@ func Update(c appengine.Context, id int64, t *Tournament) error {
 
 // returns an array of all tournaments in the datastore
 func FindAll(c appengine.Context) []*Tournament {
-	
+
 	q := datastore.NewQuery("Tournament")
 
 	var tournaments []*Tournament
@@ -149,7 +148,7 @@ func FindAll(c appengine.Context) []*Tournament {
 
 // find with respect to array of ids
 func ByIds(c appengine.Context, ids []int64) []*Tournament {
-	
+
 	var tournaments []*Tournament
 	for _, id := range ids {
 		if tournament, err := ById(c, id); err == nil {
@@ -187,7 +186,7 @@ func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bo
 	if tournament, err := ById(c, tournamentId); err == nil {
 		return tournament.AdminId == userId
 	}
-	
+
 	return false
 }
 
@@ -237,8 +236,8 @@ func decrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64,
 	return x.Count, nil
 }
 
-// get the current tournament counter 
-func GetTournamentCounter(c appengine.Context)(int64, error){
+// get the current tournament counter
+func GetTournamentCounter(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "TournamentCounter", "singleton", 0, nil)
 	var x TournamentCounter
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -250,8 +249,8 @@ func GetTournamentCounter(c appengine.Context)(int64, error){
 // get the frequency of given word with respect to tournament id
 func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) int64 {
 
-	if tournaments := Find(c, "Id", id); tournaments != nil{
-		return helpers.CountTerm(strings.Split(tournaments[0].KeyName, " "),word)
+	if tournaments := Find(c, "Id", id); tournaments != nil {
+		return helpers.CountTerm(strings.Split(tournaments[0].KeyName, " "), word)
 	}
 	return 0
 }

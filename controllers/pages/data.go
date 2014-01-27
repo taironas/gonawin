@@ -13,15 +13,15 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
- package pages
+
+package pages
 
 import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // Data struct holds the data for templates
-type data struct{
+type data struct {
 	User *usermdl.User
-	Msg string
+	Msg  string
 }

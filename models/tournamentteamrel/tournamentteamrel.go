@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
 
@@ -28,10 +28,10 @@ import (
 )
 
 type TournamentTeamRelationship struct {
-	Id int64
+	Id           int64
 	TournamentId int64
-	TeamId int64
-	Created time.Time
+	TeamId       int64
+	Created      time.Time
 }
 
 func Create(c appengine.Context, tournamentId int64, teamId int64) (*TournamentTeamRelationship, error) {
@@ -40,10 +40,10 @@ func Create(c appengine.Context, tournamentId int64, teamId int64) (*TournamentT
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "TournamentTeamRelationship", "", tournamentteamRelationshipId, nil)
 
-	tournamentTeamRelationship := &TournamentTeamRelationship{ tournamentteamRelationshipId, tournamentId, teamId, time.Now() }
+	tournamentTeamRelationship := &TournamentTeamRelationship{tournamentteamRelationshipId, tournamentId, teamId, time.Now()}
 
 	_, err = datastore.Put(c, key, tournamentTeamRelationship)
 	if err != nil {
@@ -54,22 +54,22 @@ func Create(c appengine.Context, tournamentId int64, teamId int64) (*TournamentT
 }
 
 func Destroy(c appengine.Context, tournamentId int64, teamId int64) error {
-	
+
 	if tournamentteamRel := FindByTournamentIdAndTeamId(c, tournamentId, teamId); tournamentteamRel == nil {
 		return errors.New(fmt.Sprintf("Cannot find tournament relationship for tournamentId=%d and teamId=%d", tournamentId, teamId))
 	} else {
 		key := datastore.NewKey(c, "TournamentTeamRelationship", "", tournamentteamRel.Id, nil)
-			
-		return datastore.Delete(c, key)	
+
+		return datastore.Delete(c, key)
 	}
 }
 
 func FindByTournamentIdAndTeamId(c appengine.Context, tournamentId int64, teamId int64) *TournamentTeamRelationship {
-	
+
 	q := datastore.NewQuery("TournamentTeamRelationship").Filter("TournamentId =", tournamentId).Filter("TeamId =", teamId).Limit(1)
-	
+
 	var tournamentteamRels []*TournamentTeamRelationship
-	
+
 	if _, err := q.GetAll(c, &tournamentteamRels); err == nil && len(tournamentteamRels) > 0 {
 		return tournamentteamRels[0]
 	} else if len(tournamentteamRels) == 0 {
@@ -81,14 +81,14 @@ func FindByTournamentIdAndTeamId(c appengine.Context, tournamentId int64, teamId
 }
 
 func Find(c appengine.Context, filter string, value interface{}) []*TournamentTeamRelationship {
-	
-	q := datastore.NewQuery("TournamentTeamRelationship").Filter(filter + " =", value)
-	
+
+	q := datastore.NewQuery("TournamentTeamRelationship").Filter(filter+" =", value)
+
 	var tournamentteamRels []*TournamentTeamRelationship
-	
+
 	if _, err := q.GetAll(c, &tournamentteamRels); err != nil {
 		log.Errorf(c, " tournamentteamrel.Find, error occurred during GetAll: %v", err)
 	}
-	
+
 	return tournamentteamRels
 }

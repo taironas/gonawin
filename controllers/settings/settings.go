@@ -13,56 +13,56 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
+
 package settings
 
 import (
-	"net/http"
 	"html/template"
-	
+	"net/http"
+
 	"appengine"
-	
-	"github.com/santiaago/purple-wing/helpers/auth"
+
 	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // user profile handler
-func Profile(w http.ResponseWriter, r *http.Request){
+func Profile(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
-	
+
 	if r.Method == "GET" {
 		funcs := template.FuncMap{
-			"Profile": func() bool {return true},
+			"Profile": func() bool { return true },
 		}
-		
+
 		t := template.Must(template.New("tmpl_settings_profile").
 			Funcs(funcs).
 			ParseFiles("templates/settings/profile.html"))
-		
+
 		templateshlp.RenderWithData(w, r, c, t, auth.CurrentUser(r, c), funcs, "renderProfile")
 
-	}else if r.Method == "POST"{
+	} else if r.Method == "POST" {
 		currentUser := auth.CurrentUser(r, c)
-		
+
 		editUserName := r.FormValue("Username")
-		
-		if helpers.IsUsernameValid(editUserName) && editUserName != currentUser.Username{
+
+		if helpers.IsUsernameValid(editUserName) && editUserName != currentUser.Username {
 			currentUser.Username = editUserName
 			usermdl.Update(c, currentUser)
 		} else {
 			log.Errorf(c, " cannot update current user info")
 		}
-		
+
 		http.Redirect(w, r, "/m/settings/edit-profile", http.StatusFound)
 	}
 }
 
 // user social networks handler
-func Networks(w http.ResponseWriter, r *http.Request){
+func Networks(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_networks").
@@ -74,7 +74,7 @@ func Networks(w http.ResponseWriter, r *http.Request){
 }
 
 // email handler
-func Email(w http.ResponseWriter, r *http.Request){
+func Email(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
 	t := template.Must(template.New("tmpl_settings_email").

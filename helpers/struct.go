@@ -12,7 +12,7 @@
 * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
 
 package helpers
 
@@ -22,46 +22,46 @@ import (
 
 // data structures for json API
 
-type UserJson struct{
-	Id int64
-	Username string
-	Name string
-	Email string
-	IsAdmin bool
-	Auth string 
-	Created time.Time
-	Teams []TeamJsonZip
-	Tournaments []TournamentJsonZip
+type UserJson struct {
+	Id           int64
+	Username     string
+	Name         string
+	Email        string
+	IsAdmin      bool
+	Auth         string
+	Created      time.Time
+	Teams        []TeamJsonZip
+	Tournaments  []TournamentJsonZip
 	TeamRequests []TeamRequestJsonZip
 }
 
-type UserJsonZip struct{
-	Id int64
+type UserJsonZip struct {
+	Id       int64
 	Username string
 }
 
-type TeamJson struct{
-	Id int64
-	Name string
-	Private bool
-	Joined bool
+type TeamJson struct {
+	Id          int64
+	Name        string
+	Private     bool
+	Joined      bool
 	RequestSent bool
-	AdminId int64
-	Players []UserJsonZip
+	AdminId     int64
+	Players     []UserJsonZip
 }
 
-type TeamJsonZip struct{
-	Id int64
+type TeamJsonZip struct {
+	Id   int64
 	Name string
 }
 
-type TournamentJsonZip struct{
-	Id int64
+type TournamentJsonZip struct {
+	Id   int64
 	Name string
 }
 
-type TeamRequestJsonZip struct{
-	Id int64
+type TeamRequestJsonZip struct {
+	Id     int64
 	TeamId int64
 	UserId int64
 }

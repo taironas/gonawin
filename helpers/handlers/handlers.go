@@ -13,21 +13,21 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
+
 package handlers
 
 import (
 	"errors"
 	"net/http"
-	"strings"
 	"strconv"
+	"strings"
 
-	"appengine"	
-	
+	"appengine"
+
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
-	
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -37,33 +37,34 @@ func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 		c := appengine.NewContext(r)
 		if !auth.IsUser(r, c) {
 			http.Redirect(w, r, "/m", http.StatusFound)
-		} else{
+		} else {
 			f(w, r)
 		}
 	}
 }
+
 // is it an admin?
 func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c := appengine.NewContext(r)
 		if !auth.IsAdmin(r, c) {
 			http.Redirect(w, r, "/m", http.StatusFound)
-		} else{
+		} else {
 			f(w, r)
 		}
 	}
 }
+
 // parse permalink id from URL  and return it
-func PermalinkID(r *http.Request, c appengine.Context, level int64)(int64, error){
+func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, error) {
 
 	path := strings.Split(r.URL.String(), "/")
-	intID, err := strconv.ParseInt(path[level],0,64)
-	if err != nil{
-		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v",path[level], err)
+	intID, err := strconv.ParseInt(path[level], 0, 64)
+	if err != nil {
+		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", path[level], err)
 	}
 	return intID, err
 }
-
 
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
 
@@ -71,10 +72,10 @@ type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
 func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := f(w, r)
-		if err == nil{
+		if err == nil {
 			return
 		}
-		switch err.(type){
+		switch err.(type) {
 		case helpers.BadRequest:
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		case helpers.NotFound:
@@ -93,15 +94,15 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 
 // Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error hanlder if authentication fails.
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
-  return func(w http.ResponseWriter, r *http.Request) error {
-    if auth.KOfflineMode {
-      return f(w, r, auth.CurrentUser(r, appengine.NewContext(r)))
-    }
-    
+	return func(w http.ResponseWriter, r *http.Request) error {
+		if auth.KOfflineMode {
+			return f(w, r, auth.CurrentUser(r, appengine.NewContext(r)))
+		}
+
 		user := auth.CheckAuthenticationData(r)
 		if user == nil {
 			return helpers.BadRequest{errors.New("Bad Authentication data")}
-		} else{
+		} else {
 			return f(w, r, user)
 		}
 	}

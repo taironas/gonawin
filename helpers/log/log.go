@@ -12,7 +12,7 @@
 * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-*/
+ */
 
 package log
 
@@ -21,16 +21,16 @@ import (
 )
 
 // information overrides the infof of appengine to be able to centralize the prefix of all logs
-func Infof(c appengine.Context, format string, args ...interface{}){
-	c.Infof("pw: " + format, args...)
+func Infof(c appengine.Context, format string, args ...interface{}) {
+	c.Infof("pw: "+format, args...)
 }
 
 // error overrides the infof of appengine to be able to centralize the prefix of all logs
-func Errorf(c appengine.Context, format string, args ...interface{}){
-	c.Errorf("pw: " + format, args...)
+func Errorf(c appengine.Context, format string, args ...interface{}) {
+	c.Errorf("pw: "+format, args...)
 }
 
 // warning overrides the infof of appengine to be able to centralize the prefix of all logs
-func Warningf(c appengine.Context, format string, args ...interface{}){
-	c.Warningf("pw: " + format, args...)
+func Warningf(c appengine.Context, format string, args ...interface{}) {
+	c.Warningf("pw: "+format, args...)
 }

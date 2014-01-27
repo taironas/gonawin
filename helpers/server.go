@@ -31,13 +31,13 @@ func Error404(w http.ResponseWriter) {
 // inspired by https://github.com/campoy/todo
 
 // BadRequest is handled by setting the status code in the reply to StatusBadRequest.
-type BadRequest struct{error}
+type BadRequest struct{ error }
 
 // NotFound is handled by setting the status code in the reply to StatusNotFound.
-type NotFound struct{error}
+type NotFound struct{ error }
 
 // Forbidden is handled by setting the status code in the reply to StatusForbidden.
-type Forbidden struct{error}
+type Forbidden struct{ error }
 
 // InternalServerError is handled by setting the status code in the reply to StatusInternalServerError.
-type InternalServerError struct{error}
+type InternalServerError struct{ error }

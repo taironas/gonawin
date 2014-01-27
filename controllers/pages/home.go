@@ -13,36 +13,36 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
+
 package pages
 
 import (
-	"net/http"
-	"html/template"
-	"fmt"
 	"appengine"
+	"fmt"
+	"html/template"
+	"net/http"
 
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 )
 
 // temporary main handler: for landing page
-func TempHome(w http.ResponseWriter, r *http.Request){
+func TempHome(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello, purple wing!")
 }
 
 // main handler: for home page
-func Home(w http.ResponseWriter, r *http.Request){
+func Home(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r, c),		
+		auth.CurrentUser(r, c),
 		"Home handler",
 	}
-	
+
 	funcs := template.FuncMap{
 		"LoggedIn": func() bool { return auth.LoggedIn(r, c) },
 	}
-	
+
 	t := template.Must(template.New("tmpl_main").
 		Funcs(funcs).
 		ParseFiles("templates/pages/main.html"))
@@ -50,14 +50,13 @@ func Home(w http.ResponseWriter, r *http.Request){
 	templateshlp.RenderWithData(w, r, c, t, data, funcs, "renderMain")
 }
 
-
 // json main handler: for home page
-func HomeJson(w http.ResponseWriter, r *http.Request) error{
+func HomeJson(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r, c),		
+		auth.CurrentUser(r, c),
 		"Home handler",
 	}
-	
+
 	return templateshlp.RenderJson(w, c, data)
 }

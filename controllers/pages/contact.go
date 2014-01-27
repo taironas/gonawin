@@ -13,30 +13,29 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
- package pages
+
+package pages
 
 import (
-	"net/http"
 	"html/template"
-	
+	"net/http"
+
 	"appengine"
 
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	"github.com/santiaago/purple-wing/helpers/auth"
-
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 )
 
 // contact handler: for contact page
-func Contact(w http.ResponseWriter, r *http.Request){
+func Contact(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r, c),		
+		auth.CurrentUser(r, c),
 		"Contact handler",
 	}
-	
+
 	funcs := template.FuncMap{}
-	
+
 	t := template.Must(template.New("tmpl_contact").
 		Funcs(funcs).
 		ParseFiles("templates/pages/contact.html"))
@@ -45,10 +44,10 @@ func Contact(w http.ResponseWriter, r *http.Request){
 }
 
 // json contact handler: for contact page
-func ContactJson(w http.ResponseWriter, r *http.Request) error{
+func ContactJson(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	data := data{
-		auth.CurrentUser(r, c),		
+		auth.CurrentUser(r, c),
 		"Contact handler",
 	}
 	return templateshlp.RenderJson(w, c, data)

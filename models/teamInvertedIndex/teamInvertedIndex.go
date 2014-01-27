@@ -19,8 +19,8 @@ package teaminvid
 import (
 	"errors"
 	"fmt"
-	"strings"
 	"strconv"
+	"strings"
 
 	"appengine"
 	"appengine/datastore"
@@ -30,27 +30,27 @@ import (
 )
 
 type TeamInvertedIndex struct {
-	Id int64
+	Id      int64
 	KeyName string
 	TeamIds []byte
 }
 
-type WordCountTeam struct{
+type WordCountTeam struct {
 	Count int64
 }
 
 // Create a teaminvertedindex entity given a word and a list of ids as a string
 func Create(c appengine.Context, word string, teamIds string) (*TeamInvertedIndex, error) {
-	
+
 	id, _, err := datastore.AllocateIDs(c, "TeamInvertedIndex", nil, 1)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
-	
+
 	byteIds := []byte(teamIds)
-	t := &TeamInvertedIndex{ id, word, byteIds }
+	t := &TeamInvertedIndex{id, word, byteIds}
 
 	_, err = datastore.Put(c, key, t)
 	if err != nil {
@@ -65,18 +65,18 @@ func Create(c appengine.Context, word string, teamIds string) (*TeamInvertedInde
 	if errIncrement != nil {
 		log.Errorf(c, " Error incrementing WordCountTeam")
 	}
-	
+
 	return t, err
 }
 
 // AddToTeamInvertedIndex
 // Split name by words.
-// For each word check if it exist in the Team Inverted Index. 
+// For each word check if it exist in the Team Inverted Index.
 // if not create a line with the word as key and team id as value.
 func Add(c appengine.Context, name string, id int64) error {
-	
+
 	words := strings.Split(name, " ")
-	for _, w:= range words{
+	for _, w := range words {
 		log.Infof(c, " AddToTeamInvertedIndex: Word: %v", w)
 
 		if invId, err := Find(c, "KeyName", w); err != nil {
@@ -91,10 +91,10 @@ func Add(c appengine.Context, name string, id int64) error {
 			log.Infof(c, " current info: teamIDs: %v", string(invId.TeamIds))
 			k := KeyById(c, invId.Id)
 
-			if newIds := helpers.MergeIds(invId.TeamIds, id);len(newIds) > 0 {
+			if newIds := helpers.MergeIds(invId.TeamIds, id); len(newIds) > 0 {
 				log.Infof(c, " current info: new team ids: %v", newIds)
-				invId.TeamIds  = []byte(newIds)
-				if _, err := datastore.Put(c, k, invId);err != nil {
+				invId.TeamIds = []byte(newIds)
+				if _, err := datastore.Put(c, k, invId); err != nil {
 					return err
 				}
 			}
@@ -107,41 +107,41 @@ func Add(c appengine.Context, name string, id int64) error {
 // from the oldname and the new name we handle removal of words no longer present.
 // the addition of new words.
 func Update(c appengine.Context, oldname string, newname string, id int64) error {
-	
+
 	var err error
 
 	// if word in old and new do nothing
-	old_w := strings.Split(oldname," ")
+	old_w := strings.Split(oldname, " ")
 	new_w := strings.Split(newname, " ")
 
 	// remove id  from words in old name that are not present in new name
-	for _, wo := range old_w{
+	for _, wo := range old_w {
 		innew := false
-		for _, wn := range new_w{
-			if wo == wn{
+		for _, wn := range new_w {
+			if wo == wn {
 				innew = true
 			}
 		}
-		if !innew{
-			log.Infof(c, " remove: %v",wo)
+		if !innew {
+			log.Infof(c, " remove: %v", wo)
 			err = removeWord(c, wo, id)
 		}
 	}
 
 	// add all id words in new name
-	for _, wn := range new_w{
+	for _, wn := range new_w {
 		inold := false
-		for _, wo := range old_w{
-			if wo == wn{
+		for _, wo := range old_w {
+			if wo == wn {
 				inold = true
 			}
 		}
-		if !inold{
+		if !inold {
 			log.Infof(c, " add: %v", wn)
 			err = addWord(c, wn, id)
 		}
 	}
-	
+
 	return err
 }
 
@@ -158,7 +158,7 @@ func removeWord(c appengine.Context, w string, id int64) error {
 		// update row with new info
 		k := KeyById(c, invId.Id)
 
-		if newIds, err := helpers.RemovefromIds(invId.TeamIds, id); err == nil{
+		if newIds, err := helpers.RemovefromIds(invId.TeamIds, id); err == nil {
 			log.Infof(c, " new team ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
@@ -174,8 +174,8 @@ func removeWord(c appengine.Context, w string, id int64) error {
 					return errors.New(fmt.Sprintf(" Error decrementing WordCountTeam: %v", errDec))
 				}
 			} else {
-				invId.TeamIds  = []byte(newIds)
-				if _, err := datastore.Put(c, k, invId);err != nil{
+				invId.TeamIds = []byte(newIds)
+				if _, err := datastore.Put(c, k, invId); err != nil {
 					return errors.New(fmt.Sprintf(" RemoveWordFromTeamInvertedIndex error on update: %v", err))
 				}
 			}
@@ -183,10 +183,9 @@ func removeWord(c appengine.Context, w string, id int64) error {
 			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v", err))
 		}
 	}
-	
+
 	return nil
 }
-
 
 // add word to team inverted index is handled the same way as AddToTeamInvertedIndex.
 // we add this function for clarity
@@ -196,10 +195,10 @@ func addWord(c appengine.Context, word string, id int64) error {
 
 // given a filter and a value look for an entity in the datastore
 func Find(c appengine.Context, filter string, value interface{}) (*TeamInvertedIndex, error) {
-	q := datastore.NewQuery("TeamInvertedIndex").Filter(filter + " =", value).Limit(1)
-	
-	var t[]*TeamInvertedIndex
-	
+	q := datastore.NewQuery("TeamInvertedIndex").Filter(filter+" =", value).Limit(1)
+
+	var t []*TeamInvertedIndex
+
 	if _, err := q.GetAll(c, &t); err == nil && len(t) > 0 {
 		return t[0], nil
 	} else {
@@ -208,14 +207,14 @@ func Find(c appengine.Context, filter string, value interface{}) (*TeamInvertedI
 }
 
 // given an id returns a pointer to the corresponding key if found.
-func KeyById(c appengine.Context, id int64) (*datastore.Key) {
+func KeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
 
 	return key
 }
 
-// given an array of words returns an array of ids that correspond to the 
+// given an array of words returns an array of ids that correspond to the
 // inverted indexes ids.
 func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
@@ -226,7 +225,7 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 		if err != nil {
 			log.Infof(c, "teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
-		} else if res !=nil {
+		} else if res != nil {
 			strTeamIds := string(res.TeamIds)
 			if len(l) == 0 {
 				l = strTeamIds
@@ -238,19 +237,19 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 			strMerge = l
 		} else {
 			// build intersection between merge and l
-			strMerge = helpers.Intersect(strMerge,l)
+			strMerge = helpers.Intersect(strMerge, l)
 		}
 	}
 	// no need to continue if no results were found, just return emtpy array
-	if len(strMerge) == 0{
+	if len(strMerge) == 0 {
 		intIds := make([]int64, 0)
 		return intIds, err1
 	}
 	strIds := strings.Split(strMerge, " ")
-	intIds := make([]int64, len(strIds)) 	
+	intIds := make([]int64, len(strIds))
 	i := 0
 	for _, w := range strIds {
-		if len(w) > 0{
+		if len(w) > 0 {
 			if n, err := strconv.ParseInt(w, 10, 64); err == nil {
 				intIds[i] = n
 				i = i + 1
@@ -289,7 +288,7 @@ func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 }
 
 // returns the current word count on teams
-func GetWordCount(c appengine.Context)(int64, error) {
+func GetWordCount(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
 	var x WordCountTeam
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -300,7 +299,7 @@ func GetWordCount(c appengine.Context)(int64, error) {
 
 // get the frequency of a word with respect to the teams
 func GetTeamFrequencyForWord(c appengine.Context, word string) (int64, error) {
-	
+
 	if invId, err := Find(c, "KeyName", word); err != nil {
 		return 0, errors.New(fmt.Sprintf(" teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err))
 	} else if invId == nil {

@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
 
@@ -28,9 +28,9 @@ import (
 )
 
 type TeamRequest struct {
-	Id int64
-	TeamId int64
-	UserId int64
+	Id      int64
+	TeamId  int64
+	UserId  int64
 	Created time.Time
 }
 
@@ -41,10 +41,10 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, erro
 	if err != nil {
 		return nil, err
 	}
-	
+
 	key := datastore.NewKey(c, "TeamRequest", "", teamRequestId, nil)
 
-	teamRequest := &TeamRequest{ teamRequestId, teamId, userId, time.Now() }
+	teamRequest := &TeamRequest{teamRequestId, teamId, userId, time.Now()}
 
 	_, err = datastore.Put(c, key, teamRequest)
 	if err != nil {
@@ -56,40 +56,40 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, erro
 
 // destroy a team request given a teamrequestid
 func Destroy(c appengine.Context, teamRequestId int64) error {
-	
+
 	if teamRequest, err := ById(c, teamRequestId); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find team request with teamRequestId=%d", teamRequestId))
 	} else {
 		key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
-			
-		return datastore.Delete(c, key)	
+
+		return datastore.Delete(c, key)
 	}
 }
 
 // search for a teamequest array given a filter and a value
 func Find(c appengine.Context, filter string, value interface{}) []*TeamRequest {
-	
-	q := datastore.NewQuery("TeamRequest").Filter(filter + " =", value)
-	
+
+	q := datastore.NewQuery("TeamRequest").Filter(filter+" =", value)
+
 	var teamRequests []*TeamRequest
-	
+
 	if _, err := q.GetAll(c, &teamRequests); err != nil {
 		log.Errorf(c, " teamrequest.Find, error occurred during GetAll: %v", err)
 	}
-	
+
 	return teamRequests
 }
 
 // search a request by team id and user id pair
 func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRequest {
-	
+
 	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
-	
+
 	var teamRequests []*TeamRequest
-	
+
 	if _, err := q.GetAll(c, &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
-	} else if len(teamRequests) == 0{
+	} else if len(teamRequests) == 0 {
 		log.Infof(c, " teamrequest.findByTeamIdAndUserId, no teamRequests found during GetAll")
 	} else {
 		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
@@ -99,7 +99,7 @@ func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 
 // return a teamrequest if it exist given a teamrequestid
 func ById(c appengine.Context, id int64) (*TeamRequest, error) {
-	
+
 	var tr TeamRequest
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
 

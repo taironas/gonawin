@@ -27,57 +27,56 @@ import (
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/log"
 	"github.com/santiaago/purple-wing/helpers/handlers"
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	"github.com/santiaago/purple-wing/helpers/log"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
-	
-	usermdl "github.com/santiaago/purple-wing/models/user"
+
 	teammdl "github.com/santiaago/purple-wing/models/team"
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	
+	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 type Form struct {
-	Username string
-	Name string
-	Email string
+	Username      string
+	Name          string
+	Email         string
 	ErrorUsername string
-	ErrorName string
-	ErrorEmail string
+	ErrorName     string
+	ErrorEmail    string
 }
 
 type UserData struct {
 	Username string
-	Name string
-	Email string
+	Name     string
+	Email    string
 }
 
 // used by json api to send only needed info
-type userJson struct{
-	Id int64
+type userJson struct {
+	Id       int64
 	Username string
-	Name string
-	Email string
-	Created time.Time
+	Name     string
+	Email    string
+	Created  time.Time
 }
 
 // Show handler
-func Show(w http.ResponseWriter, r *http.Request){
+func Show(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 
 	userId, err := handlers.PermalinkID(r, c, 3)
-	if err != nil{
-		http.Redirect(w,r, "/m/users/", http.StatusFound)
+	if err != nil {
+		http.Redirect(w, r, "/m/users/", http.StatusFound)
 		return
 	}
-	
+
 	funcs := template.FuncMap{
-		"Profile": func() bool {return true},
+		"Profile": func() bool { return true },
 	}
-	
+
 	t := template.Must(template.New("tmpl_user_show").
 		Funcs(funcs).
 		ParseFiles("templates/user/show.html",
@@ -87,20 +86,20 @@ func Show(w http.ResponseWriter, r *http.Request){
 		"templates/user/requests.html"))
 
 	var user *usermdl.User
-	user, err = usermdl.ById(c,userId)
-	if err != nil{
+	user, err = usermdl.ById(c, userId)
+	if err != nil {
 		helpers.Error404(w)
 		return
 	}
-	
+
 	teams := usermdl.Teams(c, userId)
 	tournaments := tournamentrelshlp.Tournaments(c, userId)
 	teamRequests := teamrelshlp.TeamsRequests(c, teams)
-	
+
 	userData := struct {
-		User *usermdl.User
-		Teams []*teammdl.Team
-		Tournaments []*tournamentmdl.Tournament
+		User         *usermdl.User
+		Teams        []*teammdl.Team
+		Tournaments  []*tournamentmdl.Tournament
 		TeamRequests []*teamrequestmdl.TeamRequest
 	}{
 		user,
@@ -108,48 +107,48 @@ func Show(w http.ResponseWriter, r *http.Request){
 		tournaments,
 		teamRequests,
 	}
-	
+
 	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
 }
 
 // json index user handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
-	
-	if r.Method == "GET"{
+
+	if r.Method == "GET" {
 		users := usermdl.FindAll(c)
 		usersJson := make([]userJson, len(users))
 		counterUsers := 0
-		for _, user := range users{
+		for _, user := range users {
 			usersJson[counterUsers].Id = user.Id
 			usersJson[counterUsers].Username = user.Username
 			usersJson[counterUsers].Name = user.Name
 			usersJson[counterUsers].Email = user.Email
 			usersJson[counterUsers].Created = user.Created
 			counterUsers++
-		}		
+		}
 		return templateshlp.RenderJson(w, c, usersJson)
-	
+
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
 }
 
 // Json show user handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "User Show Json Handler")
 
-	if r.Method == "GET"{
+	if r.Method == "GET" {
 
 		userId, err := handlers.PermalinkID(r, c, 4)
-		if err != nil{
+		if err != nil {
 			return helpers.BadRequest{err}
 		}
-		
+
 		var user *usermdl.User
-		user, err = usermdl.ById(c,userId)
-		if err != nil{
+		user, err = usermdl.ById(c, userId)
+		if err != nil {
 			return helpers.BadRequest{err}
 		}
 
@@ -157,7 +156,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teams := usermdl.Teams(c, userId)
 		teamsJson := make([]helpers.TeamJsonZip, len(teams))
 		counterTeams := 0
-		for _, team := range teams{
+		for _, team := range teams {
 			teamsJson[counterTeams].Id = team.Id
 			teamsJson[counterTeams].Name = team.Name
 			counterTeams++
@@ -176,7 +175,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		tournaments := tournamentrelshlp.Tournaments(c, userId)
 		tournamentsJson := make([]helpers.TournamentJsonZip, len(tournaments))
 		counterTournaments := 0
-		for _, tournament := range tournaments{
+		for _, tournament := range tournaments {
 			tournamentsJson[counterTournaments].Id = tournament.Id
 			tournamentsJson[counterTournaments].Name = tournament.Name
 			counterTournaments++
@@ -187,7 +186,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 		teamRequests := teamrelshlp.TeamsRequests(c, teams)
 		teamRequestsJson := make([]helpers.TeamRequestJsonZip, len(teamRequests))
 		counterRequests := 0
-		for _, request := range teamRequests{
+		for _, request := range teamRequests {
 			teamRequestsJson[counterRequests].Id = request.Id
 			teamRequestsJson[counterRequests].UserId = request.UserId
 			teamRequestsJson[counterRequests].TeamId = request.TeamId
@@ -202,36 +201,36 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
 }
 
 // json update user handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error{
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
-	if r.Method == "POST"{
+	if r.Method == "POST" {
 		userId, err := handlers.PermalinkID(r, c, 4)
 
-		if err != nil{
+		if err != nil {
 			return helpers.BadRequest{err}
 		}
 		if userId != u.Id {
 			return helpers.BadRequest{errors.New("User cannot be updated")}
 		}
-		
+
 		// only work on name other values should not be editable
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			return helpers.InternalServerError{ errors.New("Error when reading request body") }
+			return helpers.InternalServerError{errors.New("Error when reading request body")}
 		}
 
 		var updatedData UserData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
-				return helpers.InternalServerError{ errors.New("Error when decoding request body") }
+			return helpers.InternalServerError{errors.New("Error when decoding request body")}
 		}
-		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email{
+		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email {
 			u.Email = updatedData.Email
 			usermdl.Update(c, u)
 		}
-		
+
 		// return updated user
 		return templateshlp.RenderJson(w, c, u)
 	} else {

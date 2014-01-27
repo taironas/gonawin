@@ -13,25 +13,25 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
- 
+
 package teamrels
 
-import (	
+import (
 	"appengine"
-	
+
 	"github.com/santiaago/purple-wing/helpers/log"
-  
-  usermdl "github.com/santiaago/purple-wing/models/user"
+
 	teammdl "github.com/santiaago/purple-wing/models/team"
-  teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // from a team id return an array of users/ players that participates in it.
 func Players(c appengine.Context, teamId int64) []*usermdl.User {
-	
+
 	var users []*usermdl.User
-	
+
 	teamRels := teamrelmdl.Find(c, "TeamId", teamId)
 
 	for _, teamRel := range teamRels {
@@ -49,7 +49,7 @@ func Players(c appengine.Context, teamId int64) []*usermdl.User {
 // build a teamRequest array from an array of teams
 func TeamsRequests(c appengine.Context, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
 	var teamRequests []*teamrequestmdl.TeamRequest
-	
+
 	for _, team := range teams {
 		teamRequests = append(teamRequests, teamrequestmdl.Find(c, "TeamId", team.Id)...)
 	}

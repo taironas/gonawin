@@ -20,21 +20,21 @@ import (
 	"net/http"
 
 	"github.com/santiaago/purple-wing/helpers/handlers"
-	
+
+	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 	pagesctrl "github.com/santiaago/purple-wing/controllers/pages"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
-	usersctrl "github.com/santiaago/purple-wing/controllers/users"
-	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
-	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
-	teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
-	tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
-	tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
 	settingsctrl "github.com/santiaago/purple-wing/controllers/settings"
-	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
+	teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
+	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
+	tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
+	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
+	tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
+	usersctrl "github.com/santiaago/purple-wing/controllers/users"
 )
 
 // entry point of application
-func init(){
+func init() {
 	h := new(handlers.RegexpHandler)
 
 	// usual pages
@@ -84,9 +84,9 @@ func init(){
 	h.HandleFunc("/m/settings/email/?", handlers.User(settingsctrl.Email))
 	// invite
 	h.HandleFunc("/m/invite/?", handlers.User(invitectrl.Email))
-	
+
 	// ------------- Json Server -----------------
-	
+
 	// session
 	h.HandleFunc("/j/auth/google/?", handlers.ErrorHandler(sessionsctrl.JsonGoogleAuth))
 	// user

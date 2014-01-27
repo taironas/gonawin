@@ -18,13 +18,13 @@ package auth
 
 import (
 	"net/http"
-	
+
 	"appengine"
 	"appengine/urlfetch"
 
-	user "github.com/santiaago/purple-wing/helpers/user"
 	"github.com/santiaago/purple-wing/helpers/log"
-	
+	user "github.com/santiaago/purple-wing/helpers/user"
+
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
@@ -38,11 +38,11 @@ const kEmailGonawinTest = "gonawin.test@gmail.com"
 func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token="+accessToken)
+	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token=" + accessToken)
 	if err != nil {
 		log.Errorf(c, " CheckUserValidity: %v", err)
 	}
-	
+
 	return resp.StatusCode == 200
 }
 
@@ -75,20 +75,20 @@ func LoggedIn(r *http.Request, c appengine.Context) bool {
 	if KOfflineMode {
 		return true
 	}
-	
+
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if u := CurrentUser(r, c); u != nil {
 			return u.Auth == auth
 		}
 	}
-	
+
 	return false
 }
 
 // IsAdmin is true if you are logged in and belong to the below users.
 func IsAdmin(r *http.Request, c appengine.Context) bool {
-	if LoggedIn(r, c){
-		if u := CurrentUser(r, c); u != nil{
+	if LoggedIn(r, c) {
+		if u := CurrentUser(r, c); u != nil {
 			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias" || (KOfflineMode && u.Username == "purple"))
 		}
 	}

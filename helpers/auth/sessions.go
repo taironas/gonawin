@@ -17,11 +17,11 @@
 package auth
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 	"strconv"
 	"time"
-	
+
 	"appengine"
 	"appengine/datastore"
 	"appengine/memcache"
@@ -31,32 +31,32 @@ import (
 )
 
 type AuthKey struct {
-	Id int64
-	Key string
-	Value string
+	Id      int64
+	Key     string
+	Value   string
 	Created time.Time
 }
 
 // Store authentication key in datastore and update memcache
 func StoreAuthKey(c appengine.Context, uid int64, auth string) {
-	
+
 	uidStr := fmt.Sprintf("%d", uid)
-	
+
 	// create new team
 	authKeyId, _, err := datastore.AllocateIDs(c, "AuthKey", nil, 1)
 	if err != nil {
 		log.Errorf(c, " StoreAuthKey: %v", err)
 	}
-	
+
 	key := datastore.NewKey(c, "AuthKey", "", authKeyId, nil)
 
-	authKey := &AuthKey{ authKeyId, auth, uidStr, time.Now() }
+	authKey := &AuthKey{authKeyId, auth, uidStr, time.Now()}
 
 	_, err = datastore.Put(c, key, authKey)
 	if err != nil {
 		log.Errorf(c, " StoreAuthKey: %v", err)
 	}
-	
+
 	item := &memcache.Item{
 		Key:   "auth:" + auth,
 		Value: []byte(uidStr),
@@ -95,9 +95,9 @@ func fetchAuthKey(r *http.Request, auth string) string {
 // Set cookie with authentication string
 func SetAuthCookie(w http.ResponseWriter, auth string) {
 	cookie := &http.Cookie{
-		Name: "auth",
+		Name:  "auth",
 		Value: auth,
-		Path: "/",
+		Path:  "/",
 	}
 	http.SetCookie(w, cookie)
 }
@@ -123,13 +123,13 @@ func ClearAuthCookie(w http.ResponseWriter) {
 func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 	if KOfflineMode {
 		currentUser := usermdl.Find(c, "Username", "purple")
-    
-    if currentUser == nil {
-      currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", true, usermdl.GenerateAuthKey())
-    }
-    return currentUser
+
+		if currentUser == nil {
+			currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", true, usermdl.GenerateAuthKey())
+		}
+		return currentUser
 	}
-	
+
 	if auth := GetAuthCookie(r); len(auth) > 0 {
 		if uid := fetchAuthKey(r, auth); len(uid) > 0 {
 			log.Infof(c, " CurrentUser, uid=%s, auth=%s", uid, auth)
@@ -137,7 +137,7 @@ func CurrentUser(r *http.Request, c appengine.Context) *usermdl.User {
 			if err != nil {
 				log.Errorf(c, " CurrentUser, string value could not be parsed: %v", err)
 			}
-			
+
 			return usermdl.Find(c, "Id", userId)
 		}
 	}

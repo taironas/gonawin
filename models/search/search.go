@@ -23,11 +23,11 @@ import (
 
 	"appengine"
 
-	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teammdl "github.com/santiaago/purple-wing/models/team"
+	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 
-	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 
 	helpers "github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
@@ -39,11 +39,11 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
 	setOfWords := helpers.SetOfStrings(query)
-	nbTournamentWords, _ := tournamentinvidmdl.GetWordCount(c) 
+	nbTournamentWords, _ := tournamentinvidmdl.GetWordCount(c)
 
 	// query vector
 	q := make([]float64, len(setOfWords))
-	for i,w := range setOfWords{
+	for i, w := range setOfWords {
 		dft := 0
 		if invId, err := tournamentinvidmdl.Find(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TournamentScore, unable to find KeyName=%s: %v", w, err)
@@ -52,14 +52,14 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
 	}
-	log.Infof(c, "query vector: %v",q)
+	log.Infof(c, "query vector: %v", q)
 
 	// d vector
 	//nbTournaments, _ := tournamentmdl.GetTournamentCounter(c)
 	vec_d := make([][]float64, len(ids))
-	for i, id := range ids{
+	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
-		for j, wi := range setOfWords{
+		for j, wi := range setOfWords {
 			// get word frequency by tournament (id, wi)
 			wordFreqByTournament := tournamentmdl.GetWordFrequencyForTournament(c, id, wi)
 			// get number of tournaments with word (wi)
@@ -67,18 +67,18 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 			if err != nil {
 				log.Errorf(c, " search.TournamentScore, error occurred when getting tournament frequency for word=%s: %v", wi, err)
 			}
-			
+
 			d[j] = math.Log10(float64(1+wordFreqByTournament)) * math.Log10(float64(nbTournamentWords+1)/float64(tournamentFreqForWord+1))
 		}
 		vec_d[i] = make([]float64, len(setOfWords))
-		vec_d[i] = d		
+		vec_d[i] = d
 	}
-	log.Infof(c, "d vector: %v",vec_d)
+	log.Infof(c, "d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
 	score = make(map[int64]float64)
-	for i, vec_di := range vec_d{
+	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
 	log.Infof(c, "score vector :%v", score)
@@ -88,25 +88,24 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	return getKeysFromPairList(sortedScore)
 }
 
-
 // given a query string and an array of ids, computes a score vector that
 // has the doc ids and the score of each id with respect to the query
-func TeamScore(c appengine.Context, query string, ids []int64)[]int64{
+func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
 	setOfWords := helpers.SetOfStrings(query)
-	nbTeamWords, _ := teaminvidmdl.GetWordCount(c) 
+	nbTeamWords, _ := teaminvidmdl.GetWordCount(c)
 
 	// query vector
 	q := make([]float64, len(setOfWords))
-	for i,w := range setOfWords{
+	for i, w := range setOfWords {
 		dft := 0
 		if invId, err := teaminvidmdl.Find(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TeamScore, unable to find KeyName=%s: %v", w, err)
 		} else if invId != nil {
 			dft = len(strings.Split(string(invId.TeamIds), " "))
 		}
-		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords + 1)/float64(dft + 1))
+		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 	}
 	log.Infof(c, "query vector: %v", q)
 
@@ -115,7 +114,7 @@ func TeamScore(c appengine.Context, query string, ids []int64)[]int64{
 	vec_d := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
-		for j, wi := range setOfWords{
+		for j, wi := range setOfWords {
 			// get word frequency by team (id, wi)
 			wordFreqByTeam := teammdl.GetWordFrequencyForTeam(c, id, wi)
 			// get number of teams with word (wi)
@@ -123,11 +122,11 @@ func TeamScore(c appengine.Context, query string, ids []int64)[]int64{
 			if err != nil {
 				log.Errorf(c, " search.TeamScore, error occurred when getting team frequency for word=%s: %v", wi, err)
 			}
-			
+
 			d[j] = math.Log10(float64(1+wordFreqByTeam)) * math.Log10(float64(nbTeamWords+1)/float64(teamFreqForWord+1))
 		}
 		vec_d[i] = make([]float64, len(setOfWords))
-		vec_d[i] = d		
+		vec_d[i] = d
 	}
 	log.Infof(c, "d vector: %v", vec_d)
 
@@ -146,17 +145,18 @@ func TeamScore(c appengine.Context, query string, ids []int64)[]int64{
 
 // A data structure to hold a key/value pair.
 type Pair struct {
-  Key int64
-  Value float64
+	Key   int64
+	Value float64
 }
 
 // A slice of Pairs that implements sort.Interface to sort by Value.
 type PairList []Pair
-func (p PairList) Swap(i, j int) { p[i], p[j] = p[j], p[i] }
-func (p PairList) Len() int { return len(p) }
+
+func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p PairList) Len() int           { return len(p) }
 func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 
-// A function to turn a map into a PairList, then sort and return it. 
+// A function to turn a map into a PairList, then sort and return it.
 func sortMapByValue(m map[int64]float64) PairList {
 	p := make(PairList, len(m))
 	i := 0
@@ -167,7 +167,8 @@ func sortMapByValue(m map[int64]float64) PairList {
 	sort.Sort(p)
 	return p
 }
-// A function to turn a map into a PairList, then sort in descending order and return it. 
+
+// A function to turn a map into a PairList, then sort in descending order and return it.
 func sortMapByValueDesc(m map[int64]float64) PairList {
 	p := make(PairList, len(m))
 	i := 0
@@ -180,10 +181,10 @@ func sortMapByValueDesc(m map[int64]float64) PairList {
 }
 
 // from a pair list returns an array of keys present in the pair list
-func getKeysFromPairList(p PairList) []int64{
+func getKeysFromPairList(p PairList) []int64 {
 	keys := make([]int64, len(p))
 	i := 0
-	for _, pair := range p{
+	for _, pair := range p {
 		keys[i] = pair.Key
 		i++
 	}
@@ -191,12 +192,12 @@ func getKeysFromPairList(p PairList) []int64{
 }
 
 // compute the dot product of two float vectors
-func dotProduct(vec1 []float64,vec2 []float64)float64{
-	if len(vec1) != len(vec2){
+func dotProduct(vec1 []float64, vec2 []float64) float64 {
+	if len(vec1) != len(vec2) {
 		return 0
-	}else{
+	} else {
 		sum := float64(0)
-		for i, _ :=  range vec1 {
+		for i, _ := range vec1 {
 			sum = sum + vec1[i]*vec2[i]
 		}
 		return sum
