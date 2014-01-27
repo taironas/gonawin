@@ -69,11 +69,13 @@ type teamJsonZip struct {
 	Private bool
 }
 
-type playersJson struct{
-	Id int64
+// used by json api to send only needed info
+type playerJson struct {
+	Id       int64
 	Username string
 }
 
+// used by json api to send only needed info
 type teamJson struct {
 	Id          int64
 	Name        string
@@ -81,11 +83,11 @@ type teamJson struct {
 	Joined      bool
 	RequestSent bool
 	AdminId     int64
-	Players     []playersJson
+	Players     []playerJson
 }
 
 // copy function from model data structure to json zip data structure
-func (t *teamJsonZip)Copy(teamToCopy *teammdl.Team){	
+func (t *teamJsonZip) Copy(teamToCopy *teammdl.Team) {
 	t.Id = teamToCopy.Id
 	t.Name = teamToCopy.Name
 	t.AdminId = teamToCopy.AdminId
@@ -93,7 +95,7 @@ func (t *teamJsonZip)Copy(teamToCopy *teammdl.Team){
 }
 
 // create an array of team json zip data struture from an array of datastore Team pointers
-func createTeamsJsonZip(teamsToCopy []*teammdl.Team)([]teamJsonZip){
+func createTeamsJsonZip(teamsToCopy []*teammdl.Team) []teamJsonZip {
 	teams := make([]teamJsonZip, len(teamsToCopy))
 	counterTeams := 0
 	for _, team := range teamsToCopy {
@@ -103,14 +105,35 @@ func createTeamsJsonZip(teamsToCopy []*teammdl.Team)([]teamJsonZip){
 	return teams
 }
 
-func (t *teamJson)Copy(teamToCopy *teammdl.Team, joined bool, requestSent bool, players []playersJson){
+// create an array of players json data structure from an array of datastore User pointers
+func createPlayersJson(usersToCopy []*usermdl.User) []playerJson {
+	players := make([]playerJson, len(usersToCopy))
+	counterPlayers := 0
+	for _, player := range usersToCopy {
+		(&players[counterPlayers]).Copy(player)
+		counterPlayers++
+	}
+	return players
+}
+
+// copy to a team json data structure a part of the team datastore structure with aditional information:
+// - joined
+// - requestSent
+// - players
+func (t *teamJson) Copy(teamToCopy *teammdl.Team, joined bool, requestSent bool, players []*usermdl.User) {
 	t.Id = teamToCopy.Id
 	t.Name = teamToCopy.Name
 	t.Private = teamToCopy.Private
 	t.Joined = joined
 	t.RequestSent = requestSent
 	t.AdminId = teamToCopy.AdminId
-	t.Players = players
+	t.Players = createPlayersJson(players)
+}
+
+// copy to a player json a part of the data structure of user from datastore
+func (p *playerJson) Copy(userToCopy *usermdl.User) {
+	p.Id = userToCopy.Id
+	p.Username = userToCopy.Username
 }
 
 // team handler
@@ -452,18 +475,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
-		// get compress players data
-		playersFull := teamrelshlp.Players(c, intID)
-		playersCompress := make([]playersJson, len(playersFull))
-		playerCounter := 0
-		for _, player := range playersFull {
-			playersCompress[playerCounter].Id = player.Id
-			playersCompress[playerCounter].Username = player.Username
-			playerCounter++
-		}
-
 		var teamData teamJson
-		teamData.Copy(team, teammdl.Joined(c, intID, u.Id), teamrequestmdl.Sent(c, intID, u.Id), playersCompress)
+		teamData.Copy(team, teammdl.Joined(c, intID, u.Id), teamrequestmdl.Sent(c, intID, u.Id), teamrelshlp.Players(c, intID))
 
 		return templateshlp.RenderJson(w, c, teamData)
 	} else {
