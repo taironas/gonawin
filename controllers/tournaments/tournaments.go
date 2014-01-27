@@ -57,7 +57,8 @@ type indexData struct {
 	TournamentInputSearch string
 }
 
-type TeamCandidate struct {
+// struct used in api for returning json data
+type teamCandidateJson struct {
 	Id     int64
 	Name   string
 	Joined bool
@@ -75,6 +76,12 @@ func (t *tournamentJsonZip) Copy(tournamentToCopy *tournamentmdl.Tournament) {
 	t.Name = tournamentToCopy.Name
 }
 
+func (t *teamCandidateJson) Copy(c appengine.Context, teamToCopy *teammdl.Team, tournamentId int64) {
+	t.Id = teamToCopy.Id
+	t.Name = teamToCopy.Name
+	t.Joined = tournamentmdl.TeamJoined(c, tournamentId, teamToCopy.Id)
+}
+
 // create an array of team json zip data struture from an array of datastore Team pointers
 func createTournamentsJsonZip(tournamentsToCopy []*tournamentmdl.Tournament) []tournamentJsonZip {
 	tournaments := make([]tournamentJsonZip, len(tournamentsToCopy))
@@ -84,6 +91,17 @@ func createTournamentsJsonZip(tournamentsToCopy []*tournamentmdl.Tournament) []t
 		counterTournament++
 	}
 	return tournaments
+}
+
+// create an array of team candidate json data structure from an array of datastore Team pointers
+func createTeamCandidatesJson(c appengine.Context, teamsToCopy []*teammdl.Team, tournamentId int64) []teamCandidateJson {
+	teamCandidates := make([]teamCandidateJson, len(teamsToCopy))
+	counterTeam := 0
+	for _, t := range teamsToCopy {
+		(&teamCandidates[counterTeam]).Copy(c, t, tournamentId)
+		counterTeam++
+	}
+	return teamCandidates
 }
 
 // index tournaments handler
@@ -516,17 +534,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		// query teams
 		teams := teammdl.Find(c, "AdminId", u.Id)
 		// build candidate data structure from team and teamjoined info
-		teamCandidates := make([]TeamCandidate, len(teams))
-
-		teamCounter := 0
-		for _, t := range teams {
-			teamCandidates[teamCounter].Id = t.Id
-			teamCandidates[teamCounter].Name = t.Name
-			teamCandidates[teamCounter].Joined = tournamentmdl.TeamJoined(c, tournamentId, t.Id)
-
-			teamCounter++
-		}
-		return templateshlp.RenderJson(w, c, teamCandidates)
+		return templateshlp.RenderJson(w, c, createTeamCandidatesJson(c, teams, tournamentId))
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
