@@ -394,7 +394,12 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				return helpers.InternalServerError{errors.New("error when trying to create a team relationship")}
 			}
 			// return the newly created team
-			return templateshlp.RenderJson(w, c, team)
+			var tJson teamJson
+			tJson.Id = team.Id
+			tJson.Name = team.Name
+			tJson.AdminId = team.AdminId
+			tJson.Private = team.Private
+			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
@@ -483,9 +488,13 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
-
 		// return the updated team
-		return templateshlp.RenderJson(w, c, team)
+		var tJson teamJson
+		tJson.Id = team.Id
+		tJson.Name = team.Name
+		tJson.AdminId = team.AdminId
+		tJson.Private = team.Private
+		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
@@ -620,8 +629,25 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, teams)
+
+		teamsJson := make([]teamJson, len(teams))
+		counterTeams := 0
+		for _, team := range teams {
+			teamsJson[counterTeams].Id = team.Id
+			teamsJson[counterTeams].Name = team.Name
+			teamsJson[counterTeams].AdminId = team.AdminId
+			teamsJson[counterTeams].Private = team.Private
+			counterTeams++
+		}
+		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
 }
+
+
+
+
+
+
+
