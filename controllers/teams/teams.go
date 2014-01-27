@@ -84,6 +84,25 @@ type teamJson struct {
 	Players     []playersJson
 }
 
+// copy function from model data structure to json zip data structure
+func (t *teamJsonZip)Copy(teamToCopy *teammdl.Team){	
+	t.Id = teamToCopy.Id
+	t.Name = teamToCopy.Name
+	t.AdminId = teamToCopy.AdminId
+	t.Private = teamToCopy.Private
+}
+
+// create an array of team json zip data struture from an array of datastore Team pointers
+func createTeamsJsonZip(teamsToCopy []*teammdl.Team)([]teamJsonZip){
+	teams := make([]teamJsonZip, len(teamsToCopy))
+	counterTeams := 0
+	for _, team := range teamsToCopy {
+		(&teams[counterTeams]).Copy(team)
+		counterTeams++
+	}
+	return teams
+}
+
 // team handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -359,17 +378,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		teamsJson := make([]teamJsonZip, len(teams))
-		counterTeams := 0
-		for _, team := range teams {
-			teamsJson[counterTeams].Id = team.Id
-			teamsJson[counterTeams].Name = team.Name
-			teamsJson[counterTeams].AdminId = team.AdminId
-			teamsJson[counterTeams].Private = team.Private
-			counterTeams++
-		}
-
-		return templateshlp.RenderJson(w, c, teamsJson)
+		return templateshlp.RenderJson(w, c, createTeamsJsonZip(teams))
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
@@ -410,10 +419,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			}
 			// return the newly created team
 			var tJson teamJsonZip
-			tJson.Id = team.Id
-			tJson.Name = team.Name
-			tJson.AdminId = team.AdminId
-			tJson.Private = team.Private
+			(&tJson).Copy(team)
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
@@ -504,11 +510,8 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
 		// return the updated team
-		var tJson teamJson
-		tJson.Id = team.Id
-		tJson.Name = team.Name
-		tJson.AdminId = team.AdminId
-		tJson.Private = team.Private
+		var tJson teamJsonZip
+		(&tJson).Copy(team)
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
@@ -644,17 +647,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-
-		teamsJson := make([]teamJson, len(teams))
-		counterTeams := 0
-		for _, team := range teams {
-			teamsJson[counterTeams].Id = team.Id
-			teamsJson[counterTeams].Name = team.Name
-			teamsJson[counterTeams].AdminId = team.AdminId
-			teamsJson[counterTeams].Private = team.Private
-			counterTeams++
-		}
-		return templateshlp.RenderJson(w, c, teamsJson)
+		return templateshlp.RenderJson(w, c, createTeamsJsonZip(teams))
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
