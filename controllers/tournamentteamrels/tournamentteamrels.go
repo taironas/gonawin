@@ -33,9 +33,15 @@ import (
 )
 
 // struct used in api for returning json data.
-type tournamentJson struct {
+type tournamentJsonZip struct {
 	Id   int64
 	Name string
+}
+
+// copy function from model data structure to json zip data structure
+func (t *tournamentJsonZip) Copy(tournamentToCopy *tournamentmdl.Tournament) {
+	t.Id = tournamentToCopy.Id
+	t.Name = tournamentToCopy.Name
 }
 
 // create handler for tournament teams realtionship
@@ -111,9 +117,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			return helpers.NotFound{err}
 		} else {
-			var tJson tournamentJson
-			tJson.Id = tournament.Id
-			tJson.Name = tournament.Name
+			var tJson tournamentJsonZip
+			(&tJson).Copy(tournament)
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
@@ -147,8 +152,9 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			return helpers.NotFound{err}
 		} else {
-
-			return templateshlp.RenderJson(w, c, tournament)
+			var tJson tournamentJsonZip
+			(&tJson).Copy(tournament)
+			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
