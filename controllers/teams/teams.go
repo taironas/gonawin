@@ -103,6 +103,16 @@ func createTeamsJsonZip(teamsToCopy []*teammdl.Team)([]teamJsonZip){
 	return teams
 }
 
+func (t *teamJson)Copy(teamToCopy *teammdl.Team, joined bool, requestSent bool, players []playersJson){
+	t.Id = teamToCopy.Id
+	t.Name = teamToCopy.Name
+	t.Private = teamToCopy.Private
+	t.Joined = joined
+	t.RequestSent = requestSent
+	t.AdminId = teamToCopy.AdminId
+	t.Players = players
+}
+
 // team handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -442,13 +452,6 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
-		var teamData teamJson
-		teamData.Id = team.Id
-		teamData.Name = team.Name
-		teamData.Private = team.Private
-		teamData.Joined = teammdl.Joined(c, intID, u.Id)
-		teamData.RequestSent = teamrequestmdl.Sent(c, intID, u.Id)
-		teamData.AdminId = team.AdminId
 		// get compress players data
 		playersFull := teamrelshlp.Players(c, intID)
 		playersCompress := make([]playersJson, len(playersFull))
@@ -458,7 +461,9 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			playersCompress[playerCounter].Username = player.Username
 			playerCounter++
 		}
-		teamData.Players = playersCompress
+
+		var teamData teamJson
+		teamData.Copy(team, teammdl.Joined(c, intID, u.Id), teamrequestmdl.Sent(c, intID, u.Id), playersCompress)
 
 		return templateshlp.RenderJson(w, c, teamData)
 	} else {
