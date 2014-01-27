@@ -15,6 +15,10 @@ Cabernal (cab)
 ## Run App
 
     go_appengine\dev_appserver.py purple-wing
+    
+## Formatting
+
+    go fmt ..\purple-wing\...
 
 ## Deployment
 
