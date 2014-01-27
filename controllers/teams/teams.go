@@ -62,11 +62,26 @@ type indexData struct {
 }
 
 // used by json api to send only needed info
-type teamJson struct {
+type teamJsonZip struct {
 	Id      int64
 	Name    string
 	AdminId int64
 	Private bool
+}
+
+type playersJson struct{
+	Id int64
+	Username string
+}
+
+type teamJson struct {
+	Id          int64
+	Name        string
+	Private     bool
+	Joined      bool
+	RequestSent bool
+	AdminId     int64
+	Players     []playersJson
 }
 
 // team handler
@@ -344,7 +359,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		teamsJson := make([]teamJson, len(teams))
+		teamsJson := make([]teamJsonZip, len(teams))
 		counterTeams := 0
 		for _, team := range teams {
 			teamsJson[counterTeams].Id = team.Id
@@ -394,7 +409,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				return helpers.InternalServerError{errors.New("error when trying to create a team relationship")}
 			}
 			// return the newly created team
-			var tJson teamJson
+			var tJson teamJsonZip
 			tJson.Id = team.Id
 			tJson.Name = team.Name
 			tJson.AdminId = team.AdminId
@@ -421,7 +436,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
-		var teamData helpers.TeamJson
+		var teamData teamJson
 		teamData.Id = team.Id
 		teamData.Name = team.Name
 		teamData.Private = team.Private
@@ -430,7 +445,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teamData.AdminId = team.AdminId
 		// get compress players data
 		playersFull := teamrelshlp.Players(c, intID)
-		playersCompress := make([]helpers.UserJsonZip, len(playersFull))
+		playersCompress := make([]playersJson, len(playersFull))
 		playerCounter := 0
 		for _, player := range playersFull {
 			playersCompress[playerCounter].Id = player.Id
@@ -644,10 +659,3 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
 }
-
-
-
-
-
-
-

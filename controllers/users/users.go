@@ -54,13 +54,42 @@ type UserData struct {
 	Email    string
 }
 
-// used by json api to send only needed info
-type userJson struct {
+//used by json api to send only needed info
+type userJsonZip struct {
 	Id       int64
 	Username string
 	Name     string
 	Email    string
 	Created  time.Time
+}
+
+type userJson struct {
+	Id           int64
+	Username     string
+	Name         string
+	Email        string
+	IsAdmin      bool
+	Auth         string
+	Created      time.Time
+	Teams        []teamJsonZip
+	Tournaments  []tournamentJsonZip
+	TeamRequests []teamRequestJsonZip
+}
+
+type teamJsonZip struct {
+	Id   int64
+	Name string
+}
+
+type tournamentJsonZip struct {
+	Id   int64
+	Name string
+}
+
+type teamRequestJsonZip struct {
+	Id     int64
+	TeamId int64
+	UserId int64
 }
 
 // Show handler
@@ -146,6 +175,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.BadRequest{err}
 		}
 
+		// get user
 		var user *usermdl.User
 		user, err = usermdl.ById(c, userId)
 		if err != nil {
@@ -154,14 +184,37 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		// set teams info in user json
 		teams := usermdl.Teams(c, userId)
-		teamsJson := make([]helpers.TeamJsonZip, len(teams))
+		teamsJson := make([]teamJsonZip, len(teams))
 		counterTeams := 0
 		for _, team := range teams {
 			teamsJson[counterTeams].Id = team.Id
 			teamsJson[counterTeams].Name = team.Name
 			counterTeams++
 		}
-		var userJson helpers.UserJson
+
+		// set tournament info in user json
+		tournaments := tournamentrelshlp.Tournaments(c, userId)
+		tournamentsJson := make([]tournamentJsonZip, len(tournaments))
+		counterTournaments := 0
+		for _, tournament := range tournaments {
+			tournamentsJson[counterTournaments].Id = tournament.Id
+			tournamentsJson[counterTournaments].Name = tournament.Name
+			counterTournaments++
+		}
+
+		// set request info in user json
+		teamRequests := teamrelshlp.TeamsRequests(c, teams)
+		teamRequestsJson := make([]teamRequestJsonZip, len(teamRequests))
+		counterRequests := 0
+		for _, request := range teamRequests {
+			teamRequestsJson[counterRequests].Id = request.Id
+			teamRequestsJson[counterRequests].UserId = request.UserId
+			teamRequestsJson[counterRequests].TeamId = request.TeamId
+			counterRequests++
+		}
+
+		// copy to json data
+		var userJson userJson
 		userJson.Id = user.Id
 		userJson.Username = user.Username
 		userJson.Name = user.Name
@@ -170,29 +223,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		userJson.Auth = user.Auth
 		userJson.Created = user.Created
 		userJson.Teams = teamsJson
-
-		// set tournament info in user json
-		tournaments := tournamentrelshlp.Tournaments(c, userId)
-		tournamentsJson := make([]helpers.TournamentJsonZip, len(tournaments))
-		counterTournaments := 0
-		for _, tournament := range tournaments {
-			tournamentsJson[counterTournaments].Id = tournament.Id
-			tournamentsJson[counterTournaments].Name = tournament.Name
-			counterTournaments++
-		}
-		userJson.Tournaments = tournamentsJson
-
-		// set request info in user json
-		teamRequests := teamrelshlp.TeamsRequests(c, teams)
-		teamRequestsJson := make([]helpers.TeamRequestJsonZip, len(teamRequests))
-		counterRequests := 0
-		for _, request := range teamRequests {
-			teamRequestsJson[counterRequests].Id = request.Id
-			teamRequestsJson[counterRequests].UserId = request.UserId
-			teamRequestsJson[counterRequests].TeamId = request.TeamId
-			counterRequests++
-		}
 		userJson.TeamRequests = teamRequestsJson
+		userJson.Tournaments = tournamentsJson
 
 		return templateshlp.RenderJson(w, c, userJson)
 	} else {
