@@ -23,6 +23,7 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"appengine"
@@ -62,11 +63,100 @@ type indexData struct {
 }
 
 // used by json api to send only needed info
-type teamJson struct {
+type teamJsonZip struct {
 	Id      int64
 	Name    string
 	AdminId int64
 	Private bool
+}
+
+// used by json api to send only needed info
+type playerJson struct {
+	Id       int64
+	Username string
+}
+
+// used by json api to send only needed info
+type teamJson struct {
+	Id          int64
+	Name        string
+	Private     bool
+	Joined      bool
+	RequestSent bool
+	AdminId     int64
+	Players     []playerJson
+}
+
+type arrayOfStrings []string
+
+func (a arrayOfStrings) Contains(s string) bool {
+	for _, e := range a {
+		if e == s {
+			return true
+		}
+	}
+	return false
+}
+
+func omitFields(c appengine.Context, t interface{}, fieldsToKeep arrayOfStrings) {
+	s := reflect.ValueOf(t).Elem()
+	typeOfT := s.Type()
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		if !fieldsToKeep.Contains(typeOfT.Field(i).Name) && f.CanSet() {
+			s.Field(i).Set(reflect.Zero(typeOfT.Field(i).Type))
+		}
+	}
+}
+
+// copy function from model data structure to json zip data structure
+func (t *teamJsonZip) Copy(teamToCopy *teammdl.Team) {
+	t.Id = teamToCopy.Id
+	t.Name = teamToCopy.Name
+	t.AdminId = teamToCopy.AdminId
+	t.Private = teamToCopy.Private
+}
+
+// create an array of team json zip data struture from an array of datastore Team pointers
+func createTeamsJsonZip(teamsToCopy []*teammdl.Team) []teamJsonZip {
+	teams := make([]teamJsonZip, len(teamsToCopy))
+	counterTeams := 0
+	for _, team := range teamsToCopy {
+		(&teams[counterTeams]).Copy(team)
+		counterTeams++
+	}
+	return teams
+}
+
+// create an array of players json data structure from an array of datastore User pointers
+func createPlayersJson(usersToCopy []*usermdl.User) []playerJson {
+	players := make([]playerJson, len(usersToCopy))
+	counterPlayers := 0
+	for _, player := range usersToCopy {
+		(&players[counterPlayers]).Copy(player)
+		counterPlayers++
+	}
+	return players
+}
+
+// copy to a team json data structure a part of the team datastore structure with aditional information:
+// - joined
+// - requestSent
+// - players
+func (t *teamJson) Copy(teamToCopy *teammdl.Team, joined bool, requestSent bool, players []*usermdl.User) {
+	t.Id = teamToCopy.Id
+	t.Name = teamToCopy.Name
+	t.Private = teamToCopy.Private
+	t.Joined = joined
+	t.RequestSent = requestSent
+	t.AdminId = teamToCopy.AdminId
+	t.Players = createPlayersJson(players)
+}
+
+// copy to a player json a part of the data structure of user from datastore
+func (p *playerJson) Copy(userToCopy *usermdl.User) {
+	p.Id = userToCopy.Id
+	p.Username = userToCopy.Username
 }
 
 // team handler
@@ -344,17 +434,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		teamsJson := make([]teamJson, len(teams))
-		counterTeams := 0
-		for _, team := range teams {
-			teamsJson[counterTeams].Id = team.Id
-			teamsJson[counterTeams].Name = team.Name
-			teamsJson[counterTeams].AdminId = team.AdminId
-			teamsJson[counterTeams].Private = team.Private
-			counterTeams++
-		}
-
-		return templateshlp.RenderJson(w, c, teamsJson)
+		return templateshlp.RenderJson(w, c, createTeamsJsonZip(teams))
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
@@ -394,7 +474,9 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				return helpers.InternalServerError{errors.New("error when trying to create a team relationship")}
 			}
 			// return the newly created team
-			return templateshlp.RenderJson(w, c, team)
+			var tJson teamJsonZip
+			(&tJson).Copy(team)
+			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
@@ -416,23 +498,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
-		var teamData helpers.TeamJson
-		teamData.Id = team.Id
-		teamData.Name = team.Name
-		teamData.Private = team.Private
-		teamData.Joined = teammdl.Joined(c, intID, u.Id)
-		teamData.RequestSent = teamrequestmdl.Sent(c, intID, u.Id)
-		teamData.AdminId = team.AdminId
-		// get compress players data
-		playersFull := teamrelshlp.Players(c, intID)
-		playersCompress := make([]helpers.UserJsonZip, len(playersFull))
-		playerCounter := 0
-		for _, player := range playersFull {
-			playersCompress[playerCounter].Id = player.Id
-			playersCompress[playerCounter].Username = player.Username
-			playerCounter++
-		}
-		teamData.Players = playersCompress
+		var teamData teamJson
+		teamData.Copy(team, teammdl.Joined(c, intID, u.Id), teamrequestmdl.Sent(c, intID, u.Id), teamrelshlp.Players(c, intID))
 
 		return templateshlp.RenderJson(w, c, teamData)
 	} else {
@@ -483,9 +550,10 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
-
 		// return the updated team
-		return templateshlp.RenderJson(w, c, team)
+		var tJson teamJsonZip
+		(&tJson).Copy(team)
+		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
@@ -620,7 +688,11 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, teams)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		for _, team := range teams {
+			omitFields(c, team, fieldsToKeep)
+		}
+		return templateshlp.RenderJson(w, c, teams) //createTeamsJsonZip(teams))
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
