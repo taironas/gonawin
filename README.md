@@ -1,4 +1,8 @@
-##Contributors :
+# gonawin
+
+Social web application for betting with your friends.
+
+## Contributors :
 Santiago (sar)
 Remy (rej)
 Cabernal (cab)
