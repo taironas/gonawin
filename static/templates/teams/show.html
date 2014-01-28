@@ -18,13 +18,13 @@
     	  </form>
     	</div>
     	<div ng-if="!team.Private">
-    	  <joinbutton target="team" resource="team" />
+    	  <joinbutton action="joinButtonMethod()" name="joinButtonName" />
     	</div>
     </div>
     <!-- end if !isTeamAdmin && !team.Joined -->
     <!-- start if !isTeamAdmin && team.Joined -->
     <div ng-if="!isTeamAdmin && team.Joined">
-      <joinbutton target="team" resource="team" />
+      <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
     </div>
     <!-- end if !isTeamAdmin && team && team.Joined -->
   </div>
@@ -38,6 +38,8 @@
     <dd>{{team.AdminId}}</dd>
     <dt><strong>Private:</strong></dt>
     <dd>{{team.Private}}</dd>
+    <dt><strong>Joined:</strong></dt>
+    <dd>{{team.Joined}}</dd>
   </dl>
   
   <div ng-if="isTeamAdmin">
