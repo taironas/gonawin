@@ -35,6 +35,12 @@ type TeamInvertedIndex struct {
 	TeamIds []byte
 }
 
+type TeamInvertedIndexJson struct {
+	Id      *int64
+	KeyName *string
+	TeamIds *[]byte
+}
+
 type WordCountTeam struct {
 	Count int64
 }

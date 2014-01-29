@@ -671,8 +671,8 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTeam := 0
 		for _, team := range teams {
 			var tJson teammdl.TeamJson
-			teammdl.CopyToPtrBasedStructGeneric(team, &tJson)
-			teammdl.KeepFields(&tJson, fieldsToKeep)
+			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
 			teamsJson[counterTeam] = tJson
 			counterTeam++
 		}
