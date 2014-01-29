@@ -32,18 +32,6 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-// struct used in api for returning json data.
-type tournamentJsonZip struct {
-	Id   int64
-	Name string
-}
-
-// copy function from model data structure to json zip data structure
-func (t *tournamentJsonZip) Copy(tournamentToCopy *tournamentmdl.Tournament) {
-	t.Id = tournamentToCopy.Id
-	t.Name = tournamentToCopy.Name
-}
-
 // create handler for tournament teams realtionship
 func Create(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -117,8 +105,11 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			return helpers.NotFound{err}
 		} else {
-			var tJson tournamentJsonZip
-			(&tJson).Copy(tournament)
+			var tJson tournamentmdl.TournamentJson
+			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			fieldsToKeep := []string{"Id", "Name"}
+			helpers.KeepFields(&tJson, fieldsToKeep)
+
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
@@ -152,8 +143,11 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			return helpers.NotFound{err}
 		} else {
-			var tJson tournamentJsonZip
-			(&tJson).Copy(tournament)
+			var tJson tournamentmdl.TournamentJson
+			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			fieldsToKeep := []string{"Id", "Name"}
+			helpers.KeepFields(&tJson, fieldsToKeep)
+
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {

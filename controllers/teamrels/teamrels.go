@@ -33,22 +33,6 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-// used by json api to send only needed info
-type teamJsonZip struct {
-	Id      int64
-	Name    string
-	AdminId int64
-	Private bool
-}
-
-// copy function from model data structure to json zip data structure
-func (t *teamJsonZip) Copy(teamToCopy *teammdl.Team) {
-	t.Id = teamToCopy.Id
-	t.Name = teamToCopy.Name
-	t.AdminId = teamToCopy.AdminId
-	t.Private = teamToCopy.Private
-}
-
 // create handler for team relations
 func Create(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -112,8 +96,12 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if team, err = teammdl.ById(c, teamId); err != nil {
 			return helpers.NotFound{err}
 		}
-		var tJson teamJsonZip
-		(&tJson).Copy(team)
+
+		var tJson teammdl.TeamJson
+		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.KeepFields(&tJson, fieldsToKeep)
+
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
@@ -142,7 +130,13 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			if team, err = teammdl.ById(c, teamId); err != nil {
 				return helpers.NotFound{err}
 			}
-			return templateshlp.RenderJson(w, c, team)
+
+			var tJson teammdl.TeamJson
+			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+			helpers.KeepFields(&tJson, fieldsToKeep)
+
+			return templateshlp.RenderJson(w, c, tJson)
 		} else {
 			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
 			return helpers.BadRequest{errors.New("Team administrator cannot leave the team")}

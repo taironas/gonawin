@@ -161,11 +161,11 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-    $scope.tournament = Tournament.get({ id:$routeParams.id });
+    $scope.tournamentData = Tournament.get({ id:$routeParams.id });
     
     $scope.updateTournament = function() {
-      var tournament = Tournament.get({ id:$routeParams.id });
-      Tournament.update({ id:$routeParams.id }, $scope.tournament,
+      var tournamentData = Tournament.get({ id:$routeParams.id });
+      Tournament.update({ id:$routeParams.id }, $scope.tournamentData.Tournament,
 			  function(){
           $location.path('/tournaments/show/' + $routeParams.id);
 			  },

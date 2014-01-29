@@ -57,53 +57,6 @@ type indexData struct {
 	TournamentInputSearch string
 }
 
-// struct used in api for returning json data
-type teamCandidateJson struct {
-	Id     int64
-	Name   string
-	Joined bool
-}
-
-// struct used in api for returning json data.
-type tournamentJsonZip struct {
-	Id   int64
-	Name string
-}
-
-// copy function from model data structure to json zip data structure
-func (t *tournamentJsonZip) Copy(tournamentToCopy *tournamentmdl.Tournament) {
-	t.Id = tournamentToCopy.Id
-	t.Name = tournamentToCopy.Name
-}
-
-func (t *teamCandidateJson) Copy(c appengine.Context, teamToCopy *teammdl.Team, tournamentId int64) {
-	t.Id = teamToCopy.Id
-	t.Name = teamToCopy.Name
-	t.Joined = tournamentmdl.TeamJoined(c, tournamentId, teamToCopy.Id)
-}
-
-// create an array of team json zip data struture from an array of datastore Team pointers
-func createTournamentsJsonZip(tournamentsToCopy []*tournamentmdl.Tournament) []tournamentJsonZip {
-	tournaments := make([]tournamentJsonZip, len(tournamentsToCopy))
-	counterTournament := 0
-	for _, tournament := range tournamentsToCopy {
-		(&tournaments[counterTournament]).Copy(tournament)
-		counterTournament++
-	}
-	return tournaments
-}
-
-// create an array of team candidate json data structure from an array of datastore Team pointers
-func createTeamCandidatesJson(c appengine.Context, teamsToCopy []*teammdl.Team, tournamentId int64) []teamCandidateJson {
-	teamCandidates := make([]teamCandidateJson, len(teamsToCopy))
-	counterTeam := 0
-	for _, t := range teamsToCopy {
-		(&teamCandidates[counterTeam]).Copy(c, t, tournamentId)
-		counterTeam++
-	}
-	return teamCandidates
-}
-
 // index tournaments handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -329,7 +282,19 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(tournaments) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, createTournamentsJsonZip(tournaments))
+
+		fieldsToKeep := []string{"Id", "Name"}
+		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
+		counterTournament := 0
+		for _, tournament := range tournaments {
+			var tJson tournamentmdl.TournamentJson
+			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
+			tournamentsJson[counterTournament] = tJson
+			counterTournament++
+		}
+
+		return templateshlp.RenderJson(w, c, tournamentsJson)
 
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
@@ -364,8 +329,11 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				return helpers.InternalServerError{errors.New("error when trying to create a tournament")}
 			}
 			// return the newly created tournament
-			var tJson tournamentJsonZip
-			(&tJson).Copy(tournament)
+			fieldsToKeep := []string{"Id", "Name"}
+			var tJson tournamentmdl.TournamentJson
+			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
+
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
@@ -391,17 +359,45 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		participants := tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
 
-		data := struct {
-			Tournament   *tournamentmdl.Tournament
-			Joined       bool
-			Participants []*usermdl.User
-			Teams        []*teammdl.Team
-		}{
-			tournament,
-			tournamentmdl.Joined(c, intID, u.Id),
-			participants,
-			teams,
+		// tournament
+		fieldsToKeep := []string{"Id", "Name"}
+		var tournamentJson tournamentmdl.TournamentJson
+		helpers.CopyToPtrBasedStructGeneric(tournament, &tournamentJson)
+		helpers.KeepFields(&tournamentJson, fieldsToKeep)
+		// participant
+		participantsJson := make([]usermdl.UserJson, len(participants))
+		counterParticipant := 0
+		participantFieldsToKeep := []string{"Id", "Username"}
+		for _, participant := range participants {
+			var pJson usermdl.UserJson
+			helpers.CopyToPtrBasedStructGeneric(participant, &pJson)
+			helpers.KeepFields(&pJson, participantFieldsToKeep)
+			participantsJson[counterParticipant] = pJson
+			counterParticipant++
 		}
+		// teams
+		teamsJson := make([]teammdl.TeamJson, len(teams))
+		counterTeam := 0
+		for _, team := range teams {
+			var teamJson teammdl.TeamJson
+			helpers.CopyToPtrBasedStructGeneric(team, &teamJson)
+			helpers.KeepFields(&teamJson, fieldsToKeep)
+			teamsJson[counterTeam] = teamJson
+			counterTeam++
+		}
+		// data
+		data := struct {
+			Tournament   tournamentmdl.TournamentJson
+			Joined       bool
+			Participants []usermdl.UserJson
+			Teams        []teammdl.TeamJson
+		}{
+			tournamentJson,
+			tournamentmdl.Joined(c, intID, u.Id),
+			participantsJson,
+			teamsJson,
+		}
+
 		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
@@ -486,8 +482,11 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
 		// return the updated tournament
-		var tJson tournamentJsonZip
-		(&tJson).Copy(tournament)
+		fieldsToKeep := []string{"Id", "Name"}
+		var tJson tournamentmdl.TournamentJson
+		helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+		helpers.KeepFields(&tJson, fieldsToKeep)
+
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
@@ -512,7 +511,19 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(tournaments) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, createTournamentsJsonZip(tournaments))
+
+		fieldsToKeep := []string{"Id", "Name"}
+		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
+		counterTournament := 0
+		for _, tournament := range tournaments {
+			var tJson tournamentmdl.TournamentJson
+			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
+			tournamentsJson[counterTournament] = tJson
+			counterTournament++
+		}
+
+		return templateshlp.RenderJson(w, c, tournamentsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
@@ -533,8 +544,24 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		}
 		// query teams
 		teams := teammdl.Find(c, "AdminId", u.Id)
-		// build candidate data structure from team and teamjoined info
-		return templateshlp.RenderJson(w, c, createTeamCandidatesJson(c, teams, tournamentId))
+		type canditateType struct {
+			Team   teammdl.TeamJson
+			Joined bool
+		}
+		fieldsToKeep := []string{"Id", "Name"}
+		candidatesData := make([]canditateType, len(teams))
+		counterCandidate := 0
+		for _, team := range teams {
+			var tJson teammdl.TeamJson
+			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
+			var canditate canditateType
+			canditate.Team = tJson
+			canditate.Joined = tournamentmdl.TeamJoined(c, tournamentId, team.Id)
+			candidatesData[counterCandidate] = canditate
+			counterCandidate++
+		}
+		return templateshlp.RenderJson(w, c, candidatesData)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
