@@ -7,7 +7,7 @@ userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, U
 }]);
 
 userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'Team', '$location', function($scope, $routeParams, User, Team, $location) {
-    $scope.user = User.get({ id:$routeParams.id });
+    $scope.userData = User.get({ id:$routeParams.id });
 
     $scope.acceptTeamRequest = function(request){
 	console.log('User show controller:: accept team Request');
@@ -22,14 +22,14 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
 }]);
 
 userControllers.controller('UserEditCtrl', ['$scope', '$routeParams', 'User', 'SessionService', '$location', function($scope, $routeParams, User, SessionService, $location) {
-    $scope.user = undefined;
+    $scope.userData = undefined;
     
     $scope.loadCurrentUser = function() {
-	$scope.user = SessionService.getCurrentUser();
+	$scope.userData = SessionService.getCurrentUser();
     }
     
     $scope.updateUser = function() {
-	User.update({ id:$scope.user.Id }, $scope.user,
+	User.update({ id:$scope.user.Id }, $scope.userData.User,
 		    function(){
 			$location.path('/settings/edit-profile/');
 		    },
