@@ -6,7 +6,7 @@
         <form accept-charset="UTF-8" class="form-horizontal">
           <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
           <td>
-            <joinbutton class="pull-right" target="tournamentData" resource="tournament" teamid="t.Id" />
+            <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
           </td>
         </form>
       </tr>

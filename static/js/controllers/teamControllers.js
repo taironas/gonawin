@@ -80,17 +80,22 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     $scope.joinTeam = function(){
       Team.join({ id:$routeParams.id }).$promise.then(function(result){
-        $scope.team = Team.get({ id:$routeParams.id });
-        $scope.joinButtonName = 'Leave';
-        $scope.joinButtonMethod = $scope.leaveTeam;
+        Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
+          $scope.team.Players = teamResult.Players;
+          $scope.joinButtonName = 'Leave';
+          $scope.joinButtonMethod = $scope.leaveTeam;
+        } );
+        
       });
     };
 
     $scope.leaveTeam = function(){
       Team.leave({ id:$routeParams.id }).$promise.then(function(result){
-        $scope.team = Team.get({ id:$routeParams.id });
-        $scope.joinButtonName = 'Join';
-        $scope.joinButtonMethod = $scope.joinTeam;
+        Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
+          $scope.team.Players = teamResult.Players;
+          $scope.joinButtonName = 'Join';
+          $scope.joinButtonMethod = $scope.joinTeam;
+        });
       });
     };
     
