@@ -34,6 +34,13 @@ type TeamRequest struct {
 	Created time.Time
 }
 
+type TeamRequestJson struct {
+	Id      *int64     `json:",omitempty"`
+	TeamId  *int64     `json:",omitempty"`
+	UserId  *int64     `json:",omitempty"`
+	Created *time.Time `json:",omitempty"`
+}
+
 // Create a teamrequest with params teamid and userid
 func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
 	// create new team request

@@ -35,6 +35,12 @@ type TournamentInvertedIndex struct {
 	TournamentIds []byte
 }
 
+type TournamentInvertedIndexJson struct {
+	Id            *int64  `json:",omitempty"`
+	KeyName       *string `json:",omitempty"`
+	TournamentIds *[]byte `json:",omitempty"`
+}
+
 type WordCountTournament struct {
 	Count int64
 }

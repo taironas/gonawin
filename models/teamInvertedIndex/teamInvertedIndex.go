@@ -36,9 +36,9 @@ type TeamInvertedIndex struct {
 }
 
 type TeamInvertedIndexJson struct {
-	Id      *int64
-	KeyName *string
-	TeamIds *[]byte
+	Id      *int64  `json:",omitempty"`
+	KeyName *string `json:",omitempty"`
+	TeamIds *[]byte `json:",omitempty"`
 }
 
 type WordCountTeam struct {

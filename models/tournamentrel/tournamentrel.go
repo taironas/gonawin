@@ -34,6 +34,13 @@ type TournamentRelationship struct {
 	Created      time.Time
 }
 
+type TournamentRelationshipJson struct {
+	Id           *int64     `json:",omitempty"`
+	TournamentId *int64     `json:",omitempty"`
+	UserId       *int64     `json:",omitempty"`
+	Created      *time.Time `json:",omitempty"`
+}
+
 // create a tournamentrel entity given a tournament and a user id pair
 func Create(c appengine.Context, tournamentId int64, userId int64) (*TournamentRelationship, error) {
 	// create new tournament relationship

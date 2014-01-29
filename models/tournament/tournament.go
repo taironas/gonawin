@@ -43,6 +43,17 @@ type Tournament struct {
 	Created     time.Time
 }
 
+type TournamentJson struct {
+	Id          *int64     `json:",omitempty"`
+	KeyName     *string    `json:",omitempty"`
+	Name        *string    `json:",omitempty"`
+	Description *string    `json:",omitempty"`
+	Start       *time.Time `json:",omitempty"`
+	End         *time.Time `json:",omitempty"`
+	AdminId     *int64     `json:",omitempty"`
+	Created     *time.Time `json:",omitempty"`
+}
+
 type TournamentCounter struct {
 	Count int64
 }

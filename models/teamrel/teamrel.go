@@ -34,6 +34,13 @@ type TeamRelationship struct {
 	Created time.Time
 }
 
+type TeamRelationshipJson struct {
+	Id      *int64     `json:",omitempty"`
+	TeamId  *int64     `json:",omitempty"`
+	UserId  *int64     `json:",omitempty"`
+	Created *time.Time `json:",omitempty"`
+}
+
 // Create a teamrel entity given a team id and a user id
 func Create(c appengine.Context, teamId int64, userId int64) (*TeamRelationship, error) {
 	// create new team relationship
