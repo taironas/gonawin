@@ -19,6 +19,7 @@ package team
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -32,12 +33,55 @@ import (
 )
 
 type Team struct {
-	Id      int64  `json:",omitempty"`
-	KeyName string `json:",omitempty"`
-	Name    string `json:",omitempty"`
-	AdminId int64  `json:",omitempty"`
+	Id      int64
+	KeyName string
+	Name    string
+	AdminId int64
 	Private bool
-	Created time.Time `json:"-"`
+	Created time.Time
+}
+
+type TeamJson struct {
+	Id      *int64     `json:",omitempty"`
+	KeyName *string    `json:",omitempty"`
+	Name    *string    `json:",omitempty"`
+	AdminId *int64     `json:",omitempty"`
+	Private *bool      `json:",omitempty"`
+	Created *time.Time `json:",omitempty"`
+}
+
+func CopyToPtrBasedStructGeneric(tSrc interface{}, tDest interface{}) {
+	s1 := reflect.ValueOf(tSrc).Elem()
+	s2 := reflect.ValueOf(tDest).Elem()
+	for i := 0; i < s1.NumField(); i++ {
+		f1 := s1.Field(i)
+		f2 := s2.Field(i)
+		if f2.CanSet() {
+			s2.Field(i).Set(f1.Addr())
+		}
+	}
+}
+
+type arrayOfStrings []string
+
+func (a arrayOfStrings) Contains(s string) bool {
+	for _, e := range a {
+		if e == s {
+			return true
+		}
+	}
+	return false
+}
+
+func KeepFields(t interface{}, fieldsToKeep arrayOfStrings) {
+	s := reflect.ValueOf(t).Elem()
+	typeOfT := s.Type()
+	for i := 0; i < s.NumField(); i++ {
+		f := s.Field(i)
+		if !fieldsToKeep.Contains(typeOfT.Field(i).Name) && f.CanSet() {
+			s.Field(i).Set(reflect.Zero(typeOfT.Field(i).Type))
+		}
+	}
 }
 
 type TeamCounter struct {

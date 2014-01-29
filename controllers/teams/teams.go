@@ -23,7 +23,6 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"strconv"
 
 	"appengine"
@@ -85,28 +84,6 @@ type teamJson struct {
 	RequestSent bool
 	AdminId     int64
 	Players     []playerJson
-}
-
-type arrayOfStrings []string
-
-func (a arrayOfStrings) Contains(s string) bool {
-	for _, e := range a {
-		if e == s {
-			return true
-		}
-	}
-	return false
-}
-
-func omitFields(c appengine.Context, t interface{}, fieldsToKeep arrayOfStrings) {
-	s := reflect.ValueOf(t).Elem()
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		if !fieldsToKeep.Contains(typeOfT.Field(i).Name) && f.CanSet() {
-			s.Field(i).Set(reflect.Zero(typeOfT.Field(i).Type))
-		}
-	}
 }
 
 // copy function from model data structure to json zip data structure
@@ -688,11 +665,18 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
+		// filter team information to return in json api
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		teamsJson := make([]teammdl.TeamJson, len(teams))
+		counterTeam := 0
 		for _, team := range teams {
-			omitFields(c, team, fieldsToKeep)
+			var tJson teammdl.TeamJson
+			teammdl.CopyToPtrBasedStructGeneric(team, &tJson)
+			teammdl.KeepFields(&tJson, fieldsToKeep)
+			teamsJson[counterTeam] = tJson
+			counterTeam++
 		}
-		return templateshlp.RenderJson(w, c, teams) //createTeamsJsonZip(teams))
+		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
