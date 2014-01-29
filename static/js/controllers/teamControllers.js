@@ -43,8 +43,8 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
 
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', 
   function($scope, $routeParams, Team, $location, $q) {
-    $scope.team = Team.get({ id:$routeParams.id });
-      
+    $scope.teamData = Team.get({ id:$routeParams.id });
+    
     $scope.deleteTeam = function() {
       Team.delete({ id:$routeParams.id },
         function(){
@@ -56,13 +56,13 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
       };
 
     // set isTeamAdmin boolean
-    $scope.team.$promise.then(function(teamResult){
+    $scope.teamData.$promise.then(function(teamResult){
       console.log('team is admin ready');
       // as it depends of currentUser, make a promise
       var deferred = $q.defer();
       $scope.currentUser.$promise.then(function(currentUserResult){
-        console.log('is team admin: ', (teamResult.AdminId == currentUserResult.Id));
-          deferred.resolve((teamResult.AdminId == currentUserResult.Id));
+        console.log('is team admin: ', (teamResult.Team.AdminId == currentUserResult.Id));
+          deferred.resolve((teamResult.Team.AdminId == currentUserResult.Id));
       });
       return deferred.promise;
     }).then(function(result){
@@ -81,7 +81,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.joinTeam = function(){
       Team.join({ id:$routeParams.id }).$promise.then(function(result){
         Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
-          $scope.team.Players = teamResult.Players;
+          $scope.teamData.Players = teamResult.Players;
           $scope.joinButtonName = 'Leave';
           $scope.joinButtonMethod = $scope.leaveTeam;
         } );
@@ -92,14 +92,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.leaveTeam = function(){
       Team.leave({ id:$routeParams.id }).$promise.then(function(result){
         Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
-          $scope.team.Players = teamResult.Players;
+          $scope.teamData.Players = teamResult.Players;
           $scope.joinButtonName = 'Join';
           $scope.joinButtonMethod = $scope.joinTeam;
         });
       });
     };
     
-    $scope.team.$promise.then(function(teamResult){
+    $scope.teamData.$promise.then(function(teamResult){
       var deferred = $q.defer();
       if (teamResult.Joined) {
         deferred.resolve('Leave');
@@ -112,7 +112,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
       $scope.joinButtonName = result;
     });
     
-    $scope.team.$promise.then(function(teamResult){
+    $scope.teamData.$promise.then(function(teamResult){
       var deferred = $q.defer();
       if (teamResult.Joined) {
         deferred.resolve($scope.leaveTeam);
@@ -127,11 +127,11 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 }]);
 
 teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-	$scope.team = Team.get({ id:$routeParams.id });
+	$scope.teamData = Team.get({ id:$routeParams.id });
 	
 	$scope.updateTeam = function() {
-		var team = Team.get({ id:$routeParams.id });
-		Team.update({ id:$routeParams.id }, $scope.team,
+		var teamData = Team.get({ id:$routeParams.id });
+		Team.update({ id:$routeParams.id }, $scope.teamData.Team,
 			function(){
 				$location.path('/teams/show/' + $routeParams.id);
 			},

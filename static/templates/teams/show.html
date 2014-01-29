@@ -2,51 +2,51 @@
   <div class="page-header">
     <h1>Team</h1>
     <!-- uncomment this to debug -->
-    <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>team.Joined: {{team.Joined}}<br>team.Private: {{team.Private}}<br>team.RequestSent: {{team.RequestSent}}</p> -->
+    <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>teamData.Joined: {{teamData.Joined}}<br>team.Private: {{teamData.Team.Private}}<br>team.RequestSent: {{teamData.RequestSent}}</p> -->
 
-    <!-- start if !isTeamAdmin && !team.Joined -->
-    <div ng-if="!isTeamAdmin && !team.Joined">
+    <!-- start if !isTeamAdmin && !teamData.Joined -->
+    <div ng-if="!isTeamAdmin && !teamData.Joined">
       <p>debug: team not admin</p>
-    	<div ng-if="team.Private">
+    	<div ng-if="teamData.Team.Private">
     	  <form accept-charset="UTF-8" class="form-horizontal" method="post">
-    	    <div ng-if="team.RequestSent">
+    	    <div ng-if="teamData.RequestSent">
     	      <input class="btn disabled" name="commit" type="submit" value="Request sent..." />
     	    </div>
-    	    <div ng-if="!team.RequestSent">
+    	    <div ng-if="!teamData.RequestSent">
     	      <input class="btn btn-primary" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" />
     	    </div>
     	  </form>
     	</div>
-    	<div ng-if="!team.Private">
+    	<div ng-if="!teamData.Team.Private">
     	  <joinbutton action="joinButtonMethod()" name="joinButtonName" />
     	</div>
     </div>
-    <!-- end if !isTeamAdmin && !team.Joined -->
-    <!-- start if !isTeamAdmin && team.Joined -->
-    <div ng-if="!isTeamAdmin && team.Joined">
+    <!-- end if !isTeamAdmin && !teamData.Joined -->
+    <!-- start if !isTeamAdmin && teamData.Joined -->
+    <div ng-if="!isTeamAdmin && teamData.Joined">
       <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
     </div>
-    <!-- end if !isTeamAdmin && team && team.Joined -->
+    <!-- end if !isTeamAdmin && team && teamData.Joined -->
   </div>
   <!-- end page header -->
   <dl class="dl-horizontal">
     <dt><strong>Id:</strong></dt>
-    <dd>{{team.Id}}</dd>
+    <dd>{{teamData.Team.Id}}</dd>
     <dt><strong>Name:</strong></dt>
-    <dd>{{team.Name}}</dd>
+    <dd>{{teamData.Team.Name}}</dd>
     <dt><strong>AdminId:</strong></dt>
-    <dd>{{team.AdminId}}</dd>
+    <dd>{{teamData.Team.AdminId}}</dd>
     <dt><strong>Private:</strong></dt>
-    <dd>{{team.Private}}</dd>
+    <dd>{{teamData.Team.Private}}</dd>
     <dt><strong>Joined:</strong></dt>
-    <dd>{{team.Joined}}</dd>
+    <dd>{{teamData.Joined}}</dd>
   </dl>
   
   <div ng-if="isTeamAdmin">
     <p>debug: team  admin</p>
     <div class="form-actions">
       <form class="form-horizontal">
-        <a href="/ng#/teams/edit/{{team.Id}}" class="btn"><span>Edit</span></a>
+        <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn"><span>Edit</span></a>
         <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
       </form>
     </div>

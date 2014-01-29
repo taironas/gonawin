@@ -61,81 +61,6 @@ type indexData struct {
 	TeamInputSearch string
 }
 
-// used by json api to send only needed info
-type teamJsonZip struct {
-	Id      int64
-	Name    string
-	AdminId int64
-	Private bool
-}
-
-// used by json api to send only needed info
-type playerJson struct {
-	Id       int64
-	Username string
-}
-
-// used by json api to send only needed info
-type teamJson struct {
-	Id          int64
-	Name        string
-	Private     bool
-	Joined      bool
-	RequestSent bool
-	AdminId     int64
-	Players     []playerJson
-}
-
-// copy function from model data structure to json zip data structure
-func (t *teamJsonZip) Copy(teamToCopy *teammdl.Team) {
-	t.Id = teamToCopy.Id
-	t.Name = teamToCopy.Name
-	t.AdminId = teamToCopy.AdminId
-	t.Private = teamToCopy.Private
-}
-
-// create an array of team json zip data struture from an array of datastore Team pointers
-func createTeamsJsonZip(teamsToCopy []*teammdl.Team) []teamJsonZip {
-	teams := make([]teamJsonZip, len(teamsToCopy))
-	counterTeams := 0
-	for _, team := range teamsToCopy {
-		(&teams[counterTeams]).Copy(team)
-		counterTeams++
-	}
-	return teams
-}
-
-// create an array of players json data structure from an array of datastore User pointers
-func createPlayersJson(usersToCopy []*usermdl.User) []playerJson {
-	players := make([]playerJson, len(usersToCopy))
-	counterPlayers := 0
-	for _, player := range usersToCopy {
-		(&players[counterPlayers]).Copy(player)
-		counterPlayers++
-	}
-	return players
-}
-
-// copy to a team json data structure a part of the team datastore structure with aditional information:
-// - joined
-// - requestSent
-// - players
-func (t *teamJson) Copy(teamToCopy *teammdl.Team, joined bool, requestSent bool, players []*usermdl.User) {
-	t.Id = teamToCopy.Id
-	t.Name = teamToCopy.Name
-	t.Private = teamToCopy.Private
-	t.Joined = joined
-	t.RequestSent = requestSent
-	t.AdminId = teamToCopy.AdminId
-	t.Players = createPlayersJson(players)
-}
-
-// copy to a player json a part of the data structure of user from datastore
-func (p *playerJson) Copy(userToCopy *usermdl.User) {
-	p.Id = userToCopy.Id
-	p.Username = userToCopy.Username
-}
-
 // team handler
 func Index(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
@@ -411,7 +336,18 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		return templateshlp.RenderJson(w, c, createTeamsJsonZip(teams))
+		teamsJson := make([]teammdl.TeamJson, len(teams))
+		counterTeam := 0
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		for _, team := range teams {
+			var tJson teammdl.TeamJson
+			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.KeepFields(&tJson, fieldsToKeep)
+			teamsJson[counterTeam] = tJson
+			counterTeam++
+		}
+
+		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
@@ -451,8 +387,11 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				return helpers.InternalServerError{errors.New("error when trying to create a team relationship")}
 			}
 			// return the newly created team
-			var tJson teamJsonZip
-			(&tJson).Copy(team)
+			var tJson teammdl.TeamJson
+			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+			helpers.KeepFields(&tJson, fieldsToKeep)
+
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	} else {
@@ -475,9 +414,35 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
-		var teamData teamJson
-		teamData.Copy(team, teammdl.Joined(c, intID, u.Id), teamrequestmdl.Sent(c, intID, u.Id), teamrelshlp.Players(c, intID))
+		// build team json
+		var tJson teammdl.TeamJson
+		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.KeepFields(&tJson, fieldsToKeep)
+		// build players json
+		players := teamrelshlp.Players(c, intID)
+		playersJson := make([]usermdl.UserJson, len(players))
+		counterPlayer := 0
+		fieldsToKeepForPlayer := []string{"Id", "Username"}
+		for _, player := range players {
+			var pJson usermdl.UserJson
+			helpers.CopyToPtrBasedStructGeneric(player, &pJson)
+			helpers.KeepFields(&pJson, fieldsToKeepForPlayer)
+			playersJson[counterPlayer] = pJson
+			counterPlayer++
+		}
 
+		teamData := struct {
+			Team        teammdl.TeamJson
+			Joined      bool
+			RequestSent bool
+			Players     []usermdl.UserJson
+		}{
+			tJson,
+			teammdl.Joined(c, intID, u.Id),
+			teamrequestmdl.Sent(c, intID, u.Id),
+			playersJson,
+		}
 		return templateshlp.RenderJson(w, c, teamData)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
@@ -527,9 +492,12 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 		}
-		// return the updated team
-		var tJson teamJsonZip
-		(&tJson).Copy(team)
+		// keep only needed fields for json api
+		var tJson teammdl.TeamJson
+		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.KeepFields(&tJson, fieldsToKeep)
+
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
