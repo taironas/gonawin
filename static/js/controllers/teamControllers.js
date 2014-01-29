@@ -41,90 +41,84 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
     };
 }]);
 
-teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', function($scope, $routeParams, Team, $location, $q) {
-	$scope.team = Team.get({ id:$routeParams.id });
+teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', 
+  function($scope, $routeParams, Team, $location, $q) {
+    $scope.team = Team.get({ id:$routeParams.id });
+      
+    $scope.deleteTeam = function() {
+      Team.delete({ id:$routeParams.id },
+        function(){
+          $location.path('/');
+        },
+        function(err) {
+          console.log('delete failed: ', err.data);
+        });
+      };
+
+    // set isTeamAdmin boolean
+    $scope.team.$promise.then(function(teamResult){
+      console.log('team is admin ready');
+      // as it depends of currentUser, make a promise
+      var deferred = $q.defer();
+      $scope.currentUser.$promise.then(function(currentUserResult){
+        console.log('is team admin: ', (teamResult.AdminId == currentUserResult.Id));
+          deferred.resolve((teamResult.AdminId == currentUserResult.Id));
+      });
+      return deferred.promise;
+    }).then(function(result){
+      $scope.isTeamAdmin = result;
+    });
+
+    $scope.requestInvitation = function(){
+      console.log('team request invitation');
+      Team.invite( {id:$routeParams.id}, function(){
+        console.log('team invite successful');
+      }, function(err){
+        console.log('invite failed ', err);
+      });
+    };
+
+    $scope.joinTeam = function(){
+      Team.join({ id:$routeParams.id }).$promise.then(function(result){
+        $scope.team = Team.get({ id:$routeParams.id });
+        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonMethod = $scope.leaveTeam;
+      });
+    };
+
+    $scope.leaveTeam = function(){
+      Team.leave({ id:$routeParams.id }).$promise.then(function(result){
+        $scope.team = Team.get({ id:$routeParams.id });
+        $scope.joinButtonName = 'Join';
+        $scope.joinButtonMethod = $scope.joinTeam;
+      });
+    };
     
-	$scope.deleteTeam = function() {
-		Team.delete({ id:$routeParams.id },
-			function(){
-				$location.path('/');
-			},
-			function(err) {
-				console.log('delete failed: ', err.data);
-			});
-		};
-
-	// set isTeamAdmin boolean
-  $scope.team.$promise.then(function(teamResult){
-		console.log('team is admin ready');
-		// as it depends of currentUser, make a promise
-		var deferred = $q.defer();
-		$scope.currentUser.$promise.then(function(currentUserResult){
-			console.log('is team admin: ', (teamResult.AdminId == currentUserResult.Id));
-	  		deferred.resolve((teamResult.AdminId == currentUserResult.Id));
-		});
-		return deferred.promise;
-	}).then(function(result){
-		$scope.isTeamAdmin = result;
-	});
-
-  $scope.requestInvitation = function(){
-    console.log('team request invitation');
-    Team.invite( {id:$routeParams.id}, function(){
-      console.log('team invite successful');
-    }, function(err){
-      console.log('invite failed ', err);
+    $scope.team.$promise.then(function(teamResult){
+      var deferred = $q.defer();
+      if (teamResult.Joined) {
+        deferred.resolve('Leave');
+      }
+      else {
+        deferred.resolve('Join');
+      }
+      return deferred.promise;
+    }).then(function(result){
+      $scope.joinButtonName = result;
     });
-  };
-
-  $scope.joinTeam = function(){
-    console.log('team join team');
-    Team.join({ id:$routeParams.id }).$promise.then(function(result){
-      $scope.team = Team.get({ id:$routeParams.id });
-      $scope.joinButtonName = 'Leave';
-      $scope.joinButtonMethod = $scope.leaveTeam;
+    
+    $scope.team.$promise.then(function(teamResult){
+      var deferred = $q.defer();
+      if (teamResult.Joined) {
+        deferred.resolve($scope.leaveTeam);
+      }
+      else {
+        deferred.resolve($scope.joinTeam);
+      }
+      return deferred.promise;
+    }).then(function(result){
+      $scope.joinButtonMethod = result;
     });
-  };
-
-  $scope.leaveTeam = function(){
-    console.log('team leave team');
-    Team.leave({ id:$routeParams.id }).$promise.then(function(result){
-      $scope.team = Team.get({ id:$routeParams.id });
-      $scope.joinButtonName = 'Join';
-      $scope.joinButtonMethod = $scope.joinTeam;
-    });
-  };
-  
-  $scope.team.$promise.then(function(teamResult){
-    console.log('joinButtonName');
-		var deferred = $q.defer();
-    console.log('joinButtonName, teamResult = ', teamResult);
-		if (teamResult.Joined) {
-      deferred.resolve('Leave');
-    }
-    else {
-      deferred.resolve('Join');
-    }
-		return deferred.promise;
-	}).then(function(result){
-    console.log('joinButtonName, result = ', result);
-		$scope.joinButtonName = result;
-	});
-  
-  $scope.team.$promise.then(function(teamResult){
-    console.log('joinButtonMethod');
-		var deferred = $q.defer();
-		if (teamResult.Joined) {
-      deferred.resolve($scope.leaveTeam);
-    }
-    else {
-      deferred.resolve($scope.joinTeam);
-    }
-		return deferred.promise;
-	}).then(function(result){
-    console.log('joinButtonMethod, result = ', result);
-		$scope.joinButtonMethod = result;
-	});
 }]);
 
 teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {

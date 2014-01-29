@@ -40,12 +40,13 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
     };
 }]);
 
-tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
+tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', '$q', 
+  function($scope, $routeParams, Tournament, $location, $q) {
     console.log('Tournament Show controller');
     
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
-
     console.log('tournamentData', $scope.tournamentData);
+    
     $scope.deleteTournament = function() {
       Tournament.delete({ id:$routeParams.id },
 			  function(){
@@ -110,6 +111,48 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     $scope.candidates = Tournament.candidates( {id:$routeParams.id});
     $scope.candidates.$promise.then(function(result){
       console.log('candidates ready!', result);
+    });
+    
+    $scope.joinTournament = function(){
+      Tournament.join({ id:$routeParams.id }).$promise.then(function(result){
+        $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonMethod = $scope.leaveTournament;
+      });
+    };
+
+    $scope.leaveTournament = function(){
+      Tournament.leave({ id:$routeParams.id }).$promise.then(function(result){
+        $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+        $scope.joinButtonName = 'Join';
+        $scope.joinButtonMethod = $scope.joinTournament;
+      });
+    };
+    
+    $scope.tournamentData.$promise.then(function(tournamentResult){
+      var deferred = $q.defer();
+      if (tournamentResult.Joined) {
+        deferred.resolve('Leave');
+      }
+      else {
+        deferred.resolve('Join');
+      }
+      return deferred.promise;
+    }).then(function(result){
+      $scope.joinButtonName = result;
+    });
+    
+    $scope.tournamentData.$promise.then(function(tournamentResult){
+      var deferred = $q.defer();
+      if (tournamentResult.Joined) {
+        deferred.resolve($scope.leaveTournament);
+      }
+      else {
+        deferred.resolve($scope.joinTournament);
+      }
+      return deferred.promise;
+    }).then(function(result){
+      $scope.joinButtonMethod = result;
     });
 }]);
 
