@@ -145,9 +145,9 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return templateshlp.RenderJson(w, c, team)
 		} else {
 			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
-			return helpers.BadRequest{err}
+			return helpers.BadRequest{errors.New("Team administrator cannot leave the team")}
 		}
 	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
+		return helpers.BadRequest{errors.New("not supported")}
 	}
 }
