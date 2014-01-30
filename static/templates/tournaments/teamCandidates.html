@@ -2,11 +2,11 @@
 <div ng-if="candidates.length > 0">
   <table class="table table-hover">
     <tbody>
-      <tr ng-repeat="t in candidates">
+      <tr ng-repeat="c in candidates">
         <form accept-charset="UTF-8" class="form-horizontal">
-          <td><a href="/ng#/teams/show/{{t.Id}}">{{t.Name}}</a></td>
+          <td><a href="/ng#/teams/show/{{c.Team.Id}}">{{c.Team.Name}}</a></td>
           <td>
-            <joinbutton action="joinAsTeamButtonMethod[t.Id](t.Id)" name="joinAsTeamButtonName[t.Id]" />
+            <joinbutton action="joinAsTeamButtonMethod[c.Team.Id](c.Team.Id)" name="joinAsTeamButtonName[c.Team.Id]" />
           </td>
         </form>
       </tr>

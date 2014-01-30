@@ -147,13 +147,13 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
       $scope.tournamentData.$promise.then(function(tournamentResult){
         for (var i=0 ; i<candidatesResult.length; i++)
         {
-          if(IsTeamJoined(candidatesResult[i].Id, tournamentResult.Teams))
+          if(IsTeamJoined(candidatesResult[i].Team.Id, tournamentResult.Teams))
           {
-            $scope.joinAsTeamButtonName[candidatesResult[i].Id] = 'Leave';
-            $scope.joinAsTeamButtonMethod[candidatesResult[i].Id] = $scope.leaveTournamentAsTeam;
+            $scope.joinAsTeamButtonName[candidatesResult[i].Team.Id] = 'Leave';
+            $scope.joinAsTeamButtonMethod[candidatesResult[i].Team.Id] = $scope.leaveTournamentAsTeam;
           } else {
-            $scope.joinAsTeamButtonName[candidatesResult[i].Id] = 'Join';
-            $scope.joinAsTeamButtonMethod[candidatesResult[i].Id] = $scope.joinTournamentAsTeam;
+            $scope.joinAsTeamButtonName[candidatesResult[i].Team.Id] = 'Join';
+            $scope.joinAsTeamButtonMethod[candidatesResult[i].Team.Id] = $scope.joinTournamentAsTeam;
           }
         }
       });
