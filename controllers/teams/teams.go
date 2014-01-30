@@ -337,16 +337,8 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 		teamsJson := make([]teammdl.TeamJson, len(teams))
-		counterTeam := 0
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-		for _, team := range teams {
-			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
-			teamsJson[counterTeam] = tJson
-			counterTeam++
-		}
-
+		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
@@ -388,9 +380,8 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			}
 			// return the newly created team
 			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-			helpers.KeepFields(&tJson, fieldsToKeep)
+			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -414,23 +405,17 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		}
 		// get data for json team
+
 		// build team json
 		var tJson teammdl.TeamJson
-		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
 		// build players json
 		players := teamrelshlp.Players(c, intID)
-		playersJson := make([]usermdl.UserJson, len(players))
-		counterPlayer := 0
 		fieldsToKeepForPlayer := []string{"Id", "Username"}
-		for _, player := range players {
-			var pJson usermdl.UserJson
-			helpers.CopyToPointerStructure(player, &pJson)
-			helpers.KeepFields(&pJson, fieldsToKeepForPlayer)
-			playersJson[counterPlayer] = pJson
-			counterPlayer++
-		}
+		playersJson := make([]usermdl.UserJson, len(players))
+		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
 
 		teamData := struct {
 			Team        teammdl.TeamJson
@@ -494,9 +479,8 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 		// keep only needed fields for json api
 		var tJson teammdl.TeamJson
-		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
