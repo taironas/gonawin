@@ -32,12 +32,21 @@ import (
 )
 
 type Team struct {
-	Id      int64  `json:",omitempty"`
-	KeyName string `json:",omitempty"`
-	Name    string `json:",omitempty"`
-	AdminId int64  `json:",omitempty"`
+	Id      int64
+	KeyName string
+	Name    string
+	AdminId int64
 	Private bool
-	Created time.Time `json:"-"`
+	Created time.Time
+}
+
+type TeamJson struct {
+	Id      *int64     `json:",omitempty"`
+	KeyName *string    `json:",omitempty"`
+	Name    *string    `json:",omitempty"`
+	AdminId *int64     `json:",omitempty"`
+	Private *bool      `json:",omitempty"`
+	Created *time.Time `json:",omitempty"`
 }
 
 type TeamCounter struct {

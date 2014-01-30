@@ -6,7 +6,7 @@ inviteControllers.controller('InviteCtrl', ['$scope', 'Invite', 'SessionService'
     
     $scope.inviteFriends = function() {
 	console.log('invite friends');
-	console.log($scope.currentUser);
+	console.log($scope.currentUser.User);
 	console.log($scope.invite.emails);
 	Invite.send({emails: $scope.invite.emails},
 		    function(result){

@@ -42,6 +42,16 @@ type User struct {
 	Created  time.Time
 }
 
+type UserJson struct {
+	Id       *int64     `json:",omitempty"`
+	Email    *string    `json:",omitempty"`
+	Username *string    `json:",omitempty"`
+	Name     *string    `json:",omitempty"`
+	IsAdmin  *bool      `json:",omitempty"`
+	Auth     *string    `json:",omitempty"`
+	Created  *time.Time `json:",omitempty"`
+}
+
 // creates a user entity,
 func Create(c appengine.Context, email string, username string, name string, isAdmin bool, auth string) (*User, error) {
 	// create new user

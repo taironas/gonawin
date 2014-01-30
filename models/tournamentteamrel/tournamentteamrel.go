@@ -34,6 +34,13 @@ type TournamentTeamRelationship struct {
 	Created      time.Time
 }
 
+type TournamentTeamRelationshipJson struct {
+	Id           *int64     `json:",omitempty"`
+	TournamentId *int64     `json:",omitempty"`
+	TeamId       *int64     `json:",omitempty"`
+	Created      *time.Time `json:",omitempty"`
+}
+
 func Create(c appengine.Context, tournamentId int64, teamId int64) (*TournamentTeamRelationship, error) {
 	// create new tournament team relationship
 	tournamentteamRelationshipId, _, err := datastore.AllocateIDs(c, "TournamentTeamRelationship", nil, 1)

@@ -33,7 +33,7 @@ sessionService.factory('SessionService', ['$cookieStore', '$http', '$q', 'User',
 				User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(result){
 					currentUser = result;
 
-					if(currentUser.Auth == $cookieStore.get('auth'))
+					if(currentUser.User.Auth == $cookieStore.get('auth'))
 					{
 						userIsLoggedIn = true;
 						deferred.resolve(true);
