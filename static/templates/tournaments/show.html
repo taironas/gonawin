@@ -2,12 +2,12 @@
   <div class="page-header">
     <h1>Tournament</h1>
     <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-    <a href="/ng#/tournaments/show/{{tournamentData.Tournament.Id}}#tournamentModal" class="btn btn-primary" data-toggle="modal"><span>Add Team</span></a>
+    <button class="btn btn-primary" data-toggle="modal" data-target="#tournamentModal">Add Team</button>
     <!-- Modal -->
-    <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div id="tournamentModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="myModalLabel">Add Team</h3>
+        <h3 id="tournamentModalLabel">Add Team</h3>
       </div>
       <div class="modal-body">
         <div ng-include src="'templates/tournaments/teamCandidates.html'"></div>

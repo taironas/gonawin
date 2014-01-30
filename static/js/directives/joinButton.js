@@ -6,9 +6,9 @@ angular.module('directive.joinButton', []).directive('joinbutton', function() {
       template: '<button class="btn btn-primary" ng-click="action()">{{name}}</button>',
       scope: {
         action: '&',
-        name: "="
-      },
-      replace: true
+        name: '=',
+        teamid: '='
+      }
     };
   }
 );
