@@ -636,14 +636,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// filter team information to return in json api
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		teamsJson := make([]teammdl.TeamJson, len(teams))
-		counterTeam := 0
-		for _, team := range teams {
-			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
-			teamsJson[counterTeam] = tJson
-			counterTeam++
-		}
+		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
