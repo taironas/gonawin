@@ -288,7 +288,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTournament := 0
 		for _, tournament := range tournaments {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 			tournamentsJson[counterTournament] = tJson
 			counterTournament++
@@ -331,7 +331,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			// return the newly created tournament
 			fieldsToKeep := []string{"Id", "Name"}
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 
 			return templateshlp.RenderJson(w, c, tJson)
@@ -362,7 +362,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// tournament
 		fieldsToKeep := []string{"Id", "Name"}
 		var tournamentJson tournamentmdl.TournamentJson
-		helpers.CopyToPtrBasedStructGeneric(tournament, &tournamentJson)
+		helpers.CopyToPointerStructure(tournament, &tournamentJson)
 		helpers.KeepFields(&tournamentJson, fieldsToKeep)
 		// participant
 		participantsJson := make([]usermdl.UserJson, len(participants))
@@ -370,7 +370,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		participantFieldsToKeep := []string{"Id", "Username"}
 		for _, participant := range participants {
 			var pJson usermdl.UserJson
-			helpers.CopyToPtrBasedStructGeneric(participant, &pJson)
+			helpers.CopyToPointerStructure(participant, &pJson)
 			helpers.KeepFields(&pJson, participantFieldsToKeep)
 			participantsJson[counterParticipant] = pJson
 			counterParticipant++
@@ -380,7 +380,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTeam := 0
 		for _, team := range teams {
 			var teamJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &teamJson)
+			helpers.CopyToPointerStructure(team, &teamJson)
 			helpers.KeepFields(&teamJson, fieldsToKeep)
 			teamsJson[counterTeam] = teamJson
 			counterTeam++
@@ -484,7 +484,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// return the updated tournament
 		fieldsToKeep := []string{"Id", "Name"}
 		var tJson tournamentmdl.TournamentJson
-		helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+		helpers.CopyToPointerStructure(tournament, &tJson)
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
@@ -517,7 +517,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTournament := 0
 		for _, tournament := range tournaments {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 			tournamentsJson[counterTournament] = tJson
 			counterTournament++
@@ -553,7 +553,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		counterCandidate := 0
 		for _, team := range teams {
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 			var canditate canditateType
 			canditate.Team = tJson

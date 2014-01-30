@@ -98,7 +98,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		var tJson teammdl.TeamJson
-		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
@@ -132,7 +132,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			}
 
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 			helpers.KeepFields(&tJson, fieldsToKeep)
 

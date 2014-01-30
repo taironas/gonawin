@@ -106,7 +106,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		} else {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			fieldsToKeep := []string{"Id", "Name"}
 			helpers.KeepFields(&tJson, fieldsToKeep)
 
@@ -144,7 +144,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return helpers.NotFound{err}
 		} else {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			fieldsToKeep := []string{"Id", "Name"}
 			helpers.KeepFields(&tJson, fieldsToKeep)
 

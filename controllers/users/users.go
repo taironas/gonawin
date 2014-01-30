@@ -113,7 +113,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterUser := 0
 		for _, user := range users {
 			var uJson usermdl.UserJson
-			helpers.CopyToPtrBasedStructGeneric(user, &uJson)
+			helpers.CopyToPointerStructure(user, &uJson)
 			helpers.KeepFields(&uJson, fieldsToKeep)
 			usersJson[counterUser] = uJson
 			counterUser++
@@ -150,7 +150,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// user
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
 		var uJson usermdl.UserJson
-		helpers.CopyToPtrBasedStructGeneric(user, &uJson)
+		helpers.CopyToPointerStructure(user, &uJson)
 		helpers.KeepFields(&uJson, fieldsToKeep)
 
 		// teams
@@ -159,7 +159,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTeam := 0
 		for _, team := range teams {
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			helpers.KeepFields(&tJson, teamsFieldsToKeep)
 			teamsJson[counterTeam] = tJson
 			counterTeam++
@@ -171,7 +171,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTournament := 0
 		for _, tournament := range tournaments {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPtrBasedStructGeneric(tournament, &tJson)
+			helpers.CopyToPointerStructure(tournament, &tJson)
 			helpers.KeepFields(&tJson, tournamentfieldsToKeep)
 			tournamentsJson[counterTournament] = tJson
 			counterTournament++
@@ -184,7 +184,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTR := 0
 		for _, tr := range teamRequests {
 			var trJson teamrequestmdl.TeamRequestJson
-			helpers.CopyToPtrBasedStructGeneric(tr, &trJson)
+			helpers.CopyToPointerStructure(tr, &trJson)
 			helpers.KeepFields(&trJson, teamRequestFieldsToKeep)
 			trsJson[counterTR] = trJson
 			counterTR++
@@ -241,7 +241,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
 		var uJson usermdl.UserJson
-		helpers.CopyToPtrBasedStructGeneric(u, &uJson)
+		helpers.CopyToPointerStructure(u, &uJson)
 		helpers.KeepFields(&uJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, uJson)

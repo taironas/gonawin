@@ -341,7 +341,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		for _, team := range teams {
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 			teamsJson[counterTeam] = tJson
 			counterTeam++
@@ -388,7 +388,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			}
 			// return the newly created team
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 			helpers.KeepFields(&tJson, fieldsToKeep)
 
@@ -416,7 +416,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// get data for json team
 		// build team json
 		var tJson teammdl.TeamJson
-		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)
 		// build players json
@@ -426,7 +426,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		fieldsToKeepForPlayer := []string{"Id", "Username"}
 		for _, player := range players {
 			var pJson usermdl.UserJson
-			helpers.CopyToPtrBasedStructGeneric(player, &pJson)
+			helpers.CopyToPointerStructure(player, &pJson)
 			helpers.KeepFields(&pJson, fieldsToKeepForPlayer)
 			playersJson[counterPlayer] = pJson
 			counterPlayer++
@@ -494,7 +494,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 		// keep only needed fields for json api
 		var tJson teammdl.TeamJson
-		helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
@@ -639,7 +639,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		counterTeam := 0
 		for _, team := range teams {
 			var tJson teammdl.TeamJson
-			helpers.CopyToPtrBasedStructGeneric(team, &tJson)
+			helpers.CopyToPointerStructure(team, &tJson)
 			helpers.KeepFields(&tJson, fieldsToKeep)
 			teamsJson[counterTeam] = tJson
 			counterTeam++

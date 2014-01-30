@@ -31,7 +31,7 @@ func (a arrayOfStrings) Contains(s string) bool {
 	return false
 }
 
-func CopyToPtrBasedStructGeneric(tSrc interface{}, tDest interface{}) {
+func CopyToPointerStructure(tSrc interface{}, tDest interface{}) {
 	s1 := reflect.ValueOf(tSrc).Elem()
 	s2 := reflect.ValueOf(tDest).Elem()
 	for i := 0; i < s1.NumField(); i++ {
