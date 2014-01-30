@@ -17,7 +17,6 @@ var purpleWingApp = angular.module('purpleWingApp', [
     'tournamentControllers',
     'inviteControllers',
     
-    'sessionService',
     'dataServices'
 ]);
 
@@ -47,8 +46,8 @@ purpleWingApp.config(['$routeProvider',
 			otherwise( {redirectTo: '/'});
 }]);
 
-purpleWingApp.run(['$rootScope', 'SessionService', '$location',
-  function($rootScope, SessionService, $location){
+purpleWingApp.run(['$rootScope', 'Session', '$location',
+  function($rootScope, Session, $location){
     $rootScope.$on("$routeChangeStart", function(event, next, current) {
     // Everytime the route in our app changes check authentication status
     if (next.requireLogin) {
