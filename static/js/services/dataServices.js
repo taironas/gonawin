@@ -44,10 +44,19 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 	})
 });
 
-dataServices.factory('Invite', function($http, $log, $q, $cookieStore, $resource){
+dataServices.factory('Invite', function($http, $cookieStore, $resource){
 	$http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 	    
 	return $resource('j/invite', {emails: '@emails'}, {
 		send: {method: 'POST', params: {emails: '@emails'}, url: 'j/invite'}
 	})
+});
+
+dataServices.factory('Session', function($resource, User) {
+  
+  return $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
+    fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },
+    fetchUser: { method:'GET', params: {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, url: '/j/auth/google' },
+    logout: { method:'GET', params: {token:'@token'}, url: 'https://accounts.google.com/o/oauth2/revoke' }
+  });
 });
