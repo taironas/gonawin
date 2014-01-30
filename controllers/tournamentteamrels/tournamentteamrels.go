@@ -106,9 +106,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return helpers.NotFound{err}
 		} else {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
 			fieldsToKeep := []string{"Id", "Name"}
-			helpers.KeepFields(&tJson, fieldsToKeep)
+			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -144,9 +143,8 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return helpers.NotFound{err}
 		} else {
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
 			fieldsToKeep := []string{"Id", "Name"}
-			helpers.KeepFields(&tJson, fieldsToKeep)
+			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}

@@ -285,14 +285,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		fieldsToKeep := []string{"Id", "Name"}
 		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
-		counterTournament := 0
-		for _, tournament := range tournaments {
-			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
-			tournamentsJson[counterTournament] = tJson
-			counterTournament++
-		}
+		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tournamentsJson)
 
@@ -331,8 +324,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			// return the newly created tournament
 			fieldsToKeep := []string{"Id", "Name"}
 			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
+			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -362,29 +354,14 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// tournament
 		fieldsToKeep := []string{"Id", "Name"}
 		var tournamentJson tournamentmdl.TournamentJson
-		helpers.CopyToPointerStructure(tournament, &tournamentJson)
-		helpers.KeepFields(&tournamentJson, fieldsToKeep)
+		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
-		participantsJson := make([]usermdl.UserJson, len(participants))
-		counterParticipant := 0
 		participantFieldsToKeep := []string{"Id", "Username"}
-		for _, participant := range participants {
-			var pJson usermdl.UserJson
-			helpers.CopyToPointerStructure(participant, &pJson)
-			helpers.KeepFields(&pJson, participantFieldsToKeep)
-			participantsJson[counterParticipant] = pJson
-			counterParticipant++
-		}
+		participantsJson := make([]usermdl.UserJson, len(participants))
+		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// teams
 		teamsJson := make([]teammdl.TeamJson, len(teams))
-		counterTeam := 0
-		for _, team := range teams {
-			var teamJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &teamJson)
-			helpers.KeepFields(&teamJson, fieldsToKeep)
-			teamsJson[counterTeam] = teamJson
-			counterTeam++
-		}
+		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// data
 		data := struct {
 			Tournament   tournamentmdl.TournamentJson
@@ -484,8 +461,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// return the updated tournament
 		fieldsToKeep := []string{"Id", "Name"}
 		var tJson tournamentmdl.TournamentJson
-		helpers.CopyToPointerStructure(tournament, &tJson)
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
@@ -514,14 +490,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		fieldsToKeep := []string{"Id", "Name"}
 		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
-		counterTournament := 0
-		for _, tournament := range tournaments {
-			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
-			tournamentsJson[counterTournament] = tJson
-			counterTournament++
-		}
+		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tournamentsJson)
 	} else {
@@ -550,17 +519,16 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		}
 		fieldsToKeep := []string{"Id", "Name"}
 		candidatesData := make([]canditateType, len(teams))
-		counterCandidate := 0
-		for _, team := range teams {
+
+		for counterCandidate, team := range teams {
 			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
-			helpers.KeepFields(&tJson, fieldsToKeep)
+			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 			var canditate canditateType
 			canditate.Team = tJson
 			canditate.Joined = tournamentmdl.TeamJoined(c, tournamentId, team.Id)
 			candidatesData[counterCandidate] = canditate
-			counterCandidate++
 		}
+
 		return templateshlp.RenderJson(w, c, candidatesData)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}

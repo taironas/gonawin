@@ -98,9 +98,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		var tJson teammdl.TeamJson
-		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {

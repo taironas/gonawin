@@ -94,9 +94,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		var tJson tournamentmdl.TournamentJson
-		helpers.CopyToPointerStructure(tournament, &tJson)
 		fieldsToKeep := []string{"Id", "Name"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {
@@ -127,9 +126,8 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		}
 
 		var tJson tournamentmdl.TournamentJson
-		helpers.CopyToPointerStructure(tournament, &tJson)
 		fieldsToKeep := []string{"Id", "Name"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
+		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	} else {

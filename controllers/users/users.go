@@ -110,14 +110,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
 		usersJson := make([]usermdl.UserJson, len(users))
-		counterUser := 0
-		for _, user := range users {
-			var uJson usermdl.UserJson
-			helpers.CopyToPointerStructure(user, &uJson)
-			helpers.KeepFields(&uJson, fieldsToKeep)
-			usersJson[counterUser] = uJson
-			counterUser++
-		}
+		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, usersJson)
 	} else {
@@ -150,45 +143,19 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// user
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
 		var uJson usermdl.UserJson
-		helpers.CopyToPointerStructure(user, &uJson)
-		helpers.KeepFields(&uJson, fieldsToKeep)
-
+		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
 		// teams
 		teamsFieldsToKeep := []string{"Id", "Name"}
 		teamsJson := make([]teammdl.TeamJson, len(teams))
-		counterTeam := 0
-		for _, team := range teams {
-			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
-			helpers.KeepFields(&tJson, teamsFieldsToKeep)
-			teamsJson[counterTeam] = tJson
-			counterTeam++
-		}
-
+		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 		// tournaments
 		tournamentfieldsToKeep := []string{"Id", "Name"}
 		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
-		counterTournament := 0
-		for _, tournament := range tournaments {
-			var tJson tournamentmdl.TournamentJson
-			helpers.CopyToPointerStructure(tournament, &tJson)
-			helpers.KeepFields(&tJson, tournamentfieldsToKeep)
-			tournamentsJson[counterTournament] = tJson
-			counterTournament++
-		}
-
+		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentfieldsToKeep)
 		// team requests
 		teamRequestFieldsToKeep := []string{"Id", "TeamId", "UserId"}
-
 		trsJson := make([]teamrequestmdl.TeamRequestJson, len(teamRequests))
-		counterTR := 0
-		for _, tr := range teamRequests {
-			var trJson teamrequestmdl.TeamRequestJson
-			helpers.CopyToPointerStructure(tr, &trJson)
-			helpers.KeepFields(&trJson, teamRequestFieldsToKeep)
-			trsJson[counterTR] = trJson
-			counterTR++
-		}
+		helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
 
 		// data
 		data := struct {
@@ -241,8 +208,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
 		var uJson usermdl.UserJson
-		helpers.CopyToPointerStructure(u, &uJson)
-		helpers.KeepFields(&uJson, fieldsToKeep)
+		helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, uJson)
 	} else {
