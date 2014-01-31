@@ -3,42 +3,41 @@
 var teamControllers = angular.module('teamControllers', []);
 
 teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
-    console.log('Team list controller:');
-    $scope.teams = Team.query();
-    $scope.searchTeam = function(){
-	console.log('TeamListCtrl: searchTeam');
-	console.log('keywords: ', $scope.keywords);
-	$location.search('q', $scope.keywords).path('/teams/search');
-    };
+  console.log('Team list controller:');
+  $scope.teams = Team.query();
+  $scope.searchTeam = function(){
+    console.log('TeamListCtrl: searchTeam');
+    console.log('keywords: ', $scope.keywords);
+    $location.search('q', $scope.keywords).path('/teams/search');
+  };
 }]);
 
 teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-    console.log('Team search controller');
-    console.log('routeParams: ', $routeParams);
-    $scope.teams = Team.search( {q:$routeParams.q});
+  console.log('Team search controller');
+  console.log('routeParams: ', $routeParams);
+  $scope.teams = Team.search( {q:$routeParams.q});
 
-    $scope.query = $routeParams.q;
-    $scope.isSearching = true;
+  $scope.query = $routeParams.q;
+  $scope.isSearching = true;
 
-    $scope.searchTeam = function(){
-	console.log('TeamSearchCtrl: searchTeam');
-	console.log('keywords: ', $scope.keywords);
-	$location.search('q', $scope.keywords).path('/teams/search');
-    };
-
+  $scope.searchTeam = function(){
+    console.log('TeamSearchCtrl: searchTeam');
+    console.log('keywords: ', $scope.keywords);
+    $location.search('q', $scope.keywords).path('/teams/search');
+  };
 }]);
 
 teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
-    $scope.addTeam = function() {
+  $scope.addTeam = function() {
 	console.log('TeamNewCtrl: AddTeam');
 	Team.save($scope.team,
-		  function(team) {
-		      $location.path('/teams/show/' + team.Id);
-		  },
-		  function(err) {
-		      console.log('save failed: ', err.data);
-		  });
-    };
+    function(team) {
+      $location.path('/teams/show/' + team.Id);
+    },
+    function(err) {
+      console.log('save failed: ', err.data);
+    });
+  };
 }]);
 
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', 
@@ -53,17 +52,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
         function(err) {
           console.log('delete failed: ', err.data);
         });
-      };
+    };
 
     // set isTeamAdmin boolean
     $scope.teamData.$promise.then(function(teamResult){
       console.log('team is admin ready');
       // as it depends of currentUser, make a promise
       var deferred = $q.defer();
-      $scope.currentUser.$promise.then(function(currentUserResult){
-        console.log('is team admin: ', (teamResult.Team.AdminId == currentUserResult.User.Id));
-          deferred.resolve((teamResult.Team.AdminId == currentUserResult.User.Id));
-      });
+      deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.Id));
       return deferred.promise;
     }).then(function(result){
       $scope.isTeamAdmin = result;
