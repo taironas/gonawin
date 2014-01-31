@@ -2,65 +2,35 @@
 
 var sessionControllers = angular.module('sessionControllers', []);
 
-sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieStore', '$q', 'Session', 
-  function ($scope, $location, $cookieStore, $q, Session) {
+sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieStore', 'Session', 'User', 
+  function ($scope, $location, $cookieStore, Session, User) {
     console.log('SessionController module');
     $scope.currentUser  = undefined;
     $scope.loggedIn = false;
     
-    function getCurrentUser() {
-			var deferred = $q.defer();
-			if($scope.loggedIn && !$scope.currentUser)
-			{
-				$scope.currentUser = User.get({ id:$cookieStore.get('user_id') });
-			}
-			deferred.resolve(currentUser);
-			
-			return deferred.promise;
-		}
-		function getUserLoggedIn() {
-			var deferred = $q.defer();
-
-			if($scope.loggedIn) {
-				deferred.resolve(true);
-			}
+    $scope.initSession = function(){
+      console.log('SessionController module:: initSession');
 
 			if(!$cookieStore.get('access_token') || !$cookieStore.get('user_id')) {
 				$scope.loggedIn = false;
-				deferred.resolve(false);
+        return false;
 			} 
 			else {
-				User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(result){
-					$scope.currentUser = result;
+				User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(userData){
+					$scope.currentUser = userData.User;
 
-					if($scope.currentUser.User.Auth == $cookieStore.get('auth'))
+					if($scope.currentUser.Auth == $cookieStore.get('auth'))
 					{
 						$scope.loggedIn = true;
-						deferred.resolve(true);
+            return true;
 					} 
 					else 
 					{
 						$scope.loggedIn = false;
-						deferred.resolve(false);
+            return false;
 					}
 				});
 			}
-			
-			return deferred.promise;
-		}
-    
-    $scope.initSession = function(){
-      console.log('SessionController module:: initSession');
-      
-      getUserLoggedIn().then(function(result) {
-        $scope.loggedIn = result;
-        if($scope.loggedIn) {
-          getCurrentUser().then(function(result) {
-            console.log('current user: ', $scope.currentUser);
-            $scope.currentUser = result;
-          });
-        }
-      });
     }
     
     $scope.$on('event:google-plus-signin-success', function (event, authResult) {
@@ -70,8 +40,8 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
         Session.fetchUser({  access_token: authResult.access_token, 
                                     id:userInfo.id, 
                                     name:userInfo.displayName, 
-                                    email:userInfo.emails[0].value } ).$promise.then(function(user) {
-          $scope.currentUser = user;
+                                    email:userInfo.emails[0].value } ).$promise.then(function(userData) {
+          $scope.currentUser = userData.User;
           console.log('current user: ', $scope.currentUser);
           
           $cookieStore.put('access_token', authResult.access_token);

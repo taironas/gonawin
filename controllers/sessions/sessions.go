@@ -331,5 +331,11 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// return user
-	return templateshlp.RenderJson(w, c, user)
+  userData := struct {
+    User *usermdl.User
+  }{
+    user,
+  }
+  
+	return templateshlp.RenderJson(w, c, userData)
 }
