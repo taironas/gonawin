@@ -22,6 +22,8 @@ import (
 	"html/template"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"appengine"
 
@@ -124,26 +126,53 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	log.Infof(c, "User Show Json Handler")
 
 	if r.Method == "GET" {
+		var userId int64
+		strUrl := r.URL.String()
+		if strings.Contains(strUrl, "?") {
+			path := strings.Split(r.URL.String(), "/")
+			strPath := path[4]
+			strID := strPath[0:strings.Index(strPath, "?")]
+			intID, err := strconv.ParseInt(strID, 0, 64)
+			if err != nil {
+				log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", strID, err)
+			}
+			userId = intID
 
-		userId, err := handlers.PermalinkID(r, c, 4)
-		if err != nil {
-			return helpers.BadRequest{err}
+		} else {
+			intID, err := handlers.PermalinkID(r, c, 4)
+			if err != nil {
+				return helpers.BadRequest{err}
+			}
+			userId = intID
 		}
-
-		// get user
-		var user *usermdl.User
-		user, err = usermdl.ById(c, userId)
-		if err != nil {
-			return helpers.BadRequest{err}
-		}
-		teams := usermdl.Teams(c, userId)
-		tournaments := tournamentrelshlp.Tournaments(c, userId)
-		teamRequests := teamrelshlp.TeamsRequests(c, teams)
 
 		// user
+		var user *usermdl.User
+		user, err := usermdl.ById(c, userId)
+		if err != nil {
+			return helpers.BadRequest{err}
+		}
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
 		var uJson usermdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
+
+		// with param:
+		with := r.FormValue("including")
+		params := helpers.SetOfStrings(with)
+		var teams []*teammdl.Team
+		var teamRequests []*teamrequestmdl.TeamRequest
+		var tournaments []*tournamentmdl.Tournament
+		for _, param := range params {
+			switch param {
+			case "teams":
+				teams = usermdl.Teams(c, userId)
+			case "teamrequests":
+				teamRequests = teamrelshlp.TeamsRequests(c, teams)
+			case "tournaments":
+				tournaments = tournamentrelshlp.Tournaments(c, userId)
+			}
+		}
+
 		// teams
 		teamsFieldsToKeep := []string{"Id", "Name"}
 		teamsJson := make([]teammdl.TeamJson, len(teams))

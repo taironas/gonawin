@@ -7,7 +7,7 @@ userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, U
 }]);
 
 userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'Team', '$location', function($scope, $routeParams, User, Team, $location) {
-    $scope.userData = User.get({ id:$routeParams.id });
+    $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments" });
 
     $scope.acceptTeamRequest = function(request){
 	console.log('User show controller:: accept team Request');
