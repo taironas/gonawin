@@ -22,10 +22,9 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
 }]);
 
 userControllers.controller('UserEditCtrl', ['$scope', 'User', '$location', function($scope, User, $location) {
-  $scope.userData = $scope.currentUser;
     
   $scope.updateUser = function() {
-    User.update({ id:$scope.user.Id }, $scope.userData.User,
+    User.update({ id:$scope.currentUser.Id }, $scope.currentUser,
     function(){ $location.path('/settings/edit-profile/'); },
     function(err) { console.log('update failed: ', err.data);
 		});
