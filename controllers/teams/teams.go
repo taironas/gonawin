@@ -626,3 +626,32 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
 }
+
+// json team members handler
+// use this handler to get members of a team.
+func TeamMembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+	log.Infof(c, "json team members handler.")
+	
+	teamId, err := handlers.PermalinkID(r, c, 3)
+	if err != nil {
+		return helpers.NotFound{err}
+	}
+	
+	if r.Method == "GET" {
+		// build members json
+		members := teamrelshlp.Players(c, teamId)
+		fieldsToKeepForMember := []string{"Id", "Username"}
+		membersJson := make([]usermdl.UserJson, len(members))
+		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
+	
+		memberData := struct {
+			Members     []usermdl.UserJson
+		}{
+			membersJson,
+		}
+		return templateshlp.RenderJson(w, c, memberData)
+	} else {
+		return helpers.BadRequest{errors.New("not supported")}
+	}
+}

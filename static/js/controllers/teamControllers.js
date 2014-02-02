@@ -40,7 +40,7 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
   };
 }]);
 
-teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', 
+teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q',
   function($scope, $routeParams, Team, $location, $q) {
     $scope.teamData = Team.get({ id:$routeParams.id });
     
@@ -76,8 +76,8 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     $scope.joinTeam = function(){
       Team.join({ id:$routeParams.id }).$promise.then(function(result){
-        Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
-          $scope.teamData.Players = teamResult.Players;
+        Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+          $scope.teamData.Players = membersResult.Members;
           $scope.joinButtonName = 'Leave';
           $scope.joinButtonMethod = $scope.leaveTeam;
         } );
@@ -87,8 +87,8 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     $scope.leaveTeam = function(){
       Team.leave({ id:$routeParams.id }).$promise.then(function(result){
-        Team.get({ id:$routeParams.id }).$promise.then(function(teamResult){
-          $scope.teamData.Players = teamResult.Players;
+        Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+          $scope.teamData.Players = membersResult.Members;
           $scope.joinButtonName = 'Join';
           $scope.joinButtonMethod = $scope.joinTeam;
         });

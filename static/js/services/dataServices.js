@@ -19,6 +19,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 		update: { method: 'POST', url: 'j/teams/update/:id' },
 		delete: { method: 'POST', url: 'j/teams/destroy/:id' },
 		search: { method: 'GET', url: 'j/teams/search?q=:q', isArray: true},
+		members: { method: 'GET', url:'j/teams/:id/members' },
 		join: {method: 'POST', url: 'j/teamrels/create/:id'},
 		leave: {method: 'POST', url: 'j/teamrels/destroy/:id'},
 		invite: {method: 'POST', url: 'j/teams/invite/:id'},
