@@ -645,12 +645,12 @@ func TeamMembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 		membersJson := make([]usermdl.UserJson, len(members))
 		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
 	
-		memberData := struct {
+		data := struct {
 			Members     []usermdl.UserJson
 		}{
 			membersJson,
 		}
-		return templateshlp.RenderJson(w, c, memberData)
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}

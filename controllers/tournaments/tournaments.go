@@ -534,3 +534,33 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}
 }
+
+// json tournament participants handler
+// use this handler to get participants of a tournament.
+func TournamentParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+	log.Infof(c, "json tournament participants handler.")
+	
+	tournamentId, err := handlers.PermalinkID(r, c, 3)
+	if err != nil {
+		return helpers.NotFound{err}
+	}
+	
+	if r.Method == "GET" {
+		participants := tournamentrelshlp.Participants(c, tournamentId)
+		// participant
+		participantFieldsToKeep := []string{"Id", "Username"}
+		participantsJson := make([]usermdl.UserJson, len(participants))
+		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
+		// data
+		data := struct {
+			Participants []usermdl.UserJson
+		}{
+			participantsJson,
+		}
+	
+		return templateshlp.RenderJson(w, c, data)
+	} else {
+		return helpers.BadRequest{errors.New("Not supported.")}
+	}
+}

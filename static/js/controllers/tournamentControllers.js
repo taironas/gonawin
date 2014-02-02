@@ -40,7 +40,7 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
     };
 }]);
 
-tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', '$q', 
+tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', '$q',
   function($scope, $routeParams, Tournament, $location, $q) {
     console.log('Tournament Show controller');
     
@@ -61,8 +61,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     
     $scope.joinTournament = function(){
       Tournament.join({ id:$routeParams.id }).$promise.then(function(result){
-        Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-          $scope.tournamentData.Participants = tournamentResult.Participants;
+        Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+          $scope.tournamentData.Participants = participantsResult.Participants;
           $scope.joinButtonName = 'Leave';
           $scope.joinButtonMethod = $scope.leaveTournament;
         });
@@ -71,8 +71,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 
     $scope.leaveTournament = function(){
       Tournament.leave({ id:$routeParams.id }).$promise.then(function(result){
-        Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-          $scope.tournamentData.Participants = tournamentResult.Participants; 
+        Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+          $scope.tournamentData.Participants = participantsResult.Participants;
           $scope.joinButtonName = 'Join';
           $scope.joinButtonMethod = $scope.joinTournament;
         });
@@ -82,7 +82,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     $scope.joinTournamentAsTeam = function(teamId){
       Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(result){
         Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-          $scope.tournamentData.Teams = tournamentResult.Teams; 
+          $scope.tournamentData.Teams = tournamentResult.Teams;
           $scope.joinAsTeamButtonName[teamId] = 'Leave';
           $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
         });
@@ -92,7 +92,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     $scope.leaveTournamentAsTeam = function(teamId){
       Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(result){
         Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-          $scope.tournamentData.Teams = tournamentResult.Teams; 
+          $scope.tournamentData.Teams = tournamentResult.Teams;
           $scope.joinAsTeamButtonName[teamId] = 'Join';
           $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
         });
