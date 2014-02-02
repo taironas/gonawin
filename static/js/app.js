@@ -46,19 +46,17 @@ purpleWingApp.config(['$routeProvider',
 			otherwise( {redirectTo: '/'});
 }]);
 
-purpleWingApp.run(['$rootScope', '$location',
-  function($rootScope, $location){
-    $rootScope.$on("$routeChangeStart", function(event, next, current) {
-    // Everytime the route in our app changes check authentication status
-    if (next.requireLogin) {
-      if($rootScope.$$childHead.initSession()){
-        if(!$rootScope.$$childHead.loggedIn)
-        {
-          // if you're logged out send to home page.
-          $location.path('/');
-          event.preventDefault();
-        }
-      }
-    }
-  });
+purpleWingApp.run(['$rootScope', '$location', function($rootScope, $location) {
+	$rootScope.$on("$routeChangeStart", function(event, next, current) {
+	  if($rootScope.$$childHead.initSession()) {
+			// Everytime the route in our app changes check authentication status
+			if (next.requireLogin) {
+			 	if(!$rootScope.$$childHead.loggedIn) {
+			 		// if you're logged out send to home page.
+			 		$location.path('/');
+			 		event.preventDefault();
+			 	}
+			} 
+	  }
+	});
 }]);

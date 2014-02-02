@@ -51,5 +51,6 @@ angular.module('directive.g+signin', []).
     else{
       $rootScope.$broadcast('event:google-plus-signin-failure',authResult);
     }
-  }; 
+  };
 }]);
+
