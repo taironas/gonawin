@@ -188,10 +188,10 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		// data
 		data := struct {
-			User         usermdl.UserJson
-			Teams        []teammdl.TeamJson
-			TeamRequests []teamrequestmdl.TeamRequestJson
-			Tournaments  []tournamentmdl.TournamentJson
+			User         usermdl.UserJson `json:",omitempty"`
+			Teams        []teammdl.TeamJson `json:",omitempty"`
+			TeamRequests []teamrequestmdl.TeamRequestJson `json:",omitempty"`
+			Tournaments  []tournamentmdl.TournamentJson `json:",omitempty"`
 		}{
 			uJson,
 			teamsJson,
