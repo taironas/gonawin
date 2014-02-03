@@ -18,7 +18,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 		save: { method: 'POST', url: 'j/teams/new' },
 		update: { method: 'POST', url: 'j/teams/update/:id' },
 		delete: { method: 'POST', url: 'j/teams/destroy/:id' },
-		search: { method: 'GET', url: 'j/teams/search?q=:q', isArray: true},
+		search: { method: 'GET', url: 'j/teams/search?q=:q'},
 		members: { method: 'GET', url:'j/teams/:id/members' },
 		join: {method: 'POST', url: 'j/teamrels/create/:id'},
 		leave: {method: 'POST', url: 'j/teamrels/destroy/:id'},
@@ -36,13 +36,13 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		save: { method: 'POST', url: 'j/tournaments/new' },
 		update: { method: 'POST', url: 'j/tournaments/update/:id' },
 		delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
-		search: { method: 'GET', url: 'j/tournaments/search?q=:q', isArray: true},
+		search: { method: 'GET', url: 'j/tournaments/search?q=:q'},
 		participants: { method: 'GET', url:'j/tournaments/:id/participants' },
 		join: {method: 'POST', url: 'j/tournamentrels/create/:id'},
 		leave: {method: 'POST', url: 'j/tournamentrels/destroy/:id'},
 		joinAsTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
 		leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
-		candidates: {method: 'GET', url: 'j/tournaments/candidates/:id', isArray: true}
+		candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'}
 	})
 });
 

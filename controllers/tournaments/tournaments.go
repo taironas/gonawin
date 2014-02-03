@@ -485,14 +485,20 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		tournaments := tournamentmdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", tournaments)
 		if len(tournaments) == 0 {
-			return templateshlp.RenderEmptyJsonArray(w, c)
+			return templateshlp.RenderEmptyJson(w, c)
 		}
 
 		fieldsToKeep := []string{"Id", "Name"}
 		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
+		// we should not directly return an array. so we add an extra layer.
+		data := struct{
+			Tournaments []tournamentmdl.TournamentJson `json:",omitempty"`
+		}{
+			tournamentsJson,
+		}
 
-		return templateshlp.RenderJson(w, c, tournamentsJson)
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("not supported.")}
 	}
@@ -528,8 +534,13 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 			canditate.Joined = tournamentmdl.TeamJoined(c, tournamentId, team.Id)
 			candidatesData[counterCandidate] = canditate
 		}
-
-		return templateshlp.RenderJson(w, c, candidatesData)
+		// we should not directly return an array. so we add an extra layer.
+		data := struct{
+			Candidates []canditateType `json:",omitempty"`
+		}{
+			candidatesData,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
 	}

@@ -615,13 +615,19 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teams := teammdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0 {
-			return templateshlp.RenderEmptyJsonArray(w, c)
+			return templateshlp.RenderEmptyJson(w, c)
 		}
 		// filter team information to return in json api
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		teamsJson := make([]teammdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
-		return templateshlp.RenderJson(w, c, teamsJson)
+		// we should not directly return an array. so we add an extra layer.
+		data := struct{
+			Teams []teammdl.TeamJson `json:",omitempty"`
+		}{
+			teamsJson,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("not supported")}
 	}
