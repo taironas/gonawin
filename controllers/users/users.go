@@ -150,7 +150,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		var user *usermdl.User
 		user, err := usermdl.ById(c, userId)
 		if err != nil {
-			return helpers.BadRequest{err}
+			return helpers.NotFound{err}
 		}
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
 		var uJson usermdl.UserJson

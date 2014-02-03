@@ -20,8 +20,23 @@ var purpleWingApp = angular.module('purpleWingApp', [
     'dataServices'
 ]);
 
-purpleWingApp.config(['$routeProvider',
-	function($routeProvider) {
+purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
+  return {
+    response: function(response) {
+      return response || $q.when(response);
+    },
+
+    responseError: function(response) {
+      if (response && response.status === 404) {
+          $location.path('/404');
+      }
+      return $q.reject(response);
+    }
+  };
+}]);
+
+purpleWingApp.config(['$routeProvider', '$httpProvider',
+	function($routeProvider, $httpProvider) {
 		$routeProvider.
 			when('/', { templateUrl: 'templates/main.html', controller: 'MainCtrl', requireLogin: false }).
 			when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
@@ -43,7 +58,10 @@ purpleWingApp.config(['$routeProvider',
 			when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
 			when('/settings/email', { templateUrl: 'templates/settings/email.html', requireLogin: true }).
 			when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
+      when('/404', { templateUrl: 'static/404.html' }).
 			otherwise( {redirectTo: '/'});
+      
+    $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
 purpleWingApp.run(['$rootScope', '$location', function($rootScope, $location) {
