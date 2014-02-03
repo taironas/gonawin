@@ -108,6 +108,10 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
+		if !u.IsAdmin {
+			return helpers.NotFound{errors.New("User list can only be shown for admin users")}
+		}
+
 		users := usermdl.FindAll(c)
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
