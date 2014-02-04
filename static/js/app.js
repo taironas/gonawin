@@ -58,7 +58,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
 			  when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
 			  when('/settings/email', { templateUrl: 'templates/settings/email.html', requireLogin: true }).
 			  when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
-			  when('/404', { templateUrl: 'static/404.html' }).
+			  when('/404', { templateUrl: 'static/templates/404.html' }).
 			  otherwise( {redirectTo: '/'});
 			
 			$httpProvider.interceptors.push('notFoundInterceptor');
