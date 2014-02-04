@@ -19,12 +19,10 @@ package teamrels
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
@@ -32,48 +30,6 @@ import (
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
-
-// create handler for team relations
-func Create(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get team id
-	teamId, err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if err := teammdl.Join(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " teamRels.Create: %v", err)
-		}
-	}
-
-	http.Redirect(w, r, "/m/teams/"+r.FormValue("TeamId"), http.StatusFound)
-}
-
-// destroy handler for team relations
-func Destroy(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get team id
-	teamId, err := strconv.ParseInt(r.FormValue("TeamId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " teamRels.Destroy, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if !teammdl.IsTeamAdmin(c, teamId, auth.CurrentUser(r, c).Id) {
-			if err := teammdl.Leave(c, teamId, auth.CurrentUser(r, c).Id); err != nil {
-				log.Errorf(c, " teamRels.Destroy: %v", err)
-			}
-		} else {
-			log.Errorf(c, " teamRels.Drestroy, Team administrator cannot leave the team")
-		}
-	}
-
-	http.Redirect(w, r, "/m/teams/"+r.FormValue("TeamId"), http.StatusFound)
-}
 
 // json create handler for team relations
 func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {

@@ -190,9 +190,3 @@ func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 
 	return teams
 }
-
-// gets an array of teams whos admin id is passed as param
-func AdminTeams(c appengine.Context, adminId int64) []*teammdl.Team {
-
-	return teammdl.Find(c, "AdminId", adminId)
-}
