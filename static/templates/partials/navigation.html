@@ -1,9 +1,9 @@
 <div class="navigation">
   <div class="navbar" bs-navbar>
-    <div class="navbar-inner">
-      <a class="brand" href="#" ng-show="currentUser.IsAdmin">purple-wing - ng - admin</a>
-      <a class="brand" href="#" ng-hide="currentUser.IsAdmin">purple-wing - ng</a>
-      <ul class="nav pull-right" ng-show="loggedIn">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#" ng-show="currentUser.IsAdmin">purple-wing - ng - admin</a>
+      <a class="navbar-brand" href="#" ng-hide="currentUser.IsAdmin">purple-wing - ng</a>
+      <ul class="nav navbar-nav pull-right" ng-show="loggedIn">
 	<li class="dropdown" ng-show="currentUser.IsAdmin">
 	  <a class="dropdown-toggle" data-toggle="dropdown" href="">
 	    Manage

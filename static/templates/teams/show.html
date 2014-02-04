@@ -9,12 +9,14 @@
       <p>debug: team not admin</p>
     	<div ng-if="teamData.Team.Private">
     	  <form accept-charset="UTF-8" class="form-horizontal" method="post">
-    	    <div ng-if="teamData.RequestSent">
-    	      <input class="btn disabled" name="commit" type="submit" value="Request sent..." />
-    	    </div>
-    	    <div ng-if="!teamData.RequestSent">
-    	      <input class="btn btn-primary" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" />
-    	    </div>
+	    <div class="form-control">
+    	      <div ng-if="teamData.RequestSent">
+    		<input class="btn btn-default disabled" name="commit" type="submit" value="Request sent..." />
+    	      </div>
+    	      <div ng-if="!teamData.RequestSent">
+    		<input class="btn btn-primary" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" />
+    	      </div>
+	    </div>
     	  </form>
     	</div>
     	<div ng-if="!teamData.Team.Private">
@@ -44,9 +46,9 @@
   
   <div ng-if="isTeamAdmin">
     <p>debug: team  admin</p>
-    <div class="form-actions">
+    <div>
       <form class="form-horizontal">
-        <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn"><span>Edit</span></a>
+        <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn btn-default"><span>Edit</span></a>
         <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
       </form>
     </div>

@@ -1,16 +1,16 @@
 <div class="page-header">
   <h1><a href="/ng#/tournaments">Tournaments</a></h1>
   <div class="btn-toolbar">
-    <a class="btn btn-primary" href="/ng#/tournaments/new"><i class="icon-plus icon-white"></i> Create</a>
+    <a class="btn btn-primary" href="/ng#/tournaments/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create</a>
     <!-- search box -->
-    <div class="control-group search-box">
-      <div class="controls">
-	<div class="input-prepend">
-	  <span class="add-on"><i class="icon-search"></i></span>
+    <div class="form-group search-box">
+	<div class="input-group">
+	  <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
 	  <form ng-submit="searchTournament()">
-	    <input class="span2" id="inputIcon" type="text" name="TournamentInputSearch" ng-model="keywords">
+	    <div class="form-control">
+	      <input class="col-md-2" id="inputIcon" type="text" name="TournamentInputSearch" ng-model="keywords">
+	    </div>
 	  </form>
-	</div>
       </div>
     </div>
     <!-- / search box -->

@@ -1,6 +1,6 @@
-<div class="container-fluid">
-  <div class="row-fluid">
-    <div class="span12">
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
       <div class="page-header">
 	<h1>Email Invitation</h1>
       </div>
@@ -10,29 +10,32 @@
       <br />
       
       <div ng-dirty>
-	<form name="inviteForm">
-	  <div id="email">
-	    <p>
-	      From: {{currentUser.Name}}<br />
-	      Subject: <strong>{{currentUser.Name}} wants you to join Purple-wing!</strong>
-	    </p>
-	    <p class="email-body">
-	      Hi there -<br />
-	      Join us on Purple-wing.<br /><br />
-	      You will be able to bet on tournament and win some rewards!<br /><br />
-	      Sign in here: http://localhost:8080/ng#/<br /><br />
-	      Have fun,<br />
-	      Your friends @ purple-wing
-	    </p>
-	  </div>
-	  
-	  <div id="invite">
-	    <div class="control-group" ng-class="{error: inviteForm.emails.$invalid}">
-	      <textarea rows="4" name="emails" cols="50" ng-model="invite.emails" emails></textarea>
-	      <span ng-show="inviteForm.emails.$error.emails" class="help-inline"> List is not well formatted</span>
+	<form name="inviteForm" role="form">
+	  <div class="form-group">
+	    <div id="email">
+	      <p>
+		From: {{currentUser.Name}}<br />
+		Subject: <strong>{{currentUser.Name}} wants you to join Purple-wing!</strong>
+	      </p>
+	      <p class="email-body">
+		Hi there -<br />
+		Join us on Purple-wing.<br /><br />
+		You will be able to bet on tournament and win some rewards!<br /><br />
+		Sign in here: http://localhost:8080/ng#/<br /><br />
+		Have fun,<br />
+		Your friends @ purple-wing
+	      </p>
 	    </div>
-	    <button class="btn" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
 	  </div>
+	  <div class="form-group">
+	    <div id="invite">
+	      <div class="form-group" ng-class="{error: inviteForm.emails.$invalid}">
+		<textarea rows="4" name="emails" cols="50" ng-model="invite.emails" emails></textarea>
+		<span ng-show="inviteForm.emails.$error.emails" class="help-inline"> List is not well formatted</span>
+	      </div>
+	    </div>
+	  </div>
+	  <button class="btn btn-default" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
 	</form>
       </div>
     </div>

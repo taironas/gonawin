@@ -3,23 +3,21 @@
 </div>
 <div>
   <form name="editTeamForm" class="form-horizontal">
-    <div class="control-group" ng-class="{error: editTeamForm.name.$invalid}">
+    <div class="form-group" ng-class="{error: editTeamForm.name.$invalid}">
       <label class="control-label">Name</label>
-      <div class="controls">
 	<input class="text_field" name="name" size="30" type="text" ng-model="teamData.Team.Name" required/>
 	<span ng-show="editTeamForm.name.$error.required" class="help-inline"> Required</span>
-      </div>
     </div>
-    <div class="control-group">
-      <label class="control-label">Visibility</label>
-      <div class="controls">
+    <div class="form-group">
+      <div class="form-control">
+	<label class="control-label">Visibility</label>
 	<!-- Todo if else -->
 	<input class="radio" name="visibility" type="radio" value="Public" checked ng-model="team.Visibility"/> Public (Anyone can subscribe to this team)<br>
 	<input class="radio" name="visibility" type="radio" value="Private" ng-model="team.Visibility"/> Private (users need to request an invitation)
       </div>
     </div>
-    <div class="form-actions">
-      <a href="/ng#/teams/show/{{team.Id}}" class="btn">Cancel</a>
+    <div>
+      <a href="/ng#/teams/show/{{team.Id}}" class="btn btn-default">Cancel</a>
       <button class="btn btn-primary" ng-click="updateTeam()" ng-disabled="editTeamForm.$invalid">Update Team</button>
     </div>
   </form>
