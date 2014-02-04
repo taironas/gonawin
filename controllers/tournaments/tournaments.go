@@ -548,7 +548,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 
 // json tournament participants handler
 // use this handler to get participants of a tournament.
-func TournamentParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json tournament participants handler.")
 	

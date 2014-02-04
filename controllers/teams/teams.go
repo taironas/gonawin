@@ -635,7 +635,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 // json team members handler
 // use this handler to get members of a team.
-func TeamMembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json team members handler.")
 	
