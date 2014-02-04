@@ -19,7 +19,6 @@ package users
 import (
 	"encoding/json"
 	"errors"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -40,67 +39,10 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-type Form struct {
-	Username      string
-	Name          string
-	Email         string
-	ErrorUsername string
-	ErrorName     string
-	ErrorEmail    string
-}
-
 type UserData struct {
 	Username string
 	Name     string
 	Email    string
-}
-
-// Show handler
-func Show(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	userId, err := handlers.PermalinkID(r, c, 3)
-	if err != nil {
-		http.Redirect(w, r, "/m/users/", http.StatusFound)
-		return
-	}
-
-	funcs := template.FuncMap{
-		"Profile": func() bool { return true },
-	}
-
-	t := template.Must(template.New("tmpl_user_show").
-		Funcs(funcs).
-		ParseFiles("templates/user/show.html",
-		"templates/user/info.html",
-		"templates/user/teams.html",
-		"templates/user/tournaments.html",
-		"templates/user/requests.html"))
-
-	var user *usermdl.User
-	user, err = usermdl.ById(c, userId)
-	if err != nil {
-		helpers.Error404(w)
-		return
-	}
-
-	teams := usermdl.Teams(c, userId)
-	tournaments := tournamentrelshlp.Tournaments(c, userId)
-	teamRequests := teamrelshlp.TeamsRequests(c, teams)
-
-	userData := struct {
-		User         *usermdl.User
-		Teams        []*teammdl.Team
-		Tournaments  []*tournamentmdl.Tournament
-		TeamRequests []*teamrequestmdl.TeamRequest
-	}{
-		user,
-		teams,
-		tournaments,
-		teamRequests,
-	}
-
-	templateshlp.RenderWithData(w, r, c, t, userData, funcs, "renderUserShow")
 }
 
 // json index user handler

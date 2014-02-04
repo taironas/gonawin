@@ -31,30 +31,6 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-// is it a user?
-func User(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		c := appengine.NewContext(r)
-		if !auth.IsUser(r, c) {
-			http.Redirect(w, r, "/m", http.StatusFound)
-		} else {
-			f(w, r)
-		}
-	}
-}
-
-// is it an admin?
-func Admin(f func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		c := appengine.NewContext(r)
-		if !auth.IsAdmin(r, c) {
-			http.Redirect(w, r, "/m", http.StatusFound)
-		} else {
-			f(w, r)
-		}
-	}
-}
-
 // parse permalink id from URL  and return it
 func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, error) {
 
@@ -96,7 +72,7 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if auth.KOfflineMode {
-			return f(w, r, auth.CurrentUser(r, appengine.NewContext(r)))
+			return f(w, r, auth.CurrentOfflineUser(r, appengine.NewContext(r)))
 		}
 
 		user := auth.CheckAuthenticationData(r)

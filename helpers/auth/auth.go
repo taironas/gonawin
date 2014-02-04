@@ -23,7 +23,6 @@ import (
 	"appengine/urlfetch"
 
 	"github.com/santiaago/purple-wing/helpers/log"
-	user "github.com/santiaago/purple-wing/helpers/user"
 
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
@@ -33,6 +32,12 @@ const KOfflineMode bool = false
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 const kEmailGonawinTest = "gonawin.test@gmail.com"
+
+type GPlusUserInfo struct {
+	Id    string
+	Email string
+	Name  string
+}
 
 // from an accessToken string, verify if google user account is valid
 func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
@@ -54,48 +59,20 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 
 // Ckeck if googple plus user is admin.
 // #196: Should be removed when deployed in production.
-func IsAuthorizedWithGoogle(ui *user.GPlusUserInfo) bool {
+func IsAuthorizedWithGoogle(ui *GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
 }
 
-// Ckeck if twitter user is admin.
-// #196: Should be removed when deployed in production.
-func IsAuthorizedWithTwitter(ui *user.TwitterUserInfo) bool {
-	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
-}
-
-// Ckeck if facebook user is admin.
-// #196: Should be removed when deployed in production.
-func IsAuthorizedWithFacebook(ui *user.FacebookUserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias)
-}
-
-// LoggedIn is true is the AuthCookie exist and match your user.Auth property
-func LoggedIn(r *http.Request, c appengine.Context) bool {
+// returns pointer to current user, from authentication cookie.
+func CurrentOfflineUser(r *http.Request, c appengine.Context) *usermdl.User {
 	if KOfflineMode {
-		return true
-	}
+		currentUser := usermdl.Find(c, "Username", "purple")
 
-	if auth := GetAuthCookie(r); len(auth) > 0 {
-		if u := CurrentUser(r, c); u != nil {
-			return u.Auth == auth
+		if currentUser == nil {
+			currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", true, usermdl.GenerateAuthKey())
 		}
-	}
-
-	return false
-}
-
-// IsAdmin is true if you are logged in and belong to the below users.
-func IsAdmin(r *http.Request, c appengine.Context) bool {
-	if LoggedIn(r, c) {
-		if u := CurrentUser(r, c); u != nil {
-			return (u.Email == "remy.jourde@gmail.com" || u.Email == "santiago.ariassar@gmail.com" || u.Username == "rjourde" || u.Username == "santiago_arias" || (KOfflineMode && u.Username == "purple"))
-		}
-	}
-	return false
-}
-
-// IsUser is true if you are logged in, can either be an admin or not.
-func IsUser(r *http.Request, c appengine.Context) bool {
-	return LoggedIn(r, c)
+		return currentUser
+	} else {
+    return nil
+  }
 }

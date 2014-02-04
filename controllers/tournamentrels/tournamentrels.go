@@ -19,12 +19,10 @@ package tournamentrels
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
@@ -32,44 +30,6 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
-
-// create handler for tournament relationships
-func Create(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get tournament id
-	tournamentId, err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if err := tournamentmdl.Join(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Create: %v", err)
-		}
-	}
-
-	http.Redirect(w, r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-}
-
-// destroy handler for tournament relationships
-func Destroy(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get tournament id
-	tournamentId, err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournaments.Destroy, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if err := tournamentmdl.Leave(c, tournamentId, auth.CurrentUser(r, c).Id); err != nil {
-			log.Errorf(c, " tournamentrels.Destroy: %v", err)
-		}
-	}
-
-	http.Redirect(w, r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-}
 
 // json create handler for tournament relationships
 func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {

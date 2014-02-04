@@ -19,7 +19,6 @@ package tournamentteamrels
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
@@ -31,54 +30,6 @@ import (
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
-
-// create handler for tournament teams realtionship
-func Create(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get tournament id
-	tournamentId, err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
-	}
-	// get team id
-	teamId, err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Create, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Create: %v", err)
-		}
-	}
-
-	http.Redirect(w, r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-}
-
-// destroy handler for tournament teams realtionship
-func Destroy(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-
-	// get tournament id
-	tournamentId, err := strconv.ParseInt(r.FormValue("TournamentId"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
-	}
-	// get team id
-	teamId, err := strconv.ParseInt(r.FormValue("TeamIdButton"), 10, 64)
-	if err != nil {
-		log.Errorf(c, " tournamentteamrels.Destroy, string value could not be parsed: %v", err)
-	}
-
-	if r.Method == "POST" {
-		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, " tournamentteamrels.Destroy: %v", err)
-		}
-	}
-
-	http.Redirect(w, r, "/m/tournaments/"+r.FormValue("TournamentId"), http.StatusFound)
-}
 
 // create handler for tournament teams realtionship
 func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
