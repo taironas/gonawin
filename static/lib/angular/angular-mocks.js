@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.6
+ * @license AngularJS v1.2.11
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -386,7 +386,7 @@ angular.mock.$LogProvider = function() {
        *
        * @example
        * <pre>
-       * $log.log('Some Error');
+       * $log.error('Some Error');
        * var first = $log.error.logs.unshift();
        * </pre>
        */
@@ -763,6 +763,36 @@ angular.mock.TzDate = function (offset, timestamp) {
 angular.mock.TzDate.prototype = Date.prototype;
 /* jshint +W101 */
 
+// TODO(matias): remove this IMMEDIATELY once we can properly detect the
+// presence of a registered module
+var animateLoaded;
+try {
+  angular.module('ngAnimate');
+  animateLoaded = true;
+} catch(e) {}
+
+if(animateLoaded) {
+  angular.module('ngAnimate').config(['$provide', function($provide) {
+    var reflowQueue = [];
+    $provide.value('$$animateReflow', function(fn) {
+      reflowQueue.push(fn);
+      return angular.noop;
+    });
+    $provide.decorator('$animate', function($delegate) {
+      $delegate.triggerReflow = function() {
+        if(reflowQueue.length === 0) {
+          throw new Error('No animation reflows present');
+        }
+        angular.forEach(reflowQueue, function(fn) {
+          fn();
+        });
+        reflowQueue = [];
+      };
+      return $delegate;
+    });
+  }]);
+}
+
 angular.mock.animate = angular.module('mock.animate', ['ng'])
 
   .config(['$provide', function($provide) {
@@ -966,18 +996,18 @@ angular.mock.dump = function(object) {
  *
  * # Flushing HTTP requests
  *
- * The $httpBackend used in production, always responds to requests with responses asynchronously.
- * If we preserved this behavior in unit testing, we'd have to create async unit tests, which are
- * hard to write, follow and maintain. At the same time the testing mock, can't respond
+ * The $httpBackend used in production always responds to requests with responses asynchronously.
+ * If we preserved this behavior in unit testing we'd have to create async unit tests, which are
+ * hard to write, understand, and maintain. However, the testing mock can't respond
  * synchronously because that would change the execution of the code under test. For this reason the
  * mock $httpBackend has a `flush()` method, which allows the test to explicitly flush pending
- * requests and thus preserving the async api of the backend, while allowing the test to execute
+ * requests and thus preserve the async api of the backend while allowing the test to execute
  * synchronously.
  *
  *
  * # Unit testing with mock $httpBackend
- * The following code shows how to setup and use the mock backend in unit testing a controller.
- * First we create the controller under test
+ * The following code shows how to setup and use the mock backend when unit testing a controller.
+ * First we create the controller under test:
  *
   <pre>
   // The controller code
@@ -1002,7 +1032,7 @@ angular.mock.dump = function(object) {
   }
   </pre>
  *
- * Now we setup the mock backend and create the test specs.
+ * Now we setup the mock backend and create the test specs:
  *
   <pre>
     // testing controller
@@ -1579,6 +1609,10 @@ function MockHttpExpectation(method, url, data, headers) {
   };
 }
 
+function createMockXhr() {
+  return new MockXhr();
+}
+
 function MockXhr() {
 
   // hack for testing $http, $httpBackend
@@ -1702,7 +1736,7 @@ angular.mock.$RootElementProvider = function() {
  * In addition, ngMock also extends various core ng services such that they can be
  * inspected and controlled in a synchronous manner within test code.
  *
- * {@installModule mocks}
+ * {@installModule mock}
  *
  * <div doc-module-components="ngMock"></div>
  *
@@ -1916,12 +1950,11 @@ angular.mock.clearDataCache = function() {
 };
 
 
-
 if(window.jasmine || window.mocha) {
 
   var currentSpec = null,
       isSpecRunning = function() {
-        return currentSpec && (window.mocha || currentSpec.queue.running);
+        return !!currentSpec;
       };
 
 
@@ -2082,6 +2115,20 @@ if(window.jasmine || window.mocha) {
    *
    * @param {...Function} fns any number of functions which will be injected using the injector.
    */
+
+
+
+  var ErrorAddingDeclarationLocationStack = function(e, errorForStack) {
+    this.message = e.message;
+    this.name = e.name;
+    if (e.line) this.line = e.line;
+    if (e.sourceId) this.sourceId = e.sourceId;
+    if (e.stack && errorForStack)
+      this.stack = e.stack + '\n' + errorForStack.stack;
+    if (e.stackArray) this.stackArray = e.stackArray;
+  };
+  ErrorAddingDeclarationLocationStack.prototype.toString = Error.prototype.toString;
+
   window.inject = angular.mock.inject = function() {
     var blockFns = Array.prototype.slice.call(arguments, 0);
     var errorForStack = new Error('Declaration Location');
@@ -2102,7 +2149,9 @@ if(window.jasmine || window.mocha) {
           injector.invoke(blockFns[i] || angular.noop, this);
           /* jshint +W040 */
         } catch (e) {
-          if(e.stack && errorForStack) e.stack +=  '\n' + errorForStack.stack;
+          if (e.stack && errorForStack) {
+            throw new ErrorAddingDeclarationLocationStack(e, errorForStack);
+          }
           throw e;
         } finally {
           errorForStack = null;
