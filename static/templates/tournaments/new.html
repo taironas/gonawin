@@ -1,16 +1,18 @@
 <div class="page-header">
   <h1>New Tournament</h1>
 </div>
-<form name="newTournamentForm" class="form-horizontal">
+<form class="form-horizontal" role="form" name="newTournamentForm">
   <div class="form-group" ng-class="{error: newTournamentForm.name.$invalid}">
-    <div class="form-group">
-      <label class="control-label">Name</label>
-      <input class="text_field" name="name" size="30" type="text" ng-model="tournament.name" required/>
-      <span ng-show="newTournamentForm.name.$error.required" class="help-inline"> Required</span>
+    <label class="col-sm-1 control-label">Name</label>
+    <div class="col-sm-6">
+      <input class="col-sm-6 form-control" name="name" size="30" type="text" ng-model="tournament.name" required/>
     </div>
+    <span ng-show="newTournamentForm.name.$error.required" class=" col-sm-5help-inline"> Required</span>
   </div>
-  <div>
-    <a href="/ng#/tournaments" class="btn btn-default">Cancel</a>
-    <button class="btn btn-primary" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid">Create Tournament</button>
+  <div class="form-group">
+    <div class="col-sm-7">
+      <a href="/ng#/tournaments" class="btn btn-default">Cancel</a>
+      <button class="btn btn-primary" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid">Create Tournament</button>
+    </div>
   </div>
 </form>
