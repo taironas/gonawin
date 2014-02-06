@@ -5,6 +5,12 @@ var tournamentControllers = angular.module('tournamentControllers', []);
 tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
   console.log('Tournament list controller');
   $scope.tournaments = Tournament.query();
+
+  $scope.tournaments.$promise.then(function(result){
+    if(!$scope.tournaments || ($scope.tournaments && !$scope.tournaments.length))
+      $scope.noTournamentsMessage = 'You have no tournaments';
+  });
+
   $scope.searchTournament = function(){
     console.log('TournamentListCtrl: searchTournament');
     console.log('keywords: ', $scope.keywords)

@@ -5,6 +5,12 @@ var teamControllers = angular.module('teamControllers', []);
 teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
   console.log('Team list controller:');
   $scope.teams = Team.query();
+
+  $scope.teams.$promise.then(function(result){
+    if(!$scope.teams || ($scope.teams && !$scope.teams.length))
+      $scope.noTeamsMessage = 'You have no teams';
+  });
+
   $scope.searchTeam = function(){
     console.log('TeamListCtrl: searchTeam');
     console.log('keywords: ', $scope.keywords);
@@ -17,14 +23,16 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
   console.log('routeParams: ', $routeParams);
   // get teams result from search query
   $scope.teamsData = Team.search( {q:$routeParams.q});
+  
+  $scope.query = $routeParams.q;
+  // use the isSearching mode to differientiate:
+  // no teams in app AND no teams found using query search
+  $scope.isSearching = true;
 
   $scope.teamsData.$promise.then(function(result){
     $scope.teams = result.Teams;
   });
-  
-  $scope.query = $routeParams.q;
-  $scope.isSearching = true;
-
+   
   $scope.searchTeam = function(){
     console.log('TeamSearchCtrl: searchTeam');
     console.log('keywords: ', $scope.keywords);
