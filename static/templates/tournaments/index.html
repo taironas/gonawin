@@ -1,19 +1,23 @@
 <div class="page-header">
   <h1><a href="/ng#/tournaments">Tournaments</a></h1>
   <div class="btn-toolbar">
-    <a class="btn btn-primary" href="/ng#/tournaments/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create</a>
-    <!-- search box -->
-    <div class="form-group search-box">
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-2">
+	<a class="btn btn-primary" href="/ng#/tournaments/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create</a>
+      </div>
+      <!-- search box -->
+      <div class="col-md-8">
 	<div class="input-group">
 	  <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
 	  <form ng-submit="searchTournament()">
-	    <div class="form-control">
-	      <input class="col-md-2" id="inputIcon" type="text" name="TournamentInputSearch" ng-model="keywords">
-	    </div>
+	    <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
 	  </form>
+	</div>
       </div>
+      <!-- / search box -->
+      <div class="col-md-1"></div>
     </div>
-    <!-- / search box -->
   </div>
 </div>
 <!-- alert message to display when search query does not bring up any results --> 
