@@ -26,6 +26,9 @@ List of Themes:
       body background-color: #ACB5CC
       footer background-color: #55617F;
       font: Nunito
+      
+      ![Welcome page](/images/welcome.png)
+      ![Home page](/images/home.png)
 
 
 
