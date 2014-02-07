@@ -31,6 +31,7 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
 
   $scope.teamsData.$promise.then(function(result){
     $scope.teams = result.Teams;
+    $scope.messageInfo = result.MessageInfo;
   });
    
   $scope.searchTeam = function(){

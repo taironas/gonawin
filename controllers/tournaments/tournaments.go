@@ -17,6 +17,7 @@
 package tournaments
 
 import (
+	"fmt"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -256,7 +257,13 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		tournaments := tournamentmdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", tournaments)
 		if len(tournaments) == 0 {
-			return templateshlp.RenderEmptyJson(w, c)
+			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.",keywords, "tournament")
+			data := struct{
+				MessageInfo string `json:",omitempty"`
+			}{
+				msg,
+			}
+			return templateshlp.RenderJson(w, c, data)
 		}
 
 		fieldsToKeep := []string{"Id", "Name"}

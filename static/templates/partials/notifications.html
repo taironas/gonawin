@@ -1,0 +1,22 @@
+<!-- notification bar: -->
+<!-- use messageInfo, messageSuccess, messageWarning and messageDanger in json API. -->
+<!-- this row, place at the top of the container-header element with display the messages if present -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <!-- alert message to display when search query does not bring up any results -->
+  <div class="col-md-10">
+    <div class="alert alert-info" ng-show="messageInfo">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageInfo}}
+    </div>
+    <div class="alert alert-success" ng-show="messageSuccess">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageSuccess}}
+    </div>
+    <div class="alert alert-warning" ng-show="messageWarning">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageWarning}}
+    </div>
+    <div class="alert alert-danger" ng-show="messageDanger">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageDanger}}
+    </div>
+  </div>
+  <div class="col-md-1"></div>
+</div>

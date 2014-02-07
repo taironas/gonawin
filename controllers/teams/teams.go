@@ -17,6 +17,7 @@
 package teams
 
 import (
+	"fmt"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
@@ -333,7 +334,14 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teams := teammdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0 {
-			return templateshlp.RenderEmptyJson(w, c)
+			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.",keywords, "team")
+			data := struct{
+				MessageInfo string `json:",omitempty"`
+			}{
+				msg,
+			}
+			
+			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}

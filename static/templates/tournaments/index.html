@@ -1,3 +1,4 @@
+<div ng-include src="'templates/partials/notifications.html'"></div>
 <div class="page-header">
   <h1><a href="/ng#/tournaments">Tournaments</a></h1>
   <div class="btn-toolbar">
@@ -20,16 +21,7 @@
     </div>
   </div>
 </div>
-<!-- alert message to display when search query does not bring up any results --> 
-<div class="alert alert-info" ng-show="isSearching && !tournaments.length">
-  <button type="button" class="close" data-dismiss="alert">&times;</button>
-  <strong>Oops!</strong> Your search - <b>{{query}}</b> - did not match any tournament.
-</div>
 <div class="page-content">
-  <div class="alert alert-success" ng-show="isSearching && tournaments.length">
-    Results for <strong>{{query}}</strong>:
-  </div>
-  
   <table class="table table-striped" ng-show="tournaments.length">
     <thead>
       <tr>

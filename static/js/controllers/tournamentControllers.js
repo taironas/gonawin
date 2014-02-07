@@ -26,6 +26,7 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
   
   $scope.tournamentsData.$promise.then(function(result){
     $scope.tournaments = result.Tournaments;
+    $scope.messageInfo = result.MessageInfo;
   });
   
   $scope.query = $routeParams.q;
