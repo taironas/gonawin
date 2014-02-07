@@ -26,8 +26,8 @@ crazy-rose (main_crazy_rose.css):
       footer background-color: #55617F
       font: Nunito
       
-      ![Welcome page](/images/welcome.png)
-      ![Home page](/images/home.png)
+![Welcome page](images/welcome.png "Welcome Page - crazy-rose")
+![Home page](images/home.png "Home Page - crazy-rose")
 
 
 
