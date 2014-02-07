@@ -3,7 +3,7 @@ Gonawin themes
 
 naming convention:
      
-      [adjective-plant]
+     [adjective-plant]
 
 please detail:
 
@@ -20,11 +20,10 @@ how to add a new theme:
 
 List of Themes:
 ---------------
+crazy-rose (main_crazy_rose.css):
 
- * crazy-rose (main_crazy_rose.css) 
- 
       body background-color: #ACB5CC
-      footer background-color: #55617F;
+      footer background-color: #55617F
       font: Nunito
 
 
