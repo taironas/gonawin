@@ -1,19 +1,14 @@
-<div class="content">
-  <div class="jumbotron">
-    <h1>Welcome {{currentUser.Username}}!</h1><br>
-    <p><b>purple-wing</b> is a social web application for betting on tournaments with your friends.</p>
-    <div ng-hide="loggedIn">
-      <google-plus-signin clientid="36368233290"></google-plus-signin>
+<div class="container-fluid">
+  <div class="row centered">
+    <div class="col-md-9">
+      <div class="main-content">
+        <ng-view></ng-view>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="user-dashboard">
+        <h3>User Dashboard<h3>
+      </div>
     </div>
   </div>
-  <h1>ng Home page</h1>
-  <p>Home handler</p>
-  <hr>
-  <br>
-  <b>Contributors:</b>
-  <ul>
-    <li>Santiago (sar)</li>
-    <li>Carlos (cab)</li>
-    <li>Remy (rej)</li>
-  </ul>
 </div>

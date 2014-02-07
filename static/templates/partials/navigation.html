@@ -1,22 +1,26 @@
-<div class="navigation">
-  <div class="navbar" bs-navbar>
+<div class="navigation navbar navbar-default navbar-fixed-top" bs-navbar>
+  <div class="container">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#" ng-show="currentUser.IsAdmin">purple-wing - ng - admin</a>
-      <a class="navbar-brand" href="#" ng-hide="currentUser.IsAdmin">purple-wing - ng</a>
-      <ul class="nav navbar-nav pull-right" ng-show="loggedIn">
-	<li class="dropdown" ng-show="currentUser.IsAdmin">
-	  <a class="dropdown-toggle" data-toggle="dropdown" href="">
-	    Manage
-	    <b class="caret"></b>	
-	  </a>
-	  <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-	    <li><a href="">Users</a></li>
-	    <li><a href="">Teams</a></li>
-	    <li><a href="">Tournaments</a></li>
-	  </ul>
-	</li>
+      <a class="navbar-brand" href="#" ng-show="currentUser.IsAdmin">Gonawin - admin</a>
+      <a class="navbar-brand" href="#" ng-hide="currentUser.IsAdmin">Gonawin</a>
+    </div>
+    <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav" ng-show="loggedIn">
+        <li class="dropdown" ng-show="currentUser.IsAdmin">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="">
+            Manage
+            <b class="caret"></b>	
+          </a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li><a href="">Users</a></li>
+            <li><a href="">Teams</a></li>
+            <li><a href="">Tournaments</a></li>
+          </ul>
+        </li>
         <li data-match-route="/teams.*"><a href="/ng#/teams">Teams</a></li>
         <li data-match-route="/tournaments.*"><a href="/ng#/tournaments">Tournaments</a></li>
+      </ul>
+      <ul class="nav navbar-nav" ng-show="loggedIn">
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">
             {{currentUser.Username}}
