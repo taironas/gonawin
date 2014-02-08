@@ -64,8 +64,8 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		  $location.path('/');
 		},
 		function(err) {
-		  $scope.messageDanger = err;
-		  console.log('delete failed: ', err);
+		  $scope.messageDanger = err.data;
+		  console.log('delete failed: ', err.data);
 		});
   };
 

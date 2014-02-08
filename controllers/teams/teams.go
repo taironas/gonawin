@@ -41,25 +41,6 @@ import (
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
-const (
-	ErrorCodeNotSupported = "Not Supported"
-
-	ErrorCodeNameCannotBeEmpty = "Name field cannot be empty"
-
-	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
-	ErrorCodeTeamCannotCreate         = "Could not create the team"
-	ErrorCodeTeamNotFound             = "Team not found"
-	ErrorCodeTeamNotFoundCannotUpdate = "Team not found, unable to update"
-	ErrorCodeTeamNotFoundCannotDelete = "Team not found, unable to delete"
-	ErrorCodeTeamNotFoundCannotInvite = "Team not found, unable to send invitation"
-	ErrorCodeTeamUpdateForbiden       = "Team can only be updated by the team administrator"
-	ErrorCodeTeamDeleteForbiden       = "Team can only be deleted by the team administrator"
-	ErrorCodeTeamCannotUpdate         = "Could not update team"
-	ErrorCodeTeamCannotInvite         = "Could not send invitation"
-	ErrorCodeTeamRequestNotFound      = "Request not found"
-	ErrorCodeTeamMemberNotFound       = "Member not found"
-)
-
 type TeamData struct {
 	Name       string
 	Visibility string
@@ -79,7 +60,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
+		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
 
@@ -92,33 +73,33 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf(c, "Team New Handler: Error when decoding request body: %v", err)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotCreate)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 		}
 
 		var data TeamData
 		err = json.Unmarshal(body, &data)
 		if err != nil {
 			log.Errorf(c, "Team New Handler: Error when decoding request body: %v", err)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotCreate)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 		}
 
 		if len(data.Name) <= 0 {
 			log.Errorf(c, "Team New Handler: 'Name' field cannot be empty")
-			return helpers.InternalServerError{errors.New(ErrorCodeNameCannotBeEmpty)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
 		} else if t := teammdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			log.Errorf(c, "Team New Handler: That team name already exists.")
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamAlreadyExists)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 		} else {
 			team, err := teammdl.Create(c, data.Name, u.Id, data.Visibility == "Private")
 			if err != nil {
 				log.Errorf(c, "Team New Handler: error when trying to create a team: %v", err)
-				return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotCreate)}
+				return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// join the team
 			_, err = teamrelmdl.Create(c, team.Id, u.Id)
 			if err != nil {
 				log.Errorf(c, "Team New Handler: error when trying to create a team relationship: %v", err)
-				return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotCreate)}
+				return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// return the newly created team
 			var tJson teammdl.TeamJson
@@ -127,9 +108,8 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
-	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json show handler
@@ -140,13 +120,13 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Show Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var team *teammdl.Team
 		if team, err = teammdl.ById(c, intID); err != nil {
 			log.Errorf(c, "Team Show Handler: team not found: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		// get data for json team
 
@@ -173,9 +153,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			playersJson,
 		}
 		return templateshlp.RenderJson(w, c, teamData)
-	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json update handler
@@ -187,33 +166,33 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teamID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Update Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFoundCannotUpdate)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
 		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
-			log.Infof(c, "Team Update Handler: user is not admin")
-			return helpers.BadRequest{errors.New(ErrorCodeTeamUpdateForbiden)}
+			log.Errorf(c, "Team Update Handler: user is not admin")
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 		}
 
 		var team *teammdl.Team
 		team, err = teammdl.ById(c, teamID)
 		if err != nil {
-			log.Errorf(c, " Team Update handler: team not found. id: %v, err: %v", teamID, err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFoundCannotUpdate)}
+			log.Errorf(c, "Team Update handler: team not found. id: %v, err: %v", teamID, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 		// only work on name and private. Other values should not be editable
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf(c, "Team Update handler: Error when reading request body err: %v", err)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotUpdate)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 
 		var updatedData TeamData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
 			log.Errorf(c, "Team Update handler: Error when decoding request body err: %v", err)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotUpdate)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 
 		updatedPrivate := updatedData.Visibility == "Private"
@@ -223,7 +202,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			// be sure that team with that name does not exist in datastore
 			if t := teammdl.Find(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 				log.Errorf(c, "Team Update Handler: That team name already exists.")
-				return helpers.InternalServerError{errors.New(ErrorCodeTeamAlreadyExists)}
+				return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 			}
 			// update data
 			team.Name = updatedData.Name
@@ -232,7 +211,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		} else {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotUpdate)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 		// keep only needed fields for json api
 		var tJson teammdl.TeamJson
@@ -240,9 +219,8 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
-	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json destroy handler
@@ -254,12 +232,12 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Destroy Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFoundCannotDelete)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
 		}
 
 		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
-			log.Infof(c, "Team Destroy Handler: user is not admin")
-			return helpers.BadRequest{errors.New(ErrorCodeTeamDeleteForbiden)}
+			log.Errorf(c, "Team Destroy Handler: user is not admin")
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 		}
 
 		// delete all team-user relationships
@@ -280,7 +258,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "team has been destroyed")
 	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
+		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
 
@@ -294,17 +272,17 @@ func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Invite Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamNotFoundCannotInvite)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
 
 		if _, err := teamrequestmdl.Create(c, intID, u.Id); err != nil {
 			log.Errorf(c, "Team Invite Handler: teams.Invite, error when trying to create a team request: %v", err)
-			return helpers.InternalServerError{errors.New(ErrorCodeTeamCannotInvite)}
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotInvite)}
 		}
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "team request was created")
 	}
-	return helpers.NotFound{errors.New(ErrorCodeNotSupported)}
+	return helpers.NotFound{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Json Allow handler
@@ -317,7 +295,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 		requestId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Allow Request Handler: teams.AllowRequest, id could not be extracter from url: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamRequestNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 
 		if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
@@ -325,7 +303,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 			teammdl.Join(c, teamRequest.TeamId, teamRequest.UserId)
 		} else {
 			log.Errorf(c, "Team Allow Request Handler: cannot find team request with id=%d", requestId)
-			return helpers.NotFound{errors.New(ErrorCodeTeamRequestNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 		// request is no more needed so clear it from datastore
 		teamrequestmdl.Destroy(c, requestId)
@@ -333,7 +311,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 		return templateshlp.RenderJson(w, c, "team request was handled")
 
 	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
+		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
 
@@ -347,7 +325,7 @@ func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 		requestId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Deny Request Handler: teams.AllowRequest, id could not be extracter from url: %v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamRequestNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 
 		// request is no more needed so clear it from datastore
@@ -356,7 +334,7 @@ func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 		return templateshlp.RenderJson(w, c, "team request was handled")
 
 	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
+		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
 
@@ -404,9 +382,8 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			teamsJson,
 		}
 		return templateshlp.RenderJson(w, c, data)
-	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json team members handler
@@ -419,7 +396,7 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "Team Members Handler: error extracting permalink err:%v", err)
-			return helpers.NotFound{errors.New(ErrorCodeTeamMemberNotFound)}
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamMemberNotFound)}
 		}
 
 		// build members json
@@ -435,6 +412,6 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		}
 		return templateshlp.RenderJson(w, c, data)
 	} else {
-		return helpers.BadRequest{errors.New(ErrorCodeNotSupported)}
+		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }

@@ -50,6 +50,7 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
+		      $scope.messageDanger = err.data;
 		    });
   };
 }]);
@@ -73,6 +74,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
 		      },
 		      function(err) {
 			console.log('delete failed: ', err.data);
+			$scope.messageDanger = err.data;
 		      });
   };
   
@@ -203,6 +205,7 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
 		      },
 		      function(err) {
 			console.log('update failed: ', err.data);
+			$scope.messageDanger = err.data;
 		      });
   }
 }]);
