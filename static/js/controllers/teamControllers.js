@@ -49,7 +49,7 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
 		$location.path('/teams/show/' + team.Id);
 	      },
 	      function(err) {
-		$scope.messageDanger = 'Oops, something went wrong: ' + err.data;
+		$scope.messageDanger = err.data;
 		console.log('save failed: ', err.data);
 	      });
   };
@@ -64,8 +64,8 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		  $location.path('/');
 		},
 		function(err) {
-		  $scope.messageDanger = err.data;
-		  console.log('delete failed: ', err.data);
+		  $scope.messageDanger = err;
+		  console.log('delete failed: ', err);
 		});
   };
 
@@ -85,7 +85,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     Team.invite( {id:$routeParams.id}, function(){
       console.log('team invite successful');
     }, function(err){
-      $scope.messageDanger = 'Oops, something went wrong: ' + err
+      $scope.messageDanger = err
       console.log('invite failed ', err);
     });
   };
@@ -144,11 +144,11 @@ teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.updateTeam = function() {
     var teamData = Team.get({ id:$routeParams.id });
     Team.update({ id:$routeParams.id }, $scope.teamData.Team,
-		function(){
+		function(err){
 		  $location.path('/teams/show/' + $routeParams.id);
 		},
 		function(err) {
-		  $scope.messageDanger = 'Oops, something went wrong: 'err.data;
+		  $scope.messageDanger = err.data;
 		  console.log('update failed: ', err.data);
 		});
   }

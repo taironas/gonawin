@@ -23,8 +23,8 @@ import (
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers"
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	authhlp "github.com/santiaago/purple-wing/helpers/auth"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	usermdl "github.com/santiaago/purple-wing/models/user"
 )
@@ -49,11 +49,11 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	// return user
-  userData := struct {
-    User *usermdl.User
-  }{
-    user,
-  }
-  
+	userData := struct {
+		User *usermdl.User
+	}{
+		user,
+	}
+
 	return templateshlp.RenderJson(w, c, userData)
 }

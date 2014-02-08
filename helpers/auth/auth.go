@@ -73,6 +73,6 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *usermdl.User {
 		}
 		return currentUser
 	} else {
-    return nil
-  }
+		return nil
+	}
 }

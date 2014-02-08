@@ -17,9 +17,9 @@
 package tournaments
 
 import (
-	"fmt"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -257,8 +257,8 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		tournaments := tournamentmdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", tournaments)
 		if len(tournaments) == 0 {
-			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.",keywords, "tournament")
-			data := struct{
+			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
+			data := struct {
 				MessageInfo string `json:",omitempty"`
 			}{
 				msg,
@@ -270,7 +270,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 		// we should not directly return an array. so we add an extra layer.
-		data := struct{
+		data := struct {
 			Tournaments []tournamentmdl.TournamentJson `json:",omitempty"`
 		}{
 			tournamentsJson,
@@ -313,7 +313,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 			candidatesData[counterCandidate] = canditate
 		}
 		// we should not directly return an array. so we add an extra layer.
-		data := struct{
+		data := struct {
 			Candidates []canditateType `json:",omitempty"`
 		}{
 			candidatesData,
@@ -329,12 +329,12 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json tournament participants handler.")
-	
+
 	tournamentId, err := handlers.PermalinkID(r, c, 3)
 	if err != nil {
 		return helpers.NotFound{err}
 	}
-	
+
 	if r.Method == "GET" {
 		participants := tournamentrelshlp.Participants(c, tournamentId)
 		// participant
@@ -347,7 +347,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 		}{
 			participantsJson,
 		}
-	
+
 		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return helpers.BadRequest{errors.New("Not supported.")}
