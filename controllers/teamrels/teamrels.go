@@ -39,18 +39,19 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// get team id
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
-			return helpers.NotFound{err}
+			log.Errorf(c, "Teamrels Create Handler: error when extracting permalink id: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if err := teammdl.Join(c, teamId, u.Id); err != nil {
-			log.Errorf(c, " teamRels.Create: %v", err)
-			return helpers.InternalServerError{err}
+			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the joined team
 		var team *teammdl.Team
 		if team, err = teammdl.ById(c, teamId); err != nil {
-			return helpers.NotFound{err}
+			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var tJson teammdl.TeamJson
@@ -58,9 +59,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json destroy handler for team relations
@@ -71,32 +71,31 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		// get team id
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, " teamRels.Create, string value could not be parsed: %v", err)
-			return helpers.NotFound{err}
+			log.Errorf(c, "Teamrels Destroy Handler: error when extracting permalink id: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		if !teammdl.IsTeamAdmin(c, teamId, u.Id) {
-			if err := teammdl.Leave(c, teamId, u.Id); err != nil {
-				log.Errorf(c, " teamRels.Destroy: %v", err)
-				return helpers.InternalServerError{err}
-			}
-			// return the left team
-			var team *teammdl.Team
-			if team, err = teammdl.ById(c, teamId); err != nil {
-				return helpers.NotFound{err}
-			}
-
-			var tJson teammdl.TeamJson
-			helpers.CopyToPointerStructure(team, &tJson)
-			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-			helpers.KeepFields(&tJson, fieldsToKeep)
-
-			return templateshlp.RenderJson(w, c, tJson)
-		} else {
-			log.Errorf(c, " teamRels.Destroy, Team administrator cannot leave the team")
-			return helpers.BadRequest{errors.New("Team administrator cannot leave the team")}
+		if teammdl.IsTeamAdmin(c, teamId, u.Id) {
+			log.Errorf(c, "Teamrels Destroy Handler: Team administrator cannot leave the team")
+			return helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 		}
-	} else {
-		return helpers.BadRequest{errors.New("not supported")}
+		if err := teammdl.Leave(c, teamId, u.Id); err != nil {
+			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
+		// return the left team
+		var team *teammdl.Team
+		if team, err = teammdl.ById(c, teamId); err != nil {
+			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var tJson teammdl.TeamJson
+		helpers.CopyToPointerStructure(team, &tJson)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.KeepFields(&tJson, fieldsToKeep)
+
+		return templateshlp.RenderJson(w, c, tJson)
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

@@ -49,7 +49,7 @@ const (
 	ErrorCodeTeamCannotInvite         = "Could not send invitation"
 	ErrorCodeTeamRequestNotFound      = "Request not found"
 	ErrorCodeTeamMemberNotFound       = "Member not found"
-
+	ErrorCodeTeamAdminCannotLeave     = "Team administrator cannot leave the team"
 	//tournaments
 	ErrorCodeTournamentAlreadyExists        = "Sorry, that tournament already exists"
 	ErrorCodeTournamentCannotCreate         = "Could not create the team"
@@ -65,6 +65,9 @@ const (
 	ErrorCodeInviteNoEmailAddr     = "No email address has been entered"
 	ErrorCodeInviteEmailsInvalid   = "Emails list is not properly formatted"
 	ErrorCodeInviteEmailCannotSend = "Sorry, we were unable to send the Email"
+
+	// relations
+
 )
 
 //info

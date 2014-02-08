@@ -120,7 +120,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Show Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var team *teammdl.Team
