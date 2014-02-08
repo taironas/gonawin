@@ -115,7 +115,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *tournamentmdl.Tournament
@@ -166,7 +166,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Destroy Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
 		}
 
 		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
@@ -203,7 +203,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Update Handler: error when extracting permalink id: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
 		}
 
 		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
@@ -308,7 +308,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Candidate Teams Handler: error extracting permalink err:%v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		if _, err1 := tournamentmdl.ById(c, tournamentId); err1 != nil {
 			log.Errorf(c, "Candidate Teams Handler: tournament not found err:%v", err)
@@ -352,7 +352,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "Tournament Participants Handler: error extracting permalink err:%v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		participants := tournamentrelshlp.Participants(c, tournamentId)

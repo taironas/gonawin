@@ -41,7 +41,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "Tournament team rels Create Handler: string value could not be parsed: %v, %v", err1, err2)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
@@ -75,7 +75,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "Tournament team rels Destroy Handler: string value could not be parsed: %v, %v", err1, err2)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// leave team
 		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {

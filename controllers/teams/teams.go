@@ -295,7 +295,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 		requestId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Team Allow Request Handler: teams.AllowRequest, id could not be extracter from url: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 
 		if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
@@ -396,7 +396,7 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "Team Members Handler: error extracting permalink err:%v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamMemberNotFound)}
 		}
 
 		// build members json
