@@ -86,7 +86,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		// return the left team
 		var team *teammdl.Team
 		if team, err = teammdl.ById(c, teamId); err != nil {
-			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
+			log.Errorf(c, "Teamrels Destroy Handler: team not found: %v", err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 

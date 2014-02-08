@@ -39,18 +39,19 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// get tournament id
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, " tournaments.Create, string value could not be parsed: %v", err)
-			return helpers.NotFound{err}
+			log.Errorf(c, "Tournamentrels Create Handler: error when extracting permalink id: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournamentmdl.Join(c, tournamentId, u.Id); err != nil {
-			log.Errorf(c, " tournamentrels.Create: %v", err)
-			return helpers.InternalServerError{err}
+			log.Errorf(c, "Tournamentrels Create Handler: error on Join tournament: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the joined tournament
 		var tournament *tournamentmdl.Tournament
 		if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil {
-			return helpers.NotFound{err}
+			log.Errorf(c, "Tournamentrels Create Handler: tournament not found: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tJson tournamentmdl.TournamentJson
@@ -58,9 +59,8 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json destroy handler for tournament relationships
@@ -71,18 +71,19 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		// get tournament id
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, " tournaments.Destroy, string value could not be parsed: %v", err)
-			return helpers.NotFound{err}
+			log.Errorf(c, "Tournamentrels Destroy Handler: error when extracting permalink id: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournamentmdl.Leave(c, tournamentId, u.Id); err != nil {
-			log.Errorf(c, " tournamentrels.Destroy: %v", err)
-			return helpers.InternalServerError{err}
+			log.Errorf(c, "Tournamentrels Destroy Handler: error on Leave team: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
 		var tournament *tournamentmdl.Tournament
 		if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil {
-			return helpers.NotFound{err}
+			log.Errorf(c, "Tournamentrels Destroy Handler: tournament not found: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tJson tournamentmdl.TournamentJson
@@ -90,7 +91,6 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
