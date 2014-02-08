@@ -18,18 +18,23 @@ package helpers
 
 import ()
 
-
 // errors
 const (
-	ErrorCodeNotSupported = "Not Supported"
-	ErrorCodeInternal = "Internal error"
-	ErrorCodeNotFound = "Not Found"
+	// generic
+	ErrorCodeNotSupported      = "Not Supported"
+	ErrorCodeInternal          = "Internal error"
+	ErrorCodeNotFound          = "Not Found"
 	ErrorCodeNameCannotBeEmpty = "Name field cannot be empty"
 
+	// sessions
+	ErrorCodeSessionsAccessTokenNotValid = "Access token is not valid"
+	ErrorCodeSessionsForbiden            = "You are not authorized to log in to gonawin"
+	ErrorCodeSessionsUnableToSignin      = "Error occurred during signin process"
+
 	// users
-	ErrorCodeUserNotFound = "User not found"
+	ErrorCodeUserNotFound             = "User not found"
 	ErrorCodeUserNotFoundCannotUpdate = "User not found, unable to update"
-	ErrorCodeUserCannotUpdate = "Could not update user"
+	ErrorCodeUserCannotUpdate         = "Could not update user"
 
 	// teams
 	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
@@ -54,23 +59,13 @@ const (
 	ErrorCodeTournamentUpdateForbiden       = "Tournament can only be updated by the team administrator"
 	ErrorCodeTournamentDeleteForbiden       = "Tournament can only be deleted by the team administrator"
 	ErrorCodeTournamentCannotUpdate         = "Could not update tournament"
-	ErrorCodeTournamentCannotSearch = "Something went wrong, we are unable to perform search query"
+	ErrorCodeTournamentCannotSearch         = "Something went wrong, we are unable to perform search query"
 
 	// invite
-	ErrorCodeInviteNoEmailAddr = "No email address has been entered"
-	ErrorCodeInviteEmailsInvalid = "Emails list is not properly formatted"
+	ErrorCodeInviteNoEmailAddr     = "No email address has been entered"
+	ErrorCodeInviteEmailsInvalid   = "Emails list is not properly formatted"
 	ErrorCodeInviteEmailCannotSend = "Sorry, we were unable to send the Email"
 )
 
-//info 
+//info
 //const ()
-
-
-
-
-
-
-
-
-
-

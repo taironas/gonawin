@@ -121,7 +121,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(c, intID)
 		if err != nil {
-			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v",intID, err)
+			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -239,8 +239,8 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
 				return helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 			}
-				
-				tournament.Name = updatedData.Name
+
+			tournament.Name = updatedData.Name
 			tournamentmdl.Update(c, intID, tournament)
 		} else {
 			log.Errorf(c, "Cannot update because updated data are not valid")
@@ -347,7 +347,6 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json tournament participants handler.")
-
 
 	if r.Method == "GET" {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)

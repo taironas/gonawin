@@ -149,7 +149,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		return templateshlp.RenderJson(w, c, data)
-	}		
+	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 

@@ -39,13 +39,13 @@ func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
 	var user *usermdl.User
 
 	if !authhlp.CheckGoogleUserValidity(r.FormValue("access_token"), r) {
-		return helpers.InternalServerError{errors.New("Access token is not valid")}
+		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 	}
 	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
-		return helpers.Forbidden{errors.New("You are not authorized to log in to purple-wing")}
+		return helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-		return helpers.InternalServerError{errors.New("Error occurred during signin process")}
+		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user

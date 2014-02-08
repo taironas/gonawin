@@ -51,7 +51,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		// return the joined tournament
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament team rels Create Handler: tournament with id: %v was not found %v",tournamentId, err)
+			log.Errorf(c, "Tournament team rels Create Handler: tournament with id: %v was not found %v", tournamentId, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		} else {
 			var tJson tournamentmdl.TournamentJson
@@ -84,7 +84,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		}
 		// return the left tournament
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament team rels Destroy Handler: tournament with id: %v was not found %v",tournamentId, err)
+			log.Errorf(c, "Tournament team rels Destroy Handler: tournament with id: %v was not found %v", tournamentId, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		} else {
 			var tJson tournamentmdl.TournamentJson

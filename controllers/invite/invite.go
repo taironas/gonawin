@@ -51,7 +51,7 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
 		emailsList := r.FormValue("emails")
 		name := r.FormValue("name")
-		
+
 		if len(emailsList) <= 0 {
 			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
 		}
@@ -69,13 +69,13 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error {
 				Subject: name + " wants you to join Gonawin!",
 				Body:    fmt.Sprintf(inviteMessage, url),
 			}
-			
+
 			if err := mail.Send(c, msg); err != nil {
 				log.Errorf(c, "Invite Handler: couldn't send email: %v", err)
 				return helpers.InternalServerError{errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
 			}
 		}
 		return templateshlp.RenderJson(w, c, "Email has been sent successfully")
-	}		
+	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
