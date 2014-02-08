@@ -21,8 +21,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"appengine"
 
@@ -72,30 +70,16 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 	if r.Method == "GET" {
 		var userId int64
-		strUrl := r.URL.String()
-		if strings.Contains(strUrl, "?") {
-			path := strings.Split(r.URL.String(), "/")
-			strPath := path[4]
-			strID := strPath[0:strings.Index(strPath, "?")]
-			intID, err := strconv.ParseInt(strID, 0, 64)
-			if err != nil {
-				log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
-				return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
-			}
-			userId = intID
-
-		} else {
-			intID, err := handlers.PermalinkID(r, c, 4)
-			if err != nil {
-				log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
-				return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
-			}
-			userId = intID
+		intID, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
 		}
+		userId = intID
 
 		// user
 		var user *usermdl.User
-		user, err := usermdl.ById(c, userId)
+		user, err = usermdl.ById(c, userId)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: user not found")
 			return helpers.NotFound{errors.New(helpers.ErrorCodeUserNotFound)}

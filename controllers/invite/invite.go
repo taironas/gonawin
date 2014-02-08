@@ -32,14 +32,14 @@ import (
 
 const inviteMessage = `
 Hi,
-Join us on Purple-wing.
+Join us on Gonawin.
 
 You will be able to bet on tournament and win some rewards!
 
 Sign in here: %s
 
 Have fun,
-Your friends @ purple-wing
+Your friends @ Gonawin
 
 
 `

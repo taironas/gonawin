@@ -35,7 +35,16 @@ import (
 func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, error) {
 
 	path := strings.Split(r.URL.String(), "/")
-	intID, err := strconv.ParseInt(path[level], 0, 64)
+	// if url has params extract id until the ? character
+	var strID string
+
+	if strings.Contains(r.URL.String(), "?") {
+		strPath := path[level]
+		strID = strPath[0:strings.Index(strPath, "?")]
+	} else {
+		strID = path[level]
+	}
+	intID, err := strconv.ParseInt(strID, 0, 64)
 	if err != nil {
 		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", path[level], err)
 	}
