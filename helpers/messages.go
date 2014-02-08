@@ -30,6 +30,7 @@ const (
 	ErrorCodeUserNotFound = "User not found"
 	ErrorCodeUserNotFoundCannotUpdate = "User not found, unable to update"
 	ErrorCodeUserCannotUpdate = "Could not update user"
+
 	// teams
 	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
 	ErrorCodeTeamCannotCreate         = "Could not create the team"
@@ -54,6 +55,11 @@ const (
 	ErrorCodeTournamentDeleteForbiden       = "Tournament can only be deleted by the team administrator"
 	ErrorCodeTournamentCannotUpdate         = "Could not update tournament"
 	ErrorCodeTournamentCannotSearch = "Something went wrong, we are unable to perform search query"
+
+	// invite
+	ErrorCodeInviteNoEmailAddr = "No email address has been entered"
+	ErrorCodeInviteEmailsInvalid = "Emails list is not properly formatted"
+	ErrorCodeInviteEmailCannotSend = "Sorry, we were unable to send the Email"
 )
 
 //info 

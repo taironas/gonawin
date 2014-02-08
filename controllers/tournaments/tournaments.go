@@ -60,10 +60,8 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tournamentsJson)
-
-	} else {
-		return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json new tournament handler
