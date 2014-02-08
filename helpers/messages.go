@@ -22,6 +22,7 @@ import ()
 // errors
 const (
 	ErrorCodeNotSupported = "Not Supported"
+	ErrorCodeInternal = "Internal error"
 
 	ErrorCodeNameCannotBeEmpty = "Name field cannot be empty"
 

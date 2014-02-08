@@ -123,7 +123,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		var tournament *tournamentmdl.Tournament
 		tournament, err = tournamentmdl.ById(c, intID)
 		if err != nil {
-			log.Errorf(c, "Tournament Show Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v",intID, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
