@@ -51,7 +51,8 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 	if r.Method == "GET" {
 		if !u.IsAdmin {
-			return helpers.NotFound{errors.New("User list can only be shown for admin users")}
+			log.Errorf(c, "Tournament Index Handler: user is not admin, User list can only be shown for admin users.")
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeNotFound)}
 		}
 
 		users := usermdl.FindAll(c)
@@ -61,15 +62,13 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, usersJson)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Json show user handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
-	log.Infof(c, "User Show Json Handler")
 
 	if r.Method == "GET" {
 		var userId int64
@@ -80,14 +79,16 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			strID := strPath[0:strings.Index(strPath, "?")]
 			intID, err := strconv.ParseInt(strID, 0, 64)
 			if err != nil {
-				log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", strID, err)
+				log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
+				return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
 			}
 			userId = intID
 
 		} else {
 			intID, err := handlers.PermalinkID(r, c, 4)
 			if err != nil {
-				return helpers.BadRequest{err}
+				log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
+				return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
 			}
 			userId = intID
 		}
@@ -96,13 +97,15 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		var user *usermdl.User
 		user, err := usermdl.ById(c, userId)
 		if err != nil {
-			return helpers.NotFound{err}
+			log.Errorf(c, "User Show Handler: user not found")
+			return helpers.NotFound{errors.New(helpers.ErrorCodeUserNotFound)}
 		}
+
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
 		var uJson usermdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
 
-		// with param:
+		// get with param:
 		with := r.FormValue("including")
 		params := helpers.SetOfStrings(with)
 		var teams []*teammdl.Team
@@ -146,9 +149,8 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		return templateshlp.RenderJson(w, c, data)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
-	}
+	}		
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json update user handler
@@ -157,11 +159,12 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 	if r.Method == "POST" {
 		userId, err := handlers.PermalinkID(r, c, 4)
-
 		if err != nil {
-			return helpers.BadRequest{err}
+			log.Errorf(c, "User Update Handler: error when extracting permalink id: %v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
 		if userId != u.Id {
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeUserCannotUpdate)}
 			return helpers.BadRequest{errors.New("User cannot be updated")}
 		}
 
@@ -169,13 +172,15 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			return helpers.InternalServerError{errors.New("Error when reading request body")}
+			log.Errorf(c, "User Show handler: Error when reading request body err: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
 		var updatedData UserData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
-			return helpers.InternalServerError{errors.New("Error when decoding request body")}
+			log.Errorf(c, "User Show handler: Error when decoding request body err: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email {
 			u.Email = updatedData.Email
@@ -186,7 +191,6 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, uJson)
-	} else {
-		return helpers.BadRequest{errors.New("not supported.")}
 	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

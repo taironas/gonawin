@@ -23,9 +23,13 @@ import ()
 const (
 	ErrorCodeNotSupported = "Not Supported"
 	ErrorCodeInternal = "Internal error"
-
+	ErrorCodeNotFound = "Not Found"
 	ErrorCodeNameCannotBeEmpty = "Name field cannot be empty"
 
+	// users
+	ErrorCodeUserNotFound = "User not found"
+	ErrorCodeUserNotFoundCannotUpdate = "User not found, unable to update"
+	ErrorCodeUserCannotUpdate = "Could not update user"
 	// teams
 	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
 	ErrorCodeTeamCannotCreate         = "Could not create the team"

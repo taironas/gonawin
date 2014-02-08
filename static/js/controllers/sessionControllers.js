@@ -18,13 +18,11 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
       User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(userData){
         $scope.currentUser = userData.User;
 
-        if($scope.currentUser.Auth == $cookieStore.get('auth'))
-        {
+        if($scope.currentUser.Auth == $cookieStore.get('auth')){
           $scope.loggedIn = true;
           deferred.resolve(true);
         } 
-        else 
-        {
+        else{
           $scope.loggedIn = false;
           deferred.resolve(false);
         }
