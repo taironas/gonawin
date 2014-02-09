@@ -90,6 +90,7 @@ func Add(c appengine.Context, name string, id int64) error {
 		} else if invId == nil {
 			log.Infof(c, " create inv id as word does not exist in table")
 			Create(c, w, strconv.FormatInt(id, 10))
+			log.Infof(c, " create done team inv id")
 		} else {
 			// update row with new info
 			log.Infof(c, " update row with new info")

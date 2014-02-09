@@ -33,14 +33,36 @@ import (
 )
 
 type Tournament struct {
-	Id          int64
-	KeyName     string
-	Name        string
-	Description string
-	Start       time.Time
-	End         time.Time
-	AdminId     int64
-	Created     time.Time
+	Id                 int64
+	KeyName            string
+	Name               string
+	Description        string
+	Start              time.Time
+	End                time.Time
+	AdminId            int64
+	Created            time.Time
+	GroupIds           []int64
+	Matches2ndStage    []int64
+}
+
+type Tgroup struct {
+	Id      int64
+	Name    int64
+	Teams   []Tteam
+	Matches []Tmatch
+}
+
+type Tteam struct {
+	Id   int64
+	Name int64
+}
+
+type Tmatch struct {
+	Id       int64
+	IdNumber int64
+	Date     time.Time
+	Team1    Tteam
+	Team2    Tteam
 }
 
 type TournamentJson struct {
@@ -52,6 +74,8 @@ type TournamentJson struct {
 	End         *time.Time `json:",omitempty"`
 	AdminId     *int64     `json:",omitempty"`
 	Created     *time.Time `json:",omitempty"`
+	GroupIds           *[]int64 `json:",omitempty"`
+	Matches2ndStage    *[]int64 `json:",omitempty"`
 }
 
 type TournamentCounter struct {
@@ -68,7 +92,11 @@ func Create(c appengine.Context, name string, description string, start time.Tim
 
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now()}
+	// empty groups and tournaments for now
+	groupIds := make([]int64, 0)
+	matches2ndStageIds := make([]int64, 0)
+
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), groupIds, matches2ndStageIds}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
