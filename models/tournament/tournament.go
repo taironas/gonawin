@@ -400,3 +400,32 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	return tournament, nil
 }
+
+// get a Tgroup entity by id
+func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
+	var g Tgroup
+	key := datastore.NewKey(c, "Tgroup", "", groupId, nil)
+
+	if err := datastore.Get(c, key, &g); err != nil {
+		log.Errorf(c, "group not found : %v", err)
+		return &g, err
+	}
+	return &g, nil
+}
+
+// from a tournament id returns an array of groups the participate in it.
+func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
+
+	var groups []*Tgroup
+
+	for _, groupId := range groupIds {
+
+		g, err := GroupById(c, groupId)
+		if err != nil {
+			log.Errorf(c, " Groups, cannot find group with ID=%", groupId)
+		} else {
+			groups = append(groups, g)
+		}
+	}
+	return groups
+}

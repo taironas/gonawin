@@ -367,7 +367,6 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 // use this handler to get participants of a tournament.
 func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
-	log.Infof(c, "json tournament participants handler.")
 
 	if r.Method == "GET" {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
@@ -386,6 +385,37 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 			Participants []usermdl.UserJson
 		}{
 			participantsJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// json tournament groups handler
+// use this handler to get groups of a tournament.
+func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "Tournament Groups Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Group Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		groups := tournamentmdl.Groups(c, tournament.GroupIds)
+		// ToDo: might need to filter information here.
+		data := struct {
+			Groups []*tournamentmdl.Tgroup
+		}{
+			groups,
 		}
 
 		return templateshlp.RenderJson(w, c, data)

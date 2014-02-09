@@ -84,6 +84,7 @@ func init() {
 
 	// experimental: sar
 	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCupJson)))
+	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GroupsJson)))
 
 	http.Handle("/", h)
 }

@@ -76,12 +76,19 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
   
   $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
   console.log('tournamentData', $scope.tournamentData);
-  // get candidates data from search query
+
+  // get candidates data from tournament id
   $scope.candidatesData = Tournament.candidates({id:$routeParams.id});
-  
+
+  // do we really need theses lines?
   $scope.candidatesData.$promise.then(function(result){
     $scope.candidates = result.Candidates;
   });
+
+  // #experimental: sar
+  // list of tournament groups
+  $scope.groupsData = Tournament.groups({id:$routeParams.id});
+
   
   $scope.deleteTournament = function() {
     Tournament.delete({ id:$routeParams.id },

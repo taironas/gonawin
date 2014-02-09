@@ -61,3 +61,18 @@
   </table>
 </div>
 <!-- / Teams -->
+<!-- Groups -->
+<div class="groups">
+  <table class="table table-striped">
+    <thead><tr><th>Groups</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="g in groupsData.Groups">
+        <td><p>Group {{g.Name}}</p></td>
+	<td>
+	  <p ng-repeat="t in g.Teams">{{t.Name}}</p>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- / Groups -->
