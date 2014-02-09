@@ -16,6 +16,22 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     console.log('keywords: ', $scope.keywords)
     $location.search('q', $scope.keywords).path('/tournaments/search');
   };
+
+  // experimental: sar
+  // start world cup create action 
+  $scope.createWorldCup = function(){
+    console.log('Creating world cup');
+    Tournament.saveWorldCup($scope.tournament,
+		    function(tournament) {
+		      console.log('World Cup Tournament: ', tournament);
+		      $location.path('/tournaments/show/' + tournament.Id);
+		    },
+		    function(err) {
+		      console.log('save failed: ', err.data);
+		      $scope.messageDanger = err.data;
+		    });
+  };
+  // end world cup create action
 }]);
 
 tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {

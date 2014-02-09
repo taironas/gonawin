@@ -293,3 +293,40 @@ func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) i
 	}
 	return 0
 }
+
+// create world cup tournament entity
+func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
+	// create new tournament
+	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
+
+	// empty groups and tournaments for now
+	groupIds := make([]int64, 0)
+	matches2ndStageIds := make([]int64, 0)
+
+	tournament := &Tournament{
+		tournamentID, 
+		helpers.TrimLower("world cup"), 
+		"World Cup", 
+		"FIFA World Cup", 
+		time.Now(), 
+		time.Now(), 
+		adminId, 
+		time.Now(), 
+		groupIds, 
+		matches2ndStageIds,
+	}
+
+	_, err = datastore.Put(c, key, tournament)
+	if err != nil {
+		return nil, err
+	}
+
+	tournamentinvidmdl.Add(c, helpers.TrimLower("world cup"), tournamentID)
+
+	return tournament, nil
+}

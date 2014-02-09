@@ -82,5 +82,8 @@ func init() {
 	// invite -json
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 
+	// experimental: sar
+	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCupJson)))
+
 	http.Handle("/", h)
 }

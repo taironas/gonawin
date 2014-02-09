@@ -106,6 +106,28 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
+// experimental: sar
+//NewWorldCupJson
+// json new tournament handler
+func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST" {
+		tournament, err := tournamentmdl.CreateWorldCup(c, u.Id)
+		if err != nil {
+			log.Errorf(c, "Tournament New World Cup Handler: error when trying to create a tournament: %v", err)
+			return helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+		}
+		// return the newly created tournament
+		// fieldsToKeep := []string{"Id", "Name"}
+		// var tJson tournamentmdl.TournamentJson
+		// helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+		
+		return templateshlp.RenderJson(w, c, tournament)//Json)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
 // Json show tournament handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
