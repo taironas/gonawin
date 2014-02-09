@@ -33,28 +33,28 @@ import (
 )
 
 type Tournament struct {
-	Id                 int64
-	KeyName            string
-	Name               string
-	Description        string
-	Start              time.Time
-	End                time.Time
-	AdminId            int64
-	Created            time.Time
-	GroupIds           []int64
-	Matches2ndStage    []int64
+	Id              int64
+	KeyName         string
+	Name            string
+	Description     string
+	Start           time.Time
+	End             time.Time
+	AdminId         int64
+	Created         time.Time
+	GroupIds        []int64
+	Matches2ndStage []int64
 }
 
 type Tgroup struct {
 	Id      int64
-	Name    int64
+	Name    string
 	Teams   []Tteam
 	Matches []Tmatch
 }
 
 type Tteam struct {
 	Id   int64
-	Name int64
+	Name string
 }
 
 type Tmatch struct {
@@ -66,16 +66,16 @@ type Tmatch struct {
 }
 
 type TournamentJson struct {
-	Id          *int64     `json:",omitempty"`
-	KeyName     *string    `json:",omitempty"`
-	Name        *string    `json:",omitempty"`
-	Description *string    `json:",omitempty"`
-	Start       *time.Time `json:",omitempty"`
-	End         *time.Time `json:",omitempty"`
-	AdminId     *int64     `json:",omitempty"`
-	Created     *time.Time `json:",omitempty"`
-	GroupIds           *[]int64 `json:",omitempty"`
-	Matches2ndStage    *[]int64 `json:",omitempty"`
+	Id              *int64     `json:",omitempty"`
+	KeyName         *string    `json:",omitempty"`
+	Name            *string    `json:",omitempty"`
+	Description     *string    `json:",omitempty"`
+	Start           *time.Time `json:",omitempty"`
+	End             *time.Time `json:",omitempty"`
+	AdminId         *int64     `json:",omitempty"`
+	Created         *time.Time `json:",omitempty"`
+	GroupIds        *[]int64   `json:",omitempty"`
+	Matches2ndStage *[]int64   `json:",omitempty"`
 }
 
 type TournamentCounter struct {
@@ -304,27 +304,97 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
-	// empty groups and tournaments for now
-	groupIds := make([]int64, 0)
+	log.Infof(c, "World Cup: start")
+
+	// build map of groups
+	var mapWCGroups map[string][]string
+	mapWCGroups = make(map[string][]string)
+	mapWCGroups["A"] = []string{"Brazil", "Croatia", "Mexico", "Cameroon"}
+	mapWCGroups["B"] = []string{"Spain", "Netherlands", "Chile", "Australia"}
+	mapWCGroups["C"] = []string{"Colombia", "Greece", "Côte d'Ivoire", "Japan"}
+	mapWCGroups["D"] = []string{"Uruguay", "Costa Rica", "England", "Italy"}
+	mapWCGroups["E"] = []string{"Switzerland", "Ecuador", "France", "Honduras"}
+	mapWCGroups["F"] = []string{"Argentina", "Bosnia-Herzegovina", "Iran", "Nigeria"}
+	mapWCGroups["G"] = []string{"Germany", "Portugal", "Ghana", "United States"}
+	mapWCGroups["H"] = []string{"Belgium", "Algeria", "Russia", "South Korea"}
+
+	log.Infof(c, "World Cup: maps ready")
+
+	// build groups, and teams
+	groups := make([]Tgroup, len(mapWCGroups))
+	for groupName, teams := range mapWCGroups {
+		log.Infof(c, "---------------------------------------")
+		log.Infof(c, "World Cup: working with group: %v", groupName)
+		log.Infof(c, "World Cup: teams: %v", teams)
+
+		var group Tgroup
+		group.Name = groupName
+		groupIndex := int64(groupName[0]) - 65
+		group.Teams = make([]Tteam, len(teams))
+		for i, teamName := range teams {
+			log.Infof(c, "World Cup: team: %v", teamName)
+
+			teamID, _, err := datastore.AllocateIDs(c, "Tteam", nil, 1)
+			log.Infof(c, "World Cup: team: %v allocateIDs ok", teamName)
+
+			teamkey := datastore.NewKey(c, "Tteam", "", teamID, nil)
+			log.Infof(c, "World Cup: team: %v NewKey ok", teamName)
+
+			team := &Tteam{teamID, teamName}
+			log.Infof(c, "World Cup: team: %v instance of team ok", teamName)
+
+			_, err = datastore.Put(c, teamkey, team)
+			if err != nil {
+				return nil, err
+			}
+			log.Infof(c, "World Cup: team: %v put in datastore ok", teamName)
+			group.Teams[i] = *team
+		}
+
+		groupID, _, err := datastore.AllocateIDs(c, "Tgroup", nil, 1)
+		log.Infof(c, "World Cup: Group: %v allocate ID ok", groupName)
+
+		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
+		log.Infof(c, "World Cup: Group: %v New Key ok", groupName)
+
+		group.Id = groupID
+		groups[groupIndex] = group
+		_, err = datastore.Put(c, groupkey, &group)
+		if err != nil {
+			return nil, err
+		}
+		log.Infof(c, "World Cup: Group: %v put in datastore ok", groupName)
+	}
+
+	// build array of group ids
+	groupIds := make([]int64, 8)
+	for i, _ := range groupIds {
+		groupIds[i] = groups[i].Id
+	}
+
+	log.Infof(c, "World Cup: build of groups ids complete: %v", groupIds)
+
 	matches2ndStageIds := make([]int64, 0)
 
 	tournament := &Tournament{
-		tournamentID, 
-		helpers.TrimLower("world cup"), 
-		"World Cup", 
-		"FIFA World Cup", 
-		time.Now(), 
-		time.Now(), 
-		adminId, 
-		time.Now(), 
-		groupIds, 
+		tournamentID,
+		helpers.TrimLower("world cup"),
+		"World Cup",
+		"FIFA World Cup",
+		time.Now(),
+		time.Now(),
+		adminId,
+		time.Now(),
+		groupIds,
 		matches2ndStageIds,
 	}
+	log.Infof(c, "World Cup: instance of tournament ready")
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
 		return nil, err
 	}
+	log.Infof(c, "World Cup:  tournament put in datastore ok")
 
 	tournamentinvidmdl.Add(c, helpers.TrimLower("world cup"), tournamentID)
 

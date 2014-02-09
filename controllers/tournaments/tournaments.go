@@ -107,8 +107,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // experimental: sar
-//NewWorldCupJson
-// json new tournament handler
+// json new world cup tournament handler
 func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -122,8 +121,8 @@ func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 		// fieldsToKeep := []string{"Id", "Name"}
 		// var tJson tournamentmdl.TournamentJson
 		// helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-		
-		return templateshlp.RenderJson(w, c, tournament)//Json)
+
+		return templateshlp.RenderJson(w, c, tournament) //Json)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
