@@ -31,33 +31,6 @@ p {
   text-align: center;
 }
 
-/* Links */
-a {
-  color: #D7E2FF;
-  word-wrap: break-word;
-
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
-}
-
-a:hover,
-a:focus {
-  color: #ACB5CC;
-  text-decoration: none;
-  outline: 0;
-}
-
-a:before,
-a:after {
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
-}
 
 #wrap {
   min-height: 100%;
@@ -107,6 +80,36 @@ a:after {
   color: white;
   margin: 20px 0;
 }
+
+/* Links */
+/* Sar: modified css so that link style is only aplicable to footer. */
+.footer_content a {
+  color: #D7E2FF;
+  word-wrap: break-word;
+
+  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+  transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+.footer_content a:hover,
+.footer_content a:focus {
+  color: #ACB5CC;
+  text-decoration: none;
+  outline: 0;
+}
+
+.footer_content a:before,
+.footer_content a:after {
+  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+  transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
 
 .main-content, .user-dashboard {
   background-color: white;

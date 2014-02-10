@@ -63,7 +63,7 @@ type Tmatch struct {
 	IdNumber int64
 	Date     time.Time
 	TeamId1  int64
-	Team2Id2 int64
+	TeamId2 int64
 	Location string
 }
 

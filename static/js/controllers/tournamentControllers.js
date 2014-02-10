@@ -232,3 +232,25 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
 		      });
   }
 }]);
+
+tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament calendar controller');
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+}]);
+
+tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament first stage controller');
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  // #experimental: sar
+  // list of tournament groups
+  $scope.groupsData = Tournament.groups({id:$routeParams.id});
+
+}]);
+
+tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament first stage controller');
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+}]);
