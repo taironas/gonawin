@@ -12,5 +12,22 @@
 <!-- Calendar -->
 <div class="calendar">
   <p>Calendar here</p>
+  <table class="table table-striped">
+    <thead><tr>
+	<th>N°</th>
+	<th>Match</th>	
+	<th>Location</th>	
+	<th>Date</th>
+    </tr></thead>
+    <tbody>
+      <tr ng-repeat="m in matchesData.Matches">
+        <td><p>N°:{{m.IdNumber}}</p></td>
+	<td>{{m.TeamId1}} - {{m.TeamId2}}</td>
+	<td>Location: {{m.Location}}</td>
+	<td>{{m.Date | date:'MM/dd/yyyy'}}</td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>
 <!-- / Calendar -->

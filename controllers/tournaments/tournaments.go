@@ -422,3 +422,38 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
+
+
+// json tournament calendar handler
+// use this handler to get calendar of a tournament.
+// the calendar structure is an array of matches of the tournament
+// with the location, the teams involves and the date
+func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "Tournament Groups Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Group Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
+		// ToDo: might need to filter information here.
+		data := struct {
+			Matches []*tournamentmdl.Tmatch
+		}{
+			matches,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}

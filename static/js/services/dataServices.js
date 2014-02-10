@@ -44,7 +44,9 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
-    groups: {method: 'GET', url: 'j/tournaments/:id/groups'} // #experimental: sar
+    groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
+    calendar: {method: 'GET', url: 'j/tournaments/:id/calendar'}, // #experimental: sar
+    
   })
 });
 

@@ -237,6 +237,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   console.log('Tournament calendar controller');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
+  $scope.matchesData = Tournament.calendar({id:$routeParams.id});
 }]);
 
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {

@@ -43,6 +43,7 @@ type Tournament struct {
 	AdminId         int64
 	Created         time.Time
 	GroupIds        []int64
+	Matches1stStage []int64
 	Matches2ndStage []int64
 }
 
@@ -77,6 +78,7 @@ type TournamentJson struct {
 	AdminId         *int64     `json:",omitempty"`
 	Created         *time.Time `json:",omitempty"`
 	GroupIds        *[]int64   `json:",omitempty"`
+	Matches1stStage []int64    `json:",omitempty"`
 	Matches2ndStage *[]int64   `json:",omitempty"`
 }
 
@@ -96,9 +98,10 @@ func Create(c appengine.Context, name string, description string, start time.Tim
 
 	// empty groups and tournaments for now
 	groupIds := make([]int64, 0)
+	matches1stStageIds := make([]int64, 0)
 	matches2ndStageIds := make([]int64, 0)
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), groupIds, matches2ndStageIds}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), groupIds, matches1stStageIds, matches2ndStageIds}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -342,53 +345,53 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	mA6 := []string{"34", "Jun/23/2014", "Croatia", "Mexico", "Recife"}
 
 	mB1 := []string{"3", "Jun/13/2014", "Spain", "Netherlands", "Arena Fonte Nova, Salvador"}
-	mB2 := []string{"4", "Jun/13", "Chile", "Australia", "Arena Pantanal, Cuiabá"}
-	mB3 := []string{"19", "Jun/18", "Spain", "Chile", "Estádio do Maracanã, Rio de Janeiro"}
-	mB4 := []string{"20", "Jun/18", "Australia", "Netherlands", "Estádio BeiraRio, Porto Alegre"}
-	mB5 := []string{"35", "Jun/23", "Australia", "Spain", "Curitiba"}
-	mB6 := []string{"36", "Jun/23", "Netherlands", "Chile", "São Paulo"}
+	mB2 := []string{"4", "Jun/13/2014", "Chile", "Australia", "Arena Pantanal, Cuiabá"}
+	mB3 := []string{"19", "Jun/18/2014", "Spain", "Chile", "Estádio do Maracanã, Rio de Janeiro"}
+	mB4 := []string{"20", "Jun/18/2014", "Australia", "Netherlands", "Estádio BeiraRio, Porto Alegre"}
+	mB5 := []string{"35", "Jun/23/2014", "Australia", "Spain", "Curitiba"}
+	mB6 := []string{"36", "Jun/23/2014", "Netherlands", "Chile", "São Paulo"}
 
-	mC1 := []string{"5", "Jun/14", "Colombia", "Greece", "Estádio Mineirão, Belo Horizonte"}
-	mC2 := []string{"6", "Jun/14", "Côte d'Ivoire", "Japan", "Arena Pernambuco, Recife"}
-	mC3 := []string{"21", "Jun/19", "Colombia", "Côte d'Ivoire", "Estádio Nacional Mané Garrincha, Brasília"}
-	mC4 := []string{"22", "Jun/19", "Japan", "Greece", "Estádio das Dunas, Natal"}
-	mC5 := []string{"37", "Jun/24", "Japan", "Colombia", "Cuiabá"}
-	mC6 := []string{"38", "Jun/24", "Côte d'Ivoire", "Greece", "Fortaleza"}
+	mC1 := []string{"5", "Jun/14/2014", "Colombia", "Greece", "Estádio Mineirão, Belo Horizonte"}
+	mC2 := []string{"6", "Jun/14/2014", "Côte d'Ivoire", "Japan", "Arena Pernambuco, Recife"}
+	mC3 := []string{"21", "Jun/19/2014", "Colombia", "Côte d'Ivoire", "Estádio Nacional Mané Garrincha, Brasília"}
+	mC4 := []string{"22", "Jun/19/2014", "Japan", "Greece", "Estádio das Dunas, Natal"}
+	mC5 := []string{"37", "Jun/24/2014", "Japan", "Colombia", "Cuiabá"}
+	mC6 := []string{"38", "Jun/24/2014", "Côte d'Ivoire", "Greece", "Fortaleza"}
 
-	mD1 := []string{"7", "Jun/14", "Uruguay", "Costa Rica", "Estádio Castelão, Fortaleza"}
-	mD2 := []string{"8", "Jun/14", "England", "Italy", "Arena Amazônia, Manaus"}
-	mD3 := []string{"23", "Jun/19", "Uruguay", "England", "Arena de São Paulo, São Paulo"}
-	mD4 := []string{"24", "Jun/20", "Italy", "Costa Rica", "Arena Pernambuco, Recife"}
-	mD5 := []string{"39", "Jun/24", "Italy", "Uruguay", "Natal"}
-	mD6 := []string{"40", "Jun/24", "Costa Rica", "England", "Belo Horizonte"}
+	mD1 := []string{"7", "Jun/14/2014", "Uruguay", "Costa Rica", "Estádio Castelão, Fortaleza"}
+	mD2 := []string{"8", "Jun/14/2014", "England", "Italy", "Arena Amazônia, Manaus"}
+	mD3 := []string{"23", "Jun/19/2014", "Uruguay", "England", "Arena de São Paulo, São Paulo"}
+	mD4 := []string{"24", "Jun/20/2014", "Italy", "Costa Rica", "Arena Pernambuco, Recife"}
+	mD5 := []string{"39", "Jun/24/2014", "Italy", "Uruguay", "Natal"}
+	mD6 := []string{"40", "Jun/24/2014", "Costa Rica", "England", "Belo Horizonte"}
 
-	mE1 := []string{"9", "Jun/15", "Switzerland", "Ecuador", "Estádio Nacional Mané Garrincha, Brasília"}
-	mE2 := []string{"10", "Jun/15", "France", "Honduras", "Estádio BeiraRio, Porto Alegre"}
-	mE3 := []string{"25", "Jun/20", "Switzerland", "France", "Arena Fonte Nova, Salvador"}
-	mE4 := []string{"26", "Jun/20", "Honduras", "Ecuador", "Arena da Baixada, Curitiba"}
-	mE5 := []string{"41", "Jun/25", "Honduras", "Switzerland", "Manaus"}
-	mE6 := []string{"42", "Jun/25", "Ecuador", "France", "Rio de Janeiro"}
+	mE1 := []string{"9", "Jun/15/2014", "Switzerland", "Ecuador", "Estádio Nacional Mané Garrincha, Brasília"}
+	mE2 := []string{"10", "Jun/15/2014", "France", "Honduras", "Estádio BeiraRio, Porto Alegre"}
+	mE3 := []string{"25", "Jun/20/2014", "Switzerland", "France", "Arena Fonte Nova, Salvador"}
+	mE4 := []string{"26", "Jun/20/2014", "Honduras", "Ecuador", "Arena da Baixada, Curitiba"}
+	mE5 := []string{"41", "Jun/25/2014", "Honduras", "Switzerland", "Manaus"}
+	mE6 := []string{"42", "Jun/25/2014", "Ecuador", "France", "Rio de Janeiro"}
 
-	mF1 := []string{"11", "Jun/15", "Argentina", "BosniaHerzegovina", "Estádio do Maracanã, Rio de Janeiro"}
-	mF2 := []string{"12", "Jun/16", "Iran", "Nigeria", "Arena da Baixada, Curitiba"}
-	mF3 := []string{"27", "Jun/21", "Argentina", "Iran", "Estádio Mineirão, Belo Horizonte"}
-	mF4 := []string{"28", "Jun/21", "Nigeria", "BosniaHerzegovina", "Arena Pantanal, Cuiabá"}
-	mF5 := []string{"43", "Jun/25", "Nigeria", "Argentina", "Porto Alegre"}
-	mF6 := []string{"44", "Jun/25", "BosniaHerzegovina", "Iran", "Salvador"}
+	mF1 := []string{"11", "Jun/15/2014", "Argentina", "Bosnia-Herzegovina", "Estádio do Maracanã, Rio de Janeiro"}
+	mF2 := []string{"12", "Jun/16/2014", "Iran", "Nigeria", "Arena da Baixada, Curitiba"}
+	mF3 := []string{"27", "Jun/21/2014", "Argentina", "Iran", "Estádio Mineirão, Belo Horizonte"}
+	mF4 := []string{"28", "Jun/21/2014", "Nigeria", "Bosnia-Herzegovina", "Arena Pantanal, Cuiabá"}
+	mF5 := []string{"43", "Jun/25/2014", "Nigeria", "Argentina", "Porto Alegre"}
+	mF6 := []string{"44", "Jun/25/2014", "Bosnia-Herzegovina", "Iran", "Salvador"}
 
-	mG1 := []string{"13", "Jun/16", "Germany", "Portugal", "Arena Fonte Nova, Salvador"}
-	mG2 := []string{"14", "Jun/16", "Ghana", "United States", "Estádio das Dunas, Natal"}
-	mG3 := []string{"29", "Jun/21", "Germany", "Ghana", "Fortaleza"}
-	mG4 := []string{"30", "Jun/22", "United States", "Portugal", "Manaus"}
-	mG5 := []string{"45", "Jun/26", "United States", "Germany", "Recife"}
-	mG6 := []string{"46", "Jun/26", "Portugal", "Ghana", "Brasília"}
+	mG1 := []string{"13", "Jun/16/2014", "Germany", "Portugal", "Arena Fonte Nova, Salvador"}
+	mG2 := []string{"14", "Jun/16/2014", "Ghana", "United States", "Estádio das Dunas, Natal"}
+	mG3 := []string{"29", "Jun/21/2014", "Germany", "Ghana", "Fortaleza"}
+	mG4 := []string{"30", "Jun/22/2014", "United States", "Portugal", "Manaus"}
+	mG5 := []string{"45", "Jun/26/2014", "United States", "Germany", "Recife"}
+	mG6 := []string{"46", "Jun/26/2014", "Portugal", "Ghana", "Brasília"}
 
-	mH1 := []string{"15", "Jun/17", "Belgium", "Algeria", "Estádio Mineirão, Belo Horizonte"}
-	mH2 := []string{"16", "Jun/17", "Russia", "South Korea", "Arena Pantanal, Cuiabá"}
-	mH3 := []string{"31", "Jun/22", "Belgium", "Russia", "Rio de Janeiro"}
-	mH4 := []string{"32", "Jun/22", "South Korea", "Algeria", "Porto Alegre"}
-	mH5 := []string{"47", "Jun/26", "South Korea", "Belgium", "São Paulo"}
-	mH6 := []string{"48", "Jun/26", "Algeria", "Russia", "Curitiba"}
+	mH1 := []string{"15", "Jun/17/2014", "Belgium", "Algeria", "Estádio Mineirão, Belo Horizonte"}
+	mH2 := []string{"16", "Jun/17/2014", "Russia", "South Korea", "Arena Pantanal, Cuiabá"}
+	mH3 := []string{"31", "Jun/22/2014", "Belgium", "Russia", "Rio de Janeiro"}
+	mH4 := []string{"32", "Jun/22/2014", "South Korea", "Algeria", "Porto Alegre"}
+	mH5 := []string{"47", "Jun/26/2014", "South Korea", "Belgium", "São Paulo"}
+	mH6 := []string{"48", "Jun/26/2014", "Algeria", "Russia", "Curitiba"}
 
 	var matchesA [][]string
 	var matchesB [][]string
@@ -416,6 +419,11 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	mapGroupMatches["F"] = matchesF
 	mapGroupMatches["G"] = matchesG
 	mapGroupMatches["H"] = matchesH
+
+	// matches1stStageIds is an array of  int64
+	// where we allocate IDs of the Tmatches entities 
+	// we will store them in the tournament entity for easy retreival later on.
+	matches1stStageIds := make([]int64, 8*len(matchesA))
 
 	log.Infof(c, "World Cup: maps ready")
 
@@ -487,6 +495,9 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			}
 			log.Infof(c, "World Cup: match: %v put in datastore ok", matchData)
 			group.Matches[matchIndex] = *match
+
+			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
+			matches1stStageIds[int64(matchInternalId) - 1] = matchID
 		}
 
 		groupID, _, err := datastore.AllocateIDs(c, "Tgroup", nil, 1)
@@ -512,6 +523,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	log.Infof(c, "World Cup: build of groups ids complete: %v", groupIds)
 
+	// ToDo
 	matches2ndStageIds := make([]int64, 0)
 
 	tournament := &Tournament{
@@ -524,6 +536,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		adminId,
 		time.Now(),
 		groupIds,
+		matches1stStageIds,
 		matches2ndStageIds,
 	}
 	log.Infof(c, "World Cup: instance of tournament ready")
@@ -551,6 +564,19 @@ func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	return &g, nil
 }
 
+
+// get a Tmatch entity by id
+func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
+	var m Tmatch
+	key := datastore.NewKey(c, "Tmatch", "", matchId, nil)
+
+	if err := datastore.Get(c, key, &m); err != nil {
+		log.Errorf(c, "match not found : %v", err)
+		return &m, err
+	}
+	return &m, nil
+}
+
 // from a tournament id returns an array of groups the participate in it.
 func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 
@@ -566,4 +592,22 @@ func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 		}
 	}
 	return groups
+}
+
+// from an array of ids return the corresponding array of matches 
+func Matches(c appengine.Context, matchIds []int64)[]*Tmatch{
+
+	var matches []*Tmatch
+
+	for _, matchId := range matchIds {
+
+		m, err := MatchById(c, matchId)
+		if err != nil {
+			log.Errorf(c, " Matches, cannot find match with ID=%", matchId)
+		} else {
+			matches = append(matches, m)
+		}
+	}
+	return matches
+	
 }
