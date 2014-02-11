@@ -423,7 +423,6 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-
 // json tournament calendar handler
 // use this handler to get calendar of a tournament.
 // the calendar structure is an array of matches of the tournament
@@ -446,11 +445,31 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 		}
 
 		matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
+
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+
 		// ToDo: might need to filter information here.
+		type MatchJson struct {
+			IdNumber int64
+			Date     time.Time
+			Team1    string
+			Team2    string
+			Location string
+		}
+
+		matchesJson := make([]MatchJson, len(matches))
+		for i, m := range matches {
+			matchesJson[i].IdNumber = m.IdNumber
+			matchesJson[i].Date = m.Date
+			matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
+			matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
+			matchesJson[i].Location = m.Location
+		}
+
 		data := struct {
-			Matches []*tournamentmdl.Tmatch
+			Matches []MatchJson
 		}{
-			matches,
+			matchesJson,
 		}
 
 		return templateshlp.RenderJson(w, c, data)

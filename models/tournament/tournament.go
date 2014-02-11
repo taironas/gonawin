@@ -64,7 +64,7 @@ type Tmatch struct {
 	IdNumber int64
 	Date     time.Time
 	TeamId1  int64
-	TeamId2 int64
+	TeamId2  int64
 	Location string
 }
 
@@ -421,7 +421,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	mapGroupMatches["H"] = matchesH
 
 	// matches1stStageIds is an array of  int64
-	// where we allocate IDs of the Tmatches entities 
+	// where we allocate IDs of the Tmatches entities
 	// we will store them in the tournament entity for easy retreival later on.
 	matches1stStageIds := make([]int64, 8*len(matchesA))
 
@@ -497,7 +497,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			group.Matches[matchIndex] = *match
 
 			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
-			matches1stStageIds[int64(matchInternalId) - 1] = matchID
+			matches1stStageIds[int64(matchInternalId)-1] = matchID
 		}
 
 		groupID, _, err := datastore.AllocateIDs(c, "Tgroup", nil, 1)
@@ -564,7 +564,6 @@ func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	return &g, nil
 }
 
-
 // get a Tmatch entity by id
 func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	var m Tmatch
@@ -594,8 +593,8 @@ func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 	return groups
 }
 
-// from an array of ids return the corresponding array of matches 
-func Matches(c appengine.Context, matchIds []int64)[]*Tmatch{
+// from an array of ids return the corresponding array of matches
+func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 
 	var matches []*Tmatch
 
@@ -609,5 +608,20 @@ func Matches(c appengine.Context, matchIds []int64)[]*Tmatch{
 		}
 	}
 	return matches
-	
+
+}
+
+// from tournament entity build map of teams
+func MapOfIdTeams(c appengine.Context, tournament Tournament) map[int64]string {
+
+	var mapIdTeams map[int64]string
+	mapIdTeams = make(map[int64]string)
+
+	groups := Groups(c, tournament.GroupIds)
+	for _, g := range groups {
+		for _, t := range g.Teams {
+			mapIdTeams[t.Id] = t.Name
+		}
+	}
+	return mapIdTeams
 }

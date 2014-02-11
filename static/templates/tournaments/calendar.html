@@ -22,9 +22,9 @@
     <tbody>
       <tr ng-repeat="m in matchesData.Matches">
         <td><p>N°:{{m.IdNumber}}</p></td>
-	<td>{{m.TeamId1}} - {{m.TeamId2}}</td>
+	<td>{{m.Team1}} - {{m.Team2}}</td>
 	<td>Location: {{m.Location}}</td>
-	<td>{{m.Date | date:'MM/dd/yyyy'}}</td>
+	<td>{{m.Date | date:'dd MMM'}}</td>
       </tr>
     </tbody>
   </table>
