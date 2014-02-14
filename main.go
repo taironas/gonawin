@@ -48,9 +48,9 @@ func init() {
 
 	// session
 	h.HandleFunc("/j/auth/google/?", handlers.ErrorHandler(sessionsctrl.JsonGoogleAuth))
-  h.HandleFunc("/j/auth/twitter/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuth))
-  h.HandleFunc("/j/auth/twitter/callback/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuthCallback))
-  h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterUser))
+	h.HandleFunc("/j/auth/twitter/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuth))
+	h.HandleFunc("/j/auth/twitter/callback/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuthCallback))
+	h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterUser))
 	// user
 	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.IndexJson)))
 	h.HandleFunc("/j/users/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.ShowJson)))
@@ -89,6 +89,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCupJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GroupsJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarJson)))
+	h.HandleFunc("/j/tournaments/[0-9]+/calendarbyday/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarByDayJson)))
 
 	http.Handle("/", h)
 }
