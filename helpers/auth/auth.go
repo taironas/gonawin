@@ -17,6 +17,8 @@
 package auth
 
 import (
+  "encoding/json"
+  "io/ioutil"
 	"net/http"
 
 	"appengine"
@@ -37,6 +39,12 @@ type GPlusUserInfo struct {
 	Id    string
 	Email string
 	Name  string
+}
+
+type TwitterUserInfo struct {
+	Id          int64
+	Name        string
+	Screen_name string
 }
 
 // from an accessToken string, verify if google user account is valid
@@ -61,6 +69,28 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 // #196: Should be removed when deployed in production.
 func IsAuthorizedWithGoogle(ui *GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
+}
+// Ckeck if twitter user is admin.
+// #196: Should be removed when deployed in production.
+func IsAuthorizedWithTwitter(ui *TwitterUserInfo) bool {
+	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
+}
+
+// unmarshal twitter response
+func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
+	defer r.Body.Close()
+
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err == nil {
+		var ui *TwitterUserInfo
+
+		if err = json.Unmarshal(body, &ui); err == nil {
+			return ui, err
+		}
+	}
+
+	return nil, err
 }
 
 // returns pointer to current user, from authentication cookie.

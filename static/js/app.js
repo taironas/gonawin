@@ -6,6 +6,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'ngResource',
   'ngCookies',
   'directive.g+signin',
+  'directive.twittersignin',
   'directive.formValidation',
   'directive.joinButton',
   '$strap.directives',
@@ -35,19 +36,10 @@ purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $l
   };
 }]);
 
-purpleWingApp.factory('loginInterceptor', ['$rootScope', '$location', function($rootScope, $location){
-  return {
-    request: function(request) {
-      console.log('request = ', request);
-      return request || $q.when(request);
-    }
-  };
-}]);
-
 purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
-      when('/', { templateUrl: 'templates/welcome.html', requireLogin: false }).
+      when('/', { templateUrl: 'templates/welcome.html',  requireLogin: false }).
       when('/home', { templateUrl: 'templates/home.html', controller: 'HomeCtrl', requireLogin: true }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
@@ -79,23 +71,23 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
 
 purpleWingApp.run(['$rootScope', '$location', function($rootScope, $location) {
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
-    console.log('routeChangeStart');
-    // Everytime the route in our app changes check authentication status
-    $rootScope.$$childHead.initSession().then(function(loggedIn){
-      if (next.requireLogin) {
-        console.log('requireLogin');
-        if(!loggedIn) {
-          // if you're logged out send to home page.
-          $location.path('/');
+    if($location.$$path === '/auth/twitter/callback')
+    {
+      $rootScope.$$childHead.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
+    } else {
+      // Everytime the route in our app changes check authentication status
+      $rootScope.$$childHead.initSession().then(function(loggedIn){
+        if (next.requireLogin) {
+          if(!loggedIn) {
+            // if you're logged out send to home page.
+            $location.path('/');
+          }
+        } else {
+          if(loggedIn && $location.path() === '/') {
+            $location.path('/home');
+          }
         }
-      } else {
-        console.log('not requireLogin');
-        console.log('path = ', $location.path());
-        console.log('loggedIn = ', loggedIn);
-        if(loggedIn && $location.path() === '/') {
-          $location.path('/home');
-        }
-      }
-    });
+      });
+    }
   });
 }]);

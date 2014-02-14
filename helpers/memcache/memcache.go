@@ -47,9 +47,12 @@ func Set(c appengine.Context, key string, value interface{}) {
 
 // get value from memcache with respect to a key string
 func Get(c appengine.Context, key string) interface{} {
-
 	// Get the item from the memcache
 	item, _ := memcache.Get(c, key)
+	return item.Value
+}
 
-	return item
+// delete key from memcache
+func Delete(c appengine.Context, key string) error {
+	return memcache.Delete(c, key)
 }

@@ -71,4 +71,22 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
     
     $location.path('/');
   };
+  
+  $scope.signinWithTwitter = function(oauthToken, oauthVerifier) {
+    // User successfully authorized via Twitter!
+    console.log('User successfully authorized via Twitter!');
+
+    Session.fetchTwitterUser({ oauth_token: oauthToken, oauth_verifier: oauthVerifier }).$promise.then(function(userData) {
+      $scope.currentUser = userData.User;
+       console.log('current user: ', $scope.currentUser);
+       
+       $cookieStore.put('access_token', oauthToken);
+       $cookieStore.put('auth', $scope.currentUser.Auth);
+       $cookieStore.put('user_id', $scope.currentUser.Id);
+       
+       $scope.loggedIn = true;
+       
+       $location.path('/home');
+    });
+  }
 }]);

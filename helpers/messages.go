@@ -27,9 +27,13 @@ const (
 	ErrorCodeNameCannotBeEmpty = "Name field cannot be empty"
 
 	// sessions
-	ErrorCodeSessionsAccessTokenNotValid = "Access token is not valid"
-	ErrorCodeSessionsForbiden            = "You are not authorized to log in to gonawin"
-	ErrorCodeSessionsUnableToSignin      = "Error occurred during signin process"
+	ErrorCodeSessionsAccessTokenNotValid      = "Access token is not valid"
+	ErrorCodeSessionsForbiden                 = "You are not authorized to log in to gonawin"
+	ErrorCodeSessionsUnableToSignin           = "Error occurred during signin process"
+  ErrorCodeSessionsCannotGetTempCredentials = "Error getting temporary credentials"
+  ErrorCodeSessionsCannotGetSecretValue     = "Error getting 'secret' value"
+  ErrorCodeSessionsCannotGetRequestToken    = "Error getting request token"
+  ErrorCodeSessionsCannotGetUserInfo        = "Error getting user info from Twitter"
 
 	// users
 	ErrorCodeUserNotFound             = "User not found"
