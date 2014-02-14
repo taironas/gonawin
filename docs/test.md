@@ -9,11 +9,11 @@ Issue #200 Testing
 | 4     |    /m/auth                       | none                                 | N.A. | done at root
 | 5     |    /m/auth/facebook              | none                                 | N.A. | handled by javascript
 | 6     |    /m/auth/facebook/callback     | none                                 | N.A. | handled by javascript
-| 7     |    /m/auth/google                | none                                 | N.A. | handled by javascript
-| 8     |    /m/auth/google/callback       | none                                 | N.A. | handled by javascript
-| 9     |    /m/auth/twitter               | none				                          | N.A. | handled by javascript
-| 10    |    /m/auth/twitter/callback      | none				                          | N.A. | handled by javascript
-| 11    |    /m/logout                     | none	 			                          | N.A. | handled by javascript
+| 7     |    /m/auth/google                | none                                 | &#x2713; | handled by javascript
+| 8     |    /m/auth/google/callback       | none                                 | &#x2713; | handled by javascript
+| 9     |    /m/auth/twitter               | none				                          | &#x2713; | handled by server
+| 10    |    /m/auth/twitter/callback      | none				                          | &#x2713; | handled by server & client
+| 11    |    /m/logout                     | none	 			                          | &#x2713; | handled by javascript
 | 12    |    /m/users/[0-9]+      	       | /ng#/users/show/:id		              |	&#x2713;	 | [issue #249](https://github.com/santiaago/purple-wing/issues/249) -> closed
 | 13    |    /m/a			                     | none				                          | N.A. | path is no longer necessary
 | 14    |    /m/a/users			               | /ng#/users/			                    |	&#x2713;	 | [issue #250](https://github.com/santiaago/purple-wing/issues/250) -> closed
