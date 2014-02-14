@@ -12,7 +12,7 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-  console.log("Team data service");
+
   return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId'}, {
     get: { method: 'GET', url: 'j/teams/show/:id' },
     save: { method: 'POST', url: 'j/teams/new' },
@@ -58,7 +58,7 @@ dataServices.factory('Invite', function($http, $cookieStore, $resource){
   })
 });
 
-dataServices.factory('Session', function($http, $resource, User) {
+dataServices.factory('Session', function($http, $cookieStore, $resource) {
   
   return $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
     fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },

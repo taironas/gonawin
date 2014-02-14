@@ -14,6 +14,9 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
       $scope.loggedIn = false;
       deferred.resolve(false);
     } 
+    else if($scope.currentUser && $scope.loggedIn){
+      deferred.resolve(true);
+    }
     else {
       User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(userData){
         $scope.currentUser = userData.User;
