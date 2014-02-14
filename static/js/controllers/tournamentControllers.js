@@ -240,6 +240,14 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   $scope.matchesData = Tournament.calendar({id:$routeParams.id});
 }]);
 
+
+tournamentControllers.controller('TournamentCalendarByDayCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament calendar by day controller');
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  $scope.daysData = Tournament.calendarByDay({id:$routeParams.id});
+}]);
+
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament first stage controller');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });

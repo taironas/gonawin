@@ -17,8 +17,8 @@
 package auth
 
 import (
-  "encoding/json"
-  "io/ioutil"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	"appengine"
@@ -70,6 +70,7 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 func IsAuthorizedWithGoogle(ui *GPlusUserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
 }
+
 // Ckeck if twitter user is admin.
 // #196: Should be removed when deployed in production.
 func IsAuthorizedWithTwitter(ui *TwitterUserInfo) bool {

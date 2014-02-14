@@ -432,6 +432,7 @@ type MatchJson struct {
 }
 
 type DayJson struct {
+	Date    time.Time
 	Matches []MatchJson
 }
 
@@ -518,8 +519,11 @@ func CalendarByDayJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) 
 		}
 
 		// get array of days from matches
+		log.Infof(c, "Tournament Calendar By Day Handler: ready to build days array")
+
 		var days []DayJson
-		fillDaysFromMatches(&days, matchesJson)
+		fillDaysFromMatches(c, &days, matchesJson)
+		log.Infof(c, "Tournament Calendar By Day Handler: days array ok")
 
 		data := struct {
 			Days []DayJson
@@ -534,27 +538,37 @@ func CalendarByDayJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) 
 
 // from an array of matches build an array of dates where matches occur.
 // each element in this array is itself an array of matches that occur that day
-func fillDaysFromMatches(days *[]DayJson, matches []MatchJson){
+func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJson) {
 
+	log.Infof(c, "fill days from matches:  start")
 
 	mapOfDays := make(map[string][]MatchJson)
 
-	for _, m := range matches{
+	log.Infof(c, "fill days from matches:  make map ok")
+
+	for _, m := range matches {
 		currentDate := m.Date.String()
 		_, ok := mapOfDays[currentDate]
-		if ok{
+		if ok {
 			mapOfDays[currentDate] = append(mapOfDays[currentDate], m)
-		} else{
+		} else {
 			var arrayMatches []MatchJson
 			arrayMatches = append(arrayMatches, m)
 			mapOfDays[currentDate] = arrayMatches
 		}
 	}
+	log.Infof(c, "fill days from matches:  map built")
+
+	const shortForm = "Jan/02/2006"
 	i := 0
 	arrayDays := *days
 	arrayDays = make([]DayJson, len(mapOfDays))
-	for _, value := range mapOfDays {
+	for key, value := range mapOfDays {
 		i++
+		arrayDays[i].Date, _ = time.Parse(shortForm, key)
 		arrayDays[i].Matches = value
 	}
+	log.Infof(c, "fill days from matches:  array of days ready")
+
+	log.Infof(c, "fill days from matches:  end")
 }

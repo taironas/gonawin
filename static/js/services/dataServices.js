@@ -46,7 +46,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
     groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar'}, // #experimental: sar
-    
+    calendarByDay:{method: 'GET', url: 'j/tournaments/:id/calendarbyday'}, // #experimental: sar
   })
 });
 

@@ -1,0 +1,30 @@
+<div ng-include src="'templates/partials/notifications.html'"></div>
+<div class="page-header">
+  <h1>Tournament Calendar By Day</h1>
+
+<dl class="dl-horizontal">
+  <dt><strong>Id:</strong></dt>
+  <dd>{{tournamentData.Tournament.Id}}</dd>
+  <dt><strong>Name:</strong></dt>
+  <dd>{{tournamentData.Tournament.Name}}</dd>
+</dl>
+
+<!-- Calendar -->
+<div class="calendar">
+  <table class="table table-striped">
+    <thead><tr><th>Days</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="d in daysData.Days">
+        <td><p>{{d.Date | date:'dd MM'}}</p></td>
+	<td>
+	  <p ng-repeat="m in d.Matches">
+	    <td><p>N°:{{m.IdNumber}}</p></td>
+	    <td>{{m.Team1}} - {{m.Team2}}</td>
+	    <td>Location: {{m.Location}}</td>
+	  </p>
+	</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<!-- / Calendar -->
