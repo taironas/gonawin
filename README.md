@@ -14,7 +14,6 @@ Cabernal (cab)
 ## Thrid Parties Installation
 
     go get github.com/garyburd/go-oauth/oauth
-    go get code.google.com/p/goauth2/oauth
     
 ## Installation
 
