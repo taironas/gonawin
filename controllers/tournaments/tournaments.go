@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+	"sort"
 
 	"appengine"
 
@@ -547,7 +548,7 @@ func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJs
 	log.Infof(c, "fill days from matches:  make map ok")
 	const shortForm = "Jan/02/2006"
 	for _, m := range matches {
-		currentDate := m.Date.Format(shortForm)//m.Date.String()
+		currentDate := m.Date.Format(shortForm)
 		_, ok := mapOfDays[currentDate]
 		if ok {
 			mapOfDays[currentDate] = append(mapOfDays[currentDate], m)
@@ -573,5 +574,15 @@ func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJs
 	}
 	log.Infof(c, "fill days from matches:  array of days ready")
 
+	sort.Sort(ByDate(*days))
+	log.Infof(c, "fill days from matches:  days are now sorted")
+
 	log.Infof(c, "fill days from matches:  end")
 }
+
+// ByDate implements sort.Interface for []Person based on the date field.
+type ByDate []DayJson
+
+func (a ByDate) Len() int           { return len(a) }
+func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
