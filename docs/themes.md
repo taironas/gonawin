@@ -30,4 +30,12 @@ crazy-rose (main_crazy_rose.css):
 ![Home page](images/home.png "Home Page - crazy-rose")
 
 
+dirty-lily (main_dirty_lily.css):
+
+      body background-color: #465E8F
+      footer background-color: #A7BBD6
+      
+![Welcome page](images/welcome2.png "Welcome Page - dirty-lily")
+
+
 
