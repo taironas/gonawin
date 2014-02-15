@@ -545,9 +545,9 @@ func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJs
 	mapOfDays := make(map[string][]MatchJson)
 
 	log.Infof(c, "fill days from matches:  make map ok")
-
+	const shortForm = "Jan/02/2006"
 	for _, m := range matches {
-		currentDate := m.Date.String()
+		currentDate := m.Date.Format(shortForm)//m.Date.String()
 		_, ok := mapOfDays[currentDate]
 		if ok {
 			mapOfDays[currentDate] = append(mapOfDays[currentDate], m)
@@ -559,14 +559,17 @@ func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJs
 	}
 	log.Infof(c, "fill days from matches:  map built")
 
-	const shortForm = "Jan/02/2006"
 	i := 0
-	arrayDays := *days
-	arrayDays = make([]DayJson, len(mapOfDays))
+	//arrayDays := *days
+	*days = make([]DayJson, len(mapOfDays))
 	for key, value := range mapOfDays {
+		log.Infof(c, "fill days from matches:  i: %v", i)
+		log.Infof(c, "fill days from matches:  key: %v", key)
+		log.Infof(c, "fill days from matches:  value: %v", value)
+		(*days)[i].Date, _ = time.Parse(shortForm, key)
+		(*days)[i].Matches = value
+		log.Infof(c, "fill days from matches:  day struct: %v", (*days)[i])
 		i++
-		arrayDays[i].Date, _ = time.Parse(shortForm, key)
-		arrayDays[i].Matches = value
 	}
 	log.Infof(c, "fill days from matches:  array of days ready")
 

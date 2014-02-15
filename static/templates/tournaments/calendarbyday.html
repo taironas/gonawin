@@ -10,20 +10,28 @@
 </dl>
 
 <!-- Calendar -->
+<!-- <div ng-repeat="d in daysData.Days"> -->
+<!--   <h3>{{d.Date | date:'dd/MM'}}</h3> -->
+<!--   <div ng-repeat="m in d.Matches"> -->
+<!--     <p>N°{{m.IdNumber}}</p> -->
+<!--     <p>{{m.Team1}} - {{m.Team2}}</p> -->
+<!--     <p>Location: {{m.Location}}</p> -->
+<!--   </div> -->
+<!-- </div> -->
 <div class="calendar">
   <table class="table table-striped">
-    <thead><tr><th>Days</th></tr></thead>
+    <thead>
+      <tr><th>Days</th></tr>
+    </thead>
     <tbody>
-      <tr ng-repeat="d in daysData.Days">
-        <td><p>{{d.Date | date:'dd MM'}}</p></td>
-	<td>
-	  <p ng-repeat="m in d.Matches">
-	    <td><p>N°:{{m.IdNumber}}</p></td>
-	    <td>{{m.Team1}} - {{m.Team2}}</td>
-	    <td>Location: {{m.Location}}</td>
-	  </p>
-	</td>
-      </tr>
+	<tr ng-repeat="d in daysData.Days">
+          <td><b>{{d.Date | date:'dd/MM'}}</b></td>
+	  <td>
+	  <div ng-repeat="m in d.Matches">
+	    <p>N°:{{m.IdNumber}}: {{m.Team1}} - {{m.Team2}} Location: {{m.Location}}</p>
+	  </div>
+	  </td>
+	</tr>
     </tbody>
   </table>
 </div>

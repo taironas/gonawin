@@ -13,12 +13,14 @@
 <div class="calendar">
   <p>Calendar here</p>
   <table class="table table-striped">
-    <thead><tr>
+    <thead>
+      <tr>
 	<th>N°</th>
 	<th>Match</th>	
 	<th>Location</th>	
 	<th>Date</th>
-    </tr></thead>
+      </tr>
+    </thead>
     <tbody>
       <tr ng-repeat="m in matchesData.Matches">
         <td><p>N°:{{m.IdNumber}}</p></td>
