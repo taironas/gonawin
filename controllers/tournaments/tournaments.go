@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 	"sort"
+	"time"
 
 	"appengine"
 
@@ -437,6 +437,11 @@ type DayJson struct {
 	Matches []MatchJson
 }
 
+type PhaseJson struct {
+	Name string
+	Days []DayJson
+}
+
 // json tournament calendar handler
 // use this handler to get calendar of a tournament.
 // the calendar structure is an array of matches of the tournament
@@ -580,9 +585,94 @@ func fillDaysFromMatches(c appengine.Context, days *[]DayJson, matches []MatchJs
 	log.Infof(c, "fill days from matches:  end")
 }
 
+func fillDaysFromMatchesInInterval(c appengine.Context, days *[]DayJson, matches []MatchJson, low int64, high int64) {
+	var filteredMatches []MatchJson
+	for _, v := range matches {
+		if v.IdNumber >= low && v.IdNumber <= high {
+			filteredMatches = append(filteredMatches, v)
+		}
+	}
+	fillDaysFromMatches(c, days, filteredMatches)
+}
+
 // ByDate implements sort.Interface for []Person based on the date field.
 type ByDate []DayJson
 
 func (a ByDate) Len() int           { return len(a) }
 func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
+
+// json tournament calendar by phase handler
+// use this handler to get calendar grouped by phase of a tournament.
+// the calendar structure is an array of phases that contains an array of matches for a tournament
+// with the location, the teams involved and the date
+func CalendarByPhaseJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "Tournament Calendar by Phase Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Calendar by Phase Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
+
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+
+		// ToDo: might need to filter information here.
+		matchesJson := make([]MatchJson, len(matches))
+		for i, m := range matches {
+			matchesJson[i].IdNumber = m.IdNumber
+			matchesJson[i].Date = m.Date
+			matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
+			matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
+			matchesJson[i].Location = m.Location
+		}
+
+		// get array of days from matches
+		log.Infof(c, "Tournament Calendar by Phase Handler: ready to build phase array")
+		phaseNames := []string{"First Stage", "Round of 16", "Quarter-finals", "Semi-finals", "Third Place", "Finals"}
+		limits := make(map[string][]int64)
+		limits["First Stage"] = []int64{1, 48}
+		limits["Round of 16"] = []int64{49, 56}
+		limits["Quarter-finals"] = []int64{57, 60}
+		limits["Semi-finals"] = []int64{61, 62}
+		limits["Third Place"] = []int64{63, 63}
+		limits["Finals"] = []int64{64, 64}
+
+		// first stage: matches 1 to 48
+		// Round of 16: matches 49 to 56
+		// Quarte-finals: matches 57 to 60
+		// Semi-finals: matches 61 to 62
+		// Thrid Place: match 63
+		// Finals: match 64
+		phases := make([]PhaseJson, len(phaseNames))
+		for i, _ := range phases {
+			phases[i].Name = phaseNames[i]
+			log.Infof(c, "Tournament Calendar by Phase Handler: name %s", phases[i].Name)
+			low := limits[phases[i].Name][0]
+			high := limits[phases[i].Name][1]
+			// build days array
+			var days []DayJson
+			fillDaysFromMatchesInInterval(c, &days, matchesJson, low, high)
+			phases[i].Days = days
+		}
+
+		data := struct {
+			Phases []PhaseJson
+		}{
+			phases,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}

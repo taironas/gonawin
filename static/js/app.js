@@ -58,6 +58,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/tournaments/search', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentSearchCtrl', requireLogin: true }).
       when('/tournaments/:id/calendar', { templateUrl: 'templates/tournaments/calendar.html', controller: 'TournamentCalendarCtrl', requireLogin: true }).
       when('/tournaments/:id/calendarbyday', { templateUrl: 'templates/tournaments/calendarbyday.html', controller: 'TournamentCalendarByDayCtrl', requireLogin: true }).
+      when('/tournaments/:id/calendarbyphase', { templateUrl: 'templates/tournaments/calendarbyphase.html', controller: 'TournamentCalendarByPhaseCtrl', requireLogin: true }).
       when('/tournaments/:id/firststage', { templateUrl: 'templates/tournaments/firststage.html', controller: 'TournamentFirstStageCtrl', requireLogin: true }).
       when('/tournaments/:id/secondstage', { templateUrl: 'templates/tournaments/secondstage.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
       when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).

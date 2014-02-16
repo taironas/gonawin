@@ -3,7 +3,7 @@
 ### World cup phases:
 
 * Round of 16
-* Quarter-finales
+* Quarter-finals
 * Semi-finals
 * Round 19 (Match for third plac)
 * Finals

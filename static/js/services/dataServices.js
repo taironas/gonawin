@@ -47,6 +47,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar'}, // #experimental: sar
     calendarByDay:{method: 'GET', url: 'j/tournaments/:id/calendarbyday'}, // #experimental: sar
+    calendarByPhase:{method: 'GET', url: 'j/tournaments/:id/calendarbyphase'}, // #experimental: sar
   })
 });
 
