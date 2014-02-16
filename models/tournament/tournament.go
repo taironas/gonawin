@@ -66,6 +66,7 @@ type Tmatch struct {
 	TeamId1  int64
 	TeamId2  int64
 	Location string
+	Rule     string // we use this field to store a specific match rule.
 }
 
 type TournamentJson struct {
@@ -479,6 +480,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			emtpyrule := ""
 			match := &Tmatch{
 				matchID,
 				int64(matchInternalId),
@@ -486,6 +488,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				mapTeamId[matchData[cMatchTeam1]],
 				mapTeamId[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
+				emtpyrule,
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -532,17 +535,17 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	m2nd4 := []string{"52", "Jun/29/2014", "1D", "2C", "Recife"}
 	m2nd5 := []string{"53", "Jun/30/2014", "1E", "2F", "Brasília"}
 	m2nd6 := []string{"54", "Jun/30/2014", "1G", "2H", "Porto Alegre"}
-	m2nd7 := []string{"55", "Jul/1/2014", "1F", "2E", "São Paulo"}
-	m2nd8 := []string{"56", "Jul/1/2014", "1H", "2G", "Salvador"}
+	m2nd7 := []string{"55", "Jul/01/2014", "1F", "2E", "São Paulo"}
+	m2nd8 := []string{"56", "Jul/01/2014", "1H", "2G", "Salvador"}
 	// 17 Quarter-finals
-	m2nd9 := []string{"57", "Jul/4/2014", "W49", "W50", "Fortaleza"}
-	m2nd10 := []string{"58", "Jul/4/2014", "W53", "W54", "Rio de Janeiro"}
-	m2nd11 := []string{"59", "Jul/5/2014", "W51", "W52", "Salvador"}
-	m2nd12 := []string{"60", "Jul/5/2014", "W55", "W56", "Brasília"}
+	m2nd9 := []string{"57", "Jul/04/2014", "W49", "W50", "Fortaleza"}
+	m2nd10 := []string{"58", "Jul/04/2014", "W53", "W54", "Rio de Janeiro"}
+	m2nd11 := []string{"59", "Jul/05/2014", "W51", "W52", "Salvador"}
+	m2nd12 := []string{"60", "Jul/05/2014", "W55", "W56", "Brasília"}
 	// 18 Semi-finals
-	m2nd13 := []string{"61", "Jul/8/2014", "W57", "W58", "Belo Horizonte"}
-	m2nd14 := []string{"62", "Jul/9/2014", "W59", "W69", "São Paulo"}
-	//19 Round 19  -  Match for third place    # Third-place play-off   # fix: add -- add to lang/rounds parser - remove round 19
+	m2nd13 := []string{"61", "Jul/08/2014", "W57", "W58", "Belo Horizonte"}
+	m2nd14 := []string{"62", "Jul/09/2014", "W59", "W69", "São Paulo"}
+	//19 Round 19  -  Match for third place
 	m2nd15 := []string{"63", "Jul/12/2014", "L61", "L62", "Brasília"}
 	//"20" Final
 	m2nd16 := []string{"64", "Jul/13/2014", "W61", "W62", "Rio de Janeiro"}
@@ -559,11 +562,51 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	round19 = append(round19, m2nd15)
 	round20 = append(round20, m2nd16)
 
-	mapGroupMatches["16"] = round16
-	mapGroupMatches["17"] = round17
-	mapGroupMatches["18"] = round18
-	mapGroupMatches["19"] = round19
-	mapGroupMatches["20"] = round20
+	mapMatches2ndRound := make(map[string][][]string)
+	mapMatches2ndRound["16"] = round16
+	mapMatches2ndRound["17"] = round17
+	mapMatches2ndRound["18"] = round18
+	mapMatches2ndRound["19"] = round19
+	mapMatches2ndRound["20"] = round20
+
+	// build matches 2nd phase
+	const shortForm = "Jan/02/2006"
+	for roundNumber, roundMatches := range mapMatches2ndRound {
+		log.Infof(c, "World Cup: building 2nd round matches: round number %v", roundNumber)
+		for _, matchData := range roundMatches {
+			log.Infof(c, "World Cup: second phase match data: %v", matchData)
+
+			matchID, _, err := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			log.Infof(c, "World Cup: match: %v allocateIDs ok")
+
+			matchkey := datastore.NewKey(c, "Tmatch", "", matchID, nil)
+			log.Infof(c, "World Cup: match: new key ok")
+
+			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+
+			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
+
+			match := &Tmatch{
+				matchID,
+				int64(matchInternalId),
+				matchTime,
+				0, // second round matches start with ids at 0
+				0, // second round matches start with ids at 0
+				matchData[cMatchLocation],
+				rule,
+			}
+			log.Infof(c, "World Cup: match 2nd round: build match ok")
+
+			_, err = datastore.Put(c, matchkey, match)
+			if err != nil {
+				return nil, err
+			}
+			log.Infof(c, "World Cup: 2nd round match: %v put in datastore ok", matchData)
+			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
+			matches2ndStageIds = append(matches2ndStageIds, matchID)
+		}
+	}
 
 	// ----------------------------------------------------------------------
 	tournament := &Tournament{

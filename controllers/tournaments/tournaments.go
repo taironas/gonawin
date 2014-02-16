@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"appengine"
@@ -511,6 +512,7 @@ func CalendarByDayJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) 
 		}
 
 		matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
+		matches2ndPhase := tournamentmdl.Matches(c, tournament.Matches2ndStage)
 
 		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
 
@@ -522,6 +524,20 @@ func CalendarByDayJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) 
 			matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 			matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
 			matchesJson[i].Location = m.Location
+		}
+
+		// append 2nd round to first one
+		for _, m := range matches2ndPhase {
+			var matchJson2ndPhase MatchJson
+			matchJson2ndPhase.IdNumber = m.IdNumber
+			matchJson2ndPhase.Date = m.Date
+			rule := strings.Split(m.Rule, " ")
+			matchJson2ndPhase.Team1 = rule[0]
+			matchJson2ndPhase.Team2 = rule[1]
+			matchJson2ndPhase.Location = m.Location
+			// append second round results
+			matchesJson = append(matchesJson, matchJson2ndPhase)
+
 		}
 
 		// get array of days from matches
@@ -624,6 +640,7 @@ func CalendarByPhaseJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 		}
 
 		matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
+		matches2ndPhase := tournamentmdl.Matches(c, tournament.Matches2ndStage)
 
 		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
 
@@ -635,6 +652,20 @@ func CalendarByPhaseJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 			matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 			matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
 			matchesJson[i].Location = m.Location
+		}
+
+		// append 2nd round to first one
+		for _, m := range matches2ndPhase {
+			var matchJson2ndPhase MatchJson
+			matchJson2ndPhase.IdNumber = m.IdNumber
+			matchJson2ndPhase.Date = m.Date
+			rule := strings.Split(m.Rule, " ")
+			matchJson2ndPhase.Team1 = rule[0]
+			matchJson2ndPhase.Team2 = rule[1]
+			matchJson2ndPhase.Location = m.Location
+			// append second round results
+			matchesJson = append(matchesJson, matchJson2ndPhase)
+
 		}
 
 		// get array of days from matches
