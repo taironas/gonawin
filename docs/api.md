@@ -9,10 +9,11 @@
 
 ### API:
 
-`url: /ranking/
-parameters: 
-* scope: global, team, tournament
-* id: specify the team/tournament id
-* count: specify the number of user to retrieve`
+### Ranking:
+    url: /ranking/
+    parameters:
+      * scope: global, team, tournament
+      * id: specify the team/tournament id
+      * count: specify the number of user to retrieve
 
 ranking url where an array of user (id, username, score) sorted by score will be returned.
