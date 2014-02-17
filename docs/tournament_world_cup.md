@@ -32,10 +32,11 @@ needs:
 * get all matches grouped by day
 * get all matches grouped by phases
 
-`url: /tournament/:id/first_stage`
+`url: /tournament/:id/matches/first_stage`
 
-where we display the groups rank and the matches grouped by dates for the first phase grouped by days.
+display all tournament matches grouped by group (first phase)
+'/matches' will redirect to 'matches/first_stage'
 
-`url: /tournament/:id/second_stage`
+`url: /tournament/:id/matches/second_stage`
 
-where we display the braket and the matches of the second phase grouped by days or by phases.
+display bracket then remaining matches grouped by phases
