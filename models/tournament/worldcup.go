@@ -176,3 +176,27 @@ func MapOf2ndRoundMatches() map[string][][]string {
 
 	return mapMatches2ndRound
 }
+
+func ArrayOfPhases() []string {
+	return []string{"First Stage", "Round of 16", "Quarter-finals", "Semi-finals", "Third Place", "Finals"}
+}
+
+// Build a map with key the corresponding phase in the world cup tournament
+// at value a tuple that represent the match number interval in which the phase take place:
+// first stage: matches 1 to 48
+// Round of 16: matches 49 to 56
+// Quarte-finals: matches 57 to 60
+// Semi-finals: matches 61 to 62
+// Thrid Place: match 63
+// Finals: match 64
+func MapOfPhaseIntervals() map[string][]int64 {
+
+	limits := make(map[string][]int64)
+	limits["First Stage"] = []int64{1, 48}
+	limits["Round of 16"] = []int64{49, 56}
+	limits["Quarter-finals"] = []int64{57, 60}
+	limits["Semi-finals"] = []int64{61, 62}
+	limits["Third Place"] = []int64{63, 63}
+	limits["Finals"] = []int64{64, 64}
+	return limits
+}

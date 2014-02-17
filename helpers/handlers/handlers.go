@@ -38,16 +38,22 @@ func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, erro
 	// if url has params extract id until the ? character
 	var strID string
 
-	if strings.Contains(r.URL.String(), "?") {
-		strPath := path[level]
-		strID = strPath[0:strings.Index(strPath, "?")]
-	} else {
-		strID = path[level]
-	}
+	strID = path[level]
 	intID, err := strconv.ParseInt(strID, 0, 64)
 	if err != nil {
-		log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", path[level], err)
+		// only try to extract id if were are unable to exracted using the level.
+		if strings.Contains(r.URL.String(), "?") {
+			strPath := path[level]
+			strID = strPath[0:strings.Index(strPath, "?")]
+		} else {
+			strID = path[level]
+		}
+		intID, err = strconv.ParseInt(strID, 0, 64)
+		if err != nil {
+			log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", path[level], err)
+		}
 	}
+
 	return intID, err
 }
 

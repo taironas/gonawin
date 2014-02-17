@@ -31,7 +31,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
   
-  return $resource('j/tournaments/:id', {id:'@id', q:'@q', teamId:'@teamId'}, {
+  return $resource('j/tournaments/:id', {id:'@id', q:'@q', teamId:'@teamId', groupby: '@groupby'}, {
     get: { method: 'GET', url: 'j/tournaments/show/:id' },
     save: { method: 'POST', url: 'j/tournaments/new' },
     update: { method: 'POST', url: 'j/tournaments/update/:id' },
@@ -45,9 +45,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
     groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
-    calendar: {method: 'GET', url: 'j/tournaments/:id/calendar'}, // #experimental: sar
-    calendarByDay:{method: 'GET', url: 'j/tournaments/:id/calendarbyday'}, // #experimental: sar
-    calendarByPhase:{method: 'GET', url: 'j/tournaments/:id/calendarbyphase'}, // #experimental: sar
+    calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'}, // #experimental: sar
   })
 });
 

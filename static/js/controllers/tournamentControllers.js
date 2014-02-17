@@ -235,23 +235,10 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
 
 tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament calendar controller');
+  console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
-  $scope.matchesData = Tournament.calendar({id:$routeParams.id});
-}]);
-
-tournamentControllers.controller('TournamentCalendarByDayCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament calendar by day controller');
-  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-
-  $scope.daysData = Tournament.calendarByDay({id:$routeParams.id});
-}]);
-
-tournamentControllers.controller('TournamentCalendarByPhaseCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament calendar by phase controller');
-  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-
-  $scope.phaseData = Tournament.calendarByPhase({id:$routeParams.id});
+  $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
 }]);
 
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
