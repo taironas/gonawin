@@ -252,7 +252,7 @@ tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$route
 }]);
 
 tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament first stage controller');
+  console.log('Tournament second stage controller');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-
+  $scope.matchesData = Tournament.matches({id:$routeParams.id, filter:"second"});
 }]);

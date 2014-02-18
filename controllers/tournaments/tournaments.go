@@ -511,6 +511,51 @@ func (a ByDate) Len() int           { return len(a) }
 func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
 
+// json tournament Matches handler
+// use this handler to get the matches of a tournament.
+// use the filter parameter to specify the matches you want
+func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "Tournament Matches Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Matches Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		filter := r.FormValue("filter")
+		// if wrong data we set groupby to "day"
+		if filter != "first" && filter != "second" {
+			filter = "first"
+		}
+
+		log.Infof(c, "Tournament Matches Handler: ready to build days array")
+		matchesJson := getAllMatchesFromTournament(c, *tournament)
+
+		if filter == "first" {
+			matchesJson = matchesJson[1:49]
+		} else if filter == "second" {
+			matchesJson = matchesJson[48:64]
+		}
+		data := struct {
+			Matches []MatchJson
+		}{
+			matchesJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
 func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 	limits := tournamentmdl.MapOfPhaseIntervals()
 	phaseNames := tournamentmdl.ArrayOfPhases()

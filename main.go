@@ -89,6 +89,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCupJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GroupsJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarJson)))
+	h.HandleFunc("/j/tournaments/[0-9]+/matches/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.MatchesJson)))
 
 	http.Handle("/", h)
 }
