@@ -44,21 +44,31 @@ var twitterConfig = oauth.Client{
 }
 var twitterCallbackURL string = "/j/auth/twitter/callback"
 
-// json Google authentication handler
-func JsonGoogleAuth(w http.ResponseWriter, r *http.Request) error {
+var googleVerifyTokenURL string = "https://www.google.com/accounts/AuthSubTokenInfo?bearer_token"
+var facebookVerifyTokenURL string = "https://graph.facebook.com/me?access_token"
+
+// json authentication handler
+func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
-	userInfo := authhlp.GPlusUserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
+	userInfo := authhlp.UserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
+  
+  var verifyURL string
+  if(r.FormValue("provider") == "google") {
+    verifyURL = googleVerifyTokenURL
+  } else if(r.FormValue("provider") == "facebook") {
+    verifyURL = facebookVerifyTokenURL
+  }
 
-	var err error
-	var user *usermdl.User
-
-	if !authhlp.CheckGoogleUserValidity(r.FormValue("access_token"), r) {
+	if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
 		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 	}
-	if !authhlp.IsAuthorizedWithGoogle(&userInfo) {
+	if !authhlp.IsAuthorized(&userInfo) {
 		return helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
+  
+  var user *usermdl.User
+  var err error
 	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}

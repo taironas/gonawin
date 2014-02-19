@@ -18,7 +18,8 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'tournamentControllers',
   'inviteControllers',
   
-  'dataServices'
+  'dataServices',
+  'authServices'
 ]);
 
 purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
@@ -69,7 +70,40 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-purpleWingApp.run(['$rootScope', '$location', function($rootScope, $location) {
+purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', function($rootScope, $location, $window, sAuth) {
+  $window.fbAsyncInit = function() {
+    // Executed when the SDK is loaded
+    FB.init({ 
+      appId: '232160743609875', 
+      channelUrl: 'static/channel.html',
+      status: true, /*Set if you want to check the authentication status at the start up of the app */
+      cookie: true, 
+      xfbml: true,
+      oauth: true,      
+    });
+
+    sAuth.watchLoginChange();
+  };
+  
+  (function(d){
+    // load the Facebook javascript SDK
+    var js, 
+    id = 'facebook-jssdk', 
+    ref = d.getElementsByTagName('script')[0];
+
+    if (d.getElementById(id)) {
+      return;
+    }
+
+    js = d.createElement('script'); 
+    js.id = id; 
+    js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js";
+
+    ref.parentNode.insertBefore(js, ref);
+
+  }(document));
+  
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
     if($location.$$path === '/auth/twitter/callback')
     {
@@ -89,5 +123,5 @@ purpleWingApp.run(['$rootScope', '$location', function($rootScope, $location) {
         }
       });
     }
-  });
+  }); 
 }]);

@@ -35,7 +35,7 @@ const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 const kEmailGonawinTest = "gonawin.test@gmail.com"
 
-type GPlusUserInfo struct {
+type UserInfo struct {
 	Id    string
 	Email string
 	Name  string
@@ -48,10 +48,10 @@ type TwitterUserInfo struct {
 }
 
 // from an accessToken string, verify if google user account is valid
-func CheckGoogleUserValidity(accessToken string, r *http.Request) bool {
+func CheckUserValidity(r *http.Request, url string, accessToken string, ) bool {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
-	resp, err := client.Get("https://www.google.com/accounts/AuthSubTokenInfo?bearer_token=" + accessToken)
+	resp, err := client.Get(url + "=" + accessToken)
 	if err != nil {
 		log.Errorf(c, " CheckUserValidity: %v", err)
 	}
@@ -65,9 +65,9 @@ func CheckAuthenticationData(r *http.Request) *usermdl.User {
 	return usermdl.Find(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-// Ckeck if googple plus user is admin.
+// Ckeck if user is admin.
 // #196: Should be removed when deployed in production.
-func IsAuthorizedWithGoogle(ui *GPlusUserInfo) bool {
+func IsAuthorized(ui *UserInfo) bool {
 	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
 }
 

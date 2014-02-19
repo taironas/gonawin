@@ -2,7 +2,7 @@
 
 var sessionControllers = angular.module('sessionControllers', []);
 
-sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieStore', '$q', 'Session', 'User', function ($scope, $location, $cookieStore, $q, Session, User) {
+sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieStore', '$q', 'Session', 'sAuth', 'User', function ($scope, $location, $cookieStore, $q, Session, sAuth, User) {
   console.log('SessionController module');
   $scope.currentUser  = undefined;
   $scope.loggedIn = false;
@@ -38,7 +38,8 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
     // User successfully authorized the G+ App!
     console.log('SessionController module:: User successfully authorized the G+ App!');
     Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
-      Session.fetchUser({  access_token: authResult.access_token, 
+      Session.fetchUser({  access_token: authResult.access_token,
+                           provider: 'google',
                            id:userInfo.id, 
                            name:userInfo.displayName, 
                            email:userInfo.emails[0].value } ).$promise.then(function(userData) {
@@ -64,6 +65,7 @@ sessionControllers.controller('SessionCtrl', ['$scope', '$location', '$cookieSto
     console.log('SessionController module:: disconnect');
 
     Session.logout({ token: $cookieStore.get('access_token') });
+    sAuth.logout();
     
     $cookieStore.remove('auth');
     $cookieStore.remove('access_token');

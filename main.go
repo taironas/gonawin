@@ -47,7 +47,7 @@ func init() {
 	// ------------- Json Server -----------------
 
 	// session
-	h.HandleFunc("/j/auth/google/?", handlers.ErrorHandler(sessionsctrl.JsonGoogleAuth))
+	h.HandleFunc("/j/auth/?", handlers.ErrorHandler(sessionsctrl.JsonAuthenticate))
 	h.HandleFunc("/j/auth/twitter/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuth))
 	h.HandleFunc("/j/auth/twitter/callback/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterAuthCallback))
 	h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.JsonTwitterUser))
