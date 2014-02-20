@@ -241,6 +241,28 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
 }]);
 
+
+tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament set results controller');
+  console.log('route params', $routeParams)
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:"phase"});
+
+  $scope.updateResult = function(matchId, result){
+    console.log('TournamentSetResultsCtrl: updateResult');
+    console.log('match id: ', matchId)
+    console.log('match result: ', result)
+    $scope.updatedMatch = Tournament.updateMatchResult({ id:$routeParams.id, matchId:matchId, result:result});
+
+    $scope.updatedMatch.$promise.then(function(result){
+      console.log('result: ', result);
+    });
+
+  };
+    
+}]);
+
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament first stage controller');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });

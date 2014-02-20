@@ -650,7 +650,7 @@ func getAllMatchesFromTournament(c appengine.Context, tournament tournamentmdl.T
 func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
+	if r.Method == "POST" {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 
 		if err != nil {
@@ -663,6 +663,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
 		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
 		if err2 != nil {
 			log.Errorf(c, "Tournament Update Match Result: error extracting permalink err:%v", err2)
@@ -677,17 +678,18 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 
 		result := r.FormValue("result")
 		// is result well formated?
-		results := strings.Split(match.Rule, " ")
+		results := strings.Split(result, " ")
+
 		if len(results) != 2 {
-			log.Errorf(c, "Tournament Update Match Result: unable to get results")
+			log.Errorf(c, "Tournament Update Match Result: unable to get results, lenght not right: %v", results)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 		if _, err = strconv.Atoi(results[0]); err != nil {
-			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v", err)
+			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v not number 1", err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 		if _, err = strconv.Atoi(results[1]); err != nil {
-			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v", err)
+			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v not number 2", err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
@@ -702,8 +704,13 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		mjson.IdNumber = match.IdNumber
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
-		mjson.Team1 = rule[0]
-		mjson.Team2 = rule[1]
+		if len(rule) > 1 {
+			mjson.Team1 = rule[0]
+			mjson.Team2 = rule[1]
+		} else {
+			mjson.Team1 = "" // need teams names here
+			mjson.Team2 = "" // need teams names here
+		}
 		mjson.Location = match.Location
 		mjson.Result = match.Result
 
