@@ -12,9 +12,9 @@
 
   </head>
   <body>
-    <div id="wrap" ng-controller="SessionCtrl">
+    <div id="wrap">
       <div ng-include src="'templates/partials/navigation.html'"></div>
-       <div ng-switch on="loggedIn">
+       <div ng-switch on="currentUser != undefined">
           <div ng-switch-when="true">
             <ng-include src="'templates/main.html'"></ng-include>
           </div>
@@ -25,7 +25,7 @@
       <div id="push"></div>
     </div>
     <div ng-include src="'templates/partials/footer.html'"></div>
-
+    <div id="fb-root"></div>
     <script src="/static/lib/jquery-1.10.2.min.js"></script>
     <script src="https://apis.google.com/js/plusone.js"></script>
     <script src="/static/lib/angular/angular.js"></script>
@@ -37,8 +37,8 @@
     <script src="/static/lib/angular-strap.min.js"></script>
 
     <script src="/static/js/app.js"></script>
+    <script src="/static/js/controllers/navigationControllers.js"></script>
     <script src="/static/js/controllers/homeControllers.js"></script>
-    <script src="/static/js/controllers/sessionControllers.js"></script>
     <script src="/static/js/controllers/inviteControllers.js"></script>
     <script src="/static/js/controllers/userControllers.js"></script>
     <script src="/static/js/controllers/teamControllers.js"></script>

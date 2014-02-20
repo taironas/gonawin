@@ -11,8 +11,8 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.joinButton',
   '$strap.directives',
   
+  'navigationControllers',
   'homeControllers',
-  'sessionControllers',
   'userControllers',
   'teamControllers',
   'tournamentControllers',
@@ -71,7 +71,9 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', function($rootScope, $location, $window, sAuth) {
+purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', function($rootScope, $location, $window, sAuth, Session) {
+  $rootScope.currentUser = {};
+  
   $window.fbAsyncInit = function() {
     // Executed when the SDK is loaded
     FB.init({ 
@@ -79,8 +81,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', function($root
       channelUrl: 'static/channel.html',
       status: true, /*Set if you want to check the authentication status at the start up of the app */
       cookie: true, 
-      xfbml: true,
-      oauth: true,      
+      xfbml: true      
     });
 
     sAuth.watchLoginChange();
@@ -108,21 +109,45 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', function($root
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
     if($location.$$path === '/auth/twitter/callback')
     {
-      $rootScope.$$childHead.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
+      sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else {
       // Everytime the route in our app changes check authentication status
-      $rootScope.$$childHead.initSession().then(function(loggedIn){
+      sAuth.getCurrentUser().then(function(currentUser){
+        $rootScope.currentUser = currentUser;
+        
+        console.log('current user = ', $rootScope.currentUser);
         if (next.requireLogin) {
-          if(!loggedIn) {
+          if(!$rootScope.currentUser) {
             // if you're logged out send to home page.
             $location.path('/');
           }
         } else {
-          if(loggedIn && $location.path() === '/') {
+          if($rootScope.currentUser && $location.path() === '/') {
             $location.path('/home');
           }
         }
       });
     }
   }); 
+  
+  $rootScope.$on('event:google-plus-signin-success', function (event, authResult) {
+    // User successfully authorized the G+ App!
+    Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
+      Session.fetchUser({  access_token: authResult.access_token,
+                           provider: 'google',
+                           id:userInfo.id, 
+                           name:userInfo.displayName, 
+                           email:userInfo.emails[0].value } ).$promise.then(function(userData) {
+       $rootScope.currentUser = userData.User;
+       console.log('current user: ', $rootScope.currentUser);
+
+       sAuth.storeCookies(authResult.access_token, $rootScope.currentUser.Auth, $rootScope.currentUser.Id);
+       
+       $location.path('/home');
+      });
+    });
+  });
+  $rootScope.$on('event:google-plus-signin-failure', function (event, authResult) {
+    // User has not authorized the G+ App!
+  });
 }]);

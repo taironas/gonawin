@@ -1,31 +1,34 @@
 'use strict'
 var authServices = angular.module('authServices', ['ngResource']);
 
-authServices.factory('sAuth', function($rootScope, $cookieStore, $location, Session) {
+authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, User, Session) {
   return {
+    getCurrentUser: function() {
+      var deferred = $q.defer();
+      
+      if(!$cookieStore.get('access_token') || !$cookieStore.get('user_id')) {
+        deferred.resolve(undefined);
+      }
+      else {
+        User.get({ id:$cookieStore.get('user_id') }).$promise.then(function(userData) {
+          if(userData.User.Auth == $cookieStore.get('auth')){
+            deferred.resolve(userData.User);
+          } else {
+            deferred.resolve(undefined);
+          }
+        });
+      }
+
+      return deferred.promise;
+    },
+  
     watchLoginChange: function() {
       var _self = this;
 
       FB.Event.subscribe('auth.authResponseChange', function(response) {
         console.log('auth.authResponseChange, response = ', response);
         if (response.status === 'connected') {
-          /* 
-           The user is already logged, 
-           is possible retrieve his personal info
-          */
           _self.getUserInfo(response.authResponse.accessToken);
-          /*
-           This is also the point where you should create a 
-           session for the current user.
-           For this purpose you can use the data inside the 
-           response.authResponse object.
-          */
-        } 
-        else {
-          /*
-           The user is not logged to the app, or into Facebook:
-           destroy the session on the server.
-          */
         }
       });
     },
@@ -39,24 +42,51 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, Sess
                              id:userInfo.id, 
                              name:userInfo.name, 
                              email:userInfo.email } ).$promise.then(function(userData) {
-         $rootScope.currentUser = userData.User;
+          $rootScope.currentUser = _self.currentUser = userData.User;
+          console.log('current user: ', _self.currentUser);
+         
+          storeCookies(accessToken, _self.currentUser.Auth, _self.currentUser.Id);
+         
+          $location.path('/home');
+        });
+      });
+    },
+    
+    storeCookies: function(accessToken, auth, userId) {
+      $cookieStore.put('access_token', accessToken);
+      $cookieStore.put('auth', auth);
+      $cookieStore.put('user_id', userId);
+    },
+    
+    logout: function() {
+      var _self = this;
+      FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+          FB.logout(function(response) {
+            console.log('Facebook logout = ', response);
+            $rootScope.$apply(function() { 
+              $rootScope.currentUser = _self.currentUser = {}; 
+            });
+          });
+        }
+      });
+    },
+    
+    signinWithTwitter: function(oauthToken, oauthVerifier) {
+      // User successfully authorized via Twitter!
+      console.log('User successfully authorized via Twitter!');
+
+      Session.fetchTwitterUser({ oauth_token: oauthToken, oauth_verifier: oauthVerifier }).$promise.then(function(userData) {
+        $rootScope.currentUser = userData.User;
          console.log('current user: ', $rootScope.currentUser);
          
-         $cookieStore.put('access_token', accessToken);
+         $cookieStore.put('access_token', oauthToken);
          $cookieStore.put('auth', $rootScope.currentUser.Auth);
          $cookieStore.put('user_id', $rootScope.currentUser.Id);
          
          $rootScope.loggedIn = true;
          
          $location.path('/home');
-        });
-      });
-    },
-    
-    logout: function() {
-      var _self = this;
-      FB.logout(function(response) {
-        console.log('Facebook logout = ', response);	
       });
     }
   }
