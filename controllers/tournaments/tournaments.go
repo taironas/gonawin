@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -431,6 +432,7 @@ type MatchJson struct {
 	Team1    string
 	Team2    string
 	Location string
+	Result   string
 }
 
 type DayJson struct {
@@ -624,6 +626,7 @@ func getAllMatchesFromTournament(c appengine.Context, tournament tournamentmdl.T
 		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 		matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
 		matchesJson[i].Location = m.Location
+		matchesJson[i].Result = m.Result
 	}
 
 	// append 2nd round to first one
@@ -635,9 +638,76 @@ func getAllMatchesFromTournament(c appengine.Context, tournament tournamentmdl.T
 		matchJson2ndPhase.Team1 = rule[0]
 		matchJson2ndPhase.Team2 = rule[1]
 		matchJson2ndPhase.Location = m.Location
+		matchJson2ndPhase.Result = m.Result
+
 		// append second round results
 		matchesJson = append(matchesJson, matchJson2ndPhase)
 	}
 
 	return matchesJson
+}
+
+func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+
+		if err != nil {
+			log.Errorf(c, "Tournament Groups Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
+		if err2 != nil {
+			log.Errorf(c, "Tournament Update Match Result: error extracting permalink err:%v", err2)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+
+		match := tournamentmdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
+		if match == nil {
+			log.Errorf(c, "Tournament Update Match Result: unable to get match with id number :%v", matchIdNumber)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
+		}
+
+		result := r.FormValue("result")
+		// is result well formated?
+		results := strings.Split(match.Rule, " ")
+		if len(results) != 2 {
+			log.Errorf(c, "Tournament Update Match Result: unable to get results")
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+		if _, err = strconv.Atoi(results[0]); err != nil {
+			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+		if _, err = strconv.Atoi(results[1]); err != nil {
+			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+
+		if err = tournamentmdl.SetResult(c, match, result); err != nil {
+			log.Errorf(c, "Tournament Update Match Result: unable to set result for match with id:%v error: %v", match.IdNumber, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+
+		}
+
+		// return the updated match
+		var mjson MatchJson
+		mjson.IdNumber = match.IdNumber
+		mjson.Date = match.Date
+		rule := strings.Split(match.Rule, " ")
+		mjson.Team1 = rule[0]
+		mjson.Team2 = rule[1]
+		mjson.Location = match.Location
+		mjson.Result = match.Result
+
+		return templateshlp.RenderJson(w, c, mjson)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

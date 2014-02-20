@@ -52,13 +52,13 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	userInfo := authhlp.UserInfo{r.FormValue("id"), r.FormValue("email"), r.FormValue("name")}
-  
-  var verifyURL string
-  if(r.FormValue("provider") == "google") {
-    verifyURL = googleVerifyTokenURL
-  } else if(r.FormValue("provider") == "facebook") {
-    verifyURL = facebookVerifyTokenURL
-  }
+
+	var verifyURL string
+	if r.FormValue("provider") == "google" {
+		verifyURL = googleVerifyTokenURL
+	} else if r.FormValue("provider") == "facebook" {
+		verifyURL = facebookVerifyTokenURL
+	}
 
 	if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
 		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
@@ -66,9 +66,9 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	if !authhlp.IsAuthorized(&userInfo) {
 		return helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
-  
-  var user *usermdl.User
-  var err error
+
+	var user *usermdl.User
+	var err error
 	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}

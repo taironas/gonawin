@@ -67,6 +67,7 @@ type Tmatch struct {
 	TeamId2  int64
 	Location string
 	Rule     string // we use this field to store a specific match rule.
+	Result   string
 }
 
 type TournamentJson struct {
@@ -162,7 +163,7 @@ func KeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// update a tournament given a tournament id and a tournament pointer.
+// Update a tournament given a tournament id and a tournament pointer.
 func Update(c appengine.Context, id int64, t *Tournament) error {
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
@@ -331,6 +332,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		cMatchTeam1    = 2
 		cMatchTeam2    = 3
 		cMatchLocation = 4
+		cEmptyResult   = ""
 	)
 
 	// matches1stStageIds is an array of  int64
@@ -402,6 +404,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				mapTeamId[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
 				emtpyrule,
+				cEmptyResult,
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -474,6 +477,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				0, // second round matches start with ids at 0
 				matchData[cMatchLocation],
 				rule,
+				cEmptyResult,
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")
 
@@ -513,7 +517,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	return tournament, nil
 }
 
-// get a Tgroup entity by id
+// Get a Tgroup entity by id.
 func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	var g Tgroup
 	key := datastore.NewKey(c, "Tgroup", "", groupId, nil)
@@ -525,7 +529,7 @@ func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	return &g, nil
 }
 
-// get a Tmatch entity by id
+// Get a Tmatch entity by id.
 func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	var m Tmatch
 	key := datastore.NewKey(c, "Tmatch", "", matchId, nil)
@@ -537,7 +541,7 @@ func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	return &m, nil
 }
 
-// from a tournament id returns an array of groups the participate in it.
+// From a tournament id returns an array of groups the participate in it.
 func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 
 	var groups []*Tgroup
@@ -554,7 +558,7 @@ func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 	return groups
 }
 
-// from an array of ids return the corresponding array of matches
+// From an array of ids return the corresponding array of matches.
 func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 
 	var matches []*Tmatch
@@ -572,7 +576,23 @@ func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 
 }
 
-// from tournament entity build map of teams
+func GetMatchByIdNumber(c appengine.Context, tournament Tournament, matchInternalId int64) *Tmatch {
+	matches1stStage := Matches(c, tournament.Matches1stStage)
+	for _, m := range matches1stStage {
+		if m.IdNumber == matchInternalId {
+			return m
+		}
+	}
+	matches2ndStage := Matches(c, tournament.Matches2ndStage)
+	for _, m := range matches2ndStage {
+		if m.IdNumber == matchInternalId {
+			return m
+		}
+	}
+	return nil
+}
+
+// From tournament entity build map of teams.
 func MapOfIdTeams(c appengine.Context, tournament Tournament) map[int64]string {
 
 	var mapIdTeams map[int64]string
@@ -585,4 +605,34 @@ func MapOfIdTeams(c appengine.Context, tournament Tournament) map[int64]string {
 		}
 	}
 	return mapIdTeams
+}
+
+// return a pointer to a tournament key given a tournament id
+func KeyByIdMatch(c appengine.Context, id int64) *datastore.Key {
+
+	key := datastore.NewKey(c, "Tmatch", "", id, nil)
+
+	return key
+}
+
+// update a team given an id and a team pointer
+func UpdateMatch(c appengine.Context, m *Tmatch) error {
+
+	k := KeyByIdMatch(c, m.Id)
+	oldMatch := new(Tmatch)
+	if err := datastore.Get(c, k, oldMatch); err == nil {
+		if _, err = datastore.Put(c, k, m); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func SetResult(c appengine.Context, match *Tmatch, result string) error {
+	match.Result = result
+	if err := UpdateMatch(c, match); err != nil {
+		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", match.Id, err)
+		return err
+	}
+	return nil
 }

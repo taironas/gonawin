@@ -64,6 +64,8 @@ const (
 	ErrorCodeTournamentDeleteForbiden       = "Tournament can only be deleted by the team administrator"
 	ErrorCodeTournamentCannotUpdate         = "Could not update tournament"
 	ErrorCodeTournamentCannotSearch         = "Something went wrong, we are unable to perform search query"
+	ErrorCodeMatchCannotUpdate              = "Something went wrong, unable to update match"
+	ErrorCodeMatchNotFoundCannotUpdate      = "Something went wrong, unable to update match"
 
 	// invite
 	ErrorCodeInviteNoEmailAddr     = "No email address has been entered"
