@@ -9,7 +9,11 @@ please detail:
 
  * the colors you customize
  * the fonts you use
- * images of main page, teams page, team page and user page.
+ * images of:
+     * *main page*
+     * *teams page*
+     * *tournament page*
+     * *user page*
  
 how to add a new theme:
 
