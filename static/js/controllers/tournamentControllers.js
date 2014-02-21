@@ -255,7 +255,7 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
       console.log('TournamentSetResultsCtrl: updateResult');
       console.log('match: ', match);
       console.log('match: ', match.IdNumber);
-      console.log('match result: ', match.Result1, ,' ', match.Result2);
+      console.log('match result: ', match.Result1, ' ', match.Result2);
       console.log('indexes: match, day, phase ', matchindex, dayindex, phaseindex);
       // build result string to send to API
       var result = match.Result1 + ' ' + match.Result2;
