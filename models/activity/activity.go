@@ -17,29 +17,29 @@
 package activity
 
 import (
-  "errors"
+	"errors"
 	"time"
-  
-  "appengine"
+
+	"appengine"
 	"appengine/datastore"
-  
-  "github.com/santiaago/purple-wing/helpers/log"
+
+	"github.com/santiaago/purple-wing/helpers/log"
 )
 
 type Activity struct {
 	Id        int64
 	Title     string
 	Verb      string
-  Actor     ActivityEntity
-  Object    ActivityEntity
-  Target    ActivityEntity
+	Actor     ActivityEntity
+	Object    ActivityEntity
+	Target    ActivityEntity
 	Published time.Time
-  UserID    int64
+	UserID    int64
 }
 
 type ActivityEntity struct {
-  Id  int64
-  DisplayName string
+	Id          int64
+	DisplayName string
 }
 
 type ActivityJson struct {
@@ -58,7 +58,7 @@ func (a Activity) create(c appengine.Context) error {
 	activityID, _, err := datastore.AllocateIDs(c, "Activity", nil, 1)
 	if err != nil {
 		log.Errorf(c, " model/activity, create: %v", err)
-    return errors.New("model/activity, unable to allocate an identifier for Activity")
+		return errors.New("model/activity, unable to allocate an identifier for Activity")
 	}
 
 	key := datastore.NewKey(c, "Activity", "", activityID, nil)

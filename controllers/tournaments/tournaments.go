@@ -432,8 +432,8 @@ type MatchJson struct {
 	Team1    string
 	Team2    string
 	Location string
-	Result1   string
-	Result2   string
+	Result1  string
+	Result2  string
 }
 
 type DayJson struct {
@@ -702,9 +702,16 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 
 		}
 
-		if isLast, phaseId := lastMatchOfPhase(c, tournament, match); isLast == true{
+		if ismatch, g := tournamentmdl.IsMatchInGroup(c, tournament, match); ismatch == true {
+			if err = tournamentmdl.UpdatePoints(c, g, match); err != nil {
+				log.Errorf(c, "Tournament Update Match Result: unable to update point for group for match with id:%v error: %v", match.IdNumber, err)
+				return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			}
+		}
+
+		if isLast, phaseId := lastMatchOfPhase(c, tournament, match); isLast == true {
 			log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
-			log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId + 1)
+			log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId+1)
 			log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
 		}
 
@@ -721,7 +728,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			mjson.Team2 = rule[1]
 		} else {
 			mjson.Team1 = mapIdTeams[match.TeamId1]
-			mjson.Team2 = mapIdTeams[match.TeamId1]
+			mjson.Team2 = mapIdTeams[match.TeamId2]
 		}
 		mjson.Location = match.Location
 		mjson.Result1 = match.Result1
@@ -734,14 +741,14 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 
 // Check if the match m passed as argument is the last match of a phase in a specific tournament.
 // it returns a boolean and the index of the phase the match was found
-func lastMatchOfPhase(c appengine.Context, t *tournamentmdl.Tournament, m *tournamentmdl.Tmatch)(bool, int64){
+func lastMatchOfPhase(c appengine.Context, t *tournamentmdl.Tournament, m *tournamentmdl.Tmatch) (bool, int64) {
 	allMatchesJson := getAllMatchesFromTournament(c, *t)
 	phases := matchesGroupByPhase(allMatchesJson)
-	for i, ph := range phases{
-		if n := len(ph.Days); n > 1{
-			lastDay := ph.Days[n - 1]
-			for _, match := range lastDay.Matches{
-				if match.IdNumber == m.IdNumber{
+	for i, ph := range phases {
+		if n := len(ph.Days); n > 1 {
+			lastDay := ph.Days[n-1]
+			for _, match := range lastDay.Matches {
+				if match.IdNumber == m.IdNumber {
 					return true, int64(i)
 				}
 			}

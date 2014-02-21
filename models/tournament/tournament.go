@@ -52,6 +52,7 @@ type Tgroup struct {
 	Name    string
 	Teams   []Tteam
 	Matches []Tmatch
+	Points  []int64
 }
 
 type Tteam struct {
@@ -354,6 +355,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		group.Name = groupName
 		groupIndex := int64(groupName[0]) - 65
 		group.Teams = make([]Tteam, len(teams))
+		group.Points = make([]int64, len(teams))
 		for i, teamName := range teams {
 			log.Infof(c, "World Cup: team: %v", teamName)
 
@@ -543,7 +545,7 @@ func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	return &m, nil
 }
 
-// From a tournament id returns an array of groups the participate in it.
+// From an array of groups id return array of Tgroups.
 func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 
 	var groups []*Tgroup
@@ -609,7 +611,7 @@ func MapOfIdTeams(c appengine.Context, tournament Tournament) map[int64]string {
 	return mapIdTeams
 }
 
-// return a pointer to a tournament key given a tournament id
+// return a pointer to a match key given a match id
 func KeyByIdMatch(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Tmatch", "", id, nil)
@@ -617,7 +619,15 @@ func KeyByIdMatch(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// update a team given an id and a team pointer
+// return a pointer to a group key given a group id
+func KeyByIdGroup(c appengine.Context, id int64) *datastore.Key {
+
+	key := datastore.NewKey(c, "Tgroup", "", id, nil)
+
+	return key
+}
+
+// Update a match given a match pointer
 func UpdateMatch(c appengine.Context, m *Tmatch) error {
 
 	k := KeyByIdMatch(c, m.Id)
@@ -630,6 +640,19 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
+// Update a group given an a group pointer
+func UpdateGroup(c appengine.Context, g *Tgroup) error {
+	k := KeyByIdGroup(c, g.Id)
+	oldGroup := new(Tgroup)
+	if err := datastore.Get(c, k, oldGroup); err == nil {
+		if _, err = datastore.Put(c, k, g); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Set results in match entity and triggers a match update in datastore.
 func SetResult(c appengine.Context, match *Tmatch, result1 string, result2 string) error {
 	match.Result1 = result1
 	match.Result2 = result2
@@ -637,6 +660,46 @@ func SetResult(c appengine.Context, match *Tmatch, result1 string, result2 strin
 	if err := UpdateMatch(c, match); err != nil {
 		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", match.Id, err)
 		return err
+	}
+	return nil
+}
+
+// Check if the match is part of a group phase in current tournament.
+func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgroup) {
+	groups := Groups(c, t.GroupIds)
+	for _, g := range groups {
+		for _, match := range g.Matches {
+			if m.Id == match.Id {
+				return true, g
+			}
+		}
+	}
+	return false, nil
+}
+
+// Update points in group with result of match
+func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch) error {
+	for i, t := range g.Teams {
+		if t.Id == m.TeamId1 {
+			if m.Result1 > m.Result2 {
+				g.Points[i] += 3
+				UpdateGroup(c, g)
+
+			} else if m.Result1 == m.Result2 {
+				g.Points[i] += 1
+				UpdateGroup(c, g)
+
+			}
+		} else if t.Id == m.TeamId2 {
+			if m.Result2 > m.Result1 {
+				g.Points[i] += 3
+				UpdateGroup(c, g)
+
+			} else if m.Result2 == m.Result1 {
+				g.Points[i] += 1
+				UpdateGroup(c, g)
+			}
+		}
 	}
 	return nil
 }

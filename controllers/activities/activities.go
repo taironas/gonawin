@@ -21,12 +21,12 @@ import (
 	"net/http"
 
 	"appengine"
-  
-  "github.com/santiaago/purple-wing/helpers"
-  templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+
+	"github.com/santiaago/purple-wing/helpers"
+	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
-  usermdl "github.com/santiaago/purple-wing/models/user"
+	usermdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // json index activity handler
@@ -40,7 +40,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		activitiesJson := make([]activitymdl.ActivityJson, len(activities))
 		helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
 
-    return templateshlp.RenderJson(w, c, activitiesJson)
+		return templateshlp.RenderJson(w, c, activitiesJson)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
