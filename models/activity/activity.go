@@ -41,6 +41,16 @@ type ActivityEntity struct {
   DisplayName string
 }
 
+type UserJson struct {
+	Id        *int64          `json:",omitempty"`
+	Title     *string         `json:",omitempty"`
+	Verb      *string         `json:",omitempty"`
+	Actor     *ActivityEntity `json:",omitempty"`
+	Object    *ActivityEntity `json:",omitempty"`
+	Target    *ActivityEntity `json:",omitempty"`
+	Published *time.Time      `json:",omitempty"`
+}
+
 // creates an activity entity,
 func (a Activity) create(c appengine.Context) error {
 	// create new user
