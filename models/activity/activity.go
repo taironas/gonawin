@@ -34,6 +34,7 @@ type Activity struct {
   Object    ActivityEntity
   Target    ActivityEntity
 	Published time.Time
+  UserID    int64
 }
 
 type ActivityEntity struct {
@@ -74,8 +75,8 @@ func (a Activity) create(c appengine.Context) error {
 }
 
 // find all activities present in datastore
-func FindAll(c appengine.Context) []*Activity {
-	q := datastore.NewQuery("Activity")
+func FindByUser(c appengine.Context, userID int64) []*Activity {
+	q := datastore.NewQuery("Activity").Filter("UserID=", userID)
 
 	var activities []*Activity
 

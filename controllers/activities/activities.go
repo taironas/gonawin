@@ -34,13 +34,13 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		activities := activitymdl.FindAll(c)
+		activities := activitymdl.FindByUser(c, u.Id)
 
 		fieldsToKeep := []string{"Id", "Title", "Verb", "Actor", "Object", "Target"}
-		activitiesJson := make([]activitymdl.Activity, len(activities))
+		activitiesJson := make([]activitymdl.ActivityJson, len(activities))
 		helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
 
-		return templateshlp.RenderJson(w, c, activitiesJson)
+    return templateshlp.RenderJson(w, c, activitiesJson)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

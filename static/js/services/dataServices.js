@@ -59,7 +59,13 @@ dataServices.factory('Invite', function($http, $cookieStore, $resource){
   })
 });
 
-dataServices.factory('Session', function($http, $cookieStore, $resource) {
+dataServices.factory('Activity', function($http, $cookieStore, $resource){
+  $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
+  
+  return $resource('j/activities')
+});
+
+dataServices.factory('Session', function($cookieStore, $resource) {
   
   return $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
     fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },
