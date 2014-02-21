@@ -432,7 +432,8 @@ type MatchJson struct {
 	Team1    string
 	Team2    string
 	Location string
-	Result   string
+	Result1   string
+	Result2   string
 }
 
 type DayJson struct {
@@ -626,7 +627,8 @@ func getAllMatchesFromTournament(c appengine.Context, tournament tournamentmdl.T
 		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 		matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
 		matchesJson[i].Location = m.Location
-		matchesJson[i].Result = m.Result
+		matchesJson[i].Result1 = m.Result1
+		matchesJson[i].Result2 = m.Result2
 	}
 
 	// append 2nd round to first one
@@ -638,7 +640,8 @@ func getAllMatchesFromTournament(c appengine.Context, tournament tournamentmdl.T
 		matchJson2ndPhase.Team1 = rule[0]
 		matchJson2ndPhase.Team2 = rule[1]
 		matchJson2ndPhase.Location = m.Location
-		matchJson2ndPhase.Result = m.Result
+		matchJson2ndPhase.Result1 = m.Result1
+		matchJson2ndPhase.Result2 = m.Result2
 
 		// append second round results
 		matchesJson = append(matchesJson, matchJson2ndPhase)
@@ -693,7 +696,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
-		if err = tournamentmdl.SetResult(c, match, result); err != nil {
+		if err = tournamentmdl.SetResult(c, match, results[0], results[1]); err != nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to set result for match with id:%v error: %v", match.IdNumber, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 
@@ -704,15 +707,19 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		mjson.IdNumber = match.IdNumber
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
+
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+
 		if len(rule) > 1 {
 			mjson.Team1 = rule[0]
 			mjson.Team2 = rule[1]
 		} else {
-			mjson.Team1 = "" // need teams names here
-			mjson.Team2 = "" // need teams names here
+			mjson.Team1 = mapIdTeams[match.TeamId1]
+			mjson.Team2 = mapIdTeams[match.TeamId1]
 		}
 		mjson.Location = match.Location
-		mjson.Result = match.Result
+		mjson.Result1 = match.Result1
+		mjson.Result2 = match.Result2
 
 		return templateshlp.RenderJson(w, c, mjson)
 	}

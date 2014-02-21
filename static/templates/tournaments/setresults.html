@@ -2,40 +2,52 @@
 <div class="page-header">
   <h1>Tournament Calendar</h1>
 
-<dl class="dl-horizontal">
-  <dt><strong>Id:</strong></dt>
-  <dd>{{tournamentData.Tournament.Id}}</dd>
-  <dt><strong>Name:</strong></dt>
-  <dd>{{tournamentData.Tournament.Name}}</dd>
-</dl>
+  <dl class="dl-horizontal">
+    <dt><strong>Id:</strong></dt>
+    <dd>{{tournamentData.Tournament.Id}}</dd>
+    <dt><strong>Name:</strong></dt>
+    <dd>{{tournamentData.Tournament.Name}}</dd>
+  </dl>
 
-<!-- Calendar by phase -->
-<div ng-repeat="phase in matchesData.Phases">
-  <div class="calendar">
-    <h3>{{phase.Name}}</h3>
-    <table class="table table-striped">
-      <thead>
-    	<!-- <tr><th>Days</th></tr> -->
-      </thead>
-      <tbody>
-    	<tr ng-repeat="d in phase.Days">
-          <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
-    	  <td>
-    	  <div ng-repeat="m in d.Matches">
-    	    <p>N°:{{m.IdNumber}}:<br>{{m.Team1}} - {{m.Team2}}<br>{{m.Result}}
-	    <form class="form-inline" role="form" ng-submit="updateResult(m.IdNumber, result)">
-	      <div class="form-group">
-		<label>Result</label>
-		<input type="text" class="form-control" id="{{m.IdNumber}}" ng-model="result" placeholder="Enter match result">
+  <!-- Calendar by phase and date -->
+  <div ng-repeat="phase in matchesData.Phases">
+    <div class="calendar">
+      <h3>{{phase.Name}}</h3>
+      <table class="table table-striped  table-condensed">
+	<thead></thead>
+	<tbody>
+    	  <tr ng-repeat="d in phase.Days">
+            <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
+    	    <td>
+    	      <div ng-repeat="m in d.Matches">
+		<p>
+		  <form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
+		  <div class="row">
+		    <div class="col-xs-1">#{{m.IdNumber}}</div>
+		    <div class="col-xs-1">
+		      <small><label class="control-label">{{m.Team1}}</label></small>
+		    </div>
+		    <div class="col-xs-1">
+		      <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result1" placeholder="">
+		    </div>
+		    <div class="col-xs-1">
+		      <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result2" placeholder="">
+		    </div>
+		    <div class="col-xs-1">
+		      <small><label class="control-label">{{m.Team2}}</label></small>
+		    </div>
+		    <div class="col-xs-2">
+		      <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
+		    </div>
+		  </div>
+		</form>
+		</p>
 	      </div>
-	      <button type="submit" class="btn btn-primary">Update</button>
-	    </form>
-	    <small>Location: {{m.Location}}</small></p>
-    	  </div>
-    	  </td>
-    	</tr>
-      </tbody>
-    </table>
+	    </td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
+    <!-- / Calendar -->
   </div>
-  <!-- / Calendar -->
 </div>

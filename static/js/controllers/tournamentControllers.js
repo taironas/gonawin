@@ -242,6 +242,8 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 }]);
 
 
+// Controller for Admin: update results.
+// ToDo: Should only be available if you are admin
 tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament set results controller');
   console.log('route params', $routeParams)
@@ -249,14 +251,21 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:"phase"});
 
-  $scope.updateResult = function(matchId, result){
-    console.log('TournamentSetResultsCtrl: updateResult');
-    console.log('match id: ', matchId)
-    console.log('match result: ', result)
-    $scope.updatedMatch = Tournament.updateMatchResult({ id:$routeParams.id, matchId:matchId, result:result});
-
-    $scope.updatedMatch.$promise.then(function(result){
-      console.log('result: ', result);
+  $scope.updateResult = function(match, matchindex, dayindex, phaseindex){
+      console.log('TournamentSetResultsCtrl: updateResult');
+      console.log('match: ', match);
+      console.log('match: ', match.IdNumber);
+      console.log('match result: ', match.Result1, ,' ', match.Result2);
+      console.log('indexes: match, day, phase ', matchindex, dayindex, phaseindex);
+      // build result string to send to API
+      var result = match.Result1 + ' ' + match.Result2;
+      $scope.updatedMatch = Tournament.updateMatchResult({ id:$routeParams.id, matchId:match.IdNumber, result:result});
+      // update current match view
+      $scope.updatedMatch.$promise.then(function(result){
+	  console.log('result: ', result);
+	  console.log('matchdata: ', $scope.matchesData);
+	  console.log('matchdatamatches: ', $scope.matchesData.Phases[phaseindex].Days[dayindex].Matches[matchindex]);
+	  $scope.matchesData.Phases[phaseindex].Days[dayindex].Matches[matchindex] = result;
     });
 
   };

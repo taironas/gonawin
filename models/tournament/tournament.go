@@ -67,7 +67,8 @@ type Tmatch struct {
 	TeamId2  int64
 	Location string
 	Rule     string // we use this field to store a specific match rule.
-	Result   string
+	Result1  string
+	Result2  string
 }
 
 type TournamentJson struct {
@@ -332,7 +333,6 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		cMatchTeam1    = 2
 		cMatchTeam2    = 3
 		cMatchLocation = 4
-		cEmptyResult   = ""
 	)
 
 	// matches1stStageIds is an array of  int64
@@ -404,7 +404,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				mapTeamId[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
 				emtpyrule,
-				cEmptyResult,
+				"",
+				"",
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -477,7 +478,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				0, // second round matches start with ids at 0
 				matchData[cMatchLocation],
 				rule,
-				cEmptyResult,
+				"",
+				"",
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")
 
@@ -628,8 +630,10 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
-func SetResult(c appengine.Context, match *Tmatch, result string) error {
-	match.Result = result
+func SetResult(c appengine.Context, match *Tmatch, result1 string, result2 string) error {
+	match.Result1 = result1
+	match.Result2 = result2
+
 	if err := UpdateMatch(c, match); err != nil {
 		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", match.Id, err)
 		return err
