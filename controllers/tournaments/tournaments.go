@@ -702,6 +702,12 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 
 		}
 
+		if isLast, phaseId := lastMatchOfPhase(c, tournament, match); isLast == true{
+			log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
+			log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId + 1)
+			log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
+		}
+
 		// return the updated match
 		var mjson MatchJson
 		mjson.IdNumber = match.IdNumber
@@ -724,4 +730,22 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		return templateshlp.RenderJson(w, c, mjson)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Check if the match m passed as argument is the last match of a phase in a specific tournament.
+// it returns a boolean and the index of the phase the match was found
+func lastMatchOfPhase(c appengine.Context, t *tournamentmdl.Tournament, m *tournamentmdl.Tmatch)(bool, int64){
+	allMatchesJson := getAllMatchesFromTournament(c, *t)
+	phases := matchesGroupByPhase(allMatchesJson)
+	for i, ph := range phases{
+		if n := len(ph.Days); n > 1{
+			lastDay := ph.Days[n - 1]
+			for _, match := range lastDay.Matches{
+				if match.IdNumber == m.IdNumber{
+					return true, int64(i)
+				}
+			}
+		}
+	}
+	return false, int64(-1)
 }
