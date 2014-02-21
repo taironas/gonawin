@@ -30,6 +30,7 @@ import (
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
 	tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
+  activitiesctrl "github.com/santiaago/purple-wing/controllers/activities"
 )
 
 // temporary main handler: for landing page
@@ -82,7 +83,7 @@ func init() {
 	h.HandleFunc("/j/tournamentrels/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentteamrels/create/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentteamrels/destroy/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.DestroyJson)))
-	// invite -json
+	// invite - json
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 
 	// experimental: sar
@@ -91,6 +92,9 @@ func init() {
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.MatchesJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/update/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateMatchResultJson)))
+  
+  // activities - json
+  h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.IndexJson)))
 
 	http.Handle("/", h)
 }
