@@ -41,7 +41,7 @@ type ActivityEntity struct {
   DisplayName string
 }
 
-type UserJson struct {
+type ActivityJson struct {
 	Id        *int64          `json:",omitempty"`
 	Title     *string         `json:",omitempty"`
 	Verb      *string         `json:",omitempty"`
