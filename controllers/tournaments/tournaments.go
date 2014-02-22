@@ -414,16 +414,36 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		groups := tournamentmdl.Groups(c, tournament.GroupIds)
-		// ToDo: might need to filter information here.
+		// prepare data
+		groupsJson := make([]GroupJson, len(groups))
+		for i, g := range groups {
+			groupsJson[i].Name = g.Name
+			groupsJson[i].Teams = make([]TeamJson, len(g.Teams))
+			for j, t := range g.Teams {
+				groupsJson[i].Teams[j].Name = t.Name
+				groupsJson[i].Teams[j].Point = g.Points[j]
+			}
+		}
+
 		data := struct {
-			Groups []*tournamentmdl.Tgroup
+			Groups []GroupJson
 		}{
-			groups,
+			groupsJson,
 		}
 
 		return templateshlp.RenderJson(w, c, data)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+type GroupJson struct {
+	Name  string
+	Teams []TeamJson
+}
+
+type TeamJson struct {
+	Name  string
+	Point int64
 }
 
 type MatchJson struct {
