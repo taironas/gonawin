@@ -702,6 +702,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t
 	if isLast, phaseId := lastMatchOfPhase(c, t, m); isLast == true {
 		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
 		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId+1)
+		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", m)
 		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
 	}
 
@@ -771,10 +772,11 @@ func lastMatchOfPhase(c appengine.Context, t *Tournament, m *Tmatch) (bool, int6
 	allMatches := GetAllMatchesFromTournament(c, *t)
 	phases := MatchesGroupByPhase(allMatches)
 	for i, ph := range phases {
-		if n := len(ph.Days); n > 1 {
+		if n := len(ph.Days); n >= 1 {
 			lastDay := ph.Days[n-1]
-			for _, match := range lastDay.Matches {
-				if match.IdNumber == m.IdNumber {
+			if n = len(lastDay.Matches); n >= 1 {
+				lastMatch := lastDay.Matches[n-1]
+				if lastMatch.IdNumber == m.IdNumber {
 					return true, int64(i)
 				}
 			}

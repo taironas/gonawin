@@ -276,14 +276,13 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
     Tournament.simulatePhase({id:$routeParams.id, phaseName:phaseName},
 			     function(){
 			       console.log('success in simulation!');
-			       // reset match results here.
+			       $location.path('/tournaments/' + $routeParams.id + '/matches/setresults');
 			     },
 			     function(err) {
 			       console.log('failure in  simulation! ', err.data);
 			       $scope.messageDanger = err.data;
 			     });
-    
-  }
+  };
     
 }]);
 

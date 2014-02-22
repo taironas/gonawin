@@ -52,6 +52,9 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 		phase := r.FormValue("phase")
 		allMatches := tournamentmdl.GetAllMatchesFromTournament(c, *tournament)
 		phases := tournamentmdl.MatchesGroupByPhase(allMatches)
+
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+
 		for _, ph := range phases {
 			if ph.Name == phase {
 				for _, d := range ph.Days {
@@ -59,6 +62,7 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 						// simulate match here (call set results)
 						result1 := strconv.Itoa(rand.Intn(5))
 						result2 := strconv.Itoa(rand.Intn(5))
+						log.Infof(c, "Tournament Simulate Matches: Match: %v - %v | %v - %v", mapIdTeams[m.TeamId1], mapIdTeams[m.TeamId2], result1, result2)
 						if err = tournamentmdl.SetResult(c, &m, result1, result2, tournament); err != nil {
 							log.Errorf(c, "Tournament Simulate Matches: unable to set result for match with id:%v error: %v", m.IdNumber, err)
 							return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
