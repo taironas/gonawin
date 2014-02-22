@@ -251,6 +251,7 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:"phase"});
 
+  // update result of a match.
   $scope.updateResult = function(match, matchindex, dayindex, phaseindex){
       console.log('TournamentSetResultsCtrl: updateResult');
       console.log('match: ', match);
@@ -267,8 +268,22 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 	  console.log('matchdatamatches: ', $scope.matchesData.Phases[phaseindex].Days[dayindex].Matches[matchindex]);
 	  $scope.matchesData.Phases[phaseindex].Days[dayindex].Matches[matchindex] = result;
     });
-
   };
+
+  // simulate a phase of a tournament.
+  $scope.simulatePhase = function(phaseName){
+    console.log('TournamentSetResultsCtrl: simulatePhase:', phaseName);
+    Tournament.simulatePhase({id:$routeParams.id, phaseName:phaseName},
+			     function(){
+			       console.log('success in simulation!');
+			       // reset match results here.
+			     },
+			     function(err) {
+			       console.log('failure in  simulation! ', err.data);
+			       $scope.messageDanger = err.data;
+			     });
+    
+  }
     
 }]);
 

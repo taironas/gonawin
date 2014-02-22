@@ -19,6 +19,7 @@ package tournament
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -70,6 +71,16 @@ type Tmatch struct {
 	Rule     string // we use this field to store a specific match rule.
 	Result1  string
 	Result2  string
+}
+
+type Tday struct {
+	Date    time.Time
+	Matches []Tmatch
+}
+
+type Tphase struct {
+	Name string
+	Days []Tday
 }
 
 type TournamentJson struct {
@@ -653,14 +664,26 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 }
 
 // Set results in match entity and triggers a match update in datastore.
-func SetResult(c appengine.Context, match *Tmatch, result1 string, result2 string) error {
-	match.Result1 = result1
-	match.Result2 = result2
+func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t *Tournament) error {
+	m.Result1 = result1
+	m.Result2 = result2
 
-	if err := UpdateMatch(c, match); err != nil {
-		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", match.Id, err)
+	if err := UpdateMatch(c, m); err != nil {
+		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
 		return err
 	}
+	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
+		if err := UpdatePoints(c, g, m, t); err != nil {
+			log.Errorf(c, "Update Points: unable to update point for group for match with id:%v error: %v", m.IdNumber, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+	}
+	if isLast, phaseId := lastMatchOfPhase(c, t, m); isLast == true {
+		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
+		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId+1)
+		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
+	}
+
 	return nil
 }
 
@@ -678,7 +701,7 @@ func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgrou
 }
 
 // Update points in group with result of match
-func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch) error {
+func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
 	for i, t := range g.Teams {
 		if t.Id == m.TeamId1 {
 			if m.Result1 > m.Result2 {
@@ -701,5 +724,97 @@ func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch) error {
 			}
 		}
 	}
+
 	return nil
 }
+
+// Check if the match m passed as argument is the last match of a phase in a specific tournament.
+// it returns a boolean and the index of the phase the match was found
+func lastMatchOfPhase(c appengine.Context, t *Tournament, m *Tmatch) (bool, int64) {
+
+	allMatches := GetAllMatchesFromTournament(c, *t)
+	phases := MatchesGroupByPhase(allMatches)
+	for i, ph := range phases {
+		if n := len(ph.Days); n > 1 {
+			lastDay := ph.Days[n-1]
+			for _, match := range lastDay.Matches {
+				if match.IdNumber == m.IdNumber {
+					return true, int64(i)
+				}
+			}
+		}
+	}
+	return false, int64(-1)
+}
+
+// From a tournament entity return an array of Matches.
+func GetAllMatchesFromTournament(c appengine.Context, tournament Tournament) []*Tmatch {
+
+	matches := Matches(c, tournament.Matches1stStage)
+	matches2ndPhase := Matches(c, tournament.Matches2ndStage)
+
+	// append 2nd round to first one
+	for _, m := range matches2ndPhase {
+		matches = append(matches, m)
+	}
+
+	return matches
+}
+
+func MatchesGroupByPhase(matches []*Tmatch) []Tphase {
+	limits := MapOfPhaseIntervals()
+	phaseNames := ArrayOfPhases()
+
+	phases := make([]Tphase, len(limits))
+	for i, _ := range phases {
+		phases[i].Name = phaseNames[i]
+		low := limits[phases[i].Name][0]
+		high := limits[phases[i].Name][1]
+
+		var filteredMatches []Tmatch
+		for _, v := range matches {
+			if v.IdNumber >= low && v.IdNumber <= high {
+				filteredMatches = append(filteredMatches, *v)
+			}
+		}
+		phases[i].Days = MatchesGroupByDay(filteredMatches)
+	}
+	return phases
+}
+
+func MatchesGroupByDay(matches []Tmatch) []Tday {
+
+	mapOfDays := make(map[string][]Tmatch)
+
+	const shortForm = "Jan/02/2006"
+	for _, m := range matches {
+		currentDate := m.Date.Format(shortForm)
+		_, ok := mapOfDays[currentDate]
+		if ok {
+			mapOfDays[currentDate] = append(mapOfDays[currentDate], m)
+		} else {
+			var arrayMatches []Tmatch
+			arrayMatches = append(arrayMatches, m)
+			mapOfDays[currentDate] = arrayMatches
+		}
+	}
+
+	var days []Tday
+	days = make([]Tday, len(mapOfDays))
+	i := 0
+	for key, value := range mapOfDays {
+		days[i].Date, _ = time.Parse(shortForm, key)
+		days[i].Matches = value
+		i++
+	}
+
+	sort.Sort(ByDate(days))
+	return days
+}
+
+// ByDate implements sort.Interface for []Tday based on the date field.
+type ByDate []Tday
+
+func (a ByDate) Len() int           { return len(a) }
+func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }

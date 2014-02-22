@@ -12,7 +12,11 @@
   <!-- Calendar by phase and date -->
   <div ng-repeat="phase in matchesData.Phases">
     <div class="calendar">
-      <h3>{{phase.Name}}</h3>
+      <div class="row">
+	<div class="col-md-4">
+	  <h3>{{phase.Name}} <button class="btn btn-primary btn-xs" ng-click="simulatePhase(phase.Name)"><span class="glyphicon glyphicon glyphicon-random"> simulate</span></button></h3>
+	</div>
+      </div>
       <table class="table table-striped  table-condensed">
 	<thead></thead>
 	<tbody>
