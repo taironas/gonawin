@@ -1,54 +1,68 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <div class="page-header">
-  <h1>Tournament Calendar</h1>
-
-<dl class="dl-horizontal">
-  <dt><strong>Id:</strong></dt>
-  <dd>{{tournamentData.Tournament.Id}}</dd>
-  <dt><strong>Name:</strong></dt>
-  <dd>{{tournamentData.Tournament.Name}}</dd>
-</dl>
-
-<!-- Calendar -->
-<div ng-repeat="d in matchesData.Days">
-  <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
-  <div class="calendar">
-    <table class="table table-striped">
-      <thead>
-	<!-- <tr><th>Days</th></tr> -->
-      </thead>
-      <tbody>
-	<tr ng-repeat="m in d.Matches">
-	  <td>N°: {{m.IdNumber}}</td>
-	  <td>
-	    <p>{{m.Team1}} - {{m.Team2}}<br>{{m.Location}}</p>
-	  </td>
-	</tr>
-      </tbody>
-    </table>
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <h1>Tournament Calendar</h1>
+      <dl class="dl-horizontal">
+	<dt><strong>Id:</strong></dt>
+	<dd>{{tournamentData.Tournament.Id}}</dd>
+	<dt><strong>Name:</strong></dt>
+	<dd>{{tournamentData.Tournament.Name}}</dd>
+      </dl>
+    </div>
   </div>
-  <!-- / Calendar -->
 </div>
-
 <!-- Calendar -->
-<div ng-repeat="phase in matchesData.Phases">
-  <div class="calendar">
-    <h3>{{phase.Name}}</h3>
-    <table class="table table-striped">
-      <thead>
-    	<!-- <tr><th>Days</th></tr> -->
-      </thead>
-      <tbody>
-    	<tr ng-repeat="d in phase.Days">
-          <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
-    	  <td>
-    	  <div ng-repeat="m in d.Matches">
-    	    <p>N°:{{m.IdNumber}}: {{m.Team1}} - {{m.Team2}} Location: {{m.Location}}</p>
-    	  </div>
-    	  </td>
-    	</tr>
-      </tbody>
-    </table>
+
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="d in matchesData.Days">
+      <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+      <div class="calendar">
+	<table class="table table-striped">
+	  <thead>
+	    <!-- <tr><th>Days</th></tr> -->
+	  </thead>
+	  <tbody>
+	    <tr ng-repeat="m in d.Matches">
+	      <td>N°: {{m.IdNumber}}</td>
+	      <td>
+		<p>{{m.Team1}} - {{m.Team2}}<br>{{m.Location}}</p>
+	      </td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+    </div>
+    <!-- / Calendar -->
   </div>
-  <!-- / Calendar -->
+</div>
+<!-- Calendar -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="phase in matchesData.Phases">
+      <div class="calendar">
+	<h3>{{phase.Name}}</h3>
+	<table class="table table-striped">
+	  <thead>
+    	    <!-- <tr><th>Days</th></tr> -->
+	  </thead>
+	  <tbody>
+    	    <tr ng-repeat="d in phase.Days">
+              <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
+    	      <td>
+    		<div ng-repeat="m in d.Matches">
+    		  <p>N°:{{m.IdNumber}}: {{m.Team1}} - {{m.Team2}} Location: {{m.Location}}</p>
+    		</div>
+    	      </td>
+    	    </tr>
+	  </tbody>
+	</table>
+      </div>
+      <!-- / Calendar -->
+    </div>
+  </div>
 </div>
