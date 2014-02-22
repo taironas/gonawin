@@ -418,11 +418,15 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		groupsJson := make([]GroupJson, len(groups))
 		for i, g := range groups {
 			groupsJson[i].Name = g.Name
-			groupsJson[i].Teams = make([]TeamJson, len(g.Teams))
+			teams := make([]TeamJson, len(g.Teams))
 			for j, t := range g.Teams {
-				groupsJson[i].Teams[j].Name = t.Name
-				groupsJson[i].Teams[j].Point = g.Points[j]
+				teams[j].Name = t.Name
+				teams[j].Points = g.Points[j]
+				teams[j].GoalsF = g.GoalsF[j]
+				teams[j].GoalsA = g.GoalsA[j]
+
 			}
+			groupsJson[i].Teams = teams
 		}
 
 		data := struct {
@@ -442,8 +446,10 @@ type GroupJson struct {
 }
 
 type TeamJson struct {
-	Name  string
-	Point int64
+	Name   string
+	Points int64
+	GoalsF int64
+	GoalsA int64
 }
 
 type MatchJson struct {
@@ -452,8 +458,8 @@ type MatchJson struct {
 	Team1    string
 	Team2    string
 	Location string
-	Result1  string
-	Result2  string
+	Result1  int64
+	Result2  int64
 }
 
 type DayJson struct {
@@ -640,6 +646,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			mjson.Team2 = mapIdTeams[match.TeamId2]
 		}
 		mjson.Location = match.Location
+
 		mjson.Result1 = match.Result1
 		mjson.Result2 = match.Result2
 

@@ -294,6 +294,7 @@ tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$route
   // #experimental: sar
   // list of tournament groups
   $scope.groupsData = Tournament.groups({id:$routeParams.id});
+  // predicate is udate for ranking tables
   $scope.predicate = '';
 
 }]);

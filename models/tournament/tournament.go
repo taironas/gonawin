@@ -54,6 +54,8 @@ type Tgroup struct {
 	Teams   []Tteam
 	Matches []Tmatch
 	Points  []int64
+	GoalsF  []int64
+	GoalsA  []int64
 }
 
 type Tteam struct {
@@ -69,8 +71,8 @@ type Tmatch struct {
 	TeamId2  int64
 	Location string
 	Rule     string // we use this field to store a specific match rule.
-	Result1  string
-	Result2  string
+	Result1  int64
+	Result2  int64
 }
 
 type Tday struct {
@@ -367,6 +369,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		groupIndex := int64(groupName[0]) - 65
 		group.Teams = make([]Tteam, len(teams))
 		group.Points = make([]int64, len(teams))
+		group.GoalsF = make([]int64, len(teams))
+		group.GoalsA = make([]int64, len(teams))
 		for i, teamName := range teams {
 			log.Infof(c, "World Cup: team: %v", teamName)
 
@@ -408,7 +412,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
-			emtpyrule := ""
+			emptyrule := ""
+			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
 				int64(matchInternalId),
@@ -416,9 +421,9 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				mapTeamId[matchData[cMatchTeam1]],
 				mapTeamId[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
-				emtpyrule,
-				"",
-				"",
+				emptyrule,
+				emptyresult,
+				emptyresult,
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -482,7 +487,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
-
+			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
 				int64(matchInternalId),
@@ -491,8 +496,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				0, // second round matches start with ids at 0
 				matchData[cMatchLocation],
 				rule,
-				"",
-				"",
+				emptyresult,
+				emptyresult,
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")
 
@@ -665,8 +670,20 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 
 // Set results in match entity and triggers a match update in datastore.
 func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t *Tournament) error {
-	m.Result1 = result1
-	m.Result2 = result2
+
+	if r, err := strconv.Atoi(result1); err == nil {
+		m.Result1 = int64(r)
+	} else {
+		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
+		return err
+	}
+
+	if r, err := strconv.Atoi(result2); err == nil {
+		m.Result2 = int64(r)
+	} else {
+		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
+		return err
+	}
 
 	if err := UpdateMatch(c, m); err != nil {
 		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
@@ -675,6 +692,10 @@ func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t
 	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
 		if err := UpdatePoints(c, g, m, t); err != nil {
 			log.Errorf(c, "Update Points: unable to update point for group for match with id:%v error: %v", m.IdNumber, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+		if err := UpdateGoals(c, g, m, t); err != nil {
+			log.Errorf(c, "Update Points: unable to update goals for group for match with id:%v error: %v", m.IdNumber, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 	}
@@ -724,7 +745,22 @@ func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournam
 			}
 		}
 	}
+	return nil
+}
 
+// Update goals For and Against with respect of match result
+func UpdateGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
+	for i, t := range g.Teams {
+		if t.Id == m.TeamId1 {
+			g.GoalsF[i] += m.Result1
+			g.GoalsA[i] += m.Result2
+			UpdateGroup(c, g)
+		} else if t.Id == m.TeamId2 {
+			g.GoalsF[i] += m.Result2
+			g.GoalsA[i] += m.Result1
+			UpdateGroup(c, g)
+		}
+	}
 	return nil
 }
 
