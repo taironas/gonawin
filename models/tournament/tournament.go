@@ -656,6 +656,30 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
+// Update an array of matches
+func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
+	keys := make([]*datastore.Key, len(matches))
+	for i, _ := range keys {
+		keys[i] = KeyByIdMatch(c, matches[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, matches); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update an array of groups
+func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
+	keys := make([]*datastore.Key, len(groups))
+	for i, _ := range keys {
+		keys[i] = KeyByIdGroup(c, groups[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, groups); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Update a group given an a group pointer
 func UpdateGroup(c appengine.Context, g *Tgroup) error {
 	k := KeyByIdGroup(c, g.Id)
@@ -668,22 +692,69 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 	return nil
 }
 
-// Set results in match entity and triggers a match update in datastore.
-func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t *Tournament) error {
-
-	if r, err := strconv.Atoi(result1); err == nil {
-		m.Result1 = int64(r)
-	} else {
-		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
-		return err
+// Set results in an array of matches and triggers a match update and group update.
+func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, results2 []int64, t *Tournament) error {
+	log.Infof(c, "Set Results: begin")
+	if len(matches) != len(results1) || len(matches) != len(results2) {
+		log.Errorf(c, "Set Result: unable to set result on matches")
+		return errors.New(helpers.ErrorCodeMatchesCannotUpdate)
 	}
 
-	if r, err := strconv.Atoi(result2); err == nil {
-		m.Result2 = int64(r)
-	} else {
-		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
+	for i, m := range matches {
+		log.Infof(c, "Tournament Set Results: current match: %v", m.Id)
+		if results1[i] < 0 || results2[i] < 0 {
+			log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id)
+			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
+		}
+		m.Result1 = results1[i]
+		m.Result2 = results2[i]
+	}
+
+	log.Infof(c, "Set Results: matches ready")
+	// batch match update
+	if err := UpdateMatches(c, matches); err != nil {
+		log.Errorf(c, "Set Results: unable to set results on matches: %v", err)
 		return err
 	}
+	log.Infof(c, "Set Results: matches updated")
+	allMatches := GetAllMatchesFromTournament(c, *t)
+	phases := MatchesGroupByPhase(allMatches)
+
+	for _, m := range matches {
+		log.Infof(c, "Tournament Set Results: Trigger current match: %v", m.Id)
+
+		if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
+			if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
+				log.Errorf(c, "Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", m.IdNumber, err)
+				return errors.New(helpers.ErrorCodeMatchCannotUpdate)
+			}
+			if err := UpdateGroup(c, g); err != nil {
+				log.Errorf(c, "Set Results: unable to update group: %v", err)
+				return err
+			}
+		}
+		if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
+			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
+			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", phaseId+1)
+			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", m)
+			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
+		}
+	}
+
+	log.Infof(c, "Set Results: points and goals updated")
+
+	return nil
+}
+
+// Set result in match entity and triggers a match update in datastore.
+func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *Tournament) error {
+
+	if result1 < 0 || result2 < 0 {
+		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id)
+		return errors.New(helpers.ErrorCodeMatchCannotUpdate)
+	}
+	m.Result1 = result1
+	m.Result2 = result2
 
 	if err := UpdateMatch(c, m); err != nil {
 		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
@@ -692,10 +763,13 @@ func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t
 	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
 		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
 			log.Errorf(c, "Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", m.IdNumber, err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
+		UpdateGroup(c, g)
 	}
-	if isLast, phaseId := lastMatchOfPhase(c, t, m); isLast == true {
+	allMatches := GetAllMatchesFromTournament(c, *t)
+	phases := MatchesGroupByPhase(allMatches)
+	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
 		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
 		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId+1)
 		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", m)
@@ -708,10 +782,10 @@ func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t
 // Check if the match is part of a group phase in current tournament.
 func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgroup) {
 	groups := Groups(c, t.GroupIds)
-	for _, g := range groups {
+	for i, g := range groups {
 		for _, match := range g.Matches {
 			if m.Id == match.Id {
-				return true, g
+				return true, groups[i]
 			}
 		}
 	}
@@ -729,8 +803,6 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 			}
 			g.GoalsF[i] += m.Result1
 			g.GoalsA[i] += m.Result2
-			UpdateGroup(c, g)
-
 		} else if t.Id == m.TeamId2 {
 			if m.Result2 > m.Result1 {
 				g.Points[i] += 3
@@ -739,7 +811,6 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 			}
 			g.GoalsF[i] += m.Result2
 			g.GoalsA[i] += m.Result1
-			UpdateGroup(c, g)
 		}
 	}
 	return nil
@@ -768,11 +839,9 @@ func Reset(c appengine.Context, t *Tournament) error {
 
 // Check if the match m passed as argument is the last match of a phase in a specific tournament.
 // it returns a boolean and the index of the phase the match was found
-func lastMatchOfPhase(c appengine.Context, t *Tournament, m *Tmatch) (bool, int64) {
+func lastMatchOfPhase(c appengine.Context, m *Tmatch, phases *[]Tphase) (bool, int64) {
 
-	allMatches := GetAllMatchesFromTournament(c, *t)
-	phases := MatchesGroupByPhase(allMatches)
-	for i, ph := range phases {
+	for i, ph := range *phases {
 		if n := len(ph.Days); n >= 1 {
 			lastDay := ph.Days[n-1]
 			if n = len(lastDay.Matches); n >= 1 {

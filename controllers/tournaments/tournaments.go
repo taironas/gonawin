@@ -615,21 +615,23 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		result := r.FormValue("result")
 		// is result well formated?
 		results := strings.Split(result, " ")
+		r1 := 0
+		r2 := 0
 
 		if len(results) != 2 {
 			log.Errorf(c, "Tournament Update Match Result: unable to get results, lenght not right: %v", results)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
-		if _, err = strconv.Atoi(results[0]); err != nil {
+		if r1, err = strconv.Atoi(results[0]); err != nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v not number 1", err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
-		if _, err = strconv.Atoi(results[1]); err != nil {
+		if r2, err = strconv.Atoi(results[1]); err != nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to get results, error: %v not number 2", err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
-		if err = tournamentmdl.SetResult(c, match, results[0], results[1], tournament); err != nil {
+		if err = tournamentmdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to set result for match with id:%v error: %v", match.IdNumber, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 

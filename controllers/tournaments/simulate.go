@@ -21,7 +21,6 @@ import (
 	"errors"
 	"math/rand"
 	"net/http"
-	"strconv"
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
@@ -55,25 +54,33 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 
 		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
 		phaseId := -1
+		var results1 []int64
+		var results2 []int64
+		var matches []*tournamentmdl.Tmatch
 		for i, ph := range phases {
-			if ph.Name == phase {
-				phaseId = i
-				for _, d := range ph.Days {
-					for _, m := range d.Matches {
-						// simulate match here (call set results)
-						result1 := strconv.Itoa(rand.Intn(5))
-						result2 := strconv.Itoa(rand.Intn(5))
-						log.Infof(c, "Tournament Simulate Matches: Match: %v - %v | %v - %v", mapIdTeams[m.TeamId1], mapIdTeams[m.TeamId2], result1, result2)
-						if err = tournamentmdl.SetResult(c, &m, result1, result2, tournament); err != nil {
-							log.Errorf(c, "Tournament Simulate Matches: unable to set result for match with id:%v error: %v", m.IdNumber, err)
-							return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-						}
-					}
-				}
-				// phase done we and not break
-				break
+			if ph.Name != phase {
+				continue
 			}
+			phaseId = i
+			for _, d := range ph.Days {
+				for j, m := range d.Matches {
+					// simulate match here (call set results)
+					r1 := int64(rand.Intn(5))
+					r2 := int64(rand.Intn(5))
+					results1 = append(results1, r1)
+					results2 = append(results2, r2)
+					matches = append(matches, &d.Matches[j])
+					log.Infof(c, "Tournament Simulate Matches: Match#%v: %v - %v | %v - %v", m.Id, mapIdTeams[m.TeamId1], mapIdTeams[m.TeamId2], r1, r2)
+				}
+			}
+			// phase done we and not break
+			break
 		}
+		if err = tournamentmdl.SetResults(c, matches, results1, results2, tournament); err != nil {
+			log.Errorf(c, "Tournament Simulate Matches: unable to set result for matches error: %v", err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchesCannotUpdate)}
+		}
+
 		if phaseId >= 0 {
 			// only return update phase
 			matchesJson := buildMatchesFromTournament(c, *tournament)

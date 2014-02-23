@@ -65,7 +65,8 @@ const (
 	ErrorCodeTournamentCannotUpdate         = "Could not update tournament"
 	ErrorCodeTournamentCannotSearch         = "Something went wrong, we are unable to perform search query"
 	ErrorCodeMatchCannotUpdate              = "Something went wrong, unable to update match"
-	ErrorCodeMatchNotFoundCannotUpdate      = "Something went wrong, unable to update match"
+	ErrorCodeMatchesCannotUpdate            = "Something went wrong, unable to update matches"
+	ErrorCodeMatchNotFoundCannotUpdate      = "Match not found, unable to update match"
 
 	// invite
 	ErrorCodeInviteNoEmailAddr     = "No email address has been entered"
