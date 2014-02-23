@@ -29,7 +29,7 @@
 	    <tr ng-repeat="m in d.Matches">
 	      <td>N°: {{m.IdNumber}}</td>
 	      <td>
-		<p>{{m.Team1}} - {{m.Team2}}<br>{{m.Location}}</p>
+		<p>{{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}}<br>{{m.Location}}</p>
 	      </td>
 	    </tr>
 	  </tbody>
@@ -55,7 +55,7 @@
               <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
     	      <td>
     		<div ng-repeat="m in d.Matches">
-    		  <p>N°:{{m.IdNumber}}: {{m.Team1}} - {{m.Team2}} Location: {{m.Location}}</p>
+    		  <p>N°:{{m.IdNumber}}: {{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}} Location: {{m.Location}}</p>
     		</div>
     	      </td>
     	    </tr>
