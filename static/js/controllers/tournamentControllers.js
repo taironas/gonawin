@@ -88,8 +88,21 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
   // #experimental: sar
   // list of tournament groups
   $scope.groupsData = Tournament.groups({id:$routeParams.id});
+  // admin function: reset tournament
+  $scope.resetTournament = function(){
+    Tournament.reset({id:$routeParams.id},
+		     function(result){
+		       console.log('reset succeed.');
+		       $scope.messageInfo = result.MessageInfo;
+		       $scope.groupsData.Groups = result.Groups;
+		     },
+		     function(err){
+		       console.log('reset failed: ', err.data);
+		       $scope.messageDanger = err.data;
+		     });
+  };
 
-  
+
   $scope.deleteTournament = function() {
     Tournament.delete({ id:$routeParams.id },
 		      function(){
@@ -271,12 +284,12 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
   };
 
   // simulate a phase of a tournament.
-  $scope.simulatePhase = function(phaseName){
+  $scope.simulatePhase = function(phaseName, phaseindex){
     console.log('TournamentSetResultsCtrl: simulatePhase:', phaseName);
     Tournament.simulatePhase({id:$routeParams.id, phaseName:phaseName},
-			     function(){
+			     function(result){
 			       console.log('success in simulation!');
-			       $location.path('/tournaments/' + $routeParams.id + '/matches/setresults');
+			       $scope.matchesData.Phases[phaseindex].Days = result.Phase.Days;
 			     },
 			     function(err) {
 			       console.log('failure in  simulation! ', err.data);

@@ -49,6 +49,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter'}, // #experimental: sar
     updateMatchResult: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/update?result=:result'},
     simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
+    reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
   })
 });
 

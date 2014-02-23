@@ -414,20 +414,7 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		groups := tournamentmdl.Groups(c, tournament.GroupIds)
-		// prepare data
-		groupsJson := make([]GroupJson, len(groups))
-		for i, g := range groups {
-			groupsJson[i].Name = g.Name
-			teams := make([]TeamJson, len(g.Teams))
-			for j, t := range g.Teams {
-				teams[j].Name = t.Name
-				teams[j].Points = g.Points[j]
-				teams[j].GoalsF = g.GoalsF[j]
-				teams[j].GoalsA = g.GoalsA[j]
-
-			}
-			groupsJson[i].Teams = teams
-		}
+		groupsJson := formatGroupsJson(groups)
 
 		data := struct {
 			Groups []GroupJson
@@ -438,6 +425,24 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		return templateshlp.RenderJson(w, c, data)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+func formatGroupsJson(groups []*tournamentmdl.Tgroup) []GroupJson {
+	// prepare data
+	groupsJson := make([]GroupJson, len(groups))
+	for i, g := range groups {
+		groupsJson[i].Name = g.Name
+		teams := make([]TeamJson, len(g.Teams))
+		for j, t := range g.Teams {
+			teams[j].Name = t.Name
+			teams[j].Points = g.Points[j]
+			teams[j].GoalsF = g.GoalsF[j]
+			teams[j].GoalsA = g.GoalsA[j]
+
+		}
+		groupsJson[i].Teams = teams
+	}
+	return groupsJson
 }
 
 type GroupJson struct {
@@ -651,6 +656,43 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		mjson.Result2 = match.Result2
 
 		return templateshlp.RenderJson(w, c, mjson)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Reset a tournament informatio. Reset points and goals.
+func ResetJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+
+		if err != nil {
+			log.Errorf(c, "Tournament Reset Handler: error extracting permalink err:%v", err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		var t *tournamentmdl.Tournament
+		t, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		if err = tournamentmdl.Reset(c, t); err != nil {
+			log.Errorf(c, "Tournament Reset Handler: Unable to reset tournament: %v error:", tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeInternal)}
+		}
+		groups := tournamentmdl.Groups(c, t.GroupIds)
+		groupsJson := formatGroupsJson(groups)
+
+		msg := fmt.Sprintf("Tournament is now reset.")
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Groups      []GroupJson
+		}{
+			msg,
+			groupsJson,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

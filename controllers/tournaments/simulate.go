@@ -54,9 +54,10 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 		phases := tournamentmdl.MatchesGroupByPhase(allMatches)
 
 		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
-
-		for _, ph := range phases {
+		phaseId := -1
+		for i, ph := range phases {
 			if ph.Name == phase {
+				phaseId = i
 				for _, d := range ph.Days {
 					for _, m := range d.Matches {
 						// simulate match here (call set results)
@@ -73,13 +74,21 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 				break
 			}
 		}
-		data := struct {
-			Phases []tournamentmdl.Tphase
-		}{
-			phases,
-		}
+		if phaseId >= 0 {
+			// only return update phase
+			matchesJson := buildMatchesFromTournament(c, *tournament)
+			phasesJson := matchesGroupByPhase(matchesJson)
 
-		return templateshlp.RenderJson(w, c, data)
+			data := struct {
+				Phase PhaseJson
+			}{
+				phasesJson[phaseId],
+			}
+
+			return templateshlp.RenderJson(w, c, data)
+		}
+		return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 

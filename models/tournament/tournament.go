@@ -690,12 +690,8 @@ func SetResult(c appengine.Context, m *Tmatch, result1 string, result2 string, t
 		return err
 	}
 	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
-		if err := UpdatePoints(c, g, m, t); err != nil {
-			log.Errorf(c, "Update Points: unable to update point for group for match with id:%v error: %v", m.IdNumber, err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-		if err := UpdateGoals(c, g, m, t); err != nil {
-			log.Errorf(c, "Update Points: unable to update goals for group for match with id:%v error: %v", m.IdNumber, err)
+		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
+			log.Errorf(c, "Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", m.IdNumber, err)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 	}
@@ -723,43 +719,48 @@ func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgrou
 }
 
 // Update points in group with result of match
-func UpdatePoints(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
+func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
 	for i, t := range g.Teams {
 		if t.Id == m.TeamId1 {
 			if m.Result1 > m.Result2 {
 				g.Points[i] += 3
-				UpdateGroup(c, g)
-
 			} else if m.Result1 == m.Result2 {
 				g.Points[i] += 1
-				UpdateGroup(c, g)
-
 			}
+			g.GoalsF[i] += m.Result1
+			g.GoalsA[i] += m.Result2
+			UpdateGroup(c, g)
+
 		} else if t.Id == m.TeamId2 {
 			if m.Result2 > m.Result1 {
 				g.Points[i] += 3
-				UpdateGroup(c, g)
-
 			} else if m.Result2 == m.Result1 {
 				g.Points[i] += 1
-				UpdateGroup(c, g)
 			}
+			g.GoalsF[i] += m.Result2
+			g.GoalsA[i] += m.Result1
+			UpdateGroup(c, g)
 		}
 	}
 	return nil
 }
 
-// Update goals For and Against with respect of match result
-func UpdateGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
-	for i, t := range g.Teams {
-		if t.Id == m.TeamId1 {
-			g.GoalsF[i] += m.Result1
-			g.GoalsA[i] += m.Result2
-			UpdateGroup(c, g)
-		} else if t.Id == m.TeamId2 {
-			g.GoalsF[i] += m.Result2
-			g.GoalsA[i] += m.Result1
-			UpdateGroup(c, g)
+// Reset tournament values: Points, GoalsF, GoalsA to zero.
+func Reset(c appengine.Context, t *Tournament) error {
+	groups := Groups(c, t.GroupIds)
+	for _, g := range groups {
+		g.Points = make([]int64, len(g.Teams))
+		g.GoalsF = make([]int64, len(g.Teams))
+		g.GoalsA = make([]int64, len(g.Teams))
+		for _, m := range g.Matches {
+			m.Result1 = 0
+			m.Result2 = 0
+			if err := UpdateMatch(c, &m); err != nil {
+				return err
+			}
+		}
+		if err := UpdateGroup(c, g); err != nil {
+			return err
 		}
 	}
 	return nil
