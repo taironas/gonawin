@@ -18,6 +18,15 @@ package tournament
 
 import ()
 
+const (
+	cFirstStage    = "First Stage"
+	cRoundOf16     = "Round of 16"
+	cQuarterFinals = "Quarter-finals"
+	cSemiFinals    = "Semi-finals"
+	cThirdPlace    = "Third Place"
+	cFinals        = "Finals"
+)
+
 func MapOfGroups() map[string][]string {
 	var mapWCGroups map[string][]string
 	mapWCGroups = make(map[string][]string)
@@ -149,7 +158,7 @@ func MapOf2ndRoundMatches() map[string][][]string {
 	m2nd12 := []string{"60", "Jul/05/2014", "W55", "W56", "Brasília"}
 	// 18 Semi-finals
 	m2nd13 := []string{"61", "Jul/08/2014", "W57", "W58", "Belo Horizonte"}
-	m2nd14 := []string{"62", "Jul/09/2014", "W59", "W69", "São Paulo"}
+	m2nd14 := []string{"62", "Jul/09/2014", "W59", "W60", "São Paulo"}
 	//19 Round 19  -  Match for third place
 	m2nd15 := []string{"63", "Jul/12/2014", "L61", "L62", "Brasília"}
 	//"20" Final
@@ -178,7 +187,7 @@ func MapOf2ndRoundMatches() map[string][][]string {
 }
 
 func ArrayOfPhases() []string {
-	return []string{"First Stage", "Round of 16", "Quarter-finals", "Semi-finals", "Third Place", "Finals"}
+	return []string{cFirstStage, cRoundOf16, cQuarterFinals, cSemiFinals, cThirdPlace, cFinals}
 }
 
 // Build a map with key the corresponding phase in the world cup tournament
@@ -192,11 +201,11 @@ func ArrayOfPhases() []string {
 func MapOfPhaseIntervals() map[string][]int64 {
 
 	limits := make(map[string][]int64)
-	limits["First Stage"] = []int64{1, 48}
-	limits["Round of 16"] = []int64{49, 56}
-	limits["Quarter-finals"] = []int64{57, 60}
-	limits["Semi-finals"] = []int64{61, 62}
-	limits["Third Place"] = []int64{63, 63}
-	limits["Finals"] = []int64{64, 64}
+	limits[cFirstStage] = []int64{1, 48}
+	limits[cRoundOf16] = []int64{49, 56}
+	limits[cQuarterFinals] = []int64{57, 60}
+	limits[cSemiFinals] = []int64{61, 62}
+	limits[cThirdPlace] = []int64{63, 63}
+	limits[cFinals] = []int64{64, 64}
 	return limits
 }

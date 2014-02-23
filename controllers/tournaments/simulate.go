@@ -49,7 +49,7 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 		}
 
 		phase := r.FormValue("phase")
-		allMatches := tournamentmdl.GetAllMatchesFromTournament(c, *tournament)
+		allMatches := tournamentmdl.GetAllMatchesFromTournament(c, tournament)
 		phases := tournamentmdl.MatchesGroupByPhase(allMatches)
 
 		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)

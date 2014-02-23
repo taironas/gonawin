@@ -19,6 +19,7 @@ package tournament
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"sort"
 	"strconv"
 	"strings"
@@ -561,6 +562,18 @@ func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	return &m, nil
 }
 
+// Get a Tteam entity by id.
+func TeamById(c appengine.Context, teamId int64) (*Tteam, error) {
+	var t Tteam
+	key := datastore.NewKey(c, "Tteam", "", teamId, nil)
+
+	if err := datastore.Get(c, key, &t); err != nil {
+		log.Errorf(c, "team not found : %v", err)
+		return &t, err
+	}
+	return &t, nil
+}
+
 // From an array of groups id return array of Tgroups.
 func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 
@@ -717,7 +730,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 		return err
 	}
 	log.Infof(c, "Set Results: matches updated")
-	allMatches := GetAllMatchesFromTournament(c, *t)
+	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 
 	for _, m := range matches {
@@ -737,6 +750,9 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
 			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", phaseId+1)
 			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", m)
+			if int(phaseId+1) < len(phases) {
+				UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
+			}
 			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
 		}
 	}
@@ -767,7 +783,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		}
 		UpdateGroup(c, g)
 	}
-	allMatches := GetAllMatchesFromTournament(c, *t)
+	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
 		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
@@ -834,6 +850,8 @@ func Reset(c appengine.Context, t *Tournament) error {
 			return err
 		}
 	}
+
+	// reset all matches rules
 	return nil
 }
 
@@ -855,8 +873,117 @@ func lastMatchOfPhase(c appengine.Context, m *Tmatch, phases *[]Tphase) (bool, i
 	return false, int64(-1)
 }
 
+// Update next phase in tournament
+func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, nextphase *Tphase) error {
+
+	// the array of phases that will be update.
+	// it is an array as a phase can trigger an update in multiple phases, like semi-finals
+	// trigger update of Third place and Finals
+	var phases []*Tphase
+	phases = append(phases, nextphase)
+	// compute ranking of previous phase
+	var mapOfTeams map[string]*Tteam
+	mapOfTeams = make(map[string]*Tteam)
+
+	if currentphase.Name == cFirstStage {
+		// compute ranking of groups
+		// get all groups.
+		groups := Groups(c, t.GroupIds)
+		for _, g := range groups {
+			team1, argTeam1 := getFirstTeamInGroup(c, g)
+			team2, _ := getSecondTeamInGroup(c, g, argTeam1)
+			mapOfTeams["1"+g.Name] = team1
+			mapOfTeams["2"+g.Name] = team2
+		}
+	} else {
+		// compute ranking just by match winners
+		if currentphase.Name == cFinals || currentphase.Name == cThirdPlace {
+			// nothing to do.
+			return nil
+		}
+
+		currentmatches := getMatchesByPhase(c, t, currentphase.Name)
+		if currentphase.Name != cSemiFinals {
+			log.Infof(c, "Update Next phase: current %v", currentphase.Name)
+			log.Infof(c, "Update Next phase: next %v", nextphase.Name)
+
+			for _, m := range currentmatches {
+				// ToDo: handle penalties
+				if m.Result1 >= m.Result2 {
+					team1, _ := TeamById(c, m.TeamId1)
+					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team1
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+
+				} else if m.Result1 < m.Result2 {
+					team2, _ := TeamById(c, m.TeamId2)
+					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team2
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+				}
+			}
+		} else {
+			// append finals phases to array of phases to update.
+			var finals Tphase
+			finals.Name = cFinals
+			phases = append(phases, &finals)
+
+			for _, m := range currentmatches {
+				// ToDo: handle penalties
+				if m.Result1 >= m.Result2 {
+					team1, _ := TeamById(c, m.TeamId1)
+					team2, _ := TeamById(c, m.TeamId2)
+					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team1
+					mapOfTeams["L"+strconv.Itoa(int(m.IdNumber))] = team2
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+
+				} else if m.Result1 < m.Result2 {
+					team2, _ := TeamById(c, m.TeamId2)
+					team1, _ := TeamById(c, m.TeamId1)
+					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team2
+					mapOfTeams["L"+strconv.Itoa(int(m.IdNumber))] = team1
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+				}
+			}
+
+		}
+	}
+
+	// update phase (matches) with new teams
+	for _, ph := range phases {
+		matches := getMatchesByPhase(c, t, ph.Name)
+		for i, m := range matches {
+			log.Infof(c, "Update Next phase: current rule: %v", m.Rule)
+			rule := strings.Split(m.Rule, " ")
+			if len(rule) != 2 {
+				continue
+			}
+
+			if val, ok := mapOfTeams[rule[0]]; ok {
+				log.Infof(c, "Update Next phase: match found: %v", val.Name)
+				matches[i].TeamId1 = val.Id
+			} else {
+				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+			}
+			if val, ok := mapOfTeams[rule[1]]; ok {
+				log.Infof(c, "Update Next phase: match found: %v", val.Name)
+				matches[i].TeamId2 = val.Id
+			} else {
+				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+			}
+			matches[i].Rule = ""
+		}
+		if err := UpdateMatches(c, matches); err != nil {
+			log.Errorf(c, "Set Results: unable to set results on matches: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
 // From a tournament entity return an array of Matches.
-func GetAllMatchesFromTournament(c appengine.Context, tournament Tournament) []*Tmatch {
+func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []*Tmatch {
 
 	matches := Matches(c, tournament.Matches1stStage)
 	matches2ndPhase := Matches(c, tournament.Matches2ndStage)
@@ -867,6 +994,24 @@ func GetAllMatchesFromTournament(c appengine.Context, tournament Tournament) []*
 	}
 
 	return matches
+}
+
+func getMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
+
+	limits := MapOfPhaseIntervals()
+
+	low := limits[phaseName][0]
+	high := limits[phaseName][1]
+
+	matches := GetAllMatchesFromTournament(c, t)
+
+	var filteredMatches []*Tmatch
+	for i, v := range matches {
+		if v.IdNumber >= low && v.IdNumber <= high {
+			filteredMatches = append(filteredMatches, matches[i])
+		}
+	}
+	return filteredMatches
 }
 
 func MatchesGroupByPhase(matches []*Tmatch) []Tphase {
@@ -926,3 +1071,81 @@ type ByDate []Tday
 func (a ByDate) Len() int           { return len(a) }
 func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByDate) Less(i, j int) bool { return a[i].Date.Before(a[j].Date) }
+
+func ArgMaxInt64(arr []int64) (index int, max int64) {
+	for i, n := range arr {
+		if i == 0 || n > max {
+			index = i
+			max = n
+		}
+	}
+	return
+}
+func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
+	points := make([]int64, len(g.Points))
+	copy(points, g.Points)
+
+	argmax1, max1 := ArgMaxInt64(points)
+	points[argmax1] = -1
+	argmax2, max2 := ArgMaxInt64(points)
+	if max1 == max2 { // points equal try by difference
+		diff := make([]int64, len(points))
+		for i, _ := range points {
+			diff[i] = g.GoalsF[i] - g.GoalsA[i]
+		}
+		if diff[argmax1] > diff[argmax2] {
+			return &g.Teams[argmax1], argmax1
+		} else if diff[argmax1] < diff[argmax2] {
+			return &g.Teams[argmax2], argmax2
+		} else { // diff equal try by greatest number of goals scored
+			if g.GoalsF[argmax1] > g.GoalsF[argmax2] {
+				return &g.Teams[argmax1], argmax1
+			} else if g.GoalsF[argmax1] < g.GoalsF[argmax2] {
+				return &g.Teams[argmax2], argmax2
+			} else { // still equal try at random for now...
+				if rand.Intn(2) == 0 {
+					return &g.Teams[argmax1], argmax1
+				}
+				return &g.Teams[argmax2], argmax2
+			}
+		}
+	} else {
+		return &g.Teams[argmax1], argmax1
+	}
+}
+
+func getSecondTeamInGroup(c appengine.Context, g *Tgroup, indexOfFirst int) (*Tteam, int) {
+
+	points := make([]int64, len(g.Points))
+	copy(points, g.Points)
+
+	points[indexOfFirst] = -1
+
+	argmax1, max1 := ArgMaxInt64(points)
+	points[argmax1] = -1
+	argmax2, max2 := ArgMaxInt64(points)
+	if max1 == max2 { // points equal try by difference
+		diff := make([]int64, len(points))
+		for i, _ := range points {
+			diff[i] = g.GoalsF[i] - g.GoalsA[i]
+		}
+		if diff[argmax1] > diff[argmax2] {
+			return &g.Teams[argmax1], argmax1
+		} else if diff[argmax1] < diff[argmax2] {
+			return &g.Teams[argmax2], argmax2
+		} else { // diff equal try by greatest number of goals scored
+			if g.GoalsF[argmax1] > g.GoalsF[argmax2] {
+				return &g.Teams[argmax1], argmax1
+			} else if g.GoalsF[argmax1] < g.GoalsF[argmax2] {
+				return &g.Teams[argmax2], argmax2
+			} else { // still equal try at random for now...
+				if rand.Intn(2) == 0 {
+					return &g.Teams[argmax1], argmax1
+				}
+				return &g.Teams[argmax2], argmax2
+			}
+		}
+	} else {
+		return &g.Teams[argmax1], argmax1
+	}
+}

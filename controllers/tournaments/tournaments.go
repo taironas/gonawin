@@ -617,7 +617,6 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		results := strings.Split(result, " ")
 		r1 := 0
 		r2 := 0
-
 		if len(results) != 2 {
 			log.Errorf(c, "Tournament Update Match Result: unable to get results, lenght not right: %v", results)
 			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
@@ -725,8 +724,14 @@ func buildMatchesFromTournament(c appengine.Context, tournament tournamentmdl.To
 		matchJson2ndPhase.IdNumber = m.IdNumber
 		matchJson2ndPhase.Date = m.Date
 		rule := strings.Split(m.Rule, " ")
-		matchJson2ndPhase.Team1 = rule[0]
-		matchJson2ndPhase.Team2 = rule[1]
+		if len(rule) == 2 {
+			matchJson2ndPhase.Team1 = rule[0]
+			matchJson2ndPhase.Team2 = rule[1]
+		} else {
+			matchJson2ndPhase.Team1 = mapIdTeams[m.TeamId1]
+			matchJson2ndPhase.Team2 = mapIdTeams[m.TeamId2]
+		}
+
 		matchJson2ndPhase.Location = m.Location
 		matchJson2ndPhase.Result1 = m.Result1
 		matchJson2ndPhase.Result2 = m.Result2
