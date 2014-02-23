@@ -786,10 +786,13 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
-		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
-		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", phaseId+1)
-		log.Infof(c, "Tournament Update Match Result: Trigger update of next phase here: next phase: %v", m)
-		log.Infof(c, "Tournament Update Match Result: -------------------------------------------------->")
+		log.Infof(c, "Tournament Set Result: -------------------------------------------------->")
+		log.Infof(c, "Tournament Set Result: Trigger update of next phase here: next phase: %v", phaseId+1)
+		log.Infof(c, "Tournament Set Result: Trigger update of next phase here: next phase: %v", m)
+		if int(phaseId+1) < len(phases) {
+			UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
+			}
+		log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
 	}
 
 	return nil
