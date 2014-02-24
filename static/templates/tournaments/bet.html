@@ -3,7 +3,7 @@
   <div class="row">
     <div class="col-md-1"></div>
     <div class="col-md-11">
-      <h1>Tournament Calendar</h1>
+      <h1>Tournament Bet</h1>
       <dl class="dl-horizontal">
 	<dt><strong>Id:</strong></dt>
 	<dd>{{tournamentData.Tournament.Id}}</dd>
@@ -30,7 +30,35 @@
 	      <div class="row">
 		<td class="col-md-1">#{{m.IdNumber}}</td>
 		<td class="col-md-2">
-		  <p>{{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}}<br>{{m.Location}}</p>
+		  <p>{{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}}<br><small>{{m.Location}}</small></p>
+		</td>
+		<td class="col-md-8">
+		  <p>
+		    <button class="btn btn-primary btn-xs" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> </span></button>
+		    <button class="btn btn-success btn-xs" ng-show="m.betDone"><span class="glyphicon glyphicon glyphicon-check"> ready</span></button>
+		  </p>
+		  <div ng-show="m.wantToBet">
+		    <form class="form" role="form" ng-submit="updateResult()">
+		      <div class="row">
+			<div class="col-xs-1">
+			  <small><label class="control-label">{{m.Team1}}</label></small>
+			</div>
+			<div class="col-xs-2">
+			  <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result1" placeholder=""> </p>
+			</div>
+			<div class="col-xs-2">
+			  <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""> </p>
+			</div>
+			<div class="col-xs-1">
+			  <small><label class="control-label">{{m.Team2}}</label></small>
+			</div>
+			<div class="col-xs-1"></div>
+			<div class="col-xs-1">
+			  <button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"></span></button>
+			</div>
+		      </div>
+		    </form>
+		  </div>
 		</td>
 	      </div>
 	    </tr>

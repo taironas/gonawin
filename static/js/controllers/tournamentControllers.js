@@ -316,3 +316,27 @@ tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$rout
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
   $scope.matchesData = Tournament.matches({id:$routeParams.id, filter:"second"});
 }]);
+
+// Bet controller
+tournamentControllers.controller('TournamentBetCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament bet controller');
+  console.log('route params', $routeParams)
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
+
+  $scope.activateBet = function(matchIdNumber, index, parentIndex){
+    console.log('TournamentBetCtrl: activate bet:', matchIdNumber);
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = true;
+  };
+
+  $scope.bet = function(matchIdNumber, index, parentIndex, result1, result2){
+    console.log('TournamentBetCtrl: bet:', matchIdNumber);
+
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
+    $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;
+    
+    console.log('match result: ', result1, ' ', result2);
+
+  };  
+}]);
