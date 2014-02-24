@@ -1,0 +1,205 @@
+/*
+ * Copyright (c) 2013 Santiago Arias | Remy Jourde | Carlos Bernal
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+package tournament
+
+import (
+	"math/rand"
+
+	"appengine"
+	"appengine/datastore"
+
+	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
+)
+
+type Tgroup struct {
+	Id      int64
+	Name    string
+	Teams   []Tteam
+	Matches []Tmatch
+	Points  []int64
+	GoalsF  []int64
+	GoalsA  []int64
+}
+
+// Get a Tgroup entity by id.
+func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
+	var g Tgroup
+	key := datastore.NewKey(c, "Tgroup", "", groupId, nil)
+
+	if err := datastore.Get(c, key, &g); err != nil {
+		log.Errorf(c, "group not found : %v", err)
+		return &g, err
+	}
+	return &g, nil
+}
+
+// From an array of groups id return array of Tgroups.
+func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
+
+	var groups []*Tgroup
+
+	for _, groupId := range groupIds {
+
+		g, err := GroupById(c, groupId)
+		if err != nil {
+			log.Errorf(c, " Groups, cannot find group with ID=%", groupId)
+		} else {
+			groups = append(groups, g)
+		}
+	}
+	return groups
+}
+
+// Get pointer to a group key given a group id.
+func KeyByIdGroup(c appengine.Context, id int64) *datastore.Key {
+
+	key := datastore.NewKey(c, "Tgroup", "", id, nil)
+	return key
+}
+
+// Update an array of groups.
+func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
+	keys := make([]*datastore.Key, len(groups))
+	for i, _ := range keys {
+		keys[i] = KeyByIdGroup(c, groups[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, groups); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Update a group given an a group pointer.
+func UpdateGroup(c appengine.Context, g *Tgroup) error {
+	k := KeyByIdGroup(c, g.Id)
+	oldGroup := new(Tgroup)
+	if err := datastore.Get(c, k, oldGroup); err == nil {
+		if _, err = datastore.Put(c, k, g); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Update points in group with result of match.
+func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
+	for i, t := range g.Teams {
+		if t.Id == m.TeamId1 {
+			if m.Result1 > m.Result2 {
+				g.Points[i] += 3
+			} else if m.Result1 == m.Result2 {
+				g.Points[i] += 1
+			}
+			g.GoalsF[i] += m.Result1
+			g.GoalsA[i] += m.Result2
+		} else if t.Id == m.TeamId2 {
+			if m.Result2 > m.Result1 {
+				g.Points[i] += 3
+			} else if m.Result2 == m.Result1 {
+				g.Points[i] += 1
+			}
+			g.GoalsF[i] += m.Result2
+			g.GoalsA[i] += m.Result1
+		}
+	}
+	return nil
+}
+
+// Check if the match is part of a group phase in current tournament.
+func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgroup) {
+	groups := Groups(c, t.GroupIds)
+	for i, g := range groups {
+		for _, match := range g.Matches {
+			if m.Id == match.Id {
+				return true, groups[i]
+			}
+		}
+	}
+	return false, nil
+}
+
+// Get team with highest rank in group based on group points, goals for and goals against.
+func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
+	points := make([]int64, len(g.Points))
+	copy(points, g.Points)
+
+	argmax1, max1 := helpers.ArgMaxInt64(points)
+	points[argmax1] = -1
+	argmax2, max2 := helpers.ArgMaxInt64(points)
+	if max1 == max2 { // points equal try by difference
+		diff := make([]int64, len(points))
+		for i, _ := range points {
+			diff[i] = g.GoalsF[i] - g.GoalsA[i]
+		}
+		if diff[argmax1] > diff[argmax2] {
+			return &g.Teams[argmax1], argmax1
+		} else if diff[argmax1] < diff[argmax2] {
+			return &g.Teams[argmax2], argmax2
+		} else { // diff equal try by greatest number of goals scored
+			if g.GoalsF[argmax1] > g.GoalsF[argmax2] {
+				return &g.Teams[argmax1], argmax1
+			} else if g.GoalsF[argmax1] < g.GoalsF[argmax2] {
+				return &g.Teams[argmax2], argmax2
+			} else { // still equal try at random for now...
+				if rand.Intn(2) == 0 {
+					return &g.Teams[argmax1], argmax1
+				}
+				return &g.Teams[argmax2], argmax2
+			}
+		}
+	} else {
+		return &g.Teams[argmax1], argmax1
+	}
+}
+
+// Get team with second highest rank in group based on points, goals for and against.
+func getSecondTeamInGroup(c appengine.Context, g *Tgroup, indexOfFirst int) (*Tteam, int) {
+
+	points := make([]int64, len(g.Points))
+	copy(points, g.Points)
+
+	points[indexOfFirst] = -1
+
+	argmax1, max1 := helpers.ArgMaxInt64(points)
+	points[argmax1] = -1
+	argmax2, max2 := helpers.ArgMaxInt64(points)
+	if max1 == max2 { // points equal try by difference
+		diff := make([]int64, len(points))
+		for i, _ := range points {
+			diff[i] = g.GoalsF[i] - g.GoalsA[i]
+		}
+		if diff[argmax1] > diff[argmax2] {
+			return &g.Teams[argmax1], argmax1
+		} else if diff[argmax1] < diff[argmax2] {
+			return &g.Teams[argmax2], argmax2
+		} else { // diff equal try by greatest number of goals scored
+			if g.GoalsF[argmax1] > g.GoalsF[argmax2] {
+				return &g.Teams[argmax1], argmax1
+			} else if g.GoalsF[argmax1] < g.GoalsF[argmax2] {
+				return &g.Teams[argmax2], argmax2
+			} else { // still equal try at random for now...
+				if rand.Intn(2) == 0 {
+					return &g.Teams[argmax1], argmax1
+				}
+				return &g.Teams[argmax2], argmax2
+			}
+		}
+	} else {
+		return &g.Teams[argmax1], argmax1
+	}
+}

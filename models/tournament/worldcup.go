@@ -16,7 +16,19 @@
 
 package tournament
 
-import ()
+import (
+	"fmt"
+	"strconv"
+	"time"
+
+	"appengine"
+	"appengine/datastore"
+
+	"github.com/santiaago/purple-wing/helpers"
+	"github.com/santiaago/purple-wing/helpers/log"
+
+	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
+)
 
 const (
 	cFirstStage    = "First Stage"
@@ -27,6 +39,7 @@ const (
 	cFinals        = "Finals"
 )
 
+// Map of groups, key: group name, value: string array of teams.
 func MapOfGroups() map[string][]string {
 	var mapWCGroups map[string][]string
 	mapWCGroups = make(map[string][]string)
@@ -42,6 +55,8 @@ func MapOfGroups() map[string][]string {
 	return mapWCGroups
 }
 
+// Map of group matches, key: group name, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
+// example: Group A:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
 func MapOfGroupMatches() map[string][][]string {
 
 	mapGroupMatches := make(map[string][][]string)
@@ -140,6 +155,8 @@ func MapOfGroupMatches() map[string][][]string {
 	return mapGroupMatches
 }
 
+// Map of 2nd round matches, key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
+// example: round 16:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
 func MapOf2ndRoundMatches() map[string][][]string {
 
 	// Round of 16
@@ -186,6 +203,7 @@ func MapOf2ndRoundMatches() map[string][][]string {
 	return mapMatches2ndRound
 }
 
+// Array of phases of world cup tournament: (FirstStage, RoundOf16, QuarterFinals, SemiFinals, ThirdPlace, Finals)
 func ArrayOfPhases() []string {
 	return []string{cFirstStage, cRoundOf16, cQuarterFinals, cSemiFinals, cThirdPlace, cFinals}
 }
@@ -208,4 +226,225 @@ func MapOfPhaseIntervals() map[string][]int64 {
 	limits[cThirdPlace] = []int64{63, 63}
 	limits[cFinals] = []int64{64, 64}
 	return limits
+}
+
+// Create world cup tournament entity 2014.
+func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
+	// create new tournament
+	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
+
+	log.Infof(c, "World Cup: start")
+
+	// build map of groups
+	var mapWCGroups map[string][]string
+	mapWCGroups = MapOfGroups()
+
+	// build map of matches
+	var mapTeamId map[string]int64
+	mapTeamId = make(map[string]int64)
+
+	// mapGroupMatches is a map where the key is a string which represent the group
+	// the key is a two dimensional string array. each element in the array represent a specific field in the match
+	// map[string][][]string
+	// example: {"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}
+	mapGroupMatches := MapOfGroupMatches()
+	const (
+		cMatchId       = 0
+		cMatchDate     = 1
+		cMatchTeam1    = 2
+		cMatchTeam2    = 3
+		cMatchLocation = 4
+	)
+
+	// matches1stStageIds is an array of  int64
+	// where we allocate IDs of the Tmatches entities
+	// we will store them in the tournament entity for easy retreival later on.
+	matchesA := mapGroupMatches["A"]
+	matches1stStageIds := make([]int64, 8*len(matchesA))
+
+	log.Infof(c, "World Cup: maps ready")
+
+	// build groups, and teams
+	groups := make([]Tgroup, len(mapWCGroups))
+	for groupName, teams := range mapWCGroups {
+		log.Infof(c, "---------------------------------------")
+		log.Infof(c, "World Cup: working with group: %v", groupName)
+		log.Infof(c, "World Cup: teams: %v", teams)
+
+		var group Tgroup
+		group.Name = groupName
+		groupIndex := int64(groupName[0]) - 65
+		group.Teams = make([]Tteam, len(teams))
+		group.Points = make([]int64, len(teams))
+		group.GoalsF = make([]int64, len(teams))
+		group.GoalsA = make([]int64, len(teams))
+		for i, teamName := range teams {
+			log.Infof(c, "World Cup: team: %v", teamName)
+
+			teamID, _, err := datastore.AllocateIDs(c, "Tteam", nil, 1)
+			log.Infof(c, "World Cup: team: %v allocateIDs ok", teamName)
+
+			teamkey := datastore.NewKey(c, "Tteam", "", teamID, nil)
+			log.Infof(c, "World Cup: team: %v NewKey ok", teamName)
+
+			team := &Tteam{teamID, teamName}
+			log.Infof(c, "World Cup: team: %v instance of team ok", teamName)
+
+			_, err = datastore.Put(c, teamkey, team)
+			if err != nil {
+				return nil, err
+			}
+			log.Infof(c, "World Cup: team: %v put in datastore ok", teamName)
+			group.Teams[i] = *team
+			mapTeamId[teamName] = teamID
+		}
+
+		// build group matches:
+		log.Infof(c, "World Cup: building group matches")
+
+		// for date parsing
+		const shortForm = "Jan/02/2006"
+
+		groupMatches := mapGroupMatches[groupName]
+		group.Matches = make([]Tmatch, len(groupMatches))
+
+		for matchIndex, matchData := range groupMatches {
+			log.Infof(c, "World Cup: match data: %v", matchData)
+
+			matchID, _, err := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			log.Infof(c, "World Cup: match: %v allocateIDs ok", matchID)
+
+			matchkey := datastore.NewKey(c, "Tmatch", "", matchID, nil)
+			log.Infof(c, "World Cup: match: new key ok")
+
+			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			emptyrule := ""
+			emptyresult := int64(0)
+			match := &Tmatch{
+				matchID,
+				int64(matchInternalId),
+				matchTime,
+				mapTeamId[matchData[cMatchTeam1]],
+				mapTeamId[matchData[cMatchTeam2]],
+				matchData[cMatchLocation],
+				emptyrule,
+				emptyresult,
+				emptyresult,
+			}
+			log.Infof(c, "World Cup: match: build match ok")
+
+			_, err = datastore.Put(c, matchkey, match)
+			if err != nil {
+				return nil, err
+			}
+			log.Infof(c, "World Cup: match: %v put in datastore ok", matchData)
+			group.Matches[matchIndex] = *match
+
+			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
+			matches1stStageIds[int64(matchInternalId)-1] = matchID
+		}
+
+		groupID, _, err := datastore.AllocateIDs(c, "Tgroup", nil, 1)
+		log.Infof(c, "World Cup: Group: %v allocate ID ok", groupName)
+
+		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
+		log.Infof(c, "World Cup: Group: %v New Key ok", groupName)
+
+		group.Id = groupID
+		groups[groupIndex] = group
+		_, err = datastore.Put(c, groupkey, &group)
+		if err != nil {
+			return nil, err
+		}
+		log.Infof(c, "World Cup: Group: %v put in datastore ok", groupName)
+	}
+
+	// build array of group ids
+	groupIds := make([]int64, 8)
+	for i, _ := range groupIds {
+		groupIds[i] = groups[i].Id
+	}
+
+	log.Infof(c, "World Cup: build of groups ids complete: %v", groupIds)
+
+	// matches 2nd stage
+	matches2ndStageIds := make([]int64, 0)
+
+	// mapMatches2ndRound  is a map where the key is a string which represent the rounds
+	// the key is a two dimensional string array. each element in the array represent a specific field in the match
+	// mapMatches2ndRound is a map[string][][]string
+	// example: {"64", "Jul/13/2014", "W61", "W62", "Rio de Janeiro"}
+	mapMatches2ndRound := MapOf2ndRoundMatches()
+
+	// build matches 2nd phase
+	const shortForm = "Jan/02/2006"
+	for roundNumber, roundMatches := range mapMatches2ndRound {
+		log.Infof(c, "World Cup: building 2nd round matches: round number %v", roundNumber)
+		for _, matchData := range roundMatches {
+			log.Infof(c, "World Cup: second phase match data: %v", matchData)
+
+			matchID, _, err := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			log.Infof(c, "World Cup: match: %v allocateIDs ok", matchID)
+
+			matchkey := datastore.NewKey(c, "Tmatch", "", matchID, nil)
+			log.Infof(c, "World Cup: match: new key ok")
+
+			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+
+			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
+			emptyresult := int64(0)
+			match := &Tmatch{
+				matchID,
+				int64(matchInternalId),
+				matchTime,
+				0, // second round matches start with ids at 0
+				0, // second round matches start with ids at 0
+				matchData[cMatchLocation],
+				rule,
+				emptyresult,
+				emptyresult,
+			}
+			log.Infof(c, "World Cup: match 2nd round: build match ok")
+
+			_, err = datastore.Put(c, matchkey, match)
+			if err != nil {
+				return nil, err
+			}
+			log.Infof(c, "World Cup: 2nd round match: %v put in datastore ok", matchData)
+			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
+			matches2ndStageIds = append(matches2ndStageIds, matchID)
+		}
+	}
+
+	tournament := &Tournament{
+		tournamentID,
+		helpers.TrimLower("world cup"),
+		"World Cup",
+		"FIFA World Cup",
+		time.Now(),
+		time.Now(),
+		adminId,
+		time.Now(),
+		groupIds,
+		matches1stStageIds,
+		matches2ndStageIds,
+	}
+	log.Infof(c, "World Cup: instance of tournament ready")
+
+	_, err = datastore.Put(c, key, tournament)
+	if err != nil {
+		return nil, err
+	}
+	log.Infof(c, "World Cup:  tournament put in datastore ok")
+
+	tournamentinvidmdl.Add(c, helpers.TrimLower("world cup"), tournamentID)
+
+	return tournament, nil
 }
