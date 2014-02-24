@@ -185,7 +185,8 @@ func Update(c appengine.Context, id int64, t *Tournament) error {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
-		tournamentinvidmdl.Update(c, oldTournament.Name, t.Name, id)
+		// use name with trim lower as tournament inverted index stores lower key names.
+		tournamentinvidmdl.Update(c, oldTournament.KeyName, t.KeyName, id)
 	}
 	return nil
 }

@@ -129,7 +129,8 @@ func Update(c appengine.Context, id int64, t *Team) error {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
-		teaminvidmdl.Update(c, oldTeam.Name, t.Name, id)
+		// use lower trim names as team inverted index store them like this.
+		teaminvidmdl.Update(c, oldTeam.KeyName, t.KeyName, id)
 	}
 
 	return nil

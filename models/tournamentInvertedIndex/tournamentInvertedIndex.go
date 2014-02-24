@@ -62,6 +62,15 @@ func Create(c appengine.Context, name string, tournamentIds string) (*Tournament
 	if err != nil {
 		return nil, err
 	}
+	// increment counter
+	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
+		var err1 error
+		_, err1 = incrementWordCountTournament(c, datastore.NewKey(c, "WordCountTournament", "singleton", 0, nil))
+		return err1
+	}, nil)
+	if errIncrement != nil {
+		log.Errorf(c, " Error incrementing WordCountTournament")
+	}
 
 	return t, nil
 }
@@ -163,6 +172,15 @@ func removeWord(c appengine.Context, w string, id int64) error {
 				// this entity does not have ids so remove it from the datastore.
 				log.Infof(c, " removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
+				// decrement word counter
+				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
+					var err1 error
+					_, err1 = decrementWordCountTournament(c, datastore.NewKey(c, "WordCountTournament", "singleton", 0, nil))
+					return err1
+				}, nil)
+				if errDec != nil {
+					return errors.New(fmt.Sprintf(" Error decrementing WordCountTournament: %v", errDec))
+				}
 			} else {
 				invId.TournamentIds = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId); err != nil {
@@ -211,7 +229,7 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 		l := ""
 		res, err := Find(c, "KeyName", w)
 		if err != nil {
-			log.Infof(c, "tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
+			log.Infof(c, "tournamentinvid.GetIndexes, unable to find KeyName=%v: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res != nil {
 			strTournamentIds := string(res.TournamentIds)
@@ -233,6 +251,7 @@ func GetIndexes(c appengine.Context, words []string) ([]int64, error) {
 		intIds := make([]int64, 0)
 		return intIds, err1
 	}
+
 	strIds := strings.Split(strMerge, " ")
 	intIds := make([]int64, len(strIds))
 	i := 0
