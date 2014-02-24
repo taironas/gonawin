@@ -33,8 +33,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
-// given a query string and an array of ids, computes a score vector that
-// has the doc ids and the score of each id with respect to the query
+// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
 func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -55,7 +54,6 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	log.Infof(c, "query vector: %v", q)
 
 	// d vector
-	//nbTournaments, _ := tournamentmdl.GetTournamentCounter(c)
 	vec_d := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
@@ -85,11 +83,10 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	sortedScore := sortMapByValueDesc(score)
 	log.Infof(c, "sorted score: %v", sortedScore)
 
-	return getKeysFromPairList(sortedScore)
+	return getKeysFrompairList(sortedScore)
 }
 
-// given a query string and an array of ids, computes a score vector that
-// has the doc ids and the score of each id with respect to the query
+// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
 func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -110,7 +107,6 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	log.Infof(c, "query vector: %v", q)
 
 	// d vector
-	//nbTeams, _ := teammdl.GetTeamCounter(c)
 	vec_d := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
@@ -140,48 +136,48 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	sortedScore := sortMapByValueDesc(score)
 	log.Infof(c, "sorted score: %v", sortedScore)
 
-	return getKeysFromPairList(sortedScore)
+	return getKeysFrompairList(sortedScore)
 }
 
 // A data structure to hold a key/value pair.
-type Pair struct {
+type pair struct {
 	Key   int64
 	Value float64
 }
 
-// A slice of Pairs that implements sort.Interface to sort by Value.
-type PairList []Pair
+// A slice of pairs that implements sort.Interface to sort by Value.
+type pairList []pair
 
-func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
-func (p PairList) Len() int           { return len(p) }
-func (p PairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
+func (p pairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
+func (p pairList) Len() int           { return len(p) }
+func (p pairList) Less(i, j int) bool { return p[i].Value < p[j].Value }
 
-// A function to turn a map into a PairList, then sort and return it.
-func sortMapByValue(m map[int64]float64) PairList {
-	p := make(PairList, len(m))
+// A function to turn a map into a pairList, then sort and return it.
+func sortMapByValue(m map[int64]float64) pairList {
+	p := make(pairList, len(m))
 	i := 0
 	for k, v := range m {
-		p[i] = Pair{k, v}
+		p[i] = pair{k, v}
 		i++
 	}
 	sort.Sort(p)
 	return p
 }
 
-// A function to turn a map into a PairList, then sort in descending order and return it.
-func sortMapByValueDesc(m map[int64]float64) PairList {
-	p := make(PairList, len(m))
+// A function to turn a map into a pairList, then sort in descending order and return it.
+func sortMapByValueDesc(m map[int64]float64) pairList {
+	p := make(pairList, len(m))
 	i := 0
 	for k, v := range m {
-		p[i] = Pair{k, v}
+		p[i] = pair{k, v}
 		i++
 	}
 	sort.Sort(sort.Reverse(p))
 	return p
 }
 
-// from a pair list returns an array of keys present in the pair list
-func getKeysFromPairList(p PairList) []int64 {
+// From a pair list returns an array of keys present in the pair list.
+func getKeysFrompairList(p pairList) []int64 {
 	keys := make([]int64, len(p))
 	i := 0
 	for _, pair := range p {
@@ -191,7 +187,7 @@ func getKeysFromPairList(p PairList) []int64 {
 	return keys
 }
 
-// compute the dot product of two float vectors
+// Compute the dot product of two float vectors.
 func dotProduct(vec1 []float64, vec2 []float64) float64 {
 	if len(vec1) != len(vec2) {
 		return 0

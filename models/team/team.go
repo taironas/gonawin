@@ -49,10 +49,6 @@ type TeamJson struct {
 	Created *time.Time `json:",omitempty"`
 }
 
-type TeamCounter struct {
-	Count int64
-}
-
 // Create a team given a name, an admin id and a private mode
 func Create(c appengine.Context, name string, adminId int64, private bool) (*Team, error) {
 	// create new team
@@ -71,15 +67,6 @@ func Create(c appengine.Context, name string, adminId int64, private bool) (*Tea
 	}
 	// udpate inverted index
 	teaminvidmdl.Add(c, helpers.TrimLower(name), teamId)
-	// update team counter
-	errIncrement := datastore.RunInTransaction(c, func(c appengine.Context) error {
-		var err1 error
-		_, err1 = incrementTeamCounter(c, datastore.NewKey(c, "TeamCounter", "singleton", 0, nil))
-		return err1
-	}, nil)
-	if errIncrement != nil {
-		log.Errorf(c, " Error incrementing TeamCounter")
-	}
 
 	return team, err
 }
@@ -205,42 +192,6 @@ func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 		log.Errorf(c, " Team.IsTeamAdmin, error occurred during ById call: %v", err)
 		return false
 	}
-}
-
-// increment team counter to keep track of the number of teams present in datastore
-func incrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
-	var x TeamCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	x.Count++
-	if _, err := datastore.Put(c, key, &x); err != nil {
-		return 0, err
-	}
-	return x.Count, nil
-}
-
-// decrement team counter to keep track of the number of teams present in datastore
-func decrementTeamCounter(c appengine.Context, key *datastore.Key) (int64, error) {
-	var x TeamCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	x.Count--
-	if _, err := datastore.Put(c, key, &x); err != nil {
-		return 0, err
-	}
-	return x.Count, nil
-}
-
-// get the current number of teams present in datastore
-func GetTeamCounter(c appengine.Context) (int64, error) {
-	key := datastore.NewKey(c, "TeamCounter", "singleton", 0, nil)
-	var x TeamCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	return x.Count, nil
 }
 
 // given a id, and a word, get the frequency of that word in the team terms

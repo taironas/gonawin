@@ -100,10 +100,6 @@ type TournamentJson struct {
 	Matches2ndStage *[]int64   `json:",omitempty"`
 }
 
-type TournamentCounter struct {
-	Count int64
-}
-
 // create tournament entity given a name and description
 func Create(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64) (*Tournament, error) {
 	// create new tournament
@@ -270,42 +266,6 @@ func TeamJoin(c appengine.Context, tournamentId int64, teamId int64) error {
 // Team leaves the Tournament
 func TeamLeave(c appengine.Context, tournamentId int64, teamId int64) error {
 	return tournamentteamrelmdl.Destroy(c, tournamentId, teamId)
-}
-
-// increment tournament counter
-func incrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64, error) {
-	var x TournamentCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	x.Count++
-	if _, err := datastore.Put(c, key, &x); err != nil {
-		return 0, err
-	}
-	return x.Count, nil
-}
-
-// decrement tournament counter
-func decrementTournamentCounter(c appengine.Context, key *datastore.Key) (int64, error) {
-	var x TournamentCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	x.Count--
-	if _, err := datastore.Put(c, key, &x); err != nil {
-		return 0, err
-	}
-	return x.Count, nil
-}
-
-// get the current tournament counter
-func GetTournamentCounter(c appengine.Context) (int64, error) {
-	key := datastore.NewKey(c, "TournamentCounter", "singleton", 0, nil)
-	var x TournamentCounter
-	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
-		return 0, err
-	}
-	return x.Count, nil
 }
 
 // get the frequency of given word with respect to tournament id
@@ -791,7 +751,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		log.Infof(c, "Tournament Set Result: Trigger update of next phase here: next phase: %v", m)
 		if int(phaseId+1) < len(phases) {
 			UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
-			}
+		}
 		log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
 	}
 
