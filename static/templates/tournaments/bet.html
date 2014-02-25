@@ -21,50 +21,49 @@
     <div ng-repeat="d in matchesData.Days">
       <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
       <div class="calendar">
-	<table class="table table-striped">
-	  <thead>
-	    <!-- <tr><th>Days</th></tr> -->
-	  </thead>
-	  <tbody>
-	    <tr ng-repeat="m in d.Matches">
-	      <div class="row">
-		<td class="col-md-1">#{{m.IdNumber}}</td>
-		<td class="col-md-2">
-		  <p>{{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}}<br><small>{{m.Location}}</small></p>
-		</td>
-		<td class="col-md-8">
-		  <p>
-		    <button class="btn btn-primary btn-xs" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> </span></button>
-		    <button class="btn btn-success btn-xs" ng-show="m.betDone"><span class="glyphicon glyphicon glyphicon-check"> ready</span></button>
-		  </p>
-		  <div ng-show="m.wantToBet">
-		    <form class="form" role="form" ng-submit="updateResult()">
-		      <div class="row">
-			<div class="col-xs-1">
-			  <small><label class="control-label">{{m.Team1}}</label></small>
-			</div>
-			<div class="col-xs-2">
-			  <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result1" placeholder=""> </p>
-			</div>
-			<div class="col-xs-2">
-			  <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""> </p>
-			</div>
-			<div class="col-xs-1">
-			  <small><label class="control-label">{{m.Team2}}</label></small>
-			</div>
-			<div class="col-xs-1"></div>
-			<div class="col-xs-1">
-			  <button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"></span></button>
-			</div>
+	<div ng-repeat="m in d.Matches" class="row">
+	  <div class="col-md-1"></div>
+	  <div class="col-md-10">
+	    <div class="panel panel-default">
+	      <div class="panel-body">
+		<div class="row">
+		  <div class="col-md-1"><h4>#{{m.IdNumber}}</h4></div>
+		  <div class="col-md-2"><p class="text-right">{{m.Team1}}</p></div>
+		  <div class="col-md-1"><p class="text-center">{{m.Result1}}</p></div>
+		  <div class="col-md-1"><p class="text-center"> - </p></div>
+		  <div class="col-md-1"><p class="text-center">{{m.Result2}}</p></div>
+		  <div class="col-md-2"><p class="text-left">{{m.Team2}}</p></div>
+		</div>
+		<div ng-show="m.wantToBet">
+		  <form class="form" role="form" ng-submit="updateResult()">
+		    <div class="row">
+		      <div class="col-md-3"></div>
+		      <div class="col-md-1">
+			<p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result1" placeholder=""></p>
 		      </div>
-		    </form>
-		  </div>
-		</td>
+		      <div class="col-md-1"><p class="text-center"> - </p></div>
+		      <div class="col-md-1">
+			<p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""></p>
+		      </div>
+		      <div class="col-md-1">
+		      	<button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"> save</span></button>
+		      </div>
+		    </div>
+		  </form>
+		</div>
+	      	<div class="row">
+	      	  <div class="col-md-3"></div>
+	      	  <div class="col-md-3">
+	      	    <button class="btn btn-primary btn-xs btn-block" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
+	      	    <button class="btn btn-success btn-xs btn-block" ng-show="m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.bet}}</span></button>
+	      	  </div>
+	      	</div>
 	      </div>
-	    </tr>
-	  </tbody>
-	</table>
+	    </div>
+	  </div>
+	</div>
       </div>
+    </div>
     </div>
     <!-- / Calendar -->
   </div>

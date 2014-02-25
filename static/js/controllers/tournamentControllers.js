@@ -335,6 +335,7 @@ tournamentControllers.controller('TournamentBetCtrl', ['$scope', '$routeParams',
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
     $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;
+    $scope.matchesData.Days[parentIndex].Matches[index].bet = result1 + ' - ' + result2;
     
     console.log('match result: ', result1, ' ', result2);
 
