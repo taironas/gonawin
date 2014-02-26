@@ -1,0 +1,36 @@
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-1"><h4>#{{m.IdNumber}}</h4></div>
+      <div class="col-md-2"><p class="text-right">{{m.Team1}}</p></div>
+      <div class="col-md-1"><p class="text-center">{{m.Result1}}</p></div>
+      <div class="col-md-1"><p class="text-center"> - </p></div>
+      <div class="col-md-1"><p class="text-center">{{m.Result2}}</p></div>
+      <div class="col-md-2"><p class="text-left">{{m.Team2}}</p></div>
+    </div>
+    <div ng-show="m.wantToBet">
+      <form class="form" role="form" ng-submit="updateResult()">
+	<div class="row">
+	  <div class="col-md-3"></div>
+	  <div class="col-md-1">
+	    <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result1" placeholder=""></p>
+	  </div>
+	  <div class="col-md-1"><p class="text-center"> - </p></div>
+	  <div class="col-md-1">
+	    <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""></p>
+	  </div>
+	  <div class="col-md-1">
+	    <button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"> save</span></button>
+	  </div>
+	</div>
+      </form>
+    </div>
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-3">
+	<button class="btn btn-primary btn-xs btn-block" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
+	<button class="btn btn-success btn-xs btn-block" ng-show="m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.bet}}</span></button>
+      </div>
+    </div>
+  </div>
+</div>

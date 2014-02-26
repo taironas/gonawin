@@ -13,58 +13,46 @@
     </div>
   </div>
 </div>
-<!-- Calendar -->
-
+<!-- Calendar by days -->
 <div class="row">
   <div class="col-md-1"></div>
   <div class="col-md-11">
     <div ng-repeat="d in matchesData.Days">
       <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
       <div class="calendar">
-	<table class="table table-striped">
-	  <thead>
-	    <!-- <tr><th>Days</th></tr> -->
-	  </thead>
-	  <tbody>
-	    <tr ng-repeat="m in d.Matches">
-	      <div class="row">
-		<td class="col-md-1">#{{m.IdNumber}}</td>
-		<td class="col-md-2">
-		  <p>{{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}}<br>{{m.Location}}</p>
-		</td>
-	      </div>
-	    </tr>
-	  </tbody>
-	</table>
+	<div ng-repeat="m in d.Matches" class="row">
+	  <div class="col-md-1"></div>
+	  <div class="col-md-9">
+	    <!-- show use another include that has full match information: location, ... -->
+	    <div ng-include src="'templates/tournaments/match.html'"> </div>
+	  </div>
+	</div>
       </div>
     </div>
-    <!-- / Calendar -->
   </div>
 </div>
-<!-- Calendar -->
+<!-- / Calendar by days-->
+<!-- Calendar by phases -->
 <div class="row">
   <div class="col-md-1"></div>
   <div class="col-md-11">
     <div ng-repeat="phase in matchesData.Phases">
-      <div class="calendar">
-	<h3>{{phase.Name}}</h3>
-	<table class="table table-striped">
-	  <thead>
-    	    <!-- <tr><th>Days</th></tr> -->
-	  </thead>
-	  <tbody>
-    	    <tr ng-repeat="d in phase.Days">
-              <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
-    	      <td>
-    		<div ng-repeat="m in d.Matches">
-    		  <p>#{{m.IdNumber}}: {{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}} Location: {{m.Location}}</p>
-    		</div>
-    	      </td>
-    	    </tr>
-	  </tbody>
-	</table>
+	<h2>{{phase.Name}}</h3>
+	<div class="calendar">
+	  <div ng-repeat="d in phase.Days">
+	    <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+	    <div class="calendar">
+	      <div ng-repeat="m in d.Matches" class="row">
+		<div class="col-md-1"></div>
+		<div class="col-md-9">
+		  <div ng-include src="'templates/tournaments/match.html'"> </div>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
       </div>
-      <!-- / Calendar -->
     </div>
   </div>
 </div>
+<!-- Calendar by phases -->

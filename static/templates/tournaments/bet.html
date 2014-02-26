@@ -13,8 +13,7 @@
     </div>
   </div>
 </div>
-<!-- Calendar -->
-
+<!-- Calendar by days -->
 <div class="row">
   <div class="col-md-1"></div>
   <div class="col-md-11">
@@ -23,75 +22,37 @@
       <div class="calendar">
 	<div ng-repeat="m in d.Matches" class="row">
 	  <div class="col-md-1"></div>
-	  <div class="col-md-10">
-	    <div class="panel panel-default">
-	      <div class="panel-body">
-		<div class="row">
-		  <div class="col-md-1"><h4>#{{m.IdNumber}}</h4></div>
-		  <div class="col-md-2"><p class="text-right">{{m.Team1}}</p></div>
-		  <div class="col-md-1"><p class="text-center">{{m.Result1}}</p></div>
-		  <div class="col-md-1"><p class="text-center"> - </p></div>
-		  <div class="col-md-1"><p class="text-center">{{m.Result2}}</p></div>
-		  <div class="col-md-2"><p class="text-left">{{m.Team2}}</p></div>
+	  <div class="col-md-9">
+	    <div ng-include src="'templates/tournaments/match.html'"> </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / Calendar by days-->
+
+<!-- Calendar by phases -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="phase in matchesData.Phases">
+	<h2>{{phase.Name}}</h3>
+	<div class="calendar">
+	  <div ng-repeat="d in phase.Days">
+	    <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+	    <div class="calendar">
+	      <div ng-repeat="m in d.Matches" class="row">
+		<div class="col-md-1"></div>
+		<div class="col-md-9">
+		  <div ng-include src="'templates/tournaments/match.html'"> </div>
 		</div>
-		<div ng-show="m.wantToBet">
-		  <form class="form" role="form" ng-submit="updateResult()">
-		    <div class="row">
-		      <div class="col-md-3"></div>
-		      <div class="col-md-1">
-			<p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result1" placeholder=""></p>
-		      </div>
-		      <div class="col-md-1"><p class="text-center"> - </p></div>
-		      <div class="col-md-1">
-			<p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""></p>
-		      </div>
-		      <div class="col-md-1">
-		      	<button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"> save</span></button>
-		      </div>
-		    </div>
-		  </form>
-		</div>
-	      	<div class="row">
-	      	  <div class="col-md-3"></div>
-	      	  <div class="col-md-3">
-	      	    <button class="btn btn-primary btn-xs btn-block" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
-	      	    <button class="btn btn-success btn-xs btn-block" ng-show="m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.bet}}</span></button>
-	      	  </div>
-	      	</div>
 	      </div>
 	    </div>
 	  </div>
 	</div>
       </div>
     </div>
-    </div>
-    <!-- / Calendar -->
   </div>
 </div>
-<!-- Calendar -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <div ng-repeat="phase in matchesData.Phases">
-      <div class="calendar">
-	<h3>{{phase.Name}}</h3>
-	<table class="table table-striped">
-	  <thead>
-    	    <!-- <tr><th>Days</th></tr> -->
-	  </thead>
-	  <tbody>
-    	    <tr ng-repeat="d in phase.Days">
-              <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
-    	      <td>
-    		<div ng-repeat="m in d.Matches">
-    		  <p>#{{m.IdNumber}}: {{m.Team1}} <b>{{m.Result1}}</b> - <b>{{m.Result2}}</b> {{m.Team2}} Location: {{m.Location}}</p>
-    		</div>
-    	      </td>
-    	    </tr>
-	  </tbody>
-	</table>
-      </div>
-      <!-- / Calendar -->
-    </div>
-  </div>
-</div>
+<!-- Calendar by phases -->

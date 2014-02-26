@@ -252,6 +252,23 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
+
+  $scope.activateBet = function(matchIdNumber, index, parentIndex){
+    console.log('Tournament calendar controller: activate bet:', matchIdNumber);
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = true;
+  };
+
+  $scope.bet = function(matchIdNumber, index, parentIndex, result1, result2){
+    console.log('Tournament calendar controller: bet:', matchIdNumber);
+
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
+    $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;
+    $scope.matchesData.Days[parentIndex].Matches[index].bet = result1 + ' - ' + result2;
+    
+    console.log('match result: ', result1, ' ', result2);
+
+  };  
+
 }]);
 
 
