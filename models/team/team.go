@@ -49,7 +49,7 @@ type TeamJson struct {
 	Created *time.Time `json:",omitempty"`
 }
 
-// Create a team given a name, an admin id and a private mode
+// Create a team given a name, an admin id and a private mode.
 func Create(c appengine.Context, name string, adminId int64, private bool) (*Team, error) {
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
@@ -71,7 +71,7 @@ func Create(c appengine.Context, name string, adminId int64, private bool) (*Tea
 	return team, err
 }
 
-// Destroy a team given a team id
+// Destroy a team given a team id.
 func Destroy(c appengine.Context, teamId int64) error {
 
 	if team, err := ById(c, teamId); err != nil {
@@ -83,7 +83,7 @@ func Destroy(c appengine.Context, teamId int64) error {
 	}
 }
 
-// given a filter and a value look query the datastore for teams and returns an array of team pointers.
+// Given a filter and a value look query the datastore for teams and returns an array of team pointers.
 func Find(c appengine.Context, filter string, value interface{}) []*Team {
 
 	q := datastore.NewQuery("Team").Filter(filter+" =", value)
@@ -98,7 +98,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Team {
 	}
 }
 
-// get a team given an id
+// Get a team given an id.
 func ById(c appengine.Context, id int64) (*Team, error) {
 
 	var t Team
@@ -119,7 +119,7 @@ func KeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// update a team given an id and a team pointer
+// Update a team given an id and a team pointer.
 func Update(c appengine.Context, id int64, t *Team) error {
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
@@ -136,7 +136,7 @@ func Update(c appengine.Context, id int64, t *Team) error {
 	return nil
 }
 
-// get all teams in datastore
+// Get all teams in datastore.
 func FindAll(c appengine.Context) []*Team {
 	q := datastore.NewQuery("Team")
 
@@ -149,7 +149,7 @@ func FindAll(c appengine.Context) []*Team {
 	return teams
 }
 
-// find with respect to array of ids
+// Get an array of pointers to Teams with respect to an array of ids.
 func ByIds(c appengine.Context, ids []int64) []*Team {
 
 	var teams []*Team
@@ -163,13 +163,13 @@ func ByIds(c appengine.Context, ids []int64) []*Team {
 	return teams
 }
 
-// checkes if a user has joined a team or not
+// Checkes if a user has joined a team or not.
 func Joined(c appengine.Context, teamId int64, userId int64) bool {
 	teamRel := teamrelmdl.FindByTeamIdAndUserId(c, teamId, userId)
 	return teamRel != nil
 }
 
-// make a user join a team
+// Make a user join a team.
 func Join(c appengine.Context, teamId int64, userId int64) error {
 	if _, err := teamrelmdl.Create(c, teamId, userId); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error during team relationship creation: %v", err))
@@ -184,7 +184,7 @@ func Leave(c appengine.Context, teamId int64, userId int64) error {
 	return teamrelmdl.Destroy(c, teamId, userId)
 }
 
-// check if user is admin of that team
+// Check if user is admin of that team.
 func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 
 	if team, err := ById(c, teamId); err == nil {
@@ -195,7 +195,7 @@ func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 	}
 }
 
-// given a id, and a word, get the frequency of that word in the team terms
+// Given a id, and a word, get the frequency of that word in the team terms.
 func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
 
 	if teams := Find(c, "Id", id); teams != nil {
