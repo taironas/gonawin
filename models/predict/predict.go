@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package predict provides use of Predict entity in GAE datastore.
 package predict
 
 import (
@@ -27,6 +28,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// A Predict entity is defined the result of a Match: Result1 and Result2 and a MatchId that references a Match entity in the datastore.
 type Predict struct {
 	Id      int64
 	Result1 int64
