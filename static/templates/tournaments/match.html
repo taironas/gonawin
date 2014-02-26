@@ -20,7 +20,7 @@
 	    <p><input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="result2" placeholder=""></p>
 	  </div>
 	  <div class="col-md-1">
-	    <button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"> save</span></button>
+	    <button type="submit" class="btn btn-primary btn-xs" ng-click="bet(m.IdNumber, $index, $parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon-share"> save</span></button>
 	  </div>
 	</div>
       </form>
@@ -28,7 +28,7 @@
     <div class="row">
       <div class="col-md-3"></div>
       <div class="col-md-3">
-	<button class="btn btn-primary btn-xs btn-block" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
+	<button class="btn btn-primary btn-xs btn-block" ng-show="!m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
 	<button class="btn btn-success btn-xs btn-block" ng-show="m.betDone" ng-click="activateBet(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.bet}}</span></button>
       </div>
     </div>
