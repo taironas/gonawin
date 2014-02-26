@@ -1,4 +1,4 @@
-## Some thoughts concerning the JSON API:
+## gonawin API:
 
 ### Ranking:
 
@@ -21,3 +21,15 @@
 ####description:
 
 The ranking urls will return an array of entities (tournaments, teams, users) sorted by the score.
+
+-------------
+
+### Predict API
+
+You can predict a match who is part of a tournament. To do this you set two parameters `result1` and `result2`. This two parameters are the scores that the user predicts for a specific match. A match is between a `Team1` and a `Team2`. So the results go respectively to each team.
+
+Use the following URL to post a predict on a match:
+* `/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2`
+
+
+
