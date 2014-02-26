@@ -35,6 +35,7 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
+	predictmdl "github.com/santiaago/purple-wing/models/predict"
 	searchmdl "github.com/santiaago/purple-wing/models/search"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
@@ -694,6 +695,71 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			groupsJson,
 		}
 		return templateshlp.RenderJson(w, c, data)
+	}
+	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Set a Predict entity of a specific match for the current User.
+func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+	c := appengine.NewContext(r)
+	desc := "Tournament Predict Handler"
+
+	if r.Method == "POST" {
+		// extract tournament
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "%s: error extracting permalink err:%v", desc, err)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		var tournament *tournamentmdl.Tournament
+		tournament, err = tournamentmdl.ById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "%s: tournament with id:%v was not found %v", desc, tournamentId, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		// extract match
+		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
+		if err2 != nil {
+			log.Errorf(c, "%s: error extracting permalink err:%v", desc, err2)
+			return helpers.BadRequest{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+		}
+
+		match := tournamentmdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
+		if match == nil {
+			log.Errorf(c, "%s: unable to get match with id number :%v", desc, matchIdNumber)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+		}
+		result1 := r.FormValue("result1")
+		result2 := r.FormValue("result2")
+		var r1, r2 int
+		if r1, err = strconv.Atoi(result1); err != nil {
+			log.Errorf(c, "%s: unable to get results, error: %v not number 1", desc, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+		}
+		if r2, err = strconv.Atoi(result2); err != nil {
+			log.Errorf(c, "%s: unable to get results, error: %v not number 2", desc, err)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+		}
+
+		if p, err1 := predictmdl.Create(c, int64(r1), int64(r2), match.Id); err1 != nil {
+			log.Errorf(c, "%s: unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
+			return helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+		} else {
+			// add p.Id to User predict table.
+			if err = u.AddPredictId(c, p.Id); err != nil {
+				log.Errorf(c, "%s: unable to add predict id in user entity: error: %v", desc, err)
+				return helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			}
+			msg := fmt.Sprintf("Prediction is now set.")
+			data := struct {
+				MessageInfo string `json:",omitempty"`
+				Predict     *predictmdl.Predict
+			}{
+				msg,
+				p,
+			}
+			return templateshlp.RenderJson(w, c, data)
+		}
 	}
 	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

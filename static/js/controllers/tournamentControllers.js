@@ -253,17 +253,17 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
 
-  $scope.activateBet = function(matchIdNumber, index, parentIndex){
-    console.log('Tournament calendar controller: activate bet:', matchIdNumber);
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = true;
+  $scope.activatePredict = function(matchIdNumber, index, parentIndex){
+    console.log('Tournament calendar controller: activate predict:', matchIdNumber);
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
   };
 
-  $scope.bet = function(matchIdNumber, index, parentIndex, result1, result2){
-    console.log('Tournament calendar controller: bet:', matchIdNumber);
+  $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
+    console.log('Tournament calendar controller: predict:', matchIdNumber);
 
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
-    $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;
-    $scope.matchesData.Days[parentIndex].Matches[index].bet = result1 + ' - ' + result2;
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
+    $scope.matchesData.Days[parentIndex].Matches[index].predictDone = true;
+    $scope.matchesData.Days[parentIndex].Matches[index].predict = result1 + ' - ' + result2;
     
     console.log('match result: ', result1, ' ', result2);
 
@@ -334,27 +334,35 @@ tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$rout
   $scope.matchesData = Tournament.matches({id:$routeParams.id, filter:"second"});
 }]);
 
-// Bet controller
-tournamentControllers.controller('TournamentBetCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament bet controller');
+// Predict controller
+tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament predict controller');
   console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
   $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
 
-  $scope.activateBet = function(matchIdNumber, index, parentIndex){
-    console.log('TournamentBetCtrl: activate bet:', matchIdNumber);
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = true;
+  $scope.activatePredict = function(matchIdNumber, index, parentIndex){
+    console.log('TournamentPredictCtrl: activate predict:', matchIdNumber);
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
   };
 
-  $scope.bet = function(matchIdNumber, index, parentIndex, result1, result2){
-    console.log('TournamentBetCtrl: bet:', matchIdNumber);
+  $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
+    console.log('TournamentPredictCtrl: predict:', matchIdNumber);
 
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
-    $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;
-    $scope.matchesData.Days[parentIndex].Matches[index].bet = result1 + ' - ' + result2;
+    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
+    $scope.matchesData.Days[parentIndex].Matches[index].predictDone = true;
     
-    console.log('match result: ', result1, ' ', result2);
-
+    Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
+		       function(result){
+			 console.log('success in setting prediction!');
+			 $scope.matchesData.Days[parentIndex].Matches[index].predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
+			 $scope.messageInfo = result.MessageInfo;
+			 console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
+		       },
+		       function(err) {
+			 console.log('failure setting prediction! ', err.data);
+			 $scope.messageDanger = err.data;
+		       });
   };  
 }]);
