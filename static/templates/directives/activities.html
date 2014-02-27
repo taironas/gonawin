@@ -1,0 +1,15 @@
+<div class="well activities" ng-show="activities.length">
+  <div class="activities-line"></div>
+  <div class="row activity" ng-repeat="activity in activities">
+    <span class="activity-icon">
+      <i class="fa fa-users fa-lg fa-inverse"></i>
+    </span>
+    <div class="activity-panel panel panel-default">
+      <div class="panel-body">
+        <strong><a href="/ng#/{{activity.Actor.Type}}s/show/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
+        <strong><a href="/ng#/{{activity.Object.Type}}s/show/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong>
+        <h5 class="text-right"><small>{{activity.Published | fromNow}}</small></h5>
+      </div>
+    </div>
+  </div>
+</div>

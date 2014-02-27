@@ -80,7 +80,47 @@ p {
   transition: color 0.1s ease-in, background 0.1s ease-in;
 }
 
-.main-content,
 .user-dashboard {
   background-color: white;
 }
+
+.activity-icon {
+  border: 2px solid #67c2ef;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  background: #465E8F;
+  height: 35px;
+  width: 35px;
+  line-height: 30px;
+  text-align: center;
+  z-index: 2;
+  position: absolute;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.activities-line {
+  position: absolute;
+  content: '';
+  height: 70%;
+  width: 3px;
+  background: #e4e6eb;
+  margin-left: 21px;
+  margin-top: 20px;
+}
+
+.activity-panel {
+  margin-left: 100px;
+  margin-right: 20px;
+}
+
+.activity-panel a {
+  color: #465E8F;
+}
+
+.activity-panel h5 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+

@@ -1,12 +1,5 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <div class="page-content">
-  <table class="table table-striped" ng-show="activities.length">
-    <thead>
-    <tbody>
-      <tr ng-repeat="activity in activities">
-        <td>{{activity.Title}}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div gw-activities></div>
   <h3 style="text-align: center">{{noActivitiesMessage}}</h3>
 </div>

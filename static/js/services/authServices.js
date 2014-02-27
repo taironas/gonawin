@@ -45,7 +45,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
           $rootScope.currentUser = _self.currentUser = userData.User;
           console.log('current user: ', _self.currentUser);
          
-          storeCookies(accessToken, _self.currentUser.Auth, _self.currentUser.Id);
+          _self.storeCookies(accessToken, _self.currentUser.Auth, _self.currentUser.Id);
          
           $location.path('/home');
         });

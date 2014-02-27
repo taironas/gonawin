@@ -10,6 +10,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.formValidation',
   'directive.joinButton',
   '$strap.directives',
+  'filter.fromNow',
   
   'navigationControllers',
   'homeControllers',

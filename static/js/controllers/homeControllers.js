@@ -11,3 +11,9 @@ homeControllers.controller('HomeCtrl', ['$scope', '$location', 'Activity', funct
       $scope.noActivitiesMessage = 'You have no activity';
   });
 }]);
+
+homeControllers.directive('gwActivities', function() {
+  return {
+    templateUrl: 'templates/directives/activities.html'
+  };
+});

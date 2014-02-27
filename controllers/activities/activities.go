@@ -36,7 +36,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	if r.Method == "GET" {
 		activities := activitymdl.FindByUser(c, u.Id)
 
-		fieldsToKeep := []string{"Id", "Title", "Verb", "Actor", "Object", "Target"}
+		fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
 		activitiesJson := make([]activitymdl.ActivityJson, len(activities))
 		helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
 
