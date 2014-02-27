@@ -39,6 +39,7 @@ import (
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+  activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 type TeamData struct {
@@ -101,6 +102,12 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 				log.Errorf(c, "Team New Handler: error when trying to create a team relationship: %v", err)
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
+      // publish new activity
+      actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+      object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+      target := activitymdl.ActivityEntity{}
+      activitymdl.Publish(c, "team", "created a new team", actor, object, target, u.Id)
+      
 			// return the newly created team
 			var tJson teammdl.TeamJson
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
