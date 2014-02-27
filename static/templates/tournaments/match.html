@@ -28,8 +28,8 @@
     <div class="row">
       <div class="col-md-3"></div>
       <div class="col-md-3">
-	<button class="btn btn-primary btn-xs btn-block" ng-show="!m.predictDone" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
-	<button class="btn btn-success btn-xs btn-block" ng-show="m.predictDone" ng-click="activatePredict(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.predict}}</span></button>
+	<button class="btn btn-primary btn-xs btn-block" ng-show="!m.HasPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
+	<button class="btn btn-success btn-xs btn-block" ng-show="m.HasPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.Predict}}</span></button>
       </div>
     </div>
   </div>

@@ -41,7 +41,7 @@ func TeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 }
 
 // From tournament entity build map of teams.
-func MapOfIdTeams(c appengine.Context, tournament Tournament) map[int64]string {
+func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	var mapIdTeams map[int64]string
 	mapIdTeams = make(map[int64]string)

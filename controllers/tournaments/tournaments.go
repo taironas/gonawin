@@ -459,13 +459,15 @@ type TeamJson struct {
 }
 
 type MatchJson struct {
-	IdNumber int64
-	Date     time.Time
-	Team1    string
-	Team2    string
-	Location string
-	Result1  int64
-	Result2  int64
+	IdNumber   int64
+	Date       time.Time
+	Team1      string
+	Team2      string
+	Location   string
+	Result1    int64
+	Result2    int64
+	HasPredict bool
+	Predict    string
 }
 
 type DayJson struct {
@@ -478,14 +480,11 @@ type PhaseJson struct {
 	Days []DayJson
 }
 
-// json tournament calendar handler
-// use this handler to get the calendar of a tournament.
-// the calendar structure is an array of matches of the tournament
-// with the location, the teams involved and the date
-// by default the data returned is grouped by days.
+// Json tournament calendar handler:
+// Use this handler to get the calendar of a tournament.
+// The calendar structure is an array of matches of the tournament with the location, the teams involved and the date by default the data returned is grouped by days.
 // This means we will return an array of days, each of which can have an array of matches.
-// you can specify the groupby parameter to be "day" or "phase" in that case you would have an array of phases,
-// each of which would have an array of days who would have an array of matches.
+// You can specify the groupby parameter to be "day" or "phase" in that case you would have an array of phases, each of which would have an array of days who would have an array of matches.
 func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -496,8 +495,8 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var t *tournamentmdl.Tournament
+		t, err = tournamentmdl.ById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Group Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -511,7 +510,7 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 
 		if groupby == "day" {
 			log.Infof(c, "Tournament Calendar By Day Handler: ready to build days array")
-			matchesJson := buildMatchesFromTournament(c, *tournament)
+			matchesJson := buildMatchesFromTournament(c, t, u)
 
 			days := matchesGroupByDay(matchesJson)
 
@@ -525,7 +524,7 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 
 		} else if groupby == "phase" {
 			log.Infof(c, "Tournament Calendar by Phase Handler: ready to build phase array")
-			matchesJson := buildMatchesFromTournament(c, *tournament)
+			matchesJson := buildMatchesFromTournament(c, t, u)
 			phases := matchesGroupByPhase(matchesJson)
 
 			data := struct {
@@ -552,8 +551,8 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var t *tournamentmdl.Tournament
+		t, err = tournamentmdl.ById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Matches Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -566,7 +565,7 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		}
 
 		log.Infof(c, "Tournament Matches Handler: ready to build days array")
-		matchesJson := buildMatchesFromTournament(c, *tournament)
+		matchesJson := buildMatchesFromTournament(c, t, u)
 
 		if filter == "first" {
 			matchesJson = matchesJson[1:49]
@@ -643,7 +642,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
 			mjson.Team1 = rule[0]
@@ -766,12 +765,15 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 
 // From a tournament entity return an array of MatchJson data structure.
 // second phase matches will have the specific rules in there team names
-func buildMatchesFromTournament(c appengine.Context, tournament tournamentmdl.Tournament) []MatchJson {
+func buildMatchesFromTournament(c appengine.Context, t *tournamentmdl.Tournament, u *usermdl.User) []MatchJson {
 
-	matches := tournamentmdl.Matches(c, tournament.Matches1stStage)
-	matches2ndPhase := tournamentmdl.Matches(c, tournament.Matches2ndStage)
+	matches := tournamentmdl.Matches(c, t.Matches1stStage)
+	matches2ndPhase := tournamentmdl.Matches(c, t.Matches2ndStage)
 
-	mapIdTeams := tournamentmdl.MapOfIdTeams(c, tournament)
+	var predicts predictmdl.Predicts
+	predicts = predictmdl.ByIds(c, u.PredictIds)
+
+	mapIdTeams := tournamentmdl.MapOfIdTeams(c, t)
 
 	matchesJson := make([]MatchJson, len(matches))
 	for i, m := range matches {
@@ -782,6 +784,12 @@ func buildMatchesFromTournament(c appengine.Context, tournament tournamentmdl.To
 		matchesJson[i].Location = m.Location
 		matchesJson[i].Result1 = m.Result1
 		matchesJson[i].Result2 = m.Result2
+		if hasMatch, j := predicts.ContainsMatch(m.Id); hasMatch == true {
+			matchesJson[i].HasPredict = true
+			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
+		} else {
+			matchesJson[i].HasPredict = false
+		}
 	}
 
 	// append 2nd round to first one
@@ -801,6 +809,13 @@ func buildMatchesFromTournament(c appengine.Context, tournament tournamentmdl.To
 		matchJson2ndPhase.Location = m.Location
 		matchJson2ndPhase.Result1 = m.Result1
 		matchJson2ndPhase.Result2 = m.Result2
+
+		if hasMatch, j := predicts.ContainsMatch(m.Id); hasMatch == true {
+			matchJson2ndPhase.HasPredict = true
+			matchJson2ndPhase.Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
+		} else {
+			matchJson2ndPhase.HasPredict = false
+		}
 
 		// append second round results
 		matchesJson = append(matchesJson, matchJson2ndPhase)

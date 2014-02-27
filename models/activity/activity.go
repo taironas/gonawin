@@ -28,7 +28,7 @@ import (
 
 type Activity struct {
 	ID        int64
-  Type      string
+	Type      string
 	Verb      string
 	Actor     ActivityEntity
 	Object    ActivityEntity
@@ -39,33 +39,34 @@ type Activity struct {
 
 type ActivityEntity struct {
 	ID          int64
-  Type        string
+	Type        string
 	DisplayName string
 }
 
 type ActivityJson struct {
 	ID        *int64          `json:",omitempty"`
-  Type      *string         `json:",omitempty"`
+	Type      *string         `json:",omitempty"`
 	Verb      *string         `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
 	Object    *ActivityEntity `json:",omitempty"`
 	Target    *ActivityEntity `json:",omitempty"`
 	Published *time.Time      `json:",omitempty"`
-  UserID    *int64          `json:",omitempty"`
+	UserID    *int64          `json:",omitempty"`
 }
 
 func Publish(c appengine.Context, activityType string, verb string, actor ActivityEntity, object ActivityEntity, target ActivityEntity, userID int64) error {
-  var activity Activity
-  activity.Type = activityType
-  activity.Verb = verb
-  activity.Actor = actor
-  activity.Object = object
-  activity.Target = target
-  activity.Published = time.Now()
-  activity.UserID = userID
-  
-  return activity.create(c)
+	var activity Activity
+	activity.Type = activityType
+	activity.Verb = verb
+	activity.Actor = actor
+	activity.Object = object
+	activity.Target = target
+	activity.Published = time.Now()
+	activity.UserID = userID
+
+	return activity.create(c)
 }
+
 // creates an activity entity,
 func (a *Activity) create(c appengine.Context) error {
 	// create new user

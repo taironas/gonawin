@@ -41,18 +41,18 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 			log.Errorf(c, "Tournament Simulate Matches Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var t *tournamentmdl.Tournament
+		t, err = tournamentmdl.ById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Simulate Matches Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		phase := r.FormValue("phase")
-		allMatches := tournamentmdl.GetAllMatchesFromTournament(c, tournament)
+		allMatches := tournamentmdl.GetAllMatchesFromTournament(c, t)
 		phases := tournamentmdl.MatchesGroupByPhase(allMatches)
 
-		mapIdTeams := tournamentmdl.MapOfIdTeams(c, *tournament)
+		mapIdTeams := tournamentmdl.MapOfIdTeams(c, t)
 		phaseId := -1
 		var results1 []int64
 		var results2 []int64
@@ -76,14 +76,14 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User
 			// phase done we and not break
 			break
 		}
-		if err = tournamentmdl.SetResults(c, matches, results1, results2, tournament); err != nil {
+		if err = tournamentmdl.SetResults(c, matches, results1, results2, t); err != nil {
 			log.Errorf(c, "Tournament Simulate Matches: unable to set result for matches error: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchesCannotUpdate)}
 		}
 
 		if phaseId >= 0 {
 			// only return update phase
-			matchesJson := buildMatchesFromTournament(c, *tournament)
+			matchesJson := buildMatchesFromTournament(c, t, u)
 			phasesJson := matchesGroupByPhase(matchesJson)
 
 			data := struct {

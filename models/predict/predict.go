@@ -137,3 +137,14 @@ func ByIds(c appengine.Context, ids []int64) []*Predict {
 	}
 	return predicts
 }
+
+type Predicts []*Predict
+
+func (a Predicts) ContainsMatch(id int64) (bool, int) {
+	for i, e := range a {
+		if e.MatchId == id {
+			return true, i
+		}
+	}
+	return false, -1
+}

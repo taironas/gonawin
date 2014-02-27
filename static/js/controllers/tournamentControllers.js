@@ -262,9 +262,19 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     console.log('Tournament calendar controller: predict:', matchIdNumber);
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
-    $scope.matchesData.Days[parentIndex].Matches[index].predictDone = true;
-    $scope.matchesData.Days[parentIndex].Matches[index].predict = result1 + ' - ' + result2;
+    $scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
     
+    Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
+		       function(result){
+			 console.log('success in setting prediction!');
+			 $scope.matchesData.Days[parentIndex].Matches[index].Predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
+			 $scope.messageInfo = result.MessageInfo;
+			 console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
+		       },
+		       function(err) {
+			 console.log('failure setting prediction! ', err.data);
+			 $scope.messageDanger = err.data;
+		       });
     console.log('match result: ', result1, ' ', result2);
 
   };  
@@ -351,12 +361,12 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
     console.log('TournamentPredictCtrl: predict:', matchIdNumber);
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
-    $scope.matchesData.Days[parentIndex].Matches[index].predictDone = true;
+    $scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
     
     Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
 		       function(result){
 			 console.log('success in setting prediction!');
-			 $scope.matchesData.Days[parentIndex].Matches[index].predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
+			 $scope.matchesData.Days[parentIndex].Matches[index].Predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
 			 $scope.messageInfo = result.MessageInfo;
 			 console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
 		       },
