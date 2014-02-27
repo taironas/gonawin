@@ -194,3 +194,13 @@ func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 
 	return teams
 }
+
+// Adds an predict Id in the PredictId array.
+func (u *User) AddPredictId(c appengine.Context, pId int64) error {
+
+	u.PredictIds = append(u.PredictIds, pId)
+	if err := Update(c, u); err != nil {
+		return err
+	}
+	return nil
+}

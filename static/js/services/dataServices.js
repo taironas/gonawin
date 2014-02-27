@@ -31,26 +31,40 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
   
-  return $resource('j/tournaments/:id', {id:'@id', q:'@q', teamId:'@teamId', groupby: '@groupby', filter: '@filter', matchId: '@matchId', result: '@result', phaseName: '@phaseName'}, {
-    get: { method: 'GET', url: 'j/tournaments/show/:id' },
-    save: { method: 'POST', url: 'j/tournaments/new' },
-    update: { method: 'POST', url: 'j/tournaments/update/:id' },
-    delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
-    search: { method: 'GET', url: 'j/tournaments/search?q=:q'},
-    participants: { method: 'GET', url:'j/tournaments/:id/participants' },
-    join: {method: 'POST', url: 'j/tournamentrels/create/:id'},
-    leave: {method: 'POST', url: 'j/tournamentrels/destroy/:id'},
-    joinAsTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
-    leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
-    candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
-    saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
-    groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
-    calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'}, // #experimental: sar
-    matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter'}, // #experimental: sar
-    updateMatchResult: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/update?result=:result'},
-    simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
-    reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
-  })
+  return $resource('j/tournaments/:id', 
+		   {
+		     id:'@id', 
+		     q:'@q', 
+		     teamId:'@teamId', 
+		     groupby: '@groupby', 
+		     filter: '@filter', 
+		     matchId: '@matchId', 
+		     result: '@result', 
+		     result1: '@result1',
+		     result2: '@result2',
+		     phaseName: '@phaseName'
+		   }, 
+		   {
+		     get: { method: 'GET', url: 'j/tournaments/show/:id' },
+		     save: { method: 'POST', url: 'j/tournaments/new' },
+		     update: { method: 'POST', url: 'j/tournaments/update/:id' },
+		     delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
+		     search: { method: 'GET', url: 'j/tournaments/search?q=:q'},
+		     participants: { method: 'GET', url:'j/tournaments/:id/participants' },
+		     join: {method: 'POST', url: 'j/tournamentrels/create/:id'},
+		     leave: {method: 'POST', url: 'j/tournamentrels/destroy/:id'},
+		     joinAsTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
+		     leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
+		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
+		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
+		     groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar
+		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'}, // #experimental: sar
+		     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter'}, // #experimental: sar
+		     updateMatchResult: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/update?result=:result'},
+		     simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
+		     reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
+		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
+		   })
 });
 
 dataServices.factory('Invite', function($http, $cookieStore, $resource){
