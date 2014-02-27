@@ -255,11 +255,15 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
   $scope.activateBet = function(matchIdNumber, index, parentIndex){
     console.log('Tournament calendar controller: activate bet:', matchIdNumber);
+    console.log('Tournament calendar controller:  activate bet index :', index);
+    console.log('Tournament calendar controller: activate bet parent index :', parentIndex);
     $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = true;
   };
 
   $scope.bet = function(matchIdNumber, index, parentIndex, result1, result2){
     console.log('Tournament calendar controller: bet:', matchIdNumber);
+    console.log('Tournament calendar controller: bet index :', index);
+    console.log('Tournament calendar controller: bet parent index :', parentIndex);
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToBet = false;
     $scope.matchesData.Days[parentIndex].Matches[index].betDone = true;

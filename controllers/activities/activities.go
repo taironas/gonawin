@@ -42,5 +42,5 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		return templateshlp.RenderJson(w, c, activitiesJson)
 	}
-	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

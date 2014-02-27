@@ -41,18 +41,18 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "Tournament team rels Create Handler: string value could not be parsed: %v, %v", err1, err2)
-			return helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		if err := tournamentmdl.TeamJoin(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, "Tournament team rels Create Handler: error when trying to join team: %v", err)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		// return the joined tournament
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournament team rels Create Handler: tournament with id: %v was not found %v", tournamentId, err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		} else {
 			var tJson tournamentmdl.TournamentJson
 			fieldsToKeep := []string{"Id", "Name"}
@@ -61,7 +61,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	}
-	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // destroy handler for tournament teams realtionship
@@ -75,17 +75,17 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "Tournament team rels Destroy Handler: string value could not be parsed: %v, %v", err1, err2)
-			return helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// leave team
 		if err := tournamentmdl.TeamLeave(c, tournamentId, teamId); err != nil {
 			log.Errorf(c, "Tournament team rels Destroy Handler: error when trying to leave team: %v", err)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
 		if tournament, err := tournamentmdl.ById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournament team rels Destroy Handler: tournament with id: %v was not found %v", tournamentId, err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		} else {
 			var tJson tournamentmdl.TournamentJson
 			fieldsToKeep := []string{"Id", "Name"}
@@ -94,5 +94,5 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	}
-	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

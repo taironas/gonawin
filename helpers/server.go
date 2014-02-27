@@ -19,6 +19,7 @@ package helpers
 import (
 	"io"
 	"net/http"
+	//"fmt"
 )
 
 // writes a 404 not found in ResponseWriter
@@ -31,13 +32,41 @@ func Error404(w http.ResponseWriter) {
 // inspired by https://github.com/campoy/todo
 
 // BadRequest is handled by setting the status code in the reply to StatusBadRequest.
-type BadRequest struct{ error }
+type BadRequest struct {
+	Err error
+}
+
+// Implementation of error, returns string error on Err structure.
+func (e *BadRequest) Error() string {
+	return e.Err.Error()
+}
 
 // NotFound is handled by setting the status code in the reply to StatusNotFound.
-type NotFound struct{ error }
+type NotFound struct {
+	Err error
+}
+
+// Implementation of error, returns string error on Err structure.
+func (e *NotFound) Error() string {
+	return e.Err.Error()
+}
 
 // Forbidden is handled by setting the status code in the reply to StatusForbidden.
-type Forbidden struct{ error }
+type Forbidden struct {
+	Err error
+}
+
+// Implementation of error, returns string error on Err structure.
+func (e *Forbidden) Error() string {
+	return e.Err.Error()
+}
 
 // InternalServerError is handled by setting the status code in the reply to StatusInternalServerError.
-type InternalServerError struct{ error }
+type InternalServerError struct {
+	Err error
+}
+
+// Implementation of error, returns string error on Err structure.
+func (e *InternalServerError) Error() string {
+	return e.Err.Error()
+}

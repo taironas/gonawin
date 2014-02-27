@@ -40,18 +40,18 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Teamrels Create Handler: error when extracting permalink id: %v", err)
-			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if err := teammdl.Join(c, teamId, u.Id); err != nil {
 			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the joined team
 		var team *teammdl.Team
 		if team, err = teammdl.ById(c, teamId); err != nil {
 			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var tJson teammdl.TeamJson
@@ -60,7 +60,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json destroy handler for team relations
@@ -72,22 +72,22 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Teamrels Destroy Handler: error when extracting permalink id: %v", err)
-			return helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if teammdl.IsTeamAdmin(c, teamId, u.Id) {
 			log.Errorf(c, "Teamrels Destroy Handler: Team administrator cannot leave the team")
-			return helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
+			return &helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 		}
 		if err := teammdl.Leave(c, teamId, u.Id); err != nil {
 			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
-			return helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left team
 		var team *teammdl.Team
 		if team, err = teammdl.ById(c, teamId); err != nil {
 			log.Errorf(c, "Teamrels Destroy Handler: team not found: %v", err)
-			return helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var tJson teammdl.TeamJson
@@ -97,5 +97,5 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }

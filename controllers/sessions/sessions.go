@@ -61,16 +61,16 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 	}
 	if !authhlp.IsAuthorized(&userInfo) {
-		return helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
+		return &helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 
 	var user *usermdl.User
 	var err error
 	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user
@@ -90,7 +90,7 @@ func JsonTwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
 	if err != nil {
 		c.Errorf("JsonTwitterAuth, error = %v", err)
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
 	}
 
 	memcache.Set(c, "secret", credentials.Secret)
@@ -130,7 +130,7 @@ func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
 	if secret := memcache.Get(c, "secret"); secret != nil {
 		cred.Secret = string(secret.([]byte))
 	} else {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
 	}
 
 	if err = memcache.Delete(c, "secret"); err != nil {
@@ -139,7 +139,7 @@ func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
 
 	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
 	}
 
 	// get user info
@@ -147,20 +147,20 @@ func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
 	urlValues.Set("user_id", values.Get("user_id"))
 	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
 	if err != nil {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
 	userInfo, err := authhlp.FetchTwitterUserInfo(resp)
 	if err != nil {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
 	if !authhlp.IsAuthorizedWithTwitter(userInfo) {
-		return helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
+		return &helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 
 	if user, err = usermdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
-		return helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user

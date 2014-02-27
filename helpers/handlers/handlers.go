@@ -67,13 +67,13 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 			return
 		}
 		switch err.(type) {
-		case helpers.BadRequest:
+		case *helpers.BadRequest:
 			http.Error(w, err.Error(), http.StatusBadRequest)
-		case helpers.NotFound:
+		case *helpers.NotFound:
 			http.Error(w, err.Error(), http.StatusNotFound)
-		case helpers.Forbidden:
+		case *helpers.Forbidden:
 			http.Error(w, err.Error(), http.StatusForbidden)
-		case helpers.InternalServerError:
+		case *helpers.InternalServerError:
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		default:
 			c := appengine.NewContext(r)
@@ -92,7 +92,7 @@ func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) 
 
 		user := auth.CheckAuthenticationData(r)
 		if user == nil {
-			return helpers.BadRequest{errors.New("Bad Authentication data")}
+			return &helpers.BadRequest{errors.New("Bad Authentication data")}
 		} else {
 			return f(w, r, user)
 		}
