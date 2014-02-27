@@ -19,6 +19,7 @@ package tournament
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -248,6 +249,32 @@ func Reset(c appengine.Context, t *Tournament) error {
 			return err
 		}
 	}
-	// reset all matches rules
+	// reset all match rules
+	mapMatches2ndRound := MapOf2ndRoundMatches()
+
+	const (
+		cMatchId       = 0
+		cMatchDate     = 1
+		cMatchTeam1    = 2
+		cMatchTeam2    = 3
+		cMatchLocation = 4
+	)
+
+	// build matches 2nd phase
+	const shortForm = "Jan/02/2006"
+	for _, roundMatches := range mapMatches2ndRound {
+		for _, matchData := range roundMatches {
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			m := GetMatchByIdNumber(c, *t, int64(matchInternalId))
+			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
+			m.Rule = rule
+			m.Result1 = 0
+			m.Result2 = 0
+			if err := UpdateMatch(c, m); err != nil {
+				log.Errorf(c, "Reset: unable to reset rule on match: %v", err)
+				return err
+			}
+		}
+	}
 	return nil
 }
