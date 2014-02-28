@@ -83,7 +83,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
     // Executed when the SDK is loaded
     FB.init({ 
       appId: '232160743609875', 
-      channelUrl: 'static/channel.html',
+      channelUrl: 'static/templates/channel.html',
       status: true, /*Set if you want to check the authentication status at the start up of the app */
       cookie: true, 
       xfbml: true      
