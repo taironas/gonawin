@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-  background-color: #465E8F;
+  background-color: #f5f5f5;
 }
 
 /* Paragraph & Typographic */
@@ -27,6 +27,16 @@ p {
 
 #push {
   height: 60px;
+}
+
+.navbar-navy {
+  background-color: #465E8F;
+  border-bottom: 2px solid #67c2ef;
+  border-radius: 0px;
+}
+
+.navbar-navy a {
+  color: white;
 }
 
 .header {
@@ -80,11 +90,6 @@ p {
   transition: color 0.1s ease-in, background 0.1s ease-in;
 }
 
-.main-content,
-.user-dashboard {
-  background-color: white;
-}
-
 .activity-icon {
   border: 2px solid #67c2ef;
   -webkit-border-radius: 50%;
@@ -104,7 +109,7 @@ p {
 .activities-line {
   position: absolute;
   content: '';
-  height: 70%;
+  height: 100%;
   width: 3px;
   background: #e4e6eb;
   margin-left: 21px;
@@ -125,3 +130,6 @@ p {
   margin-bottom: 0px;
 }
 
+.user-dashboard h3 {
+	text-align: center;
+}
