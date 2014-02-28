@@ -43,6 +43,7 @@ import (
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+  activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 type TournamentData struct {
@@ -103,6 +104,12 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			fieldsToKeep := []string{"Id", "Name"}
 			var tJson tournamentmdl.TournamentJson
 			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+      
+      // publish new activity
+      actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+      object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+      target := activitymdl.ActivityEntity{}
+      activitymdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}

@@ -29,6 +29,7 @@ import (
 
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	usermdl "github.com/santiaago/purple-wing/models/user"
+  activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 // json create handler for team relations
@@ -57,6 +58,12 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		var tJson teammdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+    
+    // publish new activity
+    actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+    object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+    target := activitymdl.ActivityEntity{}
+    activitymdl.Publish(c, "team", "joined team", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -94,6 +101,12 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)
+    
+    // publish new activity
+    actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+    object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+    target := activitymdl.ActivityEntity{}
+    activitymdl.Publish(c, "team", "left team", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
