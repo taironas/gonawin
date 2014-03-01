@@ -31,23 +31,25 @@ import (
 )
 
 type Team struct {
-	Id      int64
-	KeyName string
-	Name    string
-	AdminId int64
-	Private bool
-	Created time.Time
-	UserIds []int64
+	Id            int64
+	KeyName       string
+	Name          string
+	AdminId       int64
+	Private       bool
+	Created       time.Time
+	UserIds       []int64
+	TournamentIds []int64
 }
 
 type TeamJson struct {
-	Id      *int64     `json:",omitempty"`
-	KeyName *string    `json:",omitempty"`
-	Name    *string    `json:",omitempty"`
-	AdminId *int64     `json:",omitempty"`
-	Private *bool      `json:",omitempty"`
-	Created *time.Time `json:",omitempty"`
-	UserIds *[]int64   `json:",omitempty"`
+	Id            *int64     `json:",omitempty"`
+	KeyName       *string    `json:",omitempty"`
+	Name          *string    `json:",omitempty"`
+	AdminId       *int64     `json:",omitempty"`
+	Private       *bool      `json:",omitempty"`
+	Created       *time.Time `json:",omitempty"`
+	UserIds       *[]int64   `json:",omitempty"`
+	TournamentIds *[]int64   `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -61,7 +63,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 	emtpyArray := make([]int64, 0)
 
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emtpyArray}
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emtpyArray, emtpyArray}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -177,7 +179,9 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 	if err := u.AddTeamId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
-
+	if err := t.AddUserId(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
+	}
 	return nil
 }
 
@@ -187,6 +191,10 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err))
 	}
+	if err := t.RemoveUserId(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err))
+	}
+
 	return nil
 
 }
@@ -225,4 +233,102 @@ func (t *Team) Players(c appengine.Context) []*User {
 		}
 	}
 	return users
+}
+
+func (t *Team) ContainsTournamentId(id int64) (bool, int) {
+
+	for i, tId := range t.TournamentIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
+}
+
+// Adds a tournament Id in the TournamentId array.
+func (t *Team) AddTournamentId(c appengine.Context, tId int64) error {
+
+	if hasTournament, _ := t.ContainsTournamentId(tId); hasTournament {
+		return errors.New(fmt.Sprintf("AddTournamentId, allready a member."))
+	}
+	t.TournamentIds = append(t.TournamentIds, tId)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Remove a tournament Id in the TournamentId array.
+func (t *Team) RemoveTournamentId(c appengine.Context, tId int64) error {
+
+	if hasTournament, i := t.ContainsTournamentId(tId); !hasTournament {
+		return errors.New(fmt.Sprintf("RemoveTournamentId, not a member."))
+	} else {
+		// as the order of index in tournamentsId is not important,
+		// replace elem at index i with last element and resize slice.
+		t.TournamentIds[i] = t.TournamentIds[len(t.TournamentIds)-1]
+		t.TournamentIds = t.TournamentIds[0 : len(t.TournamentIds)-1]
+	}
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// from a team return an array of tournament the user is involved in.
+func (t *Team) Tournaments(c appengine.Context) []*Tournament {
+
+	var tournaments []*Tournament
+
+	for _, tId := range t.TournamentIds {
+		tournament, err := TournamentById(c, tId)
+		if err != nil {
+			log.Errorf(c, " Tournaments, cannot find team with ID=%", tId)
+		} else {
+			tournaments = append(tournaments, tournament)
+		}
+	}
+
+	return tournaments
+}
+
+// Remove a user Id in the UserId array.
+func (t *Team) RemoveUserId(c appengine.Context, uId int64) error {
+
+	if hasUser, i := t.ContainsUserId(uId); !hasUser {
+		return errors.New(fmt.Sprintf("RemoveUserId, not a member."))
+	} else {
+		// as the order of index in usersId is not important,
+		// replace elem at index i with last element and resize slice.
+		t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
+		t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
+	}
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a team Id in the UserId array.
+func (t *Team) AddUserId(c appengine.Context, uId int64) error {
+
+	if hasUser, _ := t.ContainsUserId(uId); hasUser {
+		return errors.New(fmt.Sprintf("AddUserId, allready a member."))
+	}
+
+	t.UserIds = append(t.UserIds, uId)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Team) ContainsUserId(id int64) (bool, int) {
+
+	for i, tId := range t.UserIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
 }

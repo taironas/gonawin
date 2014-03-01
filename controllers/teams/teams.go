@@ -248,17 +248,16 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// delete all team-user relationships
 		for _, player := range team.Players(c) {
-			if err := player.RemoveTeamId(c, teamID); err != nil {
+			if err := player.RemoveTeamId(c, team.Id); err != nil {
 				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
-		// [ToDo]here we update the tournament that this team belongs to and remove it from list.
-		// for _, tournament := range tournamentrelshlp.Teams(c, teamID) {
-		// 	if err := tournamentteamrelmdl.Destroy(c, tournament.Id, teamID); err != nil {
-		// 		log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
-		// 	}
-		// }
+		for _, tournament := range team.Tournaments(c) {
+			if err := tournament.RemoveTeamId(c, team.Id); err != nil {
+				log.Errorf(c, "Team Destroy Handler: error when trying to destroy tournament relationship: %v", err)
+			}
+		}
 		// delete the team
 		team.Destroy(c)
 

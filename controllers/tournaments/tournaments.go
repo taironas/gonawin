@@ -38,7 +38,6 @@ import (
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
 	predictmdl "github.com/santiaago/purple-wing/models/predict"
 	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type TournamentData struct {
@@ -212,7 +211,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		// delete all tournament-team relationships
 		for _, team := range tournament.Teams(c) {
-			if err := tournamentteamrelmdl.Destroy(c, intID, team.Id); err != nil {
+			if err := tournament.TeamLeave(c, team); err != nil {
 				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}
 		}
@@ -340,7 +339,9 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 			log.Errorf(c, "Candidate Teams Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		if _, err1 := mdl.TournamentById(c, tournamentId); err1 != nil {
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, tournamentId)
+		if err != nil {
 			log.Errorf(c, "Candidate Teams Handler: tournament not found err:%v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
@@ -358,7 +359,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 			var canditate canditateType
 			canditate.Team = tJson
-			canditate.Joined = mdl.TeamJoined(c, tournamentId, team.Id)
+			canditate.Joined = tournament.TeamJoined(c, team)
 			candidatesData[counterCandidate] = canditate
 		}
 		// we should not directly return an array. so we add an extra layer.
@@ -983,17 +984,21 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 
-		var err error
-		if err = mdl.TeamJoin(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, "Tournament Join As A Team Handler: error when trying to join team: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		var tournament *mdl.Tournament
+		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
+			log.Errorf(c, "Tournament Join As A Team Handler: tournament with id: %v was not found %v", tournamentId, err1)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		// return the joined tournament
-		var tournament *mdl.Tournament
-		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament Join As A Team Handler: tournament with id: %v was not found %v", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		var team *mdl.Team
+		if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
+			log.Errorf(c, "Tournament Join As A Team Handler: team not found: %v", err1)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		if err := tournament.TeamJoin(c, team); err != nil {
+			log.Errorf(c, "Tournament Join As A Team Handler: error when trying to join team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var tJson mdl.TournamentJson
@@ -1018,18 +1023,22 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			log.Errorf(c, "Tournament Leave As A Team Handler: string value could not be parsed: %v, %v", err1, err2)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
+		var tournament *mdl.Tournament
+		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
+			log.Errorf(c, "Tournament Leave As A Team Handler: tournament with id: %v was not found %v", tournamentId, err1)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+		var team *mdl.Team
+		if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
+			log.Errorf(c, "Tournament Leave As A Team Handler: team not found: %v", err1)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
 		// leave team
-		var err error
-		if err = mdl.TeamLeave(c, tournamentId, teamId); err != nil {
+		if err := tournament.TeamLeave(c, team); err != nil {
 			log.Errorf(c, "Tournament Leave As A Team Handler: error when trying to leave team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
-		var tournament *mdl.Tournament
-		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament Leave As A Team Handler: tournament with id: %v was not found %v", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
 
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}

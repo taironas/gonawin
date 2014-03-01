@@ -29,7 +29,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type Tournament struct {
@@ -186,6 +185,10 @@ func (t *Tournament) Join(c appengine.Context, u *User) error {
 	if err := u.AddTournamentId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
+	if err := t.AddUserId(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
+	}
+
 	return nil
 }
 
@@ -196,6 +199,10 @@ func (t *Tournament) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTournamentId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.Leave, error leaving tournament for user:%v Error: %v", u.Id, err))
 	}
+	if err := t.RemoveUserId(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.Leave, error joining tournament for user:%v Error: %v", u.Id, err))
+	}
+
 	return nil
 }
 
@@ -209,23 +216,34 @@ func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bo
 }
 
 // Check if a Team has joined the tournament.
-func TeamJoined(c appengine.Context, tournamentId int64, teamId int64) bool {
-	tournamentteamRel := tournamentteamrelmdl.FindByTournamentIdAndTeamId(c, tournamentId, teamId)
-	return tournamentteamRel != nil
+func (t *Tournament) TeamJoined(c appengine.Context, team *Team) bool {
+	// change in contains
+	hasTournament, _ := team.ContainsTournamentId(t.Id)
+	return hasTournament
 }
 
 // Team joins the Tournament.
-func TeamJoin(c appengine.Context, tournamentId int64, teamId int64) error {
-	if tournamentteamRel, err := tournamentteamrelmdl.Create(c, tournamentId, teamId); tournamentteamRel == nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error during tournament team relationship creation: %v", err))
+func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
+	// add
+	if err := team.AddTournamentId(c, t.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error joining tournament for team:%v Error: %v", team.Id, err))
 	}
-
+	if err := t.AddTeamId(c, team.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error joining tournament for team:%v Error: %v", team.Id, err))
+	}
 	return nil
 }
 
 // Team leaves the Tournament.
-func TeamLeave(c appengine.Context, tournamentId int64, teamId int64) error {
-	return tournamentteamrelmdl.Destroy(c, tournamentId, teamId)
+func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
+	// find and remove
+	if err := team.RemoveTournamentId(c, t.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.Id, err))
+	}
+	if err := t.RemoveTeamId(c, team.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.Id, err))
+	}
+	return nil
 }
 
 // Get the frequency of given word with respect to tournament id.
@@ -305,10 +323,6 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 func (t *Tournament) Teams(c appengine.Context) []*Team {
 
 	var teams []*Team
-
-	//tournamentteamRels := tournamentteamrelmdl.Find(c, "TournamentId", tournamentId)
-
-	//for _, tournamentteamRel := range tournamentteamRels {
 	for _, tId := range t.TeamIds {
 		team, err := TeamById(c, tId)
 		if err != nil {
@@ -318,4 +332,86 @@ func (t *Tournament) Teams(c appengine.Context) []*Team {
 		}
 	}
 	return teams
+}
+
+// Adds a team Id in the TeamId array.
+func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
+
+	if hasTeam, i := t.ContainsTeamId(tId); !hasTeam {
+		return errors.New(fmt.Sprintf("RemoveTeamId, not a member."))
+	} else {
+		// as the order of index in teamsId is not important,
+		// replace elem at index i with last element and resize slice.
+		t.TeamIds[i] = t.TeamIds[len(t.TeamIds)-1]
+		t.TeamIds = t.TeamIds[0 : len(t.TeamIds)-1]
+	}
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a team Id in the TeamId array.
+func (t *Tournament) AddTeamId(c appengine.Context, tId int64) error {
+
+	if hasTeam, _ := t.ContainsTeamId(tId); hasTeam {
+		return errors.New(fmt.Sprintf("AddTeamId, allready a member."))
+	}
+
+	t.TeamIds = append(t.TeamIds, tId)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Remove a user Id in the UserId array.
+func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
+
+	if hasUser, i := t.ContainsUserId(uId); !hasUser {
+		return errors.New(fmt.Sprintf("RemoveUserId, not a member."))
+	} else {
+		// as the order of index in usersId is not important,
+		// replace elem at index i with last element and resize slice.
+		t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
+		t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
+	}
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a team Id in the UserId array.
+func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
+
+	if hasUser, _ := t.ContainsUserId(uId); hasUser {
+		return errors.New(fmt.Sprintf("AddUserId, allready a member."))
+	}
+
+	t.UserIds = append(t.UserIds, uId)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (t *Tournament) ContainsTeamId(id int64) (bool, int) {
+
+	for i, tId := range t.TeamIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
+}
+
+func (t *Tournament) ContainsUserId(id int64) (bool, int) {
+
+	for i, tId := range t.UserIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
 }
