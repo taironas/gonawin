@@ -44,16 +44,15 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Tournamentrels Create Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-
-		if err := mdl.Join(c, tournamentId, u); err != nil {
-			log.Errorf(c, "Tournamentrels Create Handler: error on Join tournament: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
-		}
-		// return the joined tournament
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournamentrels Create Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		if err := tournament.Join(c, u); err != nil {
+			log.Errorf(c, "Tournamentrels Create Handler: error on Join tournament: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var tJson mdl.TournamentJson
@@ -83,17 +82,18 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		if err := mdl.Leave(c, tournamentId, u); err != nil {
-			log.Errorf(c, "Tournamentrels Destroy Handler: error on Leave team: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
-		}
-		// return the left tournament
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournamentrels Destroy Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
+		if err := tournament.Leave(c, u); err != nil {
+			log.Errorf(c, "Tournamentrels Destroy Handler: error on Leave team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
+
+		// return the left tournament
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)

@@ -21,7 +21,7 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 	//mdl "github.com/santiaago/purple-wing/models/user"
@@ -48,7 +48,7 @@ func Players(c appengine.Context, teamId int64) []*mdl.User {
 }
 
 // build a teamRequest array from an array of teams
-func TeamsRequests(c appengine.Context, teams []*teammdl.Team) []*teamrequestmdl.TeamRequest {
+func TeamsRequests(c appengine.Context, teams []*mdl.Team) []*teamrequestmdl.TeamRequest {
 	var teamRequests []*teamrequestmdl.TeamRequest
 
 	for _, team := range teams {

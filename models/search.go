@@ -23,7 +23,7 @@ import (
 
 	"appengine"
 
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 
 	//mdl "github.com/santiaago/purple-wing/models"
@@ -112,7 +112,7 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords {
 			// get word frequency by team (id, wi)
-			wordFreqByTeam := teammdl.GetWordFrequencyForTeam(c, id, wi)
+			wordFreqByTeam := GetWordFrequencyForTeam(c, id, wi)
 			// get number of teams with word (wi)
 			teamFreqForWord, err := teaminvidmdl.GetTeamFrequencyForWord(c, wi)
 			if err != nil {

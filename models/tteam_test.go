@@ -18,7 +18,7 @@ func TestTeamById(t *testing.T) {
 	// Run code and tests requiring the appengine.Context using c.
 	log.Infof(c, "Team Test")
 
-	if _, err := TeamById(c, int64(0)); err != nil {
+	if _, err := TTeamById(c, int64(0)); err != nil {
 		t.Log(err)
 	}
 }

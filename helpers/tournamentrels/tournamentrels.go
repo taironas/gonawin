@@ -20,7 +20,7 @@ import (
 	"appengine"
 
 	"github.com/santiaago/purple-wing/helpers/log"
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	//tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
@@ -47,14 +47,14 @@ func Participants(c appengine.Context, tournamentId int64) []*mdl.User {
 }
 
 // from a tournamentid returns an array of teams involved in tournament
-func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
+func Teams(c appengine.Context, tournamentId int64) []*mdl.Team {
 
-	var teams []*teammdl.Team
+	var teams []*mdl.Team
 
 	tournamentteamRels := tournamentteamrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentteamRel := range tournamentteamRels {
-		team, err := teammdl.ById(c, tournamentteamRel.TeamId)
+		team, err := mdl.TeamById(c, tournamentteamRel.TeamId)
 		if err != nil {
 			log.Errorf(c, " Teams, cannot find team with ID=%", tournamentteamRel.TeamId)
 		} else {

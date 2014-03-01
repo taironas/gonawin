@@ -28,8 +28,7 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
-	teammdl "github.com/santiaago/purple-wing/models/team"
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 type User struct {
@@ -43,6 +42,8 @@ type User struct {
 	ArchivedPredictInds   []int64 // Archived predicts of user.
 	TournamentIds         []int64 // Current tournament ids of user.
 	ArchivedTournamentIds []int64 // Archived tournament ids of user.
+	TeamIds               []int64 // Current team ids of user.
+	ArchivedTeamIds       []int64 // Archived team ids of user.
 	Created               time.Time
 }
 
@@ -57,6 +58,8 @@ type UserJson struct {
 	ArchivedPredictInds   *[]int64   `json:",omitempty"`
 	TournamentIds         *[]int64   `json:",omitempty"`
 	ArchivedTournamentIds *[]int64   `json:",omitempty"`
+	TeamIds               *[]int64   `json:",omitempty"`
+	ArchivedTeamIds       *[]int64   `json:",omitempty"`
 	Created               *time.Time `json:",omitempty"`
 }
 
@@ -72,7 +75,7 @@ func CreateUser(c appengine.Context, email string, username string, name string,
 
 	emptyArray := make([]int64, 0)
 
-	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, time.Now()}
+	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -183,18 +186,18 @@ func GenerateAuthKey() string {
 }
 
 // From a user id returns an array of teams the user iq involved participates.
-func Teams(c appengine.Context, userId int64) []*teammdl.Team {
+func (u *User) Teams(c appengine.Context) []*Team {
 
-	var teams []*teammdl.Team
+	var teams []*Team
 
-	teamRels := teamrelmdl.Find(c, "UserId", userId)
+	//teamRels := teamrelmdl.Find(c, "UserId", userId)
 
-	for _, teamRel := range teamRels {
-		team, err := teammdl.ById(c, teamRel.TeamId)
+	for _, tId := range u.TeamIds {
+		t, err := TeamById(c, tId)
 		if err != nil {
-			log.Errorf(c, " Teams, cannot find team with ID=%", teamRel.TeamId)
+			log.Errorf(c, "Teams, cannot find team with ID=%", tId)
 		} else {
-			teams = append(teams, team)
+			teams = append(teams, t)
 		}
 	}
 
@@ -269,4 +272,45 @@ func (u *User) Tournaments(c appengine.Context) []*Tournament {
 	}
 
 	return tournaments
+}
+
+// Adds a team Id in the TeamId array.
+func (u *User) AddTeamId(c appengine.Context, tId int64) error {
+
+	if hasTeam, _ := u.ContainsTeamId(tId); hasTeam {
+		return errors.New(fmt.Sprintf("AddTeamId, allready a member."))
+	}
+
+	u.TeamIds = append(u.TeamIds, tId)
+	if err := u.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a team Id in the TeamId array.
+func (u *User) RemoveTeamId(c appengine.Context, tId int64) error {
+
+	if hasTeam, i := u.ContainsTeamId(tId); !hasTeam {
+		return errors.New(fmt.Sprintf("RemoveTeamId, not a member."))
+	} else {
+		// as the order of index in teamsId is not important,
+		// replace elem at index i with last element and resize slice.
+		u.TeamIds[i] = u.TeamIds[len(u.TeamIds)-1]
+		u.TeamIds = u.TeamIds[0 : len(u.TeamIds)-1]
+	}
+	if err := u.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) ContainsTeamId(id int64) (bool, int) {
+
+	for i, tId := range u.TeamIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
 }

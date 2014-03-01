@@ -27,7 +27,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	//mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 
@@ -45,19 +45,18 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Teamrels Create Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
-
-		if err := teammdl.Join(c, teamId, u.Id); err != nil {
-			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
-		}
-		// return the joined team
-		var team *teammdl.Team
-		if team, err = teammdl.ById(c, teamId); err != nil {
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, teamId); err != nil {
 			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		var tJson teammdl.TeamJson
+		if err := team.Join(c, u); err != nil {
+			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
+
+		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -84,22 +83,22 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		if teammdl.IsTeamAdmin(c, teamId, u.Id) {
+		if mdl.IsTeamAdmin(c, teamId, u.Id) {
 			log.Errorf(c, "Teamrels Destroy Handler: Team administrator cannot leave the team")
 			return &helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 		}
-		if err := teammdl.Leave(c, teamId, u.Id); err != nil {
-			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
-		}
-		// return the left team
-		var team *teammdl.Team
-		if team, err = teammdl.ById(c, teamId); err != nil {
+
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, teamId); err != nil {
 			log.Errorf(c, "Teamrels Destroy Handler: team not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
+		if err := team.Leave(c, u); err != nil {
+			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
 
-		var tJson teammdl.TeamJson
+		var tJson mdl.TeamJson
 		helpers.CopyToPointerStructure(team, &tJson)
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)

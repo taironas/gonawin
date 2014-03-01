@@ -37,7 +37,7 @@ import (
 
 	predictmdl "github.com/santiaago/purple-wing/models/predict"
 	//searchmdl "github.com/santiaago/purple-wing/models/search"
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	//mdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 	// tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
@@ -166,17 +166,17 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		participantsJson := make([]mdl.UserJson, len(participants))
 		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// teams
-		teamsJson := make([]teammdl.TeamJson, len(teams))
+		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// data
 		data := struct {
 			Tournament   mdl.TournamentJson
 			Joined       bool
 			Participants []mdl.UserJson
-			Teams        []teammdl.TeamJson
+			Teams        []mdl.TeamJson
 		}{
 			tournamentJson,
-			mdl.Joined(c, intID, u),
+			tournament.Joined(c, u),
 			participantsJson,
 			teamsJson,
 		}
@@ -223,7 +223,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			}
 		}
 		// delete the tournament
-		mdl.Destroy(c, intID)
+		tournament.Destroy(c)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "tournament has been destroyed")
@@ -310,7 +310,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		result := mdl.TournamentScore(c, keywords, ids)
 		log.Infof(c, "result from TournamentScore: %v", result)
-		tournaments := mdl.ByIds(c, result)
+		tournaments := mdl.TournamentsByIds(c, result)
 		log.Infof(c, "ByIds result %v", tournaments)
 		if len(tournaments) == 0 {
 			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
@@ -351,16 +351,16 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		// query teams
-		teams := teammdl.Find(c, "AdminId", u.Id)
+		teams := mdl.FindTeams(c, "AdminId", u.Id)
 		type canditateType struct {
-			Team   teammdl.TeamJson
+			Team   mdl.TeamJson
 			Joined bool
 		}
 		fieldsToKeep := []string{"Id", "Name"}
 		candidatesData := make([]canditateType, len(teams))
 
 		for counterCandidate, team := range teams {
-			var tJson teammdl.TeamJson
+			var tJson mdl.TeamJson
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 			var canditate canditateType
 			canditate.Team = tJson

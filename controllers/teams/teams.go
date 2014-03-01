@@ -34,7 +34,7 @@ import (
 
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
 	// mdl "github.com/santiaago/purple-wing/models/search"
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
@@ -53,11 +53,11 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		teams := teammdl.FindAll(c)
+		teams := mdl.FindAllTeams(c)
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		teamsJson := make([]teammdl.TeamJson, len(teams))
+		teamsJson := make([]mdl.TeamJson, len(teams))
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		return templateshlp.RenderJson(w, c, teamsJson)
@@ -88,11 +88,11 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if len(data.Name) <= 0 {
 			log.Errorf(c, "Team New Handler: 'Name' field cannot be empty")
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
-		} else if t := teammdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
+		} else if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			log.Errorf(c, "Team New Handler: That team name already exists.")
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 		} else {
-			team, err := teammdl.Create(c, data.Name, u.Id, data.Visibility == "Private")
+			team, err := mdl.CreateTeam(c, data.Name, u.Id, data.Visibility == "Private")
 			if err != nil {
 				log.Errorf(c, "Team New Handler: error when trying to create a team: %v", err)
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
@@ -110,7 +110,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			activitymdl.Publish(c, "team", "created a new team", actor, object, target, u.Id)
 
 			// return the newly created team
-			var tJson teammdl.TeamJson
+			var tJson mdl.TeamJson
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -131,15 +131,15 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		var team *teammdl.Team
-		if team, err = teammdl.ById(c, intID); err != nil {
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, intID); err != nil {
 			log.Errorf(c, "Team Show Handler: team not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		// get data for json team
 
 		// build team json
-		var tJson teammdl.TeamJson
+		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -150,13 +150,13 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
 
 		teamData := struct {
-			Team        teammdl.TeamJson
+			Team        mdl.TeamJson
 			Joined      bool
 			RequestSent bool
 			Players     []mdl.UserJson
 		}{
 			tJson,
-			teammdl.Joined(c, intID, u.Id),
+			team.Joined(c, u),
 			teamrequestmdl.Sent(c, intID, u.Id),
 			playersJson,
 		}
@@ -177,13 +177,13 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
-		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
+		if !mdl.IsTeamAdmin(c, teamID, u.Id) {
 			log.Errorf(c, "Team Update Handler: user is not admin")
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 		}
 
-		var team *teammdl.Team
-		team, err = teammdl.ById(c, teamID)
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamID)
 		if err != nil {
 			log.Errorf(c, "Team Update handler: team not found. id: %v, err: %v", teamID, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
@@ -208,21 +208,21 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if helpers.IsStringValid(updatedData.Name) && (updatedData.Name != team.Name || updatedPrivate != team.Private) {
 
 			// be sure that team with that name does not exist in datastore
-			if t := teammdl.Find(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
+			if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 				log.Errorf(c, "Team Update Handler: That team name already exists.")
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 			}
 			// update data
 			team.Name = updatedData.Name
 			team.Private = updatedPrivate
-			teammdl.Update(c, teamID, team)
+			team.Update(c)
 		} else {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 		// keep only needed fields for json api
-		var tJson teammdl.TeamJson
+		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -243,7 +243,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
 		}
 
-		if !teammdl.IsTeamAdmin(c, teamID, u.Id) {
+		if !mdl.IsTeamAdmin(c, teamID, u.Id) {
 			log.Errorf(c, "Team Destroy Handler: user is not admin")
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 		}
@@ -260,8 +260,14 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
 			}
 		}
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamID)
+		if err != nil {
+			log.Errorf(c, "Team Destroy handler: team not found. id: %v, err: %v", teamID, err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+		}
 		// delete the team
-		teammdl.Destroy(c, teamID)
+		team.Destroy(c)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "team has been destroyed")
@@ -308,7 +314,19 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 
 		if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
 			// join user to the team
-			teammdl.Join(c, teamRequest.TeamId, teamRequest.UserId)
+			var team *mdl.Team
+			team, err = mdl.TeamById(c, teamRequest.TeamId)
+			if err != nil {
+				log.Errorf(c, "Team Allow Request handler: team not found. id: %v, err: %v", teamRequest.TeamId, err)
+				return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+			}
+			user, err := mdl.UserById(c, teamRequest.UserId)
+			if err != nil {
+				log.Errorf(c, "Team Allow Handler: user not found")
+				return &helpers.NotFound{errors.New(helpers.ErrorCodeUserNotFound)}
+			}
+
+			team.Join(c, user)
 		} else {
 			log.Errorf(c, "Team Allow Request Handler: cannot find team request with id=%d", requestId)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
@@ -367,7 +385,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		result := mdl.TeamScore(c, keywords, ids)
 		log.Infof(c, "result from TeamScore: %v", result)
-		teams := teammdl.ByIds(c, result)
+		teams := mdl.TeamsByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
 		if len(teams) == 0 {
 			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
@@ -381,11 +399,11 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		// filter team information to return in json api
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
-		teamsJson := make([]teammdl.TeamJson, len(teams))
+		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// we should not directly return an array. so we add an extra layer.
 		data := struct {
-			Teams []teammdl.TeamJson `json:",omitempty"`
+			Teams []mdl.TeamJson `json:",omitempty"`
 		}{
 			teamsJson,
 		}

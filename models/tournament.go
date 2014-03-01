@@ -89,12 +89,12 @@ func CreateTournament(c appengine.Context, name string, description string, star
 }
 
 // Destroy a tournament entity given a tournament id.
-func Destroy(c appengine.Context, tournamentId int64) error {
+func (t *Tournament) Destroy(c appengine.Context) error {
 
-	if tournament, err := TournamentById(c, tournamentId); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find tournament with tournamentId=%d", tournamentId))
+	if _, err := TournamentById(c, t.Id); err != nil {
+		return errors.New(fmt.Sprintf("Cannot find tournament with Id=%d", t.Id))
 	} else {
-		key := datastore.NewKey(c, "Tournament", "", tournament.Id, nil)
+		key := datastore.NewKey(c, "Tournament", "", t.Id, nil)
 		return datastore.Delete(c, key)
 	}
 }
@@ -160,7 +160,7 @@ func FindAllTournaments(c appengine.Context) []*Tournament {
 }
 
 // Find all tournaments with respect to array of ids.
-func ByIds(c appengine.Context, ids []int64) []*Tournament {
+func TournamentsByIds(c appengine.Context, ids []int64) []*Tournament {
 
 	var tournaments []*Tournament
 	for _, id := range ids {
@@ -174,17 +174,17 @@ func ByIds(c appengine.Context, ids []int64) []*Tournament {
 }
 
 // Checks if a user has joined a tournament.
-func Joined(c appengine.Context, tournamentId int64, u *User) bool {
+func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
-	hasTournament, _ := u.ContainsTournamentId(tournamentId)
+	hasTournament, _ := u.ContainsTournamentId(t.Id)
 	//tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(c, tournamentId, userId)
 	return hasTournament //tournamentRel != nil
 }
 
 // Makes a user join a tournament.
-func Join(c appengine.Context, tournamentId int64, u *User) error {
+func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
-	if err := u.AddTournamentId(c, tournamentId); err != nil {
+	if err := u.AddTournamentId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
 	// if tournamentRel, err := tournamentrelmdl.Create(c, tournamentId, userId); tournamentRel == nil {
@@ -196,9 +196,9 @@ func Join(c appengine.Context, tournamentId int64, u *User) error {
 
 // Makes a user leave a tournament.
 // Todo: should we check that user is indeed a member of the tournament?
-func Leave(c appengine.Context, tournamentId int64, u *User) error {
+func (t *Tournament) Leave(c appengine.Context, u *User) error {
 	// find and remove
-	if err := u.RemoveTournamentId(c, tournamentId); err != nil {
+	if err := u.RemoveTournamentId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.Leave, error leaving tournament for user:%v Error: %v", u.Id, err))
 	}
 	return nil

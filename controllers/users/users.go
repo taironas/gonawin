@@ -31,7 +31,7 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
-	teammdl "github.com/santiaago/purple-wing/models/team"
+	//teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 	//mdl "github.com/santiaago/purple-wing/models/tournament"
 	//mdl "github.com/santiaago/purple-wing/models/user"
@@ -93,13 +93,13 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// get with param:
 		with := r.FormValue("including")
 		params := helpers.SetOfStrings(with)
-		var teams []*teammdl.Team
+		var teams []*mdl.Team
 		var teamRequests []*teamrequestmdl.TeamRequest
 		var tournaments []*mdl.Tournament
 		for _, param := range params {
 			switch param {
 			case "teams":
-				teams = mdl.Teams(c, userId)
+				teams = user.Teams(c)
 			case "teamrequests":
 				teamRequests = teamrelshlp.TeamsRequests(c, teams)
 			case "tournaments":
@@ -109,7 +109,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// teams
 		teamsFieldsToKeep := []string{"Id", "Name"}
-		teamsJson := make([]teammdl.TeamJson, len(teams))
+		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 		// tournaments
 		tournamentfieldsToKeep := []string{"Id", "Name"}
@@ -123,7 +123,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// data
 		data := struct {
 			User         mdl.UserJson                     `json:",omitempty"`
-			Teams        []teammdl.TeamJson               `json:",omitempty"`
+			Teams        []mdl.TeamJson                   `json:",omitempty"`
 			TeamRequests []teamrequestmdl.TeamRequestJson `json:",omitempty"`
 			Tournaments  []mdl.TournamentJson             `json:",omitempty"`
 		}{
