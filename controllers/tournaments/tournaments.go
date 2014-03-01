@@ -33,18 +33,12 @@ import (
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
-	predictmdl "github.com/santiaago/purple-wing/models/predict"
-	//searchmdl "github.com/santiaago/purple-wing/models/search"
-	//teammdl "github.com/santiaago/purple-wing/models/team"
-	//mdl "github.com/santiaago/purple-wing/models/tournament"
-	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	// tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
-	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
-	//mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
+	predictmdl "github.com/santiaago/purple-wing/models/predict"
+	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
+	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
 type TournamentData struct {

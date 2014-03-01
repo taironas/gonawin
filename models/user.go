@@ -190,8 +190,6 @@ func (u *User) Teams(c appengine.Context) []*Team {
 
 	var teams []*Team
 
-	//teamRels := teamrelmdl.Find(c, "UserId", userId)
-
 	for _, tId := range u.TeamIds {
 		t, err := TeamById(c, tId)
 		if err != nil {

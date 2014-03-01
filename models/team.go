@@ -168,8 +168,6 @@ func TeamsByIds(c appengine.Context, ids []int64) []*Team {
 func (t *Team) Joined(c appengine.Context, u *User) bool {
 
 	hasTeam, _ := u.ContainsTeamId(t.Id)
-	//teamRel := teamrelmdl.FindByTeamIdAndUserId(c, teamId, userId)
-	//return teamRel != nil
 	return hasTeam
 }
 
@@ -180,17 +178,12 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
 
-	// if _, err := teamrelmdl.Create(c, teamId, userId); err != nil {
-	// 	return errors.New(fmt.Sprintf(" Team.Join, error during team relationship creation: %v", err))
-	// }
-
 	return nil
 }
 
 // make a user leave a team
 // Todo: Should we check that the user is indeed a memeber of the team?
 func (t *Team) Leave(c appengine.Context, u *User) error {
-	// return teamrelmdl.Destroy(c, teamId, userId)
 	if err := u.RemoveTeamId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err))
 	}
@@ -223,9 +216,6 @@ func (t *Team) Players(c appengine.Context) []*User {
 
 	var users []*User
 
-	//teamRels := teamrelmdl.Find(c, "TeamId", teamId)
-
-	//for _, teamRel := range teamRels {
 	for _, uId := range t.UserIds {
 		user, err := UserById(c, uId)
 		if err != nil {

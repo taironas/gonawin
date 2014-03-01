@@ -27,15 +27,9 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	//teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
-
-	//teammdl "github.com/santiaago/purple-wing/models/team"
-	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	//mdl "github.com/santiaago/purple-wing/models/tournament"
-	//mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
+	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 )
 
 type UserData struct {

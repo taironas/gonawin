@@ -25,11 +25,8 @@ import (
 	activitiesctrl "github.com/santiaago/purple-wing/controllers/activities"
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
-	// teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
-	// tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
-	// tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
 )
 

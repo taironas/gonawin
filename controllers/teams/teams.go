@@ -28,19 +28,12 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	//teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
-	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	// mdl "github.com/santiaago/purple-wing/models/search"
-	//teammdl "github.com/santiaago/purple-wing/models/team"
-	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
-	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
-	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	//tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
-	// mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
+	activitymdl "github.com/santiaago/purple-wing/models/activity"
+	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
+	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 )
 
 type TeamData struct {
@@ -98,8 +91,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// join the team
-			_, err = teamrelmdl.Create(c, team.Id, u.Id)
-			if err != nil {
+			if err = u.AddTeamId(c, team.Id); err != nil {
 				log.Errorf(c, "Team New Handler: error when trying to create a team relationship: %v", err)
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
@@ -256,7 +248,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// delete all team-user relationships
 		for _, player := range team.Players(c) {
-			if err := teamrelmdl.Destroy(c, teamID, player.Id); err != nil {
+			if err := player.RemoveTeamId(c, teamID); err != nil {
 				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
 			}
 		}
@@ -456,17 +448,17 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// get team id
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Teamrels Create Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "Team Join Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		var team *mdl.Team
 		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
+			log.Errorf(c, "Team Join Handler: team not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if err := team.Join(c, u); err != nil {
-			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
+			log.Errorf(c, "Team Join Handler: error on Join team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
@@ -493,22 +485,22 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// get team id
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Teamrels Destroy Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "Team Leave Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if mdl.IsTeamAdmin(c, teamId, u.Id) {
-			log.Errorf(c, "Teamrels Destroy Handler: Team administrator cannot leave the team")
+			log.Errorf(c, "Team Leave Handler: Team administrator cannot leave the team")
 			return &helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 		}
 
 		var team *mdl.Team
 		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "Teamrels Destroy Handler: team not found: %v", err)
+			log.Errorf(c, "Team Leave Handler: team not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		if err := team.Leave(c, u); err != nil {
-			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
+			log.Errorf(c, "Team Leave Handler: error on Leave team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
