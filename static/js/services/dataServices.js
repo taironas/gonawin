@@ -53,8 +53,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     participants: { method: 'GET', url:'j/tournaments/:id/participants' },
 		     join: {method: 'POST', url: 'j/tournaments/join/:id'},//'j/tournamentrels/create/:id'},
 		     leave: {method: 'POST', url: 'j/tournaments/leave/:id'},//'j/tournamentrels/destroy/:id'},
-		     joinAsTeam: {method: 'POST', url: 'j/tournamentteamrels/create/:id/:teamId'},
-		     leaveAsTeam: {method: 'POST', url: 'j/tournamentteamrels/destroy/:id/:teamId'},
+		     joinAsTeam: {method: 'POST', url: 'j/tournaments/joinasteam/:id/:teamId'},//j/tournamentteamrels/create/:id/:teamId'},
+		     leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId'},//j/tournamentteamrels/destroy/:id/:teamId'},
 		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
 		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'}, // #experimental: sar
 		     groups: {method: 'GET', url: 'j/tournaments/:id/groups'}, // #experimental: sar

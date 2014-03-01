@@ -29,7 +29,7 @@ import (
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
 	// tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
-	tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
+	// tournamentteamrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentteamrels"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
 )
 
@@ -81,8 +81,8 @@ func init() {
 	h.HandleFunc("/j/teams/leave/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.LeaveJson)))
 	h.HandleFunc("/j/tournaments/join/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.JoinJson)))
 	h.HandleFunc("/j/tournaments/leave/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.LeaveJson)))
-	h.HandleFunc("/j/tournamentteamrels/create/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.CreateJson)))
-	h.HandleFunc("/j/tournamentteamrels/destroy/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.DestroyJson)))
+	h.HandleFunc("/j/tournaments/joinasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.JoinAsTeamJson)))
+	h.HandleFunc("/j/tournaments/leaveasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.LeaveAsTeamJson)))
 	// invite - json
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.InviteJson))
 
