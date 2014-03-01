@@ -21,20 +21,21 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers/log"
 	teammdl "github.com/santiaago/purple-wing/models/team"
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	//tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	// mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// from a tournamentId returns an array of users the participate in it.
-func Participants(c appengine.Context, tournamentId int64) []*usermdl.User {
-	var users []*usermdl.User
+// from a tournamentId returns an array of users that participate in it.
+func Participants(c appengine.Context, tournamentId int64) []*mdl.User {
+	var users []*mdl.User
 
 	tournamentRels := tournamentrelmdl.Find(c, "TournamentId", tournamentId)
 
 	for _, tournamentRel := range tournamentRels {
-		user, err := usermdl.ById(c, tournamentRel.UserId)
+		user, err := mdl.UserById(c, tournamentRel.UserId)
 		if err != nil {
 			log.Errorf(c, " Participants, cannot find user with ID=%", tournamentRel.UserId)
 		} else {
@@ -65,14 +66,14 @@ func Teams(c appengine.Context, tournamentId int64) []*teammdl.Team {
 }
 
 // from a user id return an array of tournament the user is involved in.
-func Tournaments(c appengine.Context, userId int64) []*tournamentmdl.Tournament {
+func Tournaments(c appengine.Context, userId int64) []*mdl.Tournament {
 
-	var tournaments []*tournamentmdl.Tournament
+	var tournaments []*mdl.Tournament
 
 	tournamentRels := tournamentrelmdl.Find(c, "UserId", userId)
 
 	for _, tournamentRel := range tournamentRels {
-		tournament, err := tournamentmdl.ById(c, tournamentRel.TournamentId)
+		tournament, err := mdl.TournamentById(c, tournamentRel.TournamentId)
 		if err != nil {
 			log.Errorf(c, " Tournaments, cannot find team with ID=%", tournamentRel.TournamentId)
 		} else {

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package tournament
+package models
 
 import (
 	"fmt"
@@ -375,7 +375,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	// matches 2nd stage
 	matches2ndStageIds := make([]int64, 0)
-
+	userIds := make([]int64, 0)
 	// mapMatches2ndRound  is a map where the key is a string which represent the rounds
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
 	// mapMatches2ndRound is a map[string][][]string
@@ -435,6 +435,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		groupIds,
 		matches1stStageIds,
 		matches2ndStageIds,
+		userIds,
 	}
 	log.Infof(c, "World Cup: instance of tournament ready")
 

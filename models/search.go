@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package search
+package models
 
 import (
 	"math"
@@ -26,7 +26,7 @@ import (
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	//mdl "github.com/santiaago/purple-wing/models"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 
 	helpers "github.com/santiaago/purple-wing/helpers"
@@ -59,7 +59,7 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords {
 			// get word frequency by tournament (id, wi)
-			wordFreqByTournament := tournamentmdl.GetWordFrequencyForTournament(c, id, wi)
+			wordFreqByTournament := GetWordFrequencyForTournament(c, id, wi)
 			// get number of tournaments with word (wi)
 			tournamentFreqForWord, err := tournamentinvidmdl.GetTournamentFrequencyForWord(c, wi)
 			if err != nil {

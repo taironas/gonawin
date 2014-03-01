@@ -140,7 +140,7 @@ func ByIds(c appengine.Context, ids []int64) []*Predict {
 
 type Predicts []*Predict
 
-func (a Predicts) ContainsMatch(id int64) (bool, int) {
+func (a Predicts) ContainsMatchId(id int64) (bool, int) {
 	for i, e := range a {
 		if e.MatchId == id {
 			return true, i

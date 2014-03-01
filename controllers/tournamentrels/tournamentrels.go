@@ -27,13 +27,14 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
-	usermdl "github.com/santiaago/purple-wing/models/user"
-  activitymdl "github.com/santiaago/purple-wing/models/activity"
+	// mdl "github.com/santiaago/purple-wing/models/tournament"
+	// mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
+	activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 // json create handler for tournament relationships
-func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func CreateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -44,26 +45,26 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		if err := tournamentmdl.Join(c, tournamentId, u.Id); err != nil {
+		if err := mdl.Join(c, tournamentId, u); err != nil {
 			log.Errorf(c, "Tournamentrels Create Handler: error on Join tournament: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the joined tournament
-		var tournament *tournamentmdl.Tournament
-		if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil {
+		var tournament *mdl.Tournament
+		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournamentrels Create Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var tJson tournamentmdl.TournamentJson
+		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-    
-    // publish new activity
-    actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-    object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-    target := activitymdl.ActivityEntity{}
-    activitymdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
+
+		// publish new activity
+		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := activitymdl.ActivityEntity{}
+		activitymdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -71,7 +72,7 @@ func CreateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json destroy handler for tournament relationships
-func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -82,26 +83,26 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		if err := tournamentmdl.Leave(c, tournamentId, u.Id); err != nil {
+		if err := mdl.Leave(c, tournamentId, u); err != nil {
 			log.Errorf(c, "Tournamentrels Destroy Handler: error on Leave team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
-		var tournament *tournamentmdl.Tournament
-		if tournament, err = tournamentmdl.ById(c, tournamentId); err != nil {
+		var tournament *mdl.Tournament
+		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "Tournamentrels Destroy Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var tJson tournamentmdl.TournamentJson
+		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-    
-    // publish new activity
-    actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-    object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-    target := activitymdl.ActivityEntity{}
-    activitymdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
+
+		// publish new activity
+		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := activitymdl.ActivityEntity{}
+		activitymdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}

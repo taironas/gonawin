@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package user
+package models
 
 import (
 	"crypto/rand"
@@ -33,29 +33,35 @@ import (
 )
 
 type User struct {
-	Id         int64
-	Email      string
-	Username   string
-	Name       string
-	IsAdmin    bool
-	Auth       string
-	PredictIds []int64
-	Created    time.Time
+	Id                    int64
+	Email                 string
+	Username              string
+	Name                  string
+	IsAdmin               bool
+	Auth                  string
+	PredictIds            []int64 // Current predicts of user.
+	ArchivedPredictInds   []int64 // Archived predicts of user.
+	TournamentIds         []int64 // Current tournament ids of user.
+	ArchivedTournamentIds []int64 // Archived tournament ids of user.
+	Created               time.Time
 }
 
 type UserJson struct {
-	Id         *int64     `json:",omitempty"`
-	Email      *string    `json:",omitempty"`
-	Username   *string    `json:",omitempty"`
-	Name       *string    `json:",omitempty"`
-	IsAdmin    *bool      `json:",omitempty"`
-	Auth       *string    `json:",omitempty"`
-	PredictIds *[]int64   `json:",omitempty"`
-	Created    *time.Time `json:",omitempty"`
+	Id                    *int64     `json:",omitempty"`
+	Email                 *string    `json:",omitempty"`
+	Username              *string    `json:",omitempty"`
+	Name                  *string    `json:",omitempty"`
+	IsAdmin               *bool      `json:",omitempty"`
+	Auth                  *string    `json:",omitempty"`
+	PredictIds            *[]int64   `json:",omitempty"`
+	ArchivedPredictInds   *[]int64   `json:",omitempty"`
+	TournamentIds         *[]int64   `json:",omitempty"`
+	ArchivedTournamentIds *[]int64   `json:",omitempty"`
+	Created               *time.Time `json:",omitempty"`
 }
 
 // Creates a user entity.
-func Create(c appengine.Context, email string, username string, name string, isAdmin bool, auth string) (*User, error) {
+func CreateUser(c appengine.Context, email string, username string, name string, isAdmin bool, auth string) (*User, error) {
 	// create new user
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
@@ -64,9 +70,9 @@ func Create(c appengine.Context, email string, username string, name string, isA
 
 	key := datastore.NewKey(c, "User", "", userId, nil)
 
-	predictIds := make([]int64, 0)
+	emptyArray := make([]int64, 0)
 
-	user := &User{userId, email, username, name, isAdmin, auth, predictIds, time.Now()}
+	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -78,7 +84,7 @@ func Create(c appengine.Context, email string, username string, name string, isA
 }
 
 // Search for a user entity given a filter and value.
-func Find(c appengine.Context, filter string, value interface{}) *User {
+func FindUser(c appengine.Context, filter string, value interface{}) *User {
 
 	q := datastore.NewQuery("User").Filter(filter+" =", value)
 
@@ -95,20 +101,20 @@ func Find(c appengine.Context, filter string, value interface{}) *User {
 }
 
 // Find all users present in datastore.
-func FindAll(c appengine.Context) []*User {
+func FindAllUsers(c appengine.Context) []*User {
 	q := datastore.NewQuery("User")
 
 	var users []*User
 
 	if _, err := q.GetAll(c, &users); err != nil {
-		log.Errorf(c, " User.FindAll, error occurred during GetAll call: %v", err)
+		log.Errorf(c, "FindAllUser, error occurred during GetAll call: %v", err)
 	}
 
 	return users
 }
 
 // Find a user entity by id.
-func ById(c appengine.Context, id int64) (*User, error) {
+func UserById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
 	key := datastore.NewKey(c, "User", "", id, nil)
@@ -121,7 +127,7 @@ func ById(c appengine.Context, id int64) (*User, error) {
 }
 
 // Get key pointer given a user id.
-func KeyById(c appengine.Context, id int64) *datastore.Key {
+func UserKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "User", "", id, nil)
 
@@ -129,8 +135,8 @@ func KeyById(c appengine.Context, id int64) *datastore.Key {
 }
 
 // Update user given a user pointer.
-func Update(c appengine.Context, u *User) error {
-	k := KeyById(c, u.Id)
+func (u *User) Update(c appengine.Context) error {
+	k := UserKeyById(c, u.Id)
 	if _, err := datastore.Put(c, k, u); err != nil {
 		return err
 	}
@@ -153,10 +159,10 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	}
 
 	// find user
-	if user = Find(c, queryName, queryValue); user == nil {
+	if user = FindUser(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
 		isAdmin := false
-		if userCreate, err := Create(c, email, username, name, isAdmin, GenerateAuthKey()); err != nil {
+		if userCreate, err := CreateUser(c, email, username, name, isAdmin, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
 			return nil, errors.New("models/user: Unable to create user.")
 		} else {
@@ -195,12 +201,72 @@ func Teams(c appengine.Context, userId int64) []*teammdl.Team {
 	return teams
 }
 
-// Adds an predict Id in the PredictId array.
+// Adds a predict Id in the PredictId array.
 func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 
 	u.PredictIds = append(u.PredictIds, pId)
-	if err := Update(c, u); err != nil {
+	if err := u.Update(c); err != nil {
 		return err
 	}
 	return nil
+}
+
+// Adds a tournament Id in the TournamentId array.
+func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
+
+	if hasTournament, _ := u.ContainsTournamentId(tId); hasTournament {
+		return errors.New(fmt.Sprintf("AddTournamentId, allready a member."))
+	}
+
+	u.TournamentIds = append(u.TournamentIds, tId)
+	if err := u.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a tournament Id in the TournamentId array.
+func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
+
+	if hasTournament, i := u.ContainsTournamentId(tId); !hasTournament {
+		return errors.New(fmt.Sprintf("RemoveTournamentId, not a member."))
+	} else {
+		// as the order of index in tournamentsId is not important,
+		// replace elem at index i with last element and resize slice.
+		u.TournamentIds[i] = u.TournamentIds[len(u.TournamentIds)-1]
+		u.TournamentIds = u.TournamentIds[0 : len(u.TournamentIds)-1]
+	}
+	if err := u.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) ContainsTournamentId(id int64) (bool, int) {
+
+	for i, tId := range u.TournamentIds {
+		if tId == id {
+			return true, i
+		}
+	}
+	return false, -1
+}
+
+// from a user return an array of tournament the user is involved in.
+func (u *User) Tournaments(c appengine.Context) []*Tournament {
+
+	var tournaments []*Tournament
+
+	//tournamentRels := tournamentrelmdl.Find(c, "UserId", userId)
+
+	for _, tId := range u.TournamentIds {
+		t, err := TournamentById(c, tId)
+		if err != nil {
+			log.Errorf(c, " Tournaments, cannot find team with ID=%", tId)
+		} else {
+			tournaments = append(tournaments, t)
+		}
+	}
+
+	return tournaments
 }

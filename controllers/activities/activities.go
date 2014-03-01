@@ -26,11 +26,12 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	//usermdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 // json index activity handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {

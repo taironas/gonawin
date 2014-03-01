@@ -32,7 +32,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers/memcache"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	//mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 // Set up a configuration for twitter.
@@ -67,15 +68,15 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 
-	var user *usermdl.User
+	var user *mdl.User
 	var err error
-	if user, err = usermdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user
 	userData := struct {
-		User *usermdl.User
+		User *mdl.User
 	}{
 		user,
 	}
@@ -117,7 +118,7 @@ func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	var err error
-	var user *usermdl.User
+	var user *mdl.User
 
 	log.Infof(c, "JsonTwitterUser, oauth_verifier = %s", r.FormValue("oauth_verifier"))
 	log.Infof(c, "JsonTwitterUser, oauth_token = %s", r.FormValue("oauth_token"))
@@ -159,13 +160,13 @@ func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.Forbidden{errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 
-	if user, err = usermdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user
 	userData := struct {
-		User *usermdl.User
+		User *mdl.User
 	}{
 		user,
 	}

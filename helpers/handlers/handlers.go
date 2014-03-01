@@ -28,7 +28,8 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	//mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 // parse permalink id from URL  and return it
@@ -84,7 +85,7 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 }
 
 // Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error hanlder if authentication fails.
-func Authorized(f func(w http.ResponseWriter, r *http.Request, u *usermdl.User) error) ErrorHandlerFunc {
+func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if auth.KOfflineMode {
 			return f(w, r, auth.CurrentOfflineUser(r, appengine.NewContext(r)))

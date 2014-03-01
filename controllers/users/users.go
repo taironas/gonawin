@@ -29,12 +29,13 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
+	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	//mdl "github.com/santiaago/purple-wing/models/tournament"
+	//mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 type UserData struct {
@@ -44,7 +45,7 @@ type UserData struct {
 }
 
 // json index user handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -53,10 +54,10 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotFound)}
 		}
 
-		users := usermdl.FindAll(c)
+		users := mdl.FindAllUsers(c)
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
-		usersJson := make([]usermdl.UserJson, len(users))
+		usersJson := make([]mdl.UserJson, len(users))
 		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, usersJson)
@@ -65,7 +66,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // Json show user handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -78,15 +79,15 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		userId = intID
 
 		// user
-		var user *usermdl.User
-		user, err = usermdl.ById(c, userId)
+		var user *mdl.User
+		user, err = mdl.UserById(c, userId)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: user not found")
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
-		var uJson usermdl.UserJson
+		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
 
 		// get with param:
@@ -94,15 +95,15 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		params := helpers.SetOfStrings(with)
 		var teams []*teammdl.Team
 		var teamRequests []*teamrequestmdl.TeamRequest
-		var tournaments []*tournamentmdl.Tournament
+		var tournaments []*mdl.Tournament
 		for _, param := range params {
 			switch param {
 			case "teams":
-				teams = usermdl.Teams(c, userId)
+				teams = mdl.Teams(c, userId)
 			case "teamrequests":
 				teamRequests = teamrelshlp.TeamsRequests(c, teams)
 			case "tournaments":
-				tournaments = tournamentrelshlp.Tournaments(c, userId)
+				tournaments = user.Tournaments(c) //tournamentrelshlp.Tournaments(c, userId)
 			}
 		}
 
@@ -112,7 +113,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 		// tournaments
 		tournamentfieldsToKeep := []string{"Id", "Name"}
-		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
+		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentfieldsToKeep)
 		// team requests
 		teamRequestFieldsToKeep := []string{"Id", "TeamId", "UserId"}
@@ -121,10 +122,10 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		// data
 		data := struct {
-			User         usermdl.UserJson                 `json:",omitempty"`
+			User         mdl.UserJson                     `json:",omitempty"`
 			Teams        []teammdl.TeamJson               `json:",omitempty"`
 			TeamRequests []teamrequestmdl.TeamRequestJson `json:",omitempty"`
-			Tournaments  []tournamentmdl.TournamentJson   `json:",omitempty"`
+			Tournaments  []mdl.TournamentJson             `json:",omitempty"`
 		}{
 			uJson,
 			teamsJson,
@@ -138,7 +139,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json update user handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -168,10 +169,10 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email {
 			u.Email = updatedData.Email
-			usermdl.Update(c, u)
+			u.Update(c)
 		}
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
-		var uJson usermdl.UserJson
+		var uJson mdl.UserJson
 		helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, uJson)

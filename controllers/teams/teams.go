@@ -33,13 +33,14 @@ import (
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	searchmdl "github.com/santiaago/purple-wing/models/search"
+	// mdl "github.com/santiaago/purple-wing/models/search"
 	teammdl "github.com/santiaago/purple-wing/models/team"
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	// mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 type TeamData struct {
@@ -48,7 +49,7 @@ type TeamData struct {
 }
 
 // json index handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -66,7 +67,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json new handler
-func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -120,7 +121,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json show handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -145,14 +146,14 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		// build players json
 		players := teamrelshlp.Players(c, intID)
 		fieldsToKeepForPlayer := []string{"Id", "Username"}
-		playersJson := make([]usermdl.UserJson, len(players))
+		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
 
 		teamData := struct {
 			Team        teammdl.TeamJson
 			Joined      bool
 			RequestSent bool
-			Players     []usermdl.UserJson
+			Players     []mdl.UserJson
 		}{
 			tJson,
 			teammdl.Joined(c, intID, u.Id),
@@ -165,7 +166,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json update handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -231,7 +232,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json destroy handler
-func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -272,7 +273,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 // json invite handler
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
-func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func InviteJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -295,7 +296,7 @@ func InviteJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 // Json Allow handler
 // use this handler to allow a request send by a user on a team.
 // after this, the user that send the request will be part of the team
-func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -325,7 +326,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 // Json Deny handler
 // use this handler to deny a request send by a user on a team.
 // the user will not be able to be part of the team
-func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -347,7 +348,7 @@ func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 
 // json search handler
 // use this handler to search for a team.
-func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	keywords := r.FormValue("q")
@@ -364,7 +365,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			}
 			return templateshlp.RenderJson(w, c, data)
 		}
-		result := searchmdl.TeamScore(c, keywords, ids)
+		result := mdl.TeamScore(c, keywords, ids)
 		log.Infof(c, "result from TeamScore: %v", result)
 		teams := teammdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", teams)
@@ -395,7 +396,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 // json team members handler
 // use this handler to get members of a team.
-func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json team members handler.")
 
@@ -409,11 +410,11 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 		// build members json
 		members := teamrelshlp.Players(c, teamId)
 		fieldsToKeepForMember := []string{"Id", "Username"}
-		membersJson := make([]usermdl.UserJson, len(members))
+		membersJson := make([]mdl.UserJson, len(members))
 		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
 
 		data := struct {
-			Members []usermdl.UserJson
+			Members []mdl.UserJson
 		}{
 			membersJson,
 		}

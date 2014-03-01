@@ -14,12 +14,5 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package user
-
-import (
-	"testing"
-)
-
-func TestFetchUserInfo(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
+// The models package.
+package models

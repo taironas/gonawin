@@ -26,7 +26,7 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	usermdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 const KOfflineMode bool = false
@@ -61,8 +61,8 @@ func CheckUserValidity(r *http.Request, url string, accessToken string) bool {
 
 // Check if authorization information in HTTP.Request is valid,
 // ie: if it matches a user.
-func CheckAuthenticationData(r *http.Request) *usermdl.User {
-	return usermdl.Find(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
+func CheckAuthenticationData(r *http.Request) *mdl.User {
+	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
 // Ckeck if user is admin.
@@ -95,12 +95,12 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 }
 
 // returns pointer to current user, from authentication cookie.
-func CurrentOfflineUser(r *http.Request, c appengine.Context) *usermdl.User {
+func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	if KOfflineMode {
-		currentUser := usermdl.Find(c, "Username", "purple")
+		currentUser := mdl.FindUser(c, "Username", "purple")
 
 		if currentUser == nil {
-			currentUser, _ = usermdl.Create(c, "purple@wing.com", "purple", "wing", true, usermdl.GenerateAuthKey())
+			currentUser, _ = mdl.CreateUser(c, "purple@wing.com", "purple", "wing", true, mdl.GenerateAuthKey())
 		}
 		return currentUser
 	} else {

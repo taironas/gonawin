@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package tournament
+package models
 
 import (
 	"errors"
@@ -28,8 +28,9 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
+	//mdl "github.com/santiaago/purple-wing/models/"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	//tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
@@ -45,6 +46,7 @@ type Tournament struct {
 	GroupIds        []int64
 	Matches1stStage []int64
 	Matches2ndStage []int64
+	UserIds         []int64
 }
 
 type TournamentJson struct {
@@ -59,10 +61,11 @@ type TournamentJson struct {
 	GroupIds        *[]int64   `json:",omitempty"`
 	Matches1stStage *[]int64   `json:",omitempty"`
 	Matches2ndStage *[]int64   `json:",omitempty"`
+	UserIds         *[]int64   `json:",omitempty"`
 }
 
 // Create tournament entity given a name and description.
-func Create(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64) (*Tournament, error) {
+func CreateTournament(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64) (*Tournament, error) {
 
 	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	if err != nil {
@@ -72,11 +75,9 @@ func Create(c appengine.Context, name string, description string, start time.Tim
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
 	// empty groups and tournaments for now
-	groupIds := make([]int64, 0)
-	matches1stStageIds := make([]int64, 0)
-	matches2ndStageIds := make([]int64, 0)
+	emptyArray := make([]int64, 0)
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), groupIds, matches1stStageIds, matches2ndStageIds}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -90,7 +91,7 @@ func Create(c appengine.Context, name string, description string, start time.Tim
 // Destroy a tournament entity given a tournament id.
 func Destroy(c appengine.Context, tournamentId int64) error {
 
-	if tournament, err := ById(c, tournamentId); err != nil {
+	if tournament, err := TournamentById(c, tournamentId); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find tournament with tournamentId=%d", tournamentId))
 	} else {
 		key := datastore.NewKey(c, "Tournament", "", tournament.Id, nil)
@@ -99,7 +100,7 @@ func Destroy(c appengine.Context, tournamentId int64) error {
 }
 
 // Find all tournaments in datastore given a filter and value.
-func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
+func FindTournaments(c appengine.Context, filter string, value interface{}) []*Tournament {
 
 	q := datastore.NewQuery("Tournament").Filter(filter+" =", value)
 	var tournaments []*Tournament
@@ -112,7 +113,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Tournament {
 }
 
 // Get a pointer to a tournament given a tournament id.
-func ById(c appengine.Context, id int64) (*Tournament, error) {
+func TournamentById(c appengine.Context, id int64) (*Tournament, error) {
 
 	var t Tournament
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
@@ -124,36 +125,36 @@ func ById(c appengine.Context, id int64) (*Tournament, error) {
 }
 
 // Get a pointer to a tournament key given a tournament id.
-func KeyById(c appengine.Context, id int64) *datastore.Key {
+func TournamentKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
 	return key
 }
 
 // Update a tournament given a tournament id and a tournament pointer.
-func Update(c appengine.Context, id int64, t *Tournament) error {
+func (t *Tournament) Update(c appengine.Context) error {
 
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
-	k := KeyById(c, id)
+	k := TournamentKeyById(c, t.Id)
 	oldTournament := new(Tournament)
 	if err := datastore.Get(c, k, oldTournament); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
 		// use name with trim lower as tournament inverted index stores lower key names.
-		tournamentinvidmdl.Update(c, oldTournament.KeyName, t.KeyName, id)
+		tournamentinvidmdl.Update(c, oldTournament.KeyName, t.KeyName, t.Id)
 	}
 	return nil
 }
 
 // Find all tournaments in the datastore.
-func FindAll(c appengine.Context) []*Tournament {
+func FindAllTournaments(c appengine.Context) []*Tournament {
 
 	q := datastore.NewQuery("Tournament")
 	var tournaments []*Tournament
 	if _, err := q.GetAll(c, &tournaments); err != nil {
-		log.Errorf(c, " Tournament.FindAll, error occurred during GetAll call: %v", err)
+		log.Errorf(c, "FindAllTournaments, error occurred during GetAll call: %v", err)
 	}
 	return tournaments
 }
@@ -163,7 +164,7 @@ func ByIds(c appengine.Context, ids []int64) []*Tournament {
 
 	var tournaments []*Tournament
 	for _, id := range ids {
-		if tournament, err := ById(c, id); err == nil {
+		if tournament, err := TournamentById(c, id); err == nil {
 			tournaments = append(tournaments, tournament)
 		} else {
 			log.Errorf(c, " Tournament.ByIds, error occurred during ByIds call: %v", err)
@@ -173,29 +174,40 @@ func ByIds(c appengine.Context, ids []int64) []*Tournament {
 }
 
 // Checks if a user has joined a tournament.
-func Joined(c appengine.Context, tournamentId int64, userId int64) bool {
-	tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(c, tournamentId, userId)
-	return tournamentRel != nil
+func Joined(c appengine.Context, tournamentId int64, u *User) bool {
+	// change in contains
+	hasTournament, _ := u.ContainsTournamentId(tournamentId)
+	//tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(c, tournamentId, userId)
+	return hasTournament //tournamentRel != nil
 }
 
 // Makes a user join a tournament.
-func Join(c appengine.Context, tournamentId int64, userId int64) error {
-	if tournamentRel, err := tournamentrelmdl.Create(c, tournamentId, userId); tournamentRel == nil {
-		return errors.New(fmt.Sprintf(" Tournament.Join, error during tournament relationship creation: %v", err))
+func Join(c appengine.Context, tournamentId int64, u *User) error {
+	// add
+	if err := u.AddTournamentId(c, tournamentId); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
+	// if tournamentRel, err := tournamentrelmdl.Create(c, tournamentId, userId); tournamentRel == nil {
+	// 	return errors.New(fmt.Sprintf(" Tournament.Join, error during tournament relationship creation: %v", err))
+	// }
 
 	return nil
 }
 
 // Makes a user leave a tournament.
 // Todo: should we check that user is indeed a member of the tournament?
-func Leave(c appengine.Context, tournamentId int64, userId int64) error {
-	return tournamentrelmdl.Destroy(c, tournamentId, userId)
+func Leave(c appengine.Context, tournamentId int64, u *User) error {
+	// find and remove
+	if err := u.RemoveTournamentId(c, tournamentId); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.Leave, error leaving tournament for user:%v Error: %v", u.Id, err))
+	}
+	return nil
+	// return tournamentrelmdl.Destroy(c, tournamentId, userId)
 }
 
 // Checks if user is admin of given tournament.
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
-	if tournament, err := ById(c, tournamentId); err == nil {
+	if tournament, err := TournamentById(c, tournamentId); err == nil {
 		return tournament.AdminId == userId
 	}
 
@@ -225,7 +237,7 @@ func TeamLeave(c appengine.Context, tournamentId int64, teamId int64) error {
 // Get the frequency of given word with respect to tournament id.
 func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) int64 {
 
-	if tournaments := Find(c, "Id", id); tournaments != nil {
+	if tournaments := FindTournaments(c, "Id", id); tournaments != nil {
 		return helpers.CountTerm(strings.Split(tournaments[0].KeyName, " "), word)
 	}
 	return 0
@@ -277,4 +289,20 @@ func Reset(c appengine.Context, t *Tournament) error {
 		}
 	}
 	return nil
+}
+
+// from a tournament returns an array of users that participate in it.
+func (t *Tournament) Participants(c appengine.Context) []*User {
+	var users []*User
+
+	for _, uId := range t.UserIds {
+		user, err := UserById(c, uId)
+		if err != nil {
+			log.Errorf(c, " Participants, cannot find user with ID=%", uId)
+		} else {
+			users = append(users, user)
+		}
+	}
+
+	return users
 }

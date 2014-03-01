@@ -36,14 +36,15 @@ import (
 	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	predictmdl "github.com/santiaago/purple-wing/models/predict"
-	searchmdl "github.com/santiaago/purple-wing/models/search"
+	//searchmdl "github.com/santiaago/purple-wing/models/search"
 	teammdl "github.com/santiaago/purple-wing/models/team"
-	tournamentmdl "github.com/santiaago/purple-wing/models/tournament"
+	//mdl "github.com/santiaago/purple-wing/models/tournament"
 	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
+	// tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
-	usermdl "github.com/santiaago/purple-wing/models/user"
-  activitymdl "github.com/santiaago/purple-wing/models/activity"
+	//mdl "github.com/santiaago/purple-wing/models/user"
+	mdl "github.com/santiaago/purple-wing/models"
+	activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 type TournamentData struct {
@@ -51,17 +52,17 @@ type TournamentData struct {
 }
 
 // json index tournaments handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		tournaments := tournamentmdl.FindAll(c)
+		tournaments := mdl.FindAllTournaments(c)
 		if len(tournaments) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 
 		fieldsToKeep := []string{"Id", "Name"}
-		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
+		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tournamentsJson)
@@ -70,7 +71,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json new tournament handler
-func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -91,25 +92,25 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		if len(data.Name) <= 0 {
 			log.Errorf(c, "Tournamnet New Handler: 'Name' field cannot be empty")
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
-		} else if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
+		} else if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 		} else {
-			tournament, err := tournamentmdl.Create(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
+			tournament, err := mdl.CreateTournament(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
 			if err != nil {
 				log.Errorf(c, "Tournament New Handler: error when trying to create a tournament: %v", err)
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 			}
 			// return the newly created tournament
 			fieldsToKeep := []string{"Id", "Name"}
-			var tJson tournamentmdl.TournamentJson
+			var tJson mdl.TournamentJson
 			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-      
-      // publish new activity
-      actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-      object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-      target := activitymdl.ActivityEntity{}
-      activitymdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
+
+			// publish new activity
+			actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+			object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+			target := activitymdl.ActivityEntity{}
+			activitymdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -119,19 +120,15 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 // experimental: sar
 // json new world cup tournament handler
-func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
-		tournament, err := tournamentmdl.CreateWorldCup(c, u.Id)
+		tournament, err := mdl.CreateWorldCup(c, u.Id)
 		if err != nil {
 			log.Errorf(c, "Tournament New World Cup Handler: error when trying to create a tournament: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
-		// return the newly created tournament
-		// fieldsToKeep := []string{"Id", "Name"}
-		// var tJson tournamentmdl.TournamentJson
-		// helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tournament) //Json)
 	}
@@ -139,7 +136,7 @@ func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) er
 }
 
 // Json show tournament handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -150,36 +147,36 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, intID)
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		participants := tournamentrelshlp.Participants(c, intID)
+		participants := tournament.Participants(c) //tournamentrelshlp.Participants(c, intID)
 		teams := tournamentrelshlp.Teams(c, intID)
 
 		// tournament
 		fieldsToKeep := []string{"Id", "Name"}
-		var tournamentJson tournamentmdl.TournamentJson
+		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
 		participantFieldsToKeep := []string{"Id", "Username"}
-		participantsJson := make([]usermdl.UserJson, len(participants))
+		participantsJson := make([]mdl.UserJson, len(participants))
 		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// teams
 		teamsJson := make([]teammdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// data
 		data := struct {
-			Tournament   tournamentmdl.TournamentJson
+			Tournament   mdl.TournamentJson
 			Joined       bool
-			Participants []usermdl.UserJson
+			Participants []mdl.UserJson
 			Teams        []teammdl.TeamJson
 		}{
 			tournamentJson,
-			tournamentmdl.Joined(c, intID, u.Id),
+			mdl.Joined(c, intID, u),
 			participantsJson,
 			teamsJson,
 		}
@@ -190,7 +187,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // Json tournament destroy handler
-func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -201,15 +198,22 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
 		}
 
-		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
+		if !mdl.IsTournamentAdmin(c, intID, u.Id) {
 			log.Errorf(c, "Tournament Destroy Handler: user is not admin")
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 		}
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, intID)
+		if err != nil {
+			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
 
 		// delete all tournament-user relationships
-		for _, participant := range tournamentrelshlp.Participants(c, intID) {
-			if err := tournamentrelmdl.Destroy(c, intID, participant.Id); err != nil {
-				log.Errorf(c, " error when trying to destroy tournament relationship: %v", err)
+		for _, participant := range tournament.Participants(c) { //tournamentrelshlp.Participants(c, intID) {
+			participant.RemoveTournamentId(c, tournament.Id)
+			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil { //err := tournamentrelmdl.Destroy(c, intID, participant.Id); err != nil {
+				log.Errorf(c, " error when trying to remove tournament id from user: %v", err)
 			}
 		}
 		// delete all tournament-team relationships
@@ -219,7 +223,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			}
 		}
 		// delete the tournament
-		tournamentmdl.Destroy(c, intID)
+		mdl.Destroy(c, intID)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "tournament has been destroyed")
@@ -228,7 +232,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 }
 
 //  Json Update tournament handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -238,13 +242,13 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
 		}
 
-		if !tournamentmdl.IsTournamentAdmin(c, intID, u.Id) {
+		if !mdl.IsTournamentAdmin(c, intID, u.Id) {
 			log.Errorf(c, "Tournament Update Handler: user is not admin")
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
 		}
 
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, intID)
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
 			log.Errorf(c, "Tournament Update handler: tournament not found. id: %v, err: %v", intID, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
@@ -267,13 +271,13 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		if helpers.IsStringValid(updatedData.Name) && updatedData.Name != tournament.Name {
 			// be sure that team with that name does not exist in datastore
-			if t := tournamentmdl.Find(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
+			if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 				log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 			}
 
 			tournament.Name = updatedData.Name
-			tournamentmdl.Update(c, intID, tournament)
+			tournament.Update(c)
 		} else {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
@@ -282,7 +286,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 
 		// return the updated tournament
 		fieldsToKeep := []string{"Id", "Name"}
-		var tJson tournamentmdl.TournamentJson
+		var tJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, tJson)
@@ -292,7 +296,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json search tournaments handler
-func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	keywords := r.FormValue("q")
@@ -304,9 +308,9 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Tournament Search Handler: tournaments.Index, error occurred when getting indexes of words: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotSearch)}
 		}
-		result := searchmdl.TournamentScore(c, keywords, ids)
+		result := mdl.TournamentScore(c, keywords, ids)
 		log.Infof(c, "result from TournamentScore: %v", result)
-		tournaments := tournamentmdl.ByIds(c, result)
+		tournaments := mdl.ByIds(c, result)
 		log.Infof(c, "ByIds result %v", tournaments)
 		if len(tournaments) == 0 {
 			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
@@ -319,11 +323,11 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 		}
 
 		fieldsToKeep := []string{"Id", "Name"}
-		tournamentsJson := make([]tournamentmdl.TournamentJson, len(tournaments))
+		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
 		// we should not directly return an array. so we add an extra layer.
 		data := struct {
-			Tournaments []tournamentmdl.TournamentJson `json:",omitempty"`
+			Tournaments []mdl.TournamentJson `json:",omitempty"`
 		}{
 			tournamentsJson,
 		}
@@ -333,7 +337,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // json team candidates for a specific tournament:
-func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -342,7 +346,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 			log.Errorf(c, "Candidate Teams Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		if _, err1 := tournamentmdl.ById(c, tournamentId); err1 != nil {
+		if _, err1 := mdl.TournamentById(c, tournamentId); err1 != nil {
 			log.Errorf(c, "Candidate Teams Handler: tournament not found err:%v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
@@ -360,7 +364,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 			var canditate canditateType
 			canditate.Team = tJson
-			canditate.Joined = tournamentmdl.TeamJoined(c, tournamentId, team.Id)
+			canditate.Joined = mdl.TeamJoined(c, tournamentId, team.Id)
 			candidatesData[counterCandidate] = canditate
 		}
 		// we should not directly return an array. so we add an extra layer.
@@ -376,7 +380,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User)
 
 // json tournament participants handler
 // use this handler to get participants of a tournament.
-func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -385,15 +389,21 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 			log.Errorf(c, "Tournament Participants Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", tournamentId, err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
 
-		participants := tournamentrelshlp.Participants(c, tournamentId)
+		participants := tournament.Participants(c) //tournamentrelshlp.Participants(c, tournamentId)
 		// participant
 		participantFieldsToKeep := []string{"Id", "Username"}
-		participantsJson := make([]usermdl.UserJson, len(participants))
+		participantsJson := make([]mdl.UserJson, len(participants))
 		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// data
 		data := struct {
-			Participants []usermdl.UserJson
+			Participants []mdl.UserJson
 		}{
 			participantsJson,
 		}
@@ -405,7 +415,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) e
 
 // json tournament groups handler
 // use this handler to get groups of a tournament.
-func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -414,14 +424,14 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Tournament Groups Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Group Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		groups := tournamentmdl.Groups(c, tournament.GroupIds)
+		groups := mdl.Groups(c, tournament.GroupIds)
 		groupsJson := formatGroupsJson(groups)
 
 		data := struct {
@@ -435,7 +445,7 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-func formatGroupsJson(groups []*tournamentmdl.Tgroup) []GroupJson {
+func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 	// prepare data
 	groupsJson := make([]GroupJson, len(groups))
 	for i, g := range groups {
@@ -492,7 +502,7 @@ type PhaseJson struct {
 // The calendar structure is an array of matches of the tournament with the location, the teams involved and the date by default the data returned is grouped by days.
 // This means we will return an array of days, each of which can have an array of matches.
 // You can specify the groupby parameter to be "day" or "phase" in that case you would have an array of phases, each of which would have an array of days who would have an array of matches.
-func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func CalendarJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -502,8 +512,8 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var t *tournamentmdl.Tournament
-		t, err = tournamentmdl.ById(c, tournamentId)
+		var t *mdl.Tournament
+		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Group Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -548,7 +558,7 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error
 // json tournament Matches handler
 // use this handler to get the matches of a tournament.
 // use the filter parameter to specify the matches you want
-func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func MatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -558,8 +568,8 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var t *tournamentmdl.Tournament
-		t, err = tournamentmdl.ById(c, tournamentId)
+		var t *mdl.Tournament
+		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Matches Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -590,7 +600,7 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -600,8 +610,8 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			log.Errorf(c, "Tournament Groups Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -613,7 +623,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
-		match := tournamentmdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
+		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
 		if match == nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to get match with id number :%v", matchIdNumber)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
@@ -637,7 +647,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
-		if err = tournamentmdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
+		if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
 			log.Errorf(c, "Tournament Update Match Result: unable to set result for match with id:%v error: %v", match.IdNumber, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 
@@ -649,7 +659,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		mapIdTeams := tournamentmdl.MapOfIdTeams(c, tournament)
+		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
 			mjson.Team1 = rule[0]
@@ -669,7 +679,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *usermdl.Us
 }
 
 // Reset a tournament informatio. Reset points and goals.
-func ResetJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -679,17 +689,17 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 			log.Errorf(c, "Tournament Reset Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		var t *tournamentmdl.Tournament
-		t, err = tournamentmdl.ById(c, tournamentId)
+		var t *mdl.Tournament
+		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		if err = tournamentmdl.Reset(c, t); err != nil {
+		if err = mdl.Reset(c, t); err != nil {
 			log.Errorf(c, "Tournament Reset Handler: Unable to reset tournament: %v error:", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeInternal)}
 		}
-		groups := tournamentmdl.Groups(c, t.GroupIds)
+		groups := mdl.Groups(c, t.GroupIds)
 		groupsJson := formatGroupsJson(groups)
 
 		msg := fmt.Sprintf("Tournament is now reset.")
@@ -706,7 +716,7 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
 }
 
 // Set a Predict entity of a specific match for the current User.
-func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error {
+func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Predict Handler"
 
@@ -717,8 +727,8 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			log.Errorf(c, "%s: error extracting permalink err:%v", desc, err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		var tournament *tournamentmdl.Tournament
-		tournament, err = tournamentmdl.ById(c, tournamentId)
+		var tournament *mdl.Tournament
+		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "%s: tournament with id:%v was not found %v", desc, tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -730,7 +740,7 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
 		}
 
-		match := tournamentmdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
+		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
 		if match == nil {
 			log.Errorf(c, "%s: unable to get match with id number :%v", desc, matchIdNumber)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
@@ -772,15 +782,15 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *usermdl.User) error 
 
 // From a tournament entity return an array of MatchJson data structure.
 // second phase matches will have the specific rules in there team names
-func buildMatchesFromTournament(c appengine.Context, t *tournamentmdl.Tournament, u *usermdl.User) []MatchJson {
+func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
 
-	matches := tournamentmdl.Matches(c, t.Matches1stStage)
-	matches2ndPhase := tournamentmdl.Matches(c, t.Matches2ndStage)
+	matches := mdl.Matches(c, t.Matches1stStage)
+	matches2ndPhase := mdl.Matches(c, t.Matches2ndStage)
 
 	var predicts predictmdl.Predicts
 	predicts = predictmdl.ByIds(c, u.PredictIds)
 
-	mapIdTeams := tournamentmdl.MapOfIdTeams(c, t)
+	mapIdTeams := mdl.MapOfIdTeams(c, t)
 
 	matchesJson := make([]MatchJson, len(matches))
 	for i, m := range matches {
@@ -791,7 +801,7 @@ func buildMatchesFromTournament(c appengine.Context, t *tournamentmdl.Tournament
 		matchesJson[i].Location = m.Location
 		matchesJson[i].Result1 = m.Result1
 		matchesJson[i].Result2 = m.Result2
-		if hasMatch, j := predicts.ContainsMatch(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
 			matchesJson[i].HasPredict = true
 			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
@@ -817,7 +827,7 @@ func buildMatchesFromTournament(c appengine.Context, t *tournamentmdl.Tournament
 		matchJson2ndPhase.Result1 = m.Result1
 		matchJson2ndPhase.Result2 = m.Result2
 
-		if hasMatch, j := predicts.ContainsMatch(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
 			matchJson2ndPhase.HasPredict = true
 			matchJson2ndPhase.Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
@@ -832,8 +842,8 @@ func buildMatchesFromTournament(c appengine.Context, t *tournamentmdl.Tournament
 }
 
 func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
-	limits := tournamentmdl.MapOfPhaseIntervals()
-	phaseNames := tournamentmdl.ArrayOfPhases()
+	limits := mdl.MapOfPhaseIntervals()
+	phaseNames := mdl.ArrayOfPhases()
 
 	phases := make([]PhaseJson, len(limits))
 	for i, _ := range phases {

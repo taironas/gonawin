@@ -14,43 +14,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package tournament
+package models
 
 import (
-	"appengine"
-	"appengine/datastore"
-
-	"github.com/santiaago/purple-wing/helpers/log"
+	"testing"
 )
 
-type Tteam struct {
-	Id   int64
-	Name string
-}
-
-// Get a Tteam entity by id.
-func TeamById(c appengine.Context, teamId int64) (*Tteam, error) {
-	var t Tteam
-	key := datastore.NewKey(c, "Tteam", "", teamId, nil)
-
-	if err := datastore.Get(c, key, &t); err != nil {
-		log.Errorf(c, "team not found : %v", err)
-		return &t, err
-	}
-	return &t, nil
-}
-
-// From tournament entity build map of teams.
-func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
-
-	var mapIdTeams map[int64]string
-	mapIdTeams = make(map[int64]string)
-
-	groups := Groups(c, tournament.GroupIds)
-	for _, g := range groups {
-		for _, t := range g.Teams {
-			mapIdTeams[t.Id] = t.Name
-		}
-	}
-	return mapIdTeams
+func TestFetchUserInfo(t *testing.T) {
+	t.Fatalf("Not implemented")
 }
