@@ -25,7 +25,7 @@ import (
 	activitiesctrl "github.com/santiaago/purple-wing/controllers/activities"
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
-	teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
+	// teamrelsctrl "github.com/santiaago/purple-wing/controllers/teamrels"
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
 	tournamentrelsctrl "github.com/santiaago/purple-wing/controllers/tournamentrels"
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
@@ -77,8 +77,8 @@ func init() {
 	h.HandleFunc("/j/tournaments/candidates/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CandidateTeamsJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/participants/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.ParticipantsJson)))
 	// relationships - json
-	h.HandleFunc("/j/teamrels/create/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.CreateJson)))
-	h.HandleFunc("/j/teamrels/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamrelsctrl.DestroyJson)))
+	h.HandleFunc("/j/teams/join/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.JoinJson)))
+	h.HandleFunc("/j/teams/leave/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.LeaveJson)))
 	h.HandleFunc("/j/tournamentrels/create/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.CreateJson)))
 	h.HandleFunc("/j/tournamentrels/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentrelsctrl.DestroyJson)))
 	h.HandleFunc("/j/tournamentteamrels/create/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentteamrelsctrl.CreateJson)))

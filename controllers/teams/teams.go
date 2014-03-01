@@ -447,3 +447,83 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
+
+// json Join handler for team relations
+func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST" {
+		// get team id
+		teamId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, "Teamrels Create Handler: error when extracting permalink id: %v", err)
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, teamId); err != nil {
+			log.Errorf(c, "Teamrels Create Handler: team not found: %v", err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		if err := team.Join(c, u); err != nil {
+			log.Errorf(c, "Teamrels Create Handler: error on Join team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
+
+		var tJson mdl.TeamJson
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+		// publish new activity
+		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		target := activitymdl.ActivityEntity{}
+		activitymdl.Publish(c, "team", "joined team", actor, object, target, u.Id)
+
+		return templateshlp.RenderJson(w, c, tJson)
+	}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// json destroy handler for team relations
+func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "POST" {
+		// get team id
+		teamId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, "Teamrels Destroy Handler: error when extracting permalink id: %v", err)
+			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		if mdl.IsTeamAdmin(c, teamId, u.Id) {
+			log.Errorf(c, "Teamrels Destroy Handler: Team administrator cannot leave the team")
+			return &helpers.Forbidden{errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
+		}
+
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, teamId); err != nil {
+			log.Errorf(c, "Teamrels Destroy Handler: team not found: %v", err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+		if err := team.Leave(c, u); err != nil {
+			log.Errorf(c, "Teamrels Destroy Handler: error on Leave team: %v", err)
+			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		}
+
+		var tJson mdl.TeamJson
+		helpers.CopyToPointerStructure(team, &tJson)
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		helpers.KeepFields(&tJson, fieldsToKeep)
+
+		// publish new activity
+		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		target := activitymdl.ActivityEntity{}
+		activitymdl.Publish(c, "team", "left team", actor, object, target, u.Id)
+
+		return templateshlp.RenderJson(w, c, tJson)
+	}
+	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+}
