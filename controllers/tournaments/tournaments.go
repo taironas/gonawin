@@ -148,7 +148,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		participants := tournament.Participants(c) //tournamentrelshlp.Participants(c, intID)
+		participants := tournament.Participants(c)
 		teams := tournament.Teams(c)
 
 		// tournament
@@ -204,9 +204,9 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// delete all tournament-user relationships
-		for _, participant := range tournament.Participants(c) { //tournamentrelshlp.Participants(c, intID) {
+		for _, participant := range tournament.Participants(c) {
 			participant.RemoveTournamentId(c, tournament.Id)
-			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil { //err := tournamentrelmdl.Destroy(c, intID, participant.Id); err != nil {
+			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
 				log.Errorf(c, " error when trying to remove tournament id from user: %v", err)
 			}
 		}
@@ -390,7 +390,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		participants := tournament.Participants(c) //tournamentrelshlp.Participants(c, tournamentId)
+		participants := tournament.Participants(c)
 		// participant
 		participantFieldsToKeep := []string{"Id", "Username"}
 		participantsJson := make([]mdl.UserJson, len(participants))
@@ -902,17 +902,17 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// get tournament id
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Tournamentrels Create Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "Tournament Join Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournamentrels Create Handler: tournament not found: %v", err)
+			log.Errorf(c, "Tournament Join Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournament.Join(c, u); err != nil {
-			log.Errorf(c, "Tournamentrels Create Handler: error on Join tournament: %v", err)
+			log.Errorf(c, "Tournament Join Handler: error on Join tournament: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
@@ -939,18 +939,18 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// get tournament id
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Tournamentrels Destroy Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "Tournament Leave Handler: error when extracting permalink id: %v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournamentrels Destroy Handler: tournament not found: %v", err)
+			log.Errorf(c, "Tournament Leave Handler: tournament not found: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournament.Leave(c, u); err != nil {
-			log.Errorf(c, "Tournamentrels Destroy Handler: error on Leave team: %v", err)
+			log.Errorf(c, "Tournament Leave Handler: error on Leave team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
@@ -979,20 +979,20 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
-			log.Errorf(c, "Tournament team rels Create Handler: string value could not be parsed: %v, %v", err1, err2)
+			log.Errorf(c, "Tournament Join As A Team Handler: string value could not be parsed: %v, %v", err1, err2)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var err error
 		if err = mdl.TeamJoin(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, "Tournament team rels Create Handler: error when trying to join team: %v", err)
+			log.Errorf(c, "Tournament Join As A Team Handler: error when trying to join team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		// return the joined tournament
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament team rels Create Handler: tournament with id: %v was not found %v", tournamentId, err)
+			log.Errorf(c, "Tournament Join As A Team Handler: tournament with id: %v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -1015,19 +1015,19 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
-			log.Errorf(c, "Tournament team rels Destroy Handler: string value could not be parsed: %v, %v", err1, err2)
+			log.Errorf(c, "Tournament Leave As A Team Handler: string value could not be parsed: %v, %v", err1, err2)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// leave team
 		var err error
 		if err = mdl.TeamLeave(c, tournamentId, teamId); err != nil {
-			log.Errorf(c, "Tournament team rels Destroy Handler: error when trying to leave team: %v", err)
+			log.Errorf(c, "Tournament Leave As A Team Handler: error when trying to leave team: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "Tournament team rels Destroy Handler: tournament with id: %v was not found %v", tournamentId, err)
+			log.Errorf(c, "Tournament Leave As A Team Handler: tournament with id: %v was not found %v", tournamentId, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 

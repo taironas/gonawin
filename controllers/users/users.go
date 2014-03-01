@@ -97,7 +97,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			case "teamrequests":
 				teamRequests = teamrequestmdl.TeamsRequests(c, teams)
 			case "tournaments":
-				tournaments = user.Tournaments(c) //tournamentrelshlp.Tournaments(c, userId)
+				tournaments = user.Tournaments(c)
 			}
 		}
 

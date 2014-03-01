@@ -258,8 +258,6 @@ func (u *User) Tournaments(c appengine.Context) []*Tournament {
 
 	var tournaments []*Tournament
 
-	//tournamentRels := tournamentrelmdl.Find(c, "UserId", userId)
-
 	for _, tId := range u.TournamentIds {
 		t, err := TournamentById(c, tId)
 		if err != nil {

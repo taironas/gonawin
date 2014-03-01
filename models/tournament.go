@@ -28,9 +28,7 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	//mdl "github.com/santiaago/purple-wing/models/"
 	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-	//tournamentrelmdl "github.com/santiaago/purple-wing/models/tournamentrel"
 	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 )
 
@@ -179,8 +177,7 @@ func TournamentsByIds(c appengine.Context, ids []int64) []*Tournament {
 func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
 	hasTournament, _ := u.ContainsTournamentId(t.Id)
-	//tournamentRel := tournamentrelmdl.FindByTournamentIdAndUserId(c, tournamentId, userId)
-	return hasTournament //tournamentRel != nil
+	return hasTournament
 }
 
 // Makes a user join a tournament.
@@ -189,10 +186,6 @@ func (t *Tournament) Join(c appengine.Context, u *User) error {
 	if err := u.AddTournamentId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
-	// if tournamentRel, err := tournamentrelmdl.Create(c, tournamentId, userId); tournamentRel == nil {
-	// 	return errors.New(fmt.Sprintf(" Tournament.Join, error during tournament relationship creation: %v", err))
-	// }
-
 	return nil
 }
 
@@ -204,7 +197,6 @@ func (t *Tournament) Leave(c appengine.Context, u *User) error {
 		return errors.New(fmt.Sprintf(" Tournament.Leave, error leaving tournament for user:%v Error: %v", u.Id, err))
 	}
 	return nil
-	// return tournamentrelmdl.Destroy(c, tournamentId, userId)
 }
 
 // Checks if user is admin of given tournament.
