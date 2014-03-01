@@ -33,7 +33,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
+	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	predictmdl "github.com/santiaago/purple-wing/models/predict"
 	//searchmdl "github.com/santiaago/purple-wing/models/search"
@@ -155,7 +155,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		participants := tournament.Participants(c) //tournamentrelshlp.Participants(c, intID)
-		teams := tournamentrelshlp.Teams(c, intID)
+		teams := tournament.Teams(c)
 
 		// tournament
 		fieldsToKeep := []string{"Id", "Name"}
@@ -217,7 +217,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			}
 		}
 		// delete all tournament-team relationships
-		for _, team := range tournamentrelshlp.Teams(c, intID) {
+		for _, team := range tournament.Teams(c) {
 			if err := tournamentteamrelmdl.Destroy(c, intID, team.Id); err != nil {
 				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
 			}

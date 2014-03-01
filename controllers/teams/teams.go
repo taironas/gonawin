@@ -28,9 +28,9 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	//teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
-	tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
+	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
 	activitymdl "github.com/santiaago/purple-wing/models/activity"
 	// mdl "github.com/santiaago/purple-wing/models/search"
@@ -38,7 +38,7 @@ import (
 	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 	teamrelmdl "github.com/santiaago/purple-wing/models/teamrel"
 	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
-	tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
+	//tournamentteamrelmdl "github.com/santiaago/purple-wing/models/tournamentteamrel"
 	// mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 )
@@ -144,7 +144,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// build players json
-		players := teamrelshlp.Players(c, intID)
+		players := team.Players(c)
 		fieldsToKeepForPlayer := []string{"Id", "Username"}
 		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
@@ -247,25 +247,26 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Team Destroy Handler: user is not admin")
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 		}
-
-		// delete all team-user relationships
-		for _, player := range teamrelshlp.Players(c, teamID) {
-			if err := teamrelmdl.Destroy(c, teamID, player.Id); err != nil {
-				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
-			}
-		}
-		// delete all tournament-team relationships
-		for _, tournament := range tournamentrelshlp.Teams(c, teamID) {
-			if err := tournamentteamrelmdl.Destroy(c, tournament.Id, teamID); err != nil {
-				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
-			}
-		}
 		var team *mdl.Team
 		team, err = mdl.TeamById(c, teamID)
 		if err != nil {
 			log.Errorf(c, "Team Destroy handler: team not found. id: %v, err: %v", teamID, err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
+
+		// delete all team-user relationships
+		for _, player := range team.Players(c) {
+			if err := teamrelmdl.Destroy(c, teamID, player.Id); err != nil {
+				log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
+			}
+		}
+		// delete all tournament-team relationships
+		// [ToDo]here we update the tournament that this team belongs to and remove it from list.
+		// for _, tournament := range tournamentrelshlp.Teams(c, teamID) {
+		// 	if err := tournamentteamrelmdl.Destroy(c, tournament.Id, teamID); err != nil {
+		// 		log.Errorf(c, "Team Destroy Handler: error when trying to destroy team relationship: %v", err)
+		// 	}
+		// }
 		// delete the team
 		team.Destroy(c)
 
@@ -424,9 +425,14 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Team Members Handler: error extracting permalink err:%v", err)
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamMemberNotFound)}
 		}
+		team, err1 := mdl.TeamById(c, teamId)
+		if err1 != nil {
+			log.Errorf(c, "Team Allow Request handler: team not found. id: %v, err: %v", teamId, err1)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+		}
 
 		// build members json
-		members := teamrelshlp.Players(c, teamId)
+		members := team.Players(c)
 		fieldsToKeepForMember := []string{"Id", "Username"}
 		membersJson := make([]mdl.UserJson, len(members))
 		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)

@@ -27,7 +27,7 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/handlers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
+	//teamrelshlp "github.com/santiaago/purple-wing/helpers/teamrels"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	//tournamentrelshlp "github.com/santiaago/purple-wing/helpers/tournamentrels"
 
@@ -101,7 +101,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			case "teams":
 				teams = user.Teams(c)
 			case "teamrequests":
-				teamRequests = teamrelshlp.TeamsRequests(c, teams)
+				teamRequests = teamrequestmdl.TeamsRequests(c, teams)
 			case "tournaments":
 				tournaments = user.Tournaments(c) //tournamentrelshlp.Tournaments(c, userId)
 			}

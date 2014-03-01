@@ -47,6 +47,7 @@ type Tournament struct {
 	Matches1stStage []int64
 	Matches2ndStage []int64
 	UserIds         []int64
+	TeamIds         []int64
 }
 
 type TournamentJson struct {
@@ -62,6 +63,7 @@ type TournamentJson struct {
 	Matches1stStage *[]int64   `json:",omitempty"`
 	Matches2ndStage *[]int64   `json:",omitempty"`
 	UserIds         *[]int64   `json:",omitempty"`
+	TeamIds         *[]int64   `json:",omitempty"`
 }
 
 // Create tournament entity given a name and description.
@@ -77,7 +79,7 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	// empty groups and tournaments for now
 	emptyArray := make([]int64, 0)
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -305,4 +307,23 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 	}
 
 	return users
+}
+
+// from a tournamentid returns an array of teams involved in tournament
+func (t *Tournament) Teams(c appengine.Context) []*Team {
+
+	var teams []*Team
+
+	//tournamentteamRels := tournamentteamrelmdl.Find(c, "TournamentId", tournamentId)
+
+	//for _, tournamentteamRel := range tournamentteamRels {
+	for _, tId := range t.TeamIds {
+		team, err := TeamById(c, tId)
+		if err != nil {
+			log.Errorf(c, " Teams, cannot find team with ID=%", tId)
+		} else {
+			teams = append(teams, team)
+		}
+	}
+	return teams
 }

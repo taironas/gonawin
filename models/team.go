@@ -217,3 +217,22 @@ func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
 	}
 	return 0
 }
+
+// from a team id return an array of users/ players that participates in it.
+func (t *Team) Players(c appengine.Context) []*User {
+
+	var users []*User
+
+	//teamRels := teamrelmdl.Find(c, "TeamId", teamId)
+
+	//for _, teamRel := range teamRels {
+	for _, uId := range t.UserIds {
+		user, err := UserById(c, uId)
+		if err != nil {
+			log.Errorf(c, " Players, cannot find user with ID=%", uId)
+		} else {
+			users = append(users, user)
+		}
+	}
+	return users
+}

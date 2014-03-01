@@ -25,6 +25,7 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 type TeamRequest struct {
@@ -120,4 +121,15 @@ func ById(c appengine.Context, id int64) (*TeamRequest, error) {
 // checks if for a team id, user id pair, a request was sent
 func Sent(c appengine.Context, teamId int64, userId int64) bool {
 	return findByTeamIdAndUserId(c, teamId, userId) != nil
+}
+
+// build a teamRequest array from an array of teams
+func TeamsRequests(c appengine.Context, teams []*mdl.Team) []*TeamRequest {
+	var teamRequests []*TeamRequest
+
+	for _, team := range teams {
+		teamRequests = append(teamRequests, Find(c, "TeamId", team.Id)...)
+	}
+
+	return teamRequests
 }
