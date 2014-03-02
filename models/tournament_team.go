@@ -35,7 +35,7 @@ func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 
 	if err := datastore.Get(c, key, &t); err != nil {
 		log.Errorf(c, "team not found : %v", err)
-		return &t, err
+		return nil, err
 	}
 	return &t, nil
 }

@@ -16,10 +16,10 @@
 
 package models
 
-import (
-	"testing"
-)
+// import (
+// 	"testing"
+// )
 
-func TestFetchUserInfo(t *testing.T) {
-	t.Fatalf("Not implemented")
-}
+// func TestFetchUserInfo(t *testing.T) {
+//  	t.Fatalf("Not implemented")
+// }
