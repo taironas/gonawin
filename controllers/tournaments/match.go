@@ -32,7 +32,6 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	mdl "github.com/santiaago/purple-wing/models"
-	predictmdl "github.com/santiaago/purple-wing/models/predict"
 )
 
 type MatchJson struct {
@@ -184,8 +183,8 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 	matches := mdl.Matches(c, t.Matches1stStage)
 	matches2ndPhase := mdl.Matches(c, t.Matches2ndStage)
 
-	var predicts predictmdl.Predicts
-	predicts = predictmdl.ByIds(c, u.PredictIds)
+	var predicts mdl.Predicts
+	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
 	mapIdTeams := mdl.MapOfIdTeams(c, t)
 

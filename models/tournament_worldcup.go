@@ -26,8 +26,6 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
-
-	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 )
 
 const (
@@ -447,7 +445,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	}
 	log.Infof(c, "World Cup:  tournament put in datastore ok")
 
-	tournamentinvidmdl.Add(c, helpers.TrimLower("world cup"), tournamentID)
+	AddToTournamentInvertedIndex(c, helpers.TrimLower("world cup"), tournamentID)
 
 	return tournament, nil
 }

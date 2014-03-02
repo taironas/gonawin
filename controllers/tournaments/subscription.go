@@ -28,7 +28,6 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	mdl "github.com/santiaago/purple-wing/models"
-	activitymdl "github.com/santiaago/purple-wing/models/activity"
 )
 
 // json Join handler for tournament relationships
@@ -59,10 +58,10 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-		object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := activitymdl.ActivityEntity{}
-		activitymdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
+		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -99,10 +98,10 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-		object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := activitymdl.ActivityEntity{}
-		activitymdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
+		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}

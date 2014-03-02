@@ -15,7 +15,7 @@
  */
 
 // Package predict provides use of Predict entity in GAE datastore.
-package predict
+package models
 
 import (
 	"errors"
@@ -38,7 +38,7 @@ type Predict struct {
 }
 
 // Create a Predict given a name, a result and a match id admin id and a private mode.
-func Create(c appengine.Context, result1 int64, result2 int64, matchId int64) (*Predict, error) {
+func CreatePredict(c appengine.Context, result1 int64, result2 int64, matchId int64) (*Predict, error) {
 
 	pId, _, err := datastore.AllocateIDs(c, "Predict", nil, 1)
 	if err != nil {
@@ -55,7 +55,7 @@ func Create(c appengine.Context, result1 int64, result2 int64, matchId int64) (*
 // Destroy a Predict entity.
 func (p *Predict) Destroy(c appengine.Context) error {
 
-	if _, err := ById(c, p.Id); err != nil {
+	if _, err := PredictById(c, p.Id); err != nil {
 		return errors.New(fmt.Sprintf("Cannot find predict with Id=%d", p.Id))
 	} else {
 		key := datastore.NewKey(c, "Predict", "", p.Id, nil)
@@ -65,7 +65,7 @@ func (p *Predict) Destroy(c appengine.Context) error {
 }
 
 // Given a filter and a value look query the datastore for predict entities and returns an array of Predict pointers.
-func Find(c appengine.Context, filter string, value interface{}) []*Predict {
+func FindPredicts(c appengine.Context, filter string, value interface{}) []*Predict {
 
 	q := datastore.NewQuery("Predict").Filter(filter+" =", value)
 
@@ -80,7 +80,7 @@ func Find(c appengine.Context, filter string, value interface{}) []*Predict {
 }
 
 // Get a Predict given an id.
-func ById(c appengine.Context, id int64) (*Predict, error) {
+func PredictById(c appengine.Context, id int64) (*Predict, error) {
 
 	var p Predict
 	key := datastore.NewKey(c, "Predict", "", id, nil)
@@ -93,7 +93,7 @@ func ById(c appengine.Context, id int64) (*Predict, error) {
 }
 
 // Get a Predict key given an id.
-func KeyById(c appengine.Context, id int64) *datastore.Key {
+func PredictKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Predict", "", id, nil)
 
@@ -102,7 +102,7 @@ func KeyById(c appengine.Context, id int64) *datastore.Key {
 
 // Update a Predict entity.
 func (p *Predict) Update(c appengine.Context) error {
-	k := KeyById(c, p.Id)
+	k := PredictKeyById(c, p.Id)
 	old := new(Predict)
 	if err := datastore.Get(c, k, old); err == nil {
 		if _, err = datastore.Put(c, k, p); err != nil {
@@ -125,11 +125,11 @@ func FindAll(c appengine.Context) []*Predict {
 }
 
 // Get an array of pointers to Predict entities with respect to an array of ids.
-func ByIds(c appengine.Context, ids []int64) []*Predict {
+func PredictsByIds(c appengine.Context, ids []int64) []*Predict {
 
 	var predicts []*Predict
 	for _, id := range ids {
-		if p, err := ById(c, id); err == nil {
+		if p, err := PredictById(c, id); err == nil {
 			predicts = append(predicts, p)
 		} else {
 			log.Errorf(c, " Predict.ByIds, error occurred during ByIds call: %v", err)

@@ -25,8 +25,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	//usermdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
@@ -35,10 +33,10 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		activities := activitymdl.FindByUser(c, u.Id)
+		activities := mdl.FindActivitiesByUser(c, u.Id)
 
 		fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
-		activitiesJson := make([]activitymdl.ActivityJson, len(activities))
+		activitiesJson := make([]mdl.ActivityJson, len(activities))
 		helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
 
 		return templateshlp.RenderJson(w, c, activitiesJson)

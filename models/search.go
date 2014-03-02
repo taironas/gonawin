@@ -23,12 +23,6 @@ import (
 
 	"appengine"
 
-	//teammdl "github.com/santiaago/purple-wing/models/team"
-	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
-
-	//mdl "github.com/santiaago/purple-wing/models"
-	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
-
 	helpers "github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 )
@@ -38,13 +32,13 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
 	setOfWords := helpers.SetOfStrings(query)
-	nbTournamentWords, _ := tournamentinvidmdl.GetWordCount(c)
+	nbTournamentWords, _ := TournamentInvertedIndexGetWordCount(c)
 
 	// query vector
 	q := make([]float64, len(setOfWords))
 	for i, w := range setOfWords {
 		dft := 0
-		if invId, err := tournamentinvidmdl.Find(c, "KeyName", w); err != nil {
+		if invId, err := FindTournamentInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TournamentScore, unable to find KeyName=%s: %v", w, err)
 		} else if invId != nil {
 			dft = len(strings.Split(string(invId.TournamentIds), " "))
@@ -61,7 +55,7 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 			// get word frequency by tournament (id, wi)
 			wordFreqByTournament := GetWordFrequencyForTournament(c, id, wi)
 			// get number of tournaments with word (wi)
-			tournamentFreqForWord, err := tournamentinvidmdl.GetTournamentFrequencyForWord(c, wi)
+			tournamentFreqForWord, err := GetTournamentFrequencyForWord(c, wi)
 			if err != nil {
 				log.Errorf(c, " search.TournamentScore, error occurred when getting tournament frequency for word=%s: %v", wi, err)
 			}
@@ -91,13 +85,13 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
 	setOfWords := helpers.SetOfStrings(query)
-	nbTeamWords, _ := teaminvidmdl.GetWordCount(c)
+	nbTeamWords, _ := TeamInvertedIndexGetWordCount(c)
 
 	// query vector
 	q := make([]float64, len(setOfWords))
 	for i, w := range setOfWords {
 		dft := 0
-		if invId, err := teaminvidmdl.Find(c, "KeyName", w); err != nil {
+		if invId, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TeamScore, unable to find KeyName=%s: %v", w, err)
 		} else if invId != nil {
 			dft = len(strings.Split(string(invId.TeamIds), " "))
@@ -114,7 +108,7 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 			// get word frequency by team (id, wi)
 			wordFreqByTeam := GetWordFrequencyForTeam(c, id, wi)
 			// get number of teams with word (wi)
-			teamFreqForWord, err := teaminvidmdl.GetTeamFrequencyForWord(c, wi)
+			teamFreqForWord, err := GetTeamFrequencyForWord(c, wi)
 			if err != nil {
 				log.Errorf(c, " search.TeamScore, error occurred when getting team frequency for word=%s: %v", wi, err)
 			}

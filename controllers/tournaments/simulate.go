@@ -27,9 +27,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 	mdl "github.com/santiaago/purple-wing/models"
-
-	//mdl "github.com/santiaago/purple-wing/models/tournament"
-	//mdl "github.com/santiaago/purple-wing/models/user"
 )
 
 // Simulate the scores of a phase in a tournament.

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package teamrequest
+package models
 
 import (
 	"errors"
@@ -25,7 +25,6 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
-	mdl "github.com/santiaago/purple-wing/models"
 )
 
 type TeamRequest struct {
@@ -43,7 +42,7 @@ type TeamRequestJson struct {
 }
 
 // Create a teamrequest with params teamid and userid
-func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
+func CreateTeamRequest(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
 	// create new team request
 	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
 	if err != nil {
@@ -63,10 +62,10 @@ func Create(c appengine.Context, teamId int64, userId int64) (*TeamRequest, erro
 }
 
 // destroy a team request given a teamrequestid
-func Destroy(c appengine.Context, teamRequestId int64) error {
+func (tr *TeamRequest) Destroy(c appengine.Context) error {
 
-	if teamRequest, err := ById(c, teamRequestId); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find team request with teamRequestId=%d", teamRequestId))
+	if teamRequest, err := TeamRequestById(c, tr.Id); err != nil {
+		return errors.New(fmt.Sprintf("Cannot find team request with teamRequestId=%d", tr.Id))
 	} else {
 		key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
 
@@ -75,7 +74,7 @@ func Destroy(c appengine.Context, teamRequestId int64) error {
 }
 
 // search for a teamequest array given a filter and a value
-func Find(c appengine.Context, filter string, value interface{}) []*TeamRequest {
+func FindTeamRequest(c appengine.Context, filter string, value interface{}) []*TeamRequest {
 
 	q := datastore.NewQuery("TeamRequest").Filter(filter+" =", value)
 
@@ -106,7 +105,7 @@ func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *Tea
 }
 
 // return a teamrequest if it exist given a teamrequestid
-func ById(c appengine.Context, id int64) (*TeamRequest, error) {
+func TeamRequestById(c appengine.Context, id int64) (*TeamRequest, error) {
 
 	var tr TeamRequest
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
@@ -119,16 +118,16 @@ func ById(c appengine.Context, id int64) (*TeamRequest, error) {
 }
 
 // checks if for a team id, user id pair, a request was sent
-func Sent(c appengine.Context, teamId int64, userId int64) bool {
+func WasTeamRequestSent(c appengine.Context, teamId int64, userId int64) bool {
 	return findByTeamIdAndUserId(c, teamId, userId) != nil
 }
 
 // build a teamRequest array from an array of teams
-func TeamsRequests(c appengine.Context, teams []*mdl.Team) []*TeamRequest {
+func TeamsRequests(c appengine.Context, teams []*Team) []*TeamRequest {
 	var teamRequests []*TeamRequest
 
 	for _, team := range teams {
-		teamRequests = append(teamRequests, Find(c, "TeamId", team.Id)...)
+		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.Id)...)
 	}
 
 	return teamRequests

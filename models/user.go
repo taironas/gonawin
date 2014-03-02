@@ -28,7 +28,6 @@ import (
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
-	//teammdl "github.com/santiaago/purple-wing/models/team"
 )
 
 type User struct {

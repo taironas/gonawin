@@ -32,7 +32,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers/memcache"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	//mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 )
 

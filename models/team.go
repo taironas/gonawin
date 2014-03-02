@@ -27,7 +27,6 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
 )
 
 type Team struct {
@@ -70,7 +69,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 		return nil, err
 	}
 	// udpate inverted index
-	teaminvidmdl.Add(c, helpers.TrimLower(name), teamId)
+	AddToTeamInvertedIndex(c, helpers.TrimLower(name), teamId)
 
 	return team, err
 }
@@ -134,7 +133,7 @@ func (t *Team) Update(c appengine.Context) error {
 			return err
 		}
 		// use lower trim names as team inverted index store them like this.
-		teaminvidmdl.Update(c, oldTeam.KeyName, t.KeyName, t.Id)
+		UpdateTeamInvertedIndex(c, oldTeam.KeyName, t.KeyName, t.Id)
 	}
 	return nil
 }

@@ -14,7 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package activity
+package models
 
 import (
 	"errors"
@@ -88,7 +88,7 @@ func (a *Activity) create(c appengine.Context) error {
 }
 
 // find all activities present in datastore
-func FindByUser(c appengine.Context, userID int64) []*Activity {
+func FindActivitiesByUser(c appengine.Context, userID int64) []*Activity {
 	q := datastore.NewQuery("Activity").Filter("UserID=", userID)
 
 	var activities []*Activity

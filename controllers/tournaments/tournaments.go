@@ -33,9 +33,6 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	mdl "github.com/santiaago/purple-wing/models"
-	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	predictmdl "github.com/santiaago/purple-wing/models/predict"
-	tournamentinvmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 )
 
 type TournamentData struct {
@@ -98,10 +95,10 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 			// publish new activity
-			actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-			object := activitymdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-			target := activitymdl.ActivityEntity{}
-			activitymdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
+			actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+			object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+			target := mdl.ActivityEntity{}
+			mdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -277,7 +274,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" && (len(keywords) > 0) {
 
 		words := helpers.SetOfStrings(keywords)
-		ids, err := tournamentinvmdl.GetIndexes(c, words)
+		ids, err := mdl.GetTournamentInvertedIndexes(c, words)
 		if err != nil {
 			log.Errorf(c, "Tournament Search Handler: tournaments.Index, error occurred when getting indexes of words: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotSearch)}
@@ -468,7 +465,7 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 
-		if p, err1 := predictmdl.Create(c, int64(r1), int64(r2), match.Id); err1 != nil {
+		if p, err1 := mdl.CreatePredict(c, int64(r1), int64(r2), match.Id); err1 != nil {
 			log.Errorf(c, "%s: unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		} else {
@@ -480,7 +477,7 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			msg := fmt.Sprintf("Prediction is now set.")
 			data := struct {
 				MessageInfo string `json:",omitempty"`
-				Predict     *predictmdl.Predict
+				Predict     *mdl.Predict
 			}{
 				msg,
 				p,

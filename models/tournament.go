@@ -28,7 +28,6 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
-	tournamentinvidmdl "github.com/santiaago/purple-wing/models/tournamentInvertedIndex"
 )
 
 type Tournament struct {
@@ -83,7 +82,7 @@ func CreateTournament(c appengine.Context, name string, description string, star
 		return nil, err
 	}
 
-	tournamentinvidmdl.Add(c, helpers.TrimLower(name), tournamentID)
+	AddToTournamentInvertedIndex(c, helpers.TrimLower(name), tournamentID)
 	return tournament, nil
 }
 
@@ -142,7 +141,7 @@ func (t *Tournament) Update(c appengine.Context) error {
 			return err
 		}
 		// use name with trim lower as tournament inverted index stores lower key names.
-		tournamentinvidmdl.Update(c, oldTournament.KeyName, t.KeyName, t.Id)
+		UpdateTournamentInvertedIndex(c, oldTournament.KeyName, t.KeyName, t.Id)
 	}
 	return nil
 }

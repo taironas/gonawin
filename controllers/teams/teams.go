@@ -31,9 +31,6 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	mdl "github.com/santiaago/purple-wing/models"
-	activitymdl "github.com/santiaago/purple-wing/models/activity"
-	teaminvidmdl "github.com/santiaago/purple-wing/models/teamInvertedIndex"
-	teamrequestmdl "github.com/santiaago/purple-wing/models/teamrequest"
 )
 
 type TeamData struct {
@@ -96,10 +93,10 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
-			actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-			object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
-			target := activitymdl.ActivityEntity{}
-			activitymdl.Publish(c, "team", "created a new team", actor, object, target, u.Id)
+			actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+			object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+			target := mdl.ActivityEntity{}
+			mdl.Publish(c, "team", "created a new team", actor, object, target, u.Id)
 
 			// return the newly created team
 			var tJson mdl.TeamJson
@@ -149,7 +146,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			tJson,
 			team.Joined(c, u),
-			teamrequestmdl.Sent(c, intID, u.Id),
+			mdl.WasTeamRequestSent(c, intID, u.Id),
 			playersJson,
 		}
 		return templateshlp.RenderJson(w, c, teamData)
@@ -281,7 +278,7 @@ func InviteJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
 
-		if _, err := teamrequestmdl.Create(c, intID, u.Id); err != nil {
+		if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
 			log.Errorf(c, "Team Invite Handler: teams.Invite, error when trying to create a team request: %v", err)
 			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTeamCannotInvite)}
 		}
@@ -304,7 +301,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 
-		if teamRequest, err := teamrequestmdl.ById(c, requestId); err == nil {
+		if teamRequest, err := mdl.TeamRequestById(c, requestId); err == nil {
 			// join user to the team
 			var team *mdl.Team
 			team, err = mdl.TeamById(c, teamRequest.TeamId)
@@ -319,12 +316,13 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 			}
 
 			team.Join(c, user)
+			// request is no more needed so clear it from datastore
+			teamRequest.Destroy(c)
+
 		} else {
 			log.Errorf(c, "Team Allow Request Handler: cannot find team request with id=%d", requestId)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
-		// request is no more needed so clear it from datastore
-		teamrequestmdl.Destroy(c, requestId)
 
 		return templateshlp.RenderJson(w, c, "team request was handled")
 
@@ -345,9 +343,13 @@ func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			log.Errorf(c, "Team Deny Request Handler: teams.AllowRequest, id could not be extracter from url: %v", err)
 			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
-
-		// request is no more needed so clear it from datastore
-		teamrequestmdl.Destroy(c, requestId)
+		if teamRequest, err := mdl.TeamRequestById(c, requestId); err != nil {
+			log.Errorf(c, "Team Deny Request Handler: teams.AllowRequest, team request not found: %v", err)
+			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		} else {
+			// request is no more needed so clear it from datastore
+			teamRequest.Destroy(c)
+		}
 
 		return templateshlp.RenderJson(w, c, "team request was handled")
 
@@ -365,7 +367,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" && (len(keywords) > 0) {
 
 		words := helpers.SetOfStrings(keywords)
-		ids, err := teaminvidmdl.GetIndexes(c, words)
+		ids, err := mdl.GetTeamInvertedIndexes(c, words)
 		if err != nil {
 			log.Errorf(c, "Team Search Handler: teams.Index, error occurred when getting indexes of words: %v", err)
 			data := struct {
@@ -466,10 +468,10 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-		object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
-		target := activitymdl.ActivityEntity{}
-		activitymdl.Publish(c, "team", "joined team", actor, object, target, u.Id)
+		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "team", "joined team", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -509,10 +511,10 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := activitymdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-		object := activitymdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
-		target := activitymdl.ActivityEntity{}
-		activitymdl.Publish(c, "team", "left team", actor, object, target, u.Id)
+		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "team", "left team", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
