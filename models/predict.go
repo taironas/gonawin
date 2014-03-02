@@ -86,7 +86,7 @@ func PredictById(c appengine.Context, id int64) (*Predict, error) {
 	key := datastore.NewKey(c, "Predict", "", id, nil)
 
 	if err := datastore.Get(c, key, &p); err != nil {
-		log.Errorf(c, " predict not found : %v", err)
+		log.Errorf(c, "predict not found : %v", err)
 		return &p, err
 	}
 	return &p, nil
@@ -136,6 +136,29 @@ func PredictsByIds(c appengine.Context, ids []int64) []*Predict {
 		}
 	}
 	return predicts
+}
+
+// Get an array of pointers to Predict entities with respect to an array of ids.
+// Trying out with a get batch instead of going through each entity.
+func PredictsByIds2(c appengine.Context, ids []int64) ([]*Predict, error) {
+	keys := make([]*datastore.Key, len(ids))
+	for i, _ := range keys {
+		keys[i] = PredictKeyById(c, ids[i])
+	}
+	var predicts []*Predict
+	if err := datastore.GetMulti(c, keys, predicts); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, "Predict.ByIds2, key[%v] is missing: %v", i)
+
+				}
+			}
+		} else {
+			return nil, err
+		}
+	}
+	return predicts, nil
 }
 
 type Predicts []*Predict

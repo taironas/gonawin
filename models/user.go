@@ -35,14 +35,14 @@ type User struct {
 	Email                 string
 	Username              string
 	Name                  string
-	IsAdmin               bool
-	Auth                  string
-	PredictIds            []int64 // Current predicts of user.
-	ArchivedPredictInds   []int64 // Archived predicts of user.
-	TournamentIds         []int64 // Current tournament ids of user.
-	ArchivedTournamentIds []int64 // Archived tournament ids of user.
-	TeamIds               []int64 // Current team ids of user.
-	ArchivedTeamIds       []int64 // Archived team ids of user.
+	IsAdmin               bool    // is user gonawin admin.
+	Auth                  string  // authentication auth token
+	PredictIds            []int64 // current user predicts.
+	ArchivedPredictInds   []int64 // archived user predicts.
+	TournamentIds         []int64 // current tournament ids of user <=> tournaments user subscribed.
+	ArchivedTournamentIds []int64 // archived tournament ids of user <=> finnished tournametns user subscribed.
+	TeamIds               []int64 // current team ids of user <=> teams user belongs to.
+	Score                 int64   // overall user score.
 	Created               time.Time
 }
 
@@ -58,7 +58,7 @@ type UserJson struct {
 	TournamentIds         *[]int64   `json:",omitempty"`
 	ArchivedTournamentIds *[]int64   `json:",omitempty"`
 	TeamIds               *[]int64   `json:",omitempty"`
-	ArchivedTeamIds       *[]int64   `json:",omitempty"`
+	Score                 *int64     `json:",omitempty"`
 	Created               *time.Time `json:",omitempty"`
 }
 
@@ -74,7 +74,7 @@ func CreateUser(c appengine.Context, email string, username string, name string,
 
 	emptyArray := make([]int64, 0)
 
-	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, time.Now()}
+	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -308,4 +308,26 @@ func (u *User) ContainsTeamId(id int64) (bool, int) {
 		}
 	}
 	return false, -1
+}
+
+// Update an array of groups.
+func UpdateUsers(c appengine.Context, users []*User) error {
+	keys := make([]*datastore.Key, len(users))
+	for i, _ := range keys {
+		keys[i] = UserKeyById(c, users[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, users); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, error) {
+	predicts := PredictsByIds(c, u.PredictIds)
+	for i, p := range predicts {
+		if p.MatchId == mId {
+			return predicts[i], nil
+		}
+	}
+	return nil, nil
 }

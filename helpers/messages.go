@@ -39,7 +39,7 @@ const (
 	ErrorCodeUserNotFound             = "User not found"
 	ErrorCodeUserNotFoundCannotUpdate = "User not found, unable to update"
 	ErrorCodeUserCannotUpdate         = "Could not update user"
-
+	ErrorCodeUsersCannotUpdate        = "Could not update users"
 	// teams
 	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
 	ErrorCodeTeamCannotCreate         = "Could not create the team"

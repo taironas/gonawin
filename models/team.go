@@ -36,8 +36,9 @@ type Team struct {
 	AdminId       int64
 	Private       bool
 	Created       time.Time
-	UserIds       []int64
-	TournamentIds []int64
+	UserIds       []int64 // ids of Users <=> members of the team.
+	TournamentIds []int64 // ids of Tournaments <=> Tournaments the team subscribed.
+	score         int64   // Team score
 }
 
 type TeamJson struct {
@@ -49,6 +50,7 @@ type TeamJson struct {
 	Created       *time.Time `json:",omitempty"`
 	UserIds       *[]int64   `json:",omitempty"`
 	TournamentIds *[]int64   `json:",omitempty"`
+	score         *int64     `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -62,7 +64,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 	emtpyArray := make([]int64, 0)
 
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emtpyArray, emtpyArray}
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emtpyArray, emtpyArray, int64(0)}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {

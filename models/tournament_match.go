@@ -115,78 +115,84 @@ func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 
 // Set results in an array of matches and triggers a match update and group update.
 func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, results2 []int64, t *Tournament) error {
-	log.Infof(c, "Set Results: begin")
+	desc := "Set Results:"
 	if len(matches) != len(results1) || len(matches) != len(results2) {
-		log.Errorf(c, "Set Result: unable to set result on matches")
+		log.Errorf(c, "%s unable to set result on matches", desc)
 		return errors.New(helpers.ErrorCodeMatchesCannotUpdate)
 	}
 
 	for i, m := range matches {
-		log.Infof(c, "Tournament Set Results: current match: %v", m.Id)
+		log.Infof(c, "%s current match: %v", desc, m.Id)
 		if results1[i] < 0 || results2[i] < 0 {
-			log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id)
+			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		m.Result1 = results1[i]
 		m.Result2 = results2[i]
 	}
 
-	log.Infof(c, "Set Results: matches ready")
 	// batch match update
 	if err := UpdateMatches(c, matches); err != nil {
-		log.Errorf(c, "Set Results: unable to set results on matches: %v", err)
+		log.Errorf(c, "%s unable to set results on matches: %v", desc, err)
 		return err
 	}
-	log.Infof(c, "Set Results: matches updated")
 	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 
 	for _, m := range matches {
-		log.Infof(c, "Tournament Set Results: Trigger current match: %v", m.Id)
+		log.Infof(c, "%s Trigger current match: %v", desc, m.Id)
 
 		if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
 			if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-				log.Errorf(c, "Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", m.IdNumber, err)
+				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 				return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 			}
 			if err := UpdateGroup(c, g); err != nil {
-				log.Errorf(c, "Set Results: unable to update group: %v", err)
+				log.Errorf(c, "%s unable to update group: %v", desc, err)
 				return err
 			}
 		}
 		if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
-			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
-			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", phaseId+1)
-			log.Infof(c, "Tournament Set Results: Trigger update of next phase here: next phase: %v", m)
+			log.Infof(c, "%s -------------------------------------------------->", desc)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
 			if int(phaseId+1) < len(phases) {
 				UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
 			}
-			log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
+			log.Infof(c, "%s -------------------------------------------------->", desc)
 		}
 	}
 
-	log.Infof(c, "Set Results: points and goals updated")
+	log.Infof(c, "%s points and goals updated", desc)
 
 	return nil
 }
 
-// Set result in match entity and triggers a match update in datastore.
+// Set result in match entity and triggers a match update in datastore and score updates.
 func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *Tournament) error {
-
+	desc := "Set Result:"
 	if result1 < 0 || result2 < 0 {
-		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id)
+		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.Id)
 		return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 	}
 	m.Result1 = result1
 	m.Result2 = result2
-
 	if err := UpdateMatch(c, m); err != nil {
-		log.Errorf(c, "Set Result: unable to set result on match with id: %v, %v", m.Id, err)
+		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id, err)
 		return err
+	} else {
+		// update score for all users.
+		if err1 := t.UpdateUsersScore(c, m); err1 != nil {
+			log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.Id, err)
+		}
+		// update score for all teams.
+		if err1 := t.UpdateTeamsScore(c, m); err1 != nil {
+			log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.Id, err)
+		}
 	}
 	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
 		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-			log.Errorf(c, "Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", m.IdNumber, err)
+			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		UpdateGroup(c, g)
@@ -194,15 +200,14 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
-		log.Infof(c, "Tournament Set Result: -------------------------------------------------->")
-		log.Infof(c, "Tournament Set Result: Trigger update of next phase here: next phase: %v", phaseId+1)
-		log.Infof(c, "Tournament Set Result: Trigger update of next phase here: next phase: %v", m)
+		log.Infof(c, "%s -------------------------------------------------->", desc)
+		log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
+		log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
 		if int(phaseId+1) < len(phases) {
 			UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
 		}
-		log.Infof(c, "Tournament Set Results: -------------------------------------------------->")
+		log.Infof(c, "%s -------------------------------------------------->", desc)
 	}
-
 	return nil
 }
 
