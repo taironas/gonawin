@@ -39,8 +39,8 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         console.log('/me = ', userInfo);
         Session.fetchUser({  access_token: accessToken,
                              provider: 'facebook',
-                             id:userInfo.id, 
-                             name:userInfo.name, 
+                             id:userInfo.id,
+                             name:userInfo.name,
                              email:userInfo.email } ).$promise.then(function(userData) {
           $rootScope.currentUser = _self.currentUser = userData.User;
           console.log('current user: ', _self.currentUser);
@@ -56,6 +56,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
       $cookieStore.put('access_token', accessToken);
       $cookieStore.put('auth', auth);
       $cookieStore.put('user_id', userId);
+      $cookieStore.put('logged_in', true);
     },
     
     logout: function() {
@@ -64,8 +65,8 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         if (response.status === 'connected') {
           FB.logout(function(response) {
             console.log('Facebook logout = ', response);
-            $rootScope.$apply(function() { 
-              $rootScope.currentUser = _self.currentUser = {}; 
+            $rootScope.$apply(function() {
+              $rootScope.currentUser = _self.currentUser = {};
             });
           });
         }
@@ -80,11 +81,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         $rootScope.currentUser = userData.User;
          console.log('current user: ', $rootScope.currentUser);
          
-         $cookieStore.put('access_token', oauthToken);
-         $cookieStore.put('auth', $rootScope.currentUser.Auth);
-         $cookieStore.put('user_id', $rootScope.currentUser.Id);
-         
-         $rootScope.loggedIn = true;
+         _self.storeCookies(oauthToken, _self.currentUser.Auth, _self.currentUser.Id);
          
          $location.path('/home');
       });

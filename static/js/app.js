@@ -41,7 +41,7 @@ purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $l
 purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
-      when('/', { templateUrl: 'templates/welcome.html',  requireLogin: false }).
+      when('/', { templateUrl: 'templates/welcome.html', requireLogin: false }).
       when('/home', { templateUrl: 'templates/home.html', controller: 'HomeCtrl', requireLogin: true }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
@@ -81,12 +81,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
   
   $window.fbAsyncInit = function() {
     // Executed when the SDK is loaded
-    FB.init({ 
-      appId: '232160743609875', 
+    FB.init({
+      appId: '232160743609875',
       channelUrl: 'static/templates/channel.html',
       status: true, /*Set if you want to check the authentication status at the start up of the app */
-      cookie: true, 
-      xfbml: true      
+      cookie: true,
+      xfbml: true
     });
 
     sAuth.watchLoginChange();
@@ -94,16 +94,16 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
   
   (function(d){
     // load the Facebook javascript SDK
-    var js, 
-    id = 'facebook-jssdk', 
+    var js,
+    id = 'facebook-jssdk',
     ref = d.getElementsByTagName('script')[0];
 
     if (d.getElementById(id)) {
       return;
     }
 
-    js = d.createElement('script'); 
-    js.id = id; 
+    js = d.createElement('script');
+    js.id = id;
     js.async = true;
     js.src = "//connect.facebook.net/en_US/all.js";
 
@@ -133,15 +133,15 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
         }
       });
     }
-  }); 
+  });
   
   $rootScope.$on('event:google-plus-signin-success', function (event, authResult) {
     // User successfully authorized the G+ App!
     Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
       Session.fetchUser({  access_token: authResult.access_token,
                            provider: 'google',
-                           id:userInfo.id, 
-                           name:userInfo.displayName, 
+                           id:userInfo.id,
+                           name:userInfo.displayName,
                            email:userInfo.emails[0].value } ).$promise.then(function(userData) {
        $rootScope.currentUser = userData.User;
        console.log('current user: ', $rootScope.currentUser);

@@ -40,6 +40,7 @@ p {
 }
 
 .header {
+  background-color: #465E8F;
 	padding-top: 40px;
   color: white;
 }
@@ -52,6 +53,7 @@ p {
 /* intro Wrap */
 
 .intro {
+  background-color: #465E8F;
 	padding-top: 100px;
   color: white;
 }
