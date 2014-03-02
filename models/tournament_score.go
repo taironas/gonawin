@@ -32,22 +32,13 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	users := t.Participants(c)
 	usersToUpdate := make([]*User, 0)
 	for i, u := range users {
-		var p *Predict
-		var err1 error
-		if p, err1 = u.PredictFromMatchId(c, m.Id); err1 == nil && p == nil {
-			// nothing to update
-			continue
-		} else if err1 != nil {
-			log.Errorf(c, "%s unable to get predict for current user %v: %v", desc, u.Id, err1)
-			continue
-		}
-		score := computeScore(m, p)
-		if score > 0 {
+		if score, err := u.ScoreForMatch(c, m); err != nil {
+			log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
+		} else if score > 0 {
 			users[i].Score += score
 			usersToUpdate = append(usersToUpdate, users[i])
 		}
 	}
-	// update users
 	if err := UpdateUsers(c, usersToUpdate); err != nil {
 		log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
 		return errors.New(helpers.ErrorCodeUsersCannotUpdate)
@@ -57,7 +48,29 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 
 // Update the score of the teams members of the tournament.
 func (t *Tournament) UpdateTeamsScore(c appengine.Context, m *Tmatch) error {
-	//desc := "Update Teams score:"
+	desc := "Update Teams score:"
+	teams := t.Teams(c)
+
+	teamsToUpdate := make([]*Team, 0)
+	for i, team := range teams {
+		teamScore := int64(0)
+		for _, u := range team.Players(c) {
+			if score, err := u.ScoreForMatch(c, m); err != nil {
+				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
+			} else {
+				teamScore += score
+			}
+		}
+		if teamScore > 0 {
+			teams[i].Score += teamScore
+			teamsToUpdate = append(teamsToUpdate, teams[i])
+		}
+	}
+	if err := UpdateTeams(c, teamsToUpdate); err != nil {
+		log.Errorf(c, "%s unable udpate teams scores: %v", desc, err)
+		return errors.New(helpers.ErrorCodeTeamsCannotUpdate)
+	}
+
 	return nil
 }
 

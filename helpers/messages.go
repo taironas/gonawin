@@ -70,6 +70,7 @@ const (
 	ErrorCodeMatchNotFound                    = "Match not found"
 	ErrorCodeMatchNotFoundCannotSetPrediction = "Match not found, unable to set prediction"
 	ErrorCodeCannotSetPrediction              = "Something went wrong, unable to set prediction"
+	ErrorCodeTeamsCannotUpdate                = "Could not update teams"
 
 	// invite
 	ErrorCodeInviteNoEmailAddr     = "No email address has been entered"

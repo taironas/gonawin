@@ -310,7 +310,7 @@ func (u *User) ContainsTeamId(id int64) (bool, int) {
 	return false, -1
 }
 
-// Update an array of groups.
+// Update an array of users.
 func UpdateUsers(c appengine.Context, users []*User) error {
 	keys := make([]*datastore.Key, len(users))
 	for i, _ := range keys {
@@ -330,4 +330,17 @@ func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, err
 		}
 	}
 	return nil, nil
+}
+
+func (u *User) ScoreForMatch(c appengine.Context, m *Tmatch) (int64, error) {
+	desc := "Score for match:"
+	var p *Predict
+	var err1 error
+	if p, err1 = u.PredictFromMatchId(c, m.Id); err1 == nil && p == nil {
+		return 0, nil
+	} else if err1 != nil {
+		log.Errorf(c, "%s unable to get predict for current user %v: %v", desc, u.Id, err1)
+		return 0, nil
+	}
+	return computeScore(m, p), nil
 }

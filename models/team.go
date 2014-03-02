@@ -38,7 +38,7 @@ type Team struct {
 	Created       time.Time
 	UserIds       []int64 // ids of Users <=> members of the team.
 	TournamentIds []int64 // ids of Tournaments <=> Tournaments the team subscribed.
-	score         int64   // Team score
+	Score         int64   // Team score
 }
 
 type TeamJson struct {
@@ -50,7 +50,7 @@ type TeamJson struct {
 	Created       *time.Time `json:",omitempty"`
 	UserIds       *[]int64   `json:",omitempty"`
 	TournamentIds *[]int64   `json:",omitempty"`
-	score         *int64     `json:",omitempty"`
+	Score         *int64     `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -332,4 +332,16 @@ func (t *Team) ContainsUserId(id int64) (bool, int) {
 		}
 	}
 	return false, -1
+}
+
+// Update an array of teams.
+func UpdateTeams(c appengine.Context, teams []*Team) error {
+	keys := make([]*datastore.Key, len(teams))
+	for i, _ := range keys {
+		keys[i] = TeamKeyById(c, teams[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, teams); err != nil {
+		return err
+	}
+	return nil
 }
