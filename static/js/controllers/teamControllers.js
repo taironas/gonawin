@@ -153,3 +153,10 @@ teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$
 		});
   }
 }]);
+
+// Ranking controller
+teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
+  console.log('Team ranking controller');
+  console.log('route params', $routeParams)
+  $scope.teamData = Team.get({ id:$routeParams.id });
+}]);

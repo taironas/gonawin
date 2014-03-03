@@ -376,3 +376,11 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
 		       });
   };  
 }]);
+
+// Ranking controller
+tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament ranking controller');
+  console.log('route params', $routeParams)
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+}]);
+
