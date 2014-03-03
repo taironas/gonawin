@@ -64,6 +64,8 @@ func init() {
 	h.HandleFunc("/j/teams/deny/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.DenyRequestJson)))
 	h.HandleFunc("/j/teams/search/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SearchJson)))
 	h.HandleFunc("/j/teams/[0-9]+/members/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.MembersJson)))
+	h.HandleFunc("/j/teams/[0-9]+/ranking/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RankingJson)))
+
 	// tournament - json
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.IndexJson)))
 	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewJson)))
@@ -92,6 +94,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/simulate/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.SimulateMatchesJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/reset/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.ResetJson)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/predict/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.PredictJson)))
+	h.HandleFunc("/j/tournaments/[0-9]+/ranking/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.RankingJson)))
 
 	// activities - json
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.IndexJson)))

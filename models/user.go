@@ -344,3 +344,10 @@ func (u *User) ScoreForMatch(c appengine.Context, m *Tmatch) (int64, error) {
 	}
 	return computeScore(m, p), nil
 }
+
+// Sort users by score
+type UserByScore []*User
+
+func (a UserByScore) Len() int           { return len(a) }
+func (a UserByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a UserByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }

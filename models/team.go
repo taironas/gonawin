@@ -19,6 +19,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -345,3 +346,16 @@ func UpdateTeams(c appengine.Context, teams []*Team) error {
 	}
 	return nil
 }
+
+func (t *Team) RankingByUser(c appengine.Context) []*User {
+	users := t.Players(c)
+	sort.Sort(UserByScore(users))
+	return users
+}
+
+// Sort teams by score
+type TeamByScore []*Team
+
+func (a TeamByScore) Len() int           { return len(a) }
+func (a TeamByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a TeamByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }

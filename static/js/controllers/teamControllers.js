@@ -159,4 +159,7 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
   console.log('Team ranking controller');
   console.log('route params', $routeParams)
   $scope.teamData = Team.get({ id:$routeParams.id });
+
+  $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+
 }]);

@@ -19,6 +19,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -302,7 +303,7 @@ func Reset(c appengine.Context, t *Tournament) error {
 	return nil
 }
 
-// from a tournament returns an array of users that participate in it.
+// From a tournament returns an array of the users that participate in it.
 func (t *Tournament) Participants(c appengine.Context) []*User {
 	var users []*User
 
@@ -413,4 +414,16 @@ func (t *Tournament) ContainsUserId(id int64) (bool, int) {
 		}
 	}
 	return false, -1
+}
+
+func (t *Tournament) RankingByUser(c appengine.Context) []*User {
+	users := t.Participants(c)
+	sort.Sort(UserByScore(users))
+	return users
+}
+
+func (t *Tournament) RankingByTeam(c appengine.Context) []*Team {
+	teams := t.Teams(c)
+	sort.Sort(TeamByScore(teams))
+	return teams
 }

@@ -13,7 +13,7 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 
-  return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId'}, {
+  return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId', rankby: '@rankby'}, {
     get: { method: 'GET', url: 'j/teams/show/:id' },
     save: { method: 'POST', url: 'j/teams/new' },
     update: { method: 'POST', url: 'j/teams/update/:id' },
@@ -24,7 +24,8 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
     leave: {method: 'POST', url: 'j/teams/leave/:id'},//teamrels/destroy/:id'},
     invite: {method: 'POST', url: 'j/teams/invite/:id'},
     allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
-    denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'}
+    denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
+    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby'}
   })
 });
 
@@ -42,7 +43,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     result: '@result', 
 		     result1: '@result1',
 		     result2: '@result2',
-		     phaseName: '@phaseName'
+		     phaseName: '@phaseName',
+		     rankby: '@rankby'
 		   }, 
 		   {
 		     get: { method: 'GET', url: 'j/tournaments/show/:id' },
@@ -64,6 +66,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
 		     reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
+		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby'}
 		   })
 });
 

@@ -382,5 +382,8 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
   console.log('Tournament ranking controller');
   console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+
 }]);
 
