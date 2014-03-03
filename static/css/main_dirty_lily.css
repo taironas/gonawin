@@ -33,6 +33,7 @@ p {
   background-color: #465E8F;
   border-bottom: 2px solid #67c2ef;
   border-radius: 0px;
+  margin-bottom: 0px;
 }
 
 .navbar-navy a {
@@ -41,7 +42,7 @@ p {
 
 .header {
   background-color: #465E8F;
-	padding-top: 40px;
+	padding-top: 60px;
   color: white;
 }
 
@@ -56,17 +57,22 @@ p {
   background-color: #465E8F;
 	padding-top: 100px;
   color: white;
+  border-bottom: 2px solid #67c2ef;
+}
+
+.intro img {
+  border: 3px solid #67c2ef;
 }
 
 .footer {
-	background-color: #A7BBD6;
   height: 60px;
   z-index: 9999;
 }
+
 .footer_content {
   text-align: center;
-  color: white;
-  font-weight: 400;
+  color: #465E8F;
+  font-weight: 700;
   margin: 20px 0;
 }
 
@@ -83,8 +89,10 @@ p {
   transition: color 0.1s ease-in, background 0.1s ease-in;
 }
 
-.footer_content a:before,
-.footer_content a:after {
+.footer_content a:hover {
+  color: #67c2ef;
+  text-decoration: none;
+
   -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
   -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
   -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
@@ -92,6 +100,9 @@ p {
   transition: color 0.1s ease-in, background 0.1s ease-in;
 }
 
+.main-container {
+  margin-top: 20px;
+}
 .activity-icon {
   border: 2px solid #67c2ef;
   -webkit-border-radius: 50%;
