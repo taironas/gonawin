@@ -55,7 +55,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tournamentsJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json new tournament handler
@@ -67,27 +67,27 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf(c, "Tournament New Handler: Error when decoding request body: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
 		var data TournamentData
 		err = json.Unmarshal(body, &data)
 		if err != nil {
 			log.Errorf(c, "Tournament New Handler: Error when decoding request body: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
 		if len(data.Name) <= 0 {
 			log.Errorf(c, "Tournamnet New Handler: 'Name' field cannot be empty")
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
 		} else if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
 			log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 		} else {
 			tournament, err := mdl.CreateTournament(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
 			if err != nil {
 				log.Errorf(c, "Tournament New Handler: error when trying to create a tournament: %v", err)
-				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 			}
 			// return the newly created tournament
 			fieldsToKeep := []string{"Id", "Name"}
@@ -103,7 +103,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, tJson)
 		}
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Json show tournament handler
@@ -115,14 +115,14 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: error when extracting permalink id: %v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		participants := tournament.Participants(c)
@@ -154,7 +154,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Json tournament destroy handler
@@ -166,18 +166,18 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Destroy Handler: error when extracting permalink id: %v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
 		}
 
 		if !mdl.IsTournamentAdmin(c, intID, u.Id) {
 			log.Errorf(c, "Tournament Destroy Handler: user is not admin")
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		// delete all tournament-user relationships
@@ -199,7 +199,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "tournament has been destroyed")
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 //  Json Update tournament handler
@@ -210,19 +210,19 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Tournament Update Handler: error when extracting permalink id: %v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
 		}
 
 		if !mdl.IsTournamentAdmin(c, intID, u.Id) {
 			log.Errorf(c, "Tournament Update Handler: user is not admin")
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
 		}
 
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
 			log.Errorf(c, "Tournament Update handler: tournament not found. id: %v, err: %v", intID, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
 		}
 
 		// only work on name other values should not be editable
@@ -230,21 +230,21 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf(c, "Tournament Update handler: Error when reading request body err: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
 		}
 
 		var updatedData TournamentData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
 			log.Errorf(c, "Tournament Update handler: Error when decoding request body err: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
 		}
 
 		if helpers.IsStringValid(updatedData.Name) && updatedData.Name != tournament.Name {
 			// be sure that team with that name does not exist in datastore
 			if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 				log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
-				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 			}
 
 			tournament.Name = updatedData.Name
@@ -252,7 +252,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		} else {
 			log.Errorf(c, "Cannot update because updated data are not valid")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
 		}
 
 		// return the updated tournament
@@ -262,7 +262,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 
 }
 
@@ -277,7 +277,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ids, err := mdl.GetTournamentInvertedIndexes(c, words)
 		if err != nil {
 			log.Errorf(c, "Tournament Search Handler: tournaments.Index, error occurred when getting indexes of words: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotSearch)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotSearch)}
 		}
 		result := mdl.TournamentScore(c, keywords, ids)
 		log.Infof(c, "result from TournamentScore: %v", result)
@@ -304,7 +304,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json team candidates for a specific tournament:
@@ -315,13 +315,13 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "Candidate Teams Handler: error extracting permalink err:%v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Candidate Teams Handler: tournament not found err:%v", err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		// query teams
 		teams := mdl.FindTeams(c, "AdminId", u.Id)
@@ -348,7 +348,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json tournament participants handler
@@ -360,13 +360,13 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "Tournament Participants Handler: error extracting permalink err:%v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		participants := tournament.Participants(c)
@@ -383,7 +383,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Reset a tournament information. Reset points and goals.
@@ -395,17 +395,17 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		if err != nil {
 			log.Errorf(c, "Tournament Reset Handler: error extracting permalink err:%v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var t *mdl.Tournament
 		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		if err = mdl.Reset(c, t); err != nil {
 			log.Errorf(c, "Tournament Reset Handler: Unable to reset tournament: %v error:", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 		groups := mdl.Groups(c, t.GroupIds)
 		groupsJson := formatGroupsJson(groups)
@@ -420,7 +420,7 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Set a Predict entity of a specific match for the current User.
@@ -433,46 +433,46 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "%s: error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "%s: tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		// extract match
 		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
 		if err2 != nil {
 			log.Errorf(c, "%s: error extracting permalink err:%v", desc, err2)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
 		}
 
 		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
 		if match == nil {
 			log.Errorf(c, "%s: unable to get match with id number :%v", desc, matchIdNumber)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
 		}
 		result1 := r.FormValue("result1")
 		result2 := r.FormValue("result2")
 		var r1, r2 int
 		if r1, err = strconv.Atoi(result1); err != nil {
 			log.Errorf(c, "%s: unable to get results, error: %v not number 1", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		if r2, err = strconv.Atoi(result2); err != nil {
 			log.Errorf(c, "%s: unable to get results, error: %v not number 2", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 
 		if p, err1 := mdl.CreatePredict(c, int64(r1), int64(r2), match.Id); err1 != nil {
 			log.Errorf(c, "%s: unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		} else {
 			// add p.Id to User predict table.
 			if err = u.AddPredictId(c, p.Id); err != nil {
 				log.Errorf(c, "%s: unable to add predict id in user entity: error: %v", desc, err)
-				return &helpers.NotFound{errors.New(helpers.ErrorCodeCannotSetPrediction)}
+				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 			}
 			msg := fmt.Sprintf("Prediction is now set.")
 			data := struct {
@@ -485,5 +485,5 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

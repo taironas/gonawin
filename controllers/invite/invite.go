@@ -53,12 +53,12 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error {
 		name := r.FormValue("name")
 
 		if len(emailsList) <= 0 {
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
 		}
 		emails := strings.Split(emailsList, ",")
 		// validate emails
 		if !helpers.AreEmailsValid(emails) {
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
 		}
 
 		url := fmt.Sprintf("http://%s/ng#", r.Host)
@@ -72,10 +72,10 @@ func InviteJson(w http.ResponseWriter, r *http.Request) error {
 
 			if err := mail.Send(c, msg); err != nil {
 				log.Errorf(c, "Invite Handler: couldn't send email: %v", err)
-				return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
 			}
 		}
 		return templateshlp.RenderJson(w, c, "Email has been sent successfully")
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

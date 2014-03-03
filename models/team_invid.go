@@ -182,7 +182,7 @@ func teamInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 				}
 			} else {
 				invId.TeamIds = []byte(newIds)
-				if _, err := datastore.Put(c, k, invId); err != nil {
+				if _, err1 := datastore.Put(c, k, invId); err1 != nil {
 					return errors.New(fmt.Sprintf(" RemoveWordFromTeamInvertedIndex error on update: %v", err))
 				}
 			}

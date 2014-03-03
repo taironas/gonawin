@@ -166,7 +166,7 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 		// update row with new info
 		k := TournamentInvertedIndexKeyById(c, invId.Id)
 
-		if newIds, err := helpers.RemovefromIds(invId.TournamentIds, id); err == nil {
+		if newIds, err1 := helpers.RemovefromIds(invId.TournamentIds, id); err1 == nil {
 			log.Infof(c, " new tournament ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.

@@ -93,7 +93,7 @@ func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 		user := auth.CheckAuthenticationData(r)
 		if user == nil {
-			return &helpers.BadRequest{errors.New("Bad Authentication data")}
+			return &helpers.BadRequest{Err: errors.New("Bad Authentication data")}
 		} else {
 			return f(w, r, user)
 		}

@@ -38,13 +38,13 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) er
 
 		if err != nil {
 			log.Errorf(c, "Tournament Simulate Matches Handler: error extracting permalink err:%v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var t *mdl.Tournament
 		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "Tournament Simulate Matches Handler: tournament with id:%v was not found %v", tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		phase := r.FormValue("phase")
@@ -77,7 +77,7 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) er
 		}
 		if err = mdl.SetResults(c, matches, results1, results2, t); err != nil {
 			log.Errorf(c, "Tournament Simulate Matches: unable to set result for matches error: %v", err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchesCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchesCannotUpdate)}
 		}
 
 		if phaseId >= 0 {
@@ -93,9 +93,9 @@ func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) er
 
 			return templateshlp.RenderJson(w, c, data)
 		}
-		return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 
 }

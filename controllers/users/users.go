@@ -44,7 +44,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
 		if !u.IsAdmin {
 			log.Errorf(c, "Tournament Index Handler: user is not admin, User list can only be shown for admin users.")
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotFound)}
 		}
 
 		users := mdl.FindAllUsers(c)
@@ -55,7 +55,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, usersJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Json show user handler
@@ -67,7 +67,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 		userId = intID
 
@@ -76,7 +76,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		user, err = mdl.UserById(c, userId)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: user not found")
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeUserNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
@@ -128,7 +128,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json update user handler
@@ -139,11 +139,10 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		userId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "User Update Handler: error when extracting permalink id: %v", err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
 		if userId != u.Id {
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeUserCannotUpdate)}
-			return &helpers.BadRequest{errors.New("User cannot be updated")}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
 		// only work on name other values should not be editable
@@ -151,14 +150,14 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			log.Errorf(c, "User Show handler: Error when reading request body err: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeUserCannotUpdate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
 		var updatedData UserData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
 			log.Errorf(c, "User Show handler: Error when decoding request body err: %v", err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeUserCannotUpdate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email {
 			u.Email = updatedData.Email
@@ -170,5 +169,5 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, uJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

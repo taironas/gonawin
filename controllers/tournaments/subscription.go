@@ -40,17 +40,17 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "%s tournament not found: %v", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournament.Join(c, u); err != nil {
 			log.Errorf(c, "%s error on Join tournament: %v", desc, err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var tJson mdl.TournamentJson
@@ -65,7 +65,7 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // json Leave handler for tournament relationships
@@ -78,18 +78,18 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
 			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "%s tournament not found: %v", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		if err := tournament.Leave(c, u); err != nil {
 			log.Errorf(c, "%s error on Leave team: %v", desc, err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		// return the left tournament
@@ -105,7 +105,7 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Join as Team handler for tournament teams realtionship
@@ -119,31 +119,31 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var tournament *mdl.Tournament
 		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
 			log.Errorf(c, "%stournament with id: %v was not found %v", desc, tournamentId, err1)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var team *mdl.Team
 		if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
 			log.Errorf(c, "%s team not found: %v", desc, err1)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if err := tournament.TeamJoin(c, team); err != nil {
 			log.Errorf(c, "%s error when trying to join team: %v", desc, err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-    
-    // publish new activity
+
+		// publish new activity
 		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
@@ -151,7 +151,7 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Leave as Team handler for tournament teams realtionship
@@ -166,30 +166,30 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		teamId, err2 := handlers.PermalinkID(r, c, 5)
 		if err1 != nil || err2 != nil {
 			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 		var tournament *mdl.Tournament
 		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
 			log.Errorf(c, "%s tournament with id: %v was not found %v", desc, tournamentId, err1)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var team *mdl.Team
 		if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
 			log.Errorf(c, "team not found: %v", desc, err1)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTeamNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		// leave team
 		if err := tournament.TeamLeave(c, team); err != nil {
 			log.Errorf(c, "%s error when trying to leave team: %v", desc, err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeInternal)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 		// return the left tournament
 
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-    
-    // publish new activity
+
+		// publish new activity
 		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
@@ -197,5 +197,5 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

@@ -52,13 +52,13 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		groups := mdl.Groups(c, tournament.GroupIds)
@@ -72,7 +72,7 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {

@@ -38,10 +38,10 @@ func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		tournament, err := mdl.CreateWorldCup(c, u.Id)
 		if err != nil {
 			log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
-			return &helpers.InternalServerError{errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
 		return templateshlp.RenderJson(w, c, tournament) //Json)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

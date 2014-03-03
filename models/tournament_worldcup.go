@@ -284,7 +284,10 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		for i, teamName := range teams {
 			log.Infof(c, "World Cup: team: %v", teamName)
 
-			teamID, _, err := datastore.AllocateIDs(c, "Tteam", nil, 1)
+			teamID, _, err1 := datastore.AllocateIDs(c, "Tteam", nil, 1)
+			if err1 != nil {
+				return nil, err1
+			}
 			log.Infof(c, "World Cup: team: %v allocateIDs ok", teamName)
 
 			teamkey := datastore.NewKey(c, "Tteam", "", teamID, nil)
@@ -314,7 +317,11 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		for matchIndex, matchData := range groupMatches {
 			log.Infof(c, "World Cup: match data: %v", matchData)
 
-			matchID, _, err := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			matchID, _, err1 := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			if err1 != nil {
+				return nil, err1
+			}
+
 			log.Infof(c, "World Cup: match: %v allocateIDs ok", matchID)
 
 			matchkey := datastore.NewKey(c, "Tmatch", "", matchID, nil)
@@ -348,7 +355,11 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			matches1stStageIds[int64(matchInternalId)-1] = matchID
 		}
 
-		groupID, _, err := datastore.AllocateIDs(c, "Tgroup", nil, 1)
+		groupID, _, err1 := datastore.AllocateIDs(c, "Tgroup", nil, 1)
+		if err1 != nil {
+			return nil, err1
+		}
+
 		log.Infof(c, "World Cup: Group: %v allocate ID ok", groupName)
 
 		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
@@ -388,7 +399,11 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		for _, matchData := range roundMatches {
 			log.Infof(c, "World Cup: second phase match data: %v", matchData)
 
-			matchID, _, err := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			matchID, _, err1 := datastore.AllocateIDs(c, "Tmatch", nil, 1)
+			if err1 != nil {
+				return nil, err1
+			}
+
 			log.Infof(c, "World Cup: match: %v allocateIDs ok", matchID)
 
 			matchkey := datastore.NewKey(c, "Tmatch", "", matchID, nil)

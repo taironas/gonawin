@@ -59,14 +59,14 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentId, err := handlers.PermalinkID(r, c, 3)
 		if err != nil {
 			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var t *mdl.Tournament
 		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		filter := r.FormValue("filter")
@@ -91,7 +91,7 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Update Match handler.
@@ -106,25 +106,25 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
 
 		if err != nil {
 			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
 			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeTournamentNotFound)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
 		if err2 != nil {
 			log.Errorf(c, "%s error extracting permalink err:%v", desc, err2)
-			return &helpers.BadRequest{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
 		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
 		if match == nil {
 			log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
 		}
 
 		result := r.FormValue("result")
@@ -134,20 +134,20 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
 		r2 := 0
 		if len(results) != 2 {
 			log.Errorf(c, "%s unable to get results, lenght not right: %v", desc, results)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 		if r1, err = strconv.Atoi(results[0]); err != nil {
 			log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 		if r2, err = strconv.Atoi(results[1]); err != nil {
 			log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
 		if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
 			log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IdNumber, err)
-			return &helpers.NotFound{errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 
 		}
 
@@ -173,7 +173,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
 
 		return templateshlp.RenderJson(w, c, mjson)
 	}
-	return &helpers.BadRequest{errors.New(helpers.ErrorCodeNotSupported)}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // From a tournament entity return an array of MatchJson data structure.
