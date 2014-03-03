@@ -1,9 +1,5 @@
 /*main.css*/
 
-html, body {
-  height: 100%;
-}
-
 body {
   background-color: #f5f5f5;
 }
@@ -15,18 +11,6 @@ p {
 
 .centered {
   text-align: center;
-}
-
-
-#wrap {
-  min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  margin: 0 auto -60px;
-}
-
-#push {
-  height: 60px;
 }
 
 .navbar-navy {

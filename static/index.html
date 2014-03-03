@@ -10,17 +10,14 @@
     <link type="text/css" rel="stylesheet" href="/static/css/main_dirty_lily.css" />
   </head>
   <body>
-    <div id="wrap">
-      <div ng-include src="'templates/partials/navigation.html'"></div>
-       <div ng-switch on="currentUser != undefined">
-          <div ng-switch-when="true">
-            <ng-include src="'templates/main.html'"></ng-include>
-          </div>
-          <div ng-switch-default>
-            <ng-view><ng-view>
-          </div>
-      </div>
-      <div id="push"></div>
+    <div ng-include src="'templates/partials/navigation.html'"></div>
+     <div ng-switch on="currentUser != undefined">
+        <div ng-switch-when="true">
+          <ng-include src="'templates/main.html'"></ng-include>
+        </div>
+        <div ng-switch-default>
+          <ng-view><ng-view>
+        </div>
     </div>
     <div ng-include src="'templates/partials/footer.html'"></div>
     <div id="fb-root"></div>
