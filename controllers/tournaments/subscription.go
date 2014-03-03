@@ -142,6 +142,12 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+    
+    // publish new activity
+		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -182,6 +188,12 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		var tJson mdl.TournamentJson
 		fieldsToKeep := []string{"Id", "Name"}
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+    
+    // publish new activity
+		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
