@@ -54,10 +54,14 @@ func RankingJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Infof(c, "%s ready to build a user array", desc)
 		users := t.RankingByUser(c)
 
+		fieldsToKeep := []string{"Id", "Name", "Score"}
+		usersJson := make([]mdl.UserJson, len(users))
+		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+
 		data := struct {
-			Users []*mdl.User
+			Users []mdl.UserJson
 		}{
-			users,
+			usersJson,
 		}
 
 		return templateshlp.RenderJson(w, c, data)
