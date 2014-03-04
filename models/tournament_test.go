@@ -24,7 +24,7 @@ func TestCreateTournament(t *testing.T) {
 		want       *Tournament
 	}{
 		{
-			name: "Nil entity",
+			name: "Simple create",
 			tournament: Tournament{
 				Name:        "Foo",
 				Description: "Foo description",
@@ -64,5 +64,44 @@ func TestCreateTournament(t *testing.T) {
 			len(got.TeamIds) != len(test.want.TeamIds) {
 			t.Errorf("TTeamById(%q): got %v wanted %v", test.name, *got, *test.want)
 		}
+	}
+}
+
+func TestDestroyTournament(t *testing.T) {
+	c, err := aetest.NewContext(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	log.Infof(c, "Test Destory Tournament")
+
+	test := struct {
+		name       string
+		tournament Tournament
+		want *Tournament
+	}{
+		name: "destroy tournament",
+		tournament:Tournament{
+			Name:        "Foo",
+			Description: "Foo description",
+			Start:       time.Now(),
+			End:         time.Now(),
+			AdminId:     int64(0),
+		},
+		want:nil,
+	}
+	
+	// create tournament
+	tournament, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminId)
+	
+	// destory it
+	if got := tournament.Destroy(c); got != nil{
+		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
+	}
+
+	// make a query on datastore to be sure it is not there.
+	if got, err1 := TournamentById(c, tournament.Id); err1 == nil{
+		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
 	}
 }
