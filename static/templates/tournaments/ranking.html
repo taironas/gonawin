@@ -13,37 +13,48 @@
     </div>
   </div>
 </div>
-
-<!-- Teams -->
+<!-- links -->
 <div class="row">
   <div class="col-md-1"></div>
-  <div class="teams col-md-11">
-    <table class="table table-striped">
-      <thead><tr><th>Teams</th><th>Score</th></tr></thead>
-      <tbody>
-	<tr ng-repeat="t in rankingData.Teams">
-          <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	  <td>{{t.Score}}</td>
-	</tr>
-      </tbody>
-    </table>
+  <div class="links col-md-3">
+    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=users">Users rank</a><br>
+    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=teams">Teams rank</a><br>
+  </div>
+</div>
+ <!-- / links -->
+<div ng-if="rankingData.Teams">
+  <!-- Teams -->
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="teams col-md-11">
+      <table class="table table-striped">
+	<thead><tr><th>Teams</th><th>Score</th></tr></thead>
+	<tbody>
+	  <tr ng-repeat="t in rankingData.Teams">
+            <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+	    <td>{{t.Score}}</td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
   </div>
 </div>
 <!-- / Teams -->
-
 <!-- participants -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="participants col-md-11">
-    <table class="table table-striped">
-      <thead><tr><th>Participants</th><th>Score</th></tr></thead>
-      <tbody>
-	<tr ng-repeat="u in rankingData.Users">
-  	  <td><a href="/ng#/users/{{u.Id}}">{{u.Username}}</a></td>
-	  <td>{{u.Score}}</td>
-	</tr>
-      </tbody>
-    </table>
+<div ng-if="rankingData.Users">
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="participants col-md-11">
+      <table class="table table-striped">
+	<thead><tr><th>Participants</th><th>Score</th></tr></thead>
+	<tbody>
+	  <tr ng-repeat="u in rankingData.Users">
+  	    <td><a href="/ng#/users/{{u.Id}}">{{u.Username}}</a></td>
+	    <td>{{u.Score}}</td>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
   </div>
 </div>
 <!-- / participants -->

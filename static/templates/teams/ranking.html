@@ -16,14 +16,16 @@
   <dd>{{teamData.Joined}}</dd>
 </dl>
 
-<div class="players">
-  <table class="table table-striped">
-    <thead><tr><th>Players</th><th>Score</th></tr></thead>
-    <tbody>
-      <tr ng-repeat="u in rankingData.Users">
-	<td><a href="/ng#/users/show/{{u.Id}}">{{u.Username}}</a></td>
-	<td>{{u.Score}}</td>
-      </tr>
-    </tbody>
-  </table>
+<div ng-if="rankingData.Users">
+  <div class="players">
+    <table class="table table-striped">
+      <thead><tr><th>Players</th><th>Score</th></tr></thead>
+      <tbody>
+	<tr ng-repeat="u in rankingData.Users">
+	  <td><a href="/ng#/users/show/{{u.Id}}">{{u.Username}}</a></td>
+	  <td>{{u.Score}}</td>
+	</tr>
+      </tbody>
+    </table>
+  </div>
 </div>
