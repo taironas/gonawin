@@ -161,5 +161,7 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+  // predicate is udate for ranking tables
+  $scope.predicate = '';
 
 }]);

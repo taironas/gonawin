@@ -28,9 +28,14 @@
     <div class="col-md-1"></div>
     <div class="teams col-md-11">
       <table class="table table-striped">
-	<thead><tr><th>Teams</th><th>Score</th></tr></thead>
+	<thead>
+	  <tr>
+	    <th>Teams</th>
+	    <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+	  </tr>
+	</thead>
 	<tbody>
-	  <tr ng-repeat="t in rankingData.Teams">
+	  <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
             <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
 	    <td>{{t.Score}}</td>
 	  </tr>
@@ -46,10 +51,15 @@
     <div class="col-md-1"></div>
     <div class="participants col-md-11">
       <table class="table table-striped">
-	<thead><tr><th>Participants</th><th>Score</th></tr></thead>
+	<thead>
+	  <tr>
+	    <th>Participants</th>
+	    <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+	  </tr>
+	</thead>
 	<tbody>
-	  <tr ng-repeat="u in rankingData.Users">
-  	    <td><a href="/ng#/users/{{u.Id}}">{{u.Username}}</a></td>
+	  <tr ng-repeat="u in rankingData.Users |  orderBy:predicate:reverse">
+  	    <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
 	    <td>{{u.Score}}</td>
 	  </tr>
 	</tbody>

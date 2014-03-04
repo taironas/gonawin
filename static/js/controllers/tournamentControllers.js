@@ -384,6 +384,8 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
   $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+  // predicate is udate for ranking tables
+  $scope.predicate = '';
 
 }]);
 
