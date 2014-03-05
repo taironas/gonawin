@@ -49,9 +49,9 @@ func TestCreateTournament(t *testing.T) {
 	for _, test := range tests {
 		got, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminId)
 		if got == nil && test.want != nil {
-			t.Errorf("TTeamById(%q): got nil wanted %v", test.name, *test.want)
+			t.Errorf("TestCreateTournament(%q): got nil wanted %v", test.name, *test.want)
 		} else if got != nil && test.want == nil {
-			t.Errorf("TTeamById(%q): got %v wanted nil", test.name, *got)
+			t.Errorf("TestCreateTournament(%q): got %v wanted nil", test.name, *got)
 		} else if got == nil && test.want == nil {
 			// This is OK
 		} else if got.Name != test.want.Name ||
@@ -62,7 +62,7 @@ func TestCreateTournament(t *testing.T) {
 			len(got.Matches2ndStage) != len(test.want.Matches2ndStage) ||
 			len(got.UserIds) != len(test.want.UserIds) ||
 			len(got.TeamIds) != len(test.want.TeamIds) {
-			t.Errorf("TTeamById(%q): got %v wanted %v", test.name, *got, *test.want)
+			t.Errorf("TestCreateTournament(%q): got %v wanted %v", test.name, *got, *test.want)
 		}
 	}
 }
