@@ -195,12 +195,12 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		// delete the tournament
 		tournament.Destroy(c)
-    
-    // publish new activity
-    actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
-    object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-    target := mdl.ActivityEntity{}
-    mdl.Publish(c, "tournament", "deleted tournament", actor, object, target, u.Id)
+
+		// publish new activity
+		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		target := mdl.ActivityEntity{}
+		mdl.Publish(c, "tournament", "deleted tournament", actor, object, target, u.Id)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "tournament has been destroyed")

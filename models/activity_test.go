@@ -19,29 +19,29 @@ func TestPublishActivity(t *testing.T) {
 	log.Infof(c, "Test Publish Activity")
 
 	tests := []struct {
-		name      string
-		activity  Activity
-		want      *Activity
+		name     string
+		activity Activity
+		want     *Activity
 	}{
 		{
 			name: "Simple publish",
 			activity: Activity{
-				Type:       "Team",
-				Verb:       "created",
-				Actor:      ActivityEntity { 1, "user", "John Smith"},
-				Object:     ActivityEntity { 10, "team", "TeamFoo"},
-				Target:     ActivityEntity { 100, "foo", "TargetFoo"},
-        Published:  time.Now(),
-        UserID:     1,
+				Type:      "Team",
+				Verb:      "created",
+				Actor:     ActivityEntity{1, "user", "John Smith"},
+				Object:    ActivityEntity{10, "team", "TeamFoo"},
+				Target:    ActivityEntity{100, "foo", "TargetFoo"},
+				Published: time.Now(),
+				UserID:    1,
 			},
 			want: &Activity{
-				Type:       "Team",
-				Verb:       "created",
-				Actor:      ActivityEntity { 1, "user", "John Smith"},
-				Object:     ActivityEntity { 10, "team", "TeamFoo"},
-				Target:     ActivityEntity { 100, "foo", "TargetFoo"},
-				Published:  time.Now(),
-				UserID:     1,
+				Type:      "Team",
+				Verb:      "created",
+				Actor:     ActivityEntity{1, "user", "John Smith"},
+				Object:    ActivityEntity{10, "team", "TeamFoo"},
+				Target:    ActivityEntity{100, "foo", "TargetFoo"},
+				Published: time.Now(),
+				UserID:    1,
 			},
 		},
 	}
