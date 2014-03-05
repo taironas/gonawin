@@ -13,7 +13,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'filter.fromNow',
   
   'navigationControllers',
-  'homeControllers',
+  'activitiesControllers',
   'userControllers',
   'teamControllers',
   'tournamentControllers',
@@ -40,9 +40,10 @@ purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $l
 
 purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
+    console.log('purpleWingApp.config');
     $routeProvider.
-      when('/', { templateUrl: 'templates/welcome.html', requireLogin: false }).
-      when('/home', { templateUrl: 'templates/home.html', controller: 'HomeCtrl', requireLogin: true }).
+      when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
+      when('/', { templateUrl:  'templates/home.html', requireLogin: true }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
@@ -114,6 +115,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
   }(document));
   
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
+    console.log('routeChangeStart');
     if($location.$$path === '/auth/twitter/callback')
     {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
@@ -126,12 +128,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
         if (next.requireLogin) {
           if(!$rootScope.currentUser) {
             // if you're logged out send to home page.
-            $location.path('/');
+            $location.path('/welcome');
+          } else if($location.path() === '/welcome') {
+              $location.path('/');
           }
-        } else {
-          if($rootScope.currentUser && $location.path() === '/') {
-            $location.path('/home');
-          }
+        } else if($rootScope.currentUser && $location.path() === '/welcome') {
+          $location.path('/');
         }
       });
     }
@@ -139,6 +141,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
   
   $rootScope.$on('event:google-plus-signin-success', function (event, authResult) {
     // User successfully authorized the G+ App!
+    console.log('event:google-plus-signin-success');
     Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
       Session.fetchUser({  access_token: authResult.access_token,
                            provider: 'google',
@@ -150,7 +153,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
 
        sAuth.storeCookies(authResult.access_token, $rootScope.currentUser.Auth, $rootScope.currentUser.Id);
        
-       $location.path('/home');
+       $location.path('/');
       });
     });
   });

@@ -47,7 +47,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
          
           _self.storeCookies(accessToken, _self.currentUser.Auth, _self.currentUser.Id);
          
-          $location.path('/home');
+          $location.path('/');
         });
       });
     },
@@ -83,7 +83,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
          
          _self.storeCookies(oauthToken, _self.currentUser.Auth, _self.currentUser.Id);
          
-         $location.path('/home');
+         $location.path('/');
       });
     }
   }

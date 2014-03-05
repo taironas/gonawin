@@ -1,9 +1,9 @@
 'use strict';
 
-var homeControllers = angular.module('homeControllers', []);
+var activitiesControllers = angular.module('activitiesControllers', []);
 
-homeControllers.controller('HomeCtrl', ['$scope', '$location', 'Activity', function($scope, $location, Activity) {
-  console.log("home controller");
+activitiesControllers.controller('ActivitiesCtrl', ['$scope', '$location', 'Activity', function($scope, $location, Activity) {
+  console.log("activities controller");
   $scope.activities = Activity.query();
   
   $scope.activities.$promise.then(function(result){
@@ -12,7 +12,7 @@ homeControllers.controller('HomeCtrl', ['$scope', '$location', 'Activity', funct
   });
 }]);
 
-homeControllers.directive('gwActivities', function() {
+activitiesControllers.directive('gwActivities', function() {
   return {
     templateUrl: 'templates/directives/activities.html'
   };
