@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"appengine/aetest"
+	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
 )
@@ -95,6 +96,13 @@ func TestDestroyTournament(t *testing.T) {
 	// create tournament
 	tournament, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminId)
 
+	// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
+	dummy := Tournament{}
+	key := TournamentKeyById(c, tournament.Id)
+	if err := datastore.Get(c, key, &dummy); err != nil {
+		t.Fatal(err)
+	}
+
 	// destory it
 	if got := tournament.Destroy(c); got != nil {
 		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
@@ -174,17 +182,31 @@ func TestFindTournaments(t *testing.T) {
 			},
 		},
 	}
+
 	// create tournaments
 	for _, test := range tests {
 		for i, _ := range test.tournaments {
-			if _, err := CreateTournament(c, test.tournaments[i].Name, test.tournaments[i].Description, test.tournaments[i].Start, test.tournaments[i].End, test.tournaments[i].AdminId); err != nil {
-				t.Errorf("TestFindTournaments(%q): error creating tournaments", test.name)
-
+			if got, err1 := CreateTournament(
+				c,
+				test.tournaments[i].Name,
+				test.tournaments[i].Description,
+				test.tournaments[i].Start,
+				test.tournaments[i].End,
+				test.tournaments[i].AdminId); err1 != nil {
+				t.Errorf("TestFindTournaments(%q): error creating tournaments: %v", test.name, err1)
+			} else {
+				// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
+				dummy := Tournament{}
+				key := TournamentKeyById(c, got.Id)
+				if err := datastore.Get(c, key, &dummy); err != nil {
+					t.Fatal(err)
+				}
 			}
 		}
 	}
 
 	// search tournaments
+	log.Infof(c, "Test Find Tournament: start search ok tournaments")
 	for _, test := range tests {
 		for _, query := range test.queries {
 			got := FindTournaments(c, "KeyName", query)
