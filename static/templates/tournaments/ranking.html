@@ -31,13 +31,13 @@
 	<thead>
 	  <tr>
 	    <th>Teams</th>
-	    <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+	    <th><a href="" ng-click="predicate = 'Accuracy'; reverse=!reverse">Accuracy</a></th>
 	  </tr>
 	</thead>
 	<tbody>
 	  <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
             <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	    <td>{{t.Score}}</td>
+	    <td>{{t.Accuracy}}</td>
 	  </tr>
 	</tbody>
       </table>

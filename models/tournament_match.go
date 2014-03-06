@@ -186,7 +186,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 			log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.Id, err)
 		}
 		// update score for all teams.
-		if err1 := t.UpdateTeamsScore(c, m); err1 != nil {
+		if err1 := t.UpdateTeamsAccuracy(c, m); err1 != nil {
 			log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.Id, err)
 		}
 	}

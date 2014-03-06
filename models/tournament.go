@@ -424,6 +424,6 @@ func (t *Tournament) RankingByUser(c appengine.Context) []*User {
 
 func (t *Tournament) RankingByTeam(c appengine.Context) []*Team {
 	teams := t.Teams(c)
-	sort.Sort(TeamByScore(teams))
+	sort.Sort(TeamByAccuracy(teams))
 	return teams
 }

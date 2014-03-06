@@ -46,25 +46,45 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
-// Update the score of the teams members of the tournament.
-func (t *Tournament) UpdateTeamsScore(c appengine.Context, m *Tmatch) error {
+// Update the accuracy of the teams members of the tournament.
+func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 	desc := "Update Teams score:"
 	teams := t.Teams(c)
 
 	teamsToUpdate := make([]*Team, 0)
-	for i, team := range teams {
-		teamScore := int64(0)
-		for _, u := range team.Players(c) {
+	for _, team := range teams {
+		sumScore := int64(0)
+		players := team.Players(c)
+		max := 3 * len(players) // maximum score for team in current match.
+		for _, u := range players {
 			if score, err := u.ScoreForMatch(c, m); err != nil {
 				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
 			} else {
-				teamScore += score
+				sumScore += score
 			}
 		}
-		if teamScore > 0 {
-			teams[i].Score += teamScore
-			teamsToUpdate = append(teamsToUpdate, teams[i])
+		// compute current accuracy, get accuracy entity , add accuracy to entity.
+		newAcc := float64(sumScore) / float64(max)
+		if acc := team.TournamentAccuracy(c, t); acc == nil {
+			log.Infof(c, "%s create accuracy if not exist", desc)
+			if acc1, err := CreateAccuracy(c, team.Id, t.Id); err != nil {
+				log.Errorf(c, "%s unable to create accuracy", desc)
+				return err
+			} else {
+				//team.AddAccuracyId(c, acc1.ID)
+				log.Infof(c, "%s accuracy exists now, lets update it", desc)
+				if err := acc1.Add(c, newAcc); err != nil {
+					log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
+				}
+			}
+		} else {
+			log.Infof(c, "%s accuracy entity exists, lets update it", desc)
+			if err := acc.Add(c, newAcc); err != nil {
+				log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
+			}
 		}
+		// ToDo: update team overall accuracy.
+		// go through all acc of team, sum all last acc, divide by number of acc of team.
 	}
 	if err := UpdateTeams(c, teamsToUpdate); err != nil {
 		log.Errorf(c, "%s unable udpate teams scores: %v", desc, err)

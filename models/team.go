@@ -39,7 +39,8 @@ type Team struct {
 	Created       time.Time
 	UserIds       []int64 // ids of Users <=> members of the team.
 	TournamentIds []int64 // ids of Tournaments <=> Tournaments the team subscribed.
-	Score         int64   // Team score
+	Accuracy      float64 // Overall Team accuracy.
+	AccuracyIds   []int64 // ids of Accuracies <=> history of progresion of team.
 }
 
 type TeamJson struct {
@@ -51,7 +52,8 @@ type TeamJson struct {
 	Created       *time.Time `json:",omitempty"`
 	UserIds       *[]int64   `json:",omitempty"`
 	TournamentIds *[]int64   `json:",omitempty"`
-	Score         *int64     `json:",omitempty"`
+	Accuracy      *float64   `json:",omitempty"`
+	AccuracyIds   *[]int64   `json:",omitempty"` // ids of Accuracies <=> history of progresion of team.
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -63,9 +65,9 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	}
 
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
-	emtpyArray := make([]int64, 0)
+	emptyArray := make([]int64, 0)
 
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emtpyArray, emtpyArray, int64(0)}
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emptyArray}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -294,6 +296,23 @@ func (t *Team) Tournaments(c appengine.Context) []*Tournament {
 	return tournaments
 }
 
+// from a team return an array of tournament the user is involved in.
+func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
+
+	var accs []*Accuracy
+
+	for _, aId := range t.AccuracyIds {
+		a, err := AccuracyById(c, aId)
+		if err != nil {
+			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", aId)
+		} else {
+			accs = append(accs, a)
+		}
+	}
+
+	return accs
+}
+
 // Remove a user Id in the UserId array.
 func (t *Team) RemoveUserId(c appengine.Context, uId int64) error {
 
@@ -354,8 +373,17 @@ func (t *Team) RankingByUser(c appengine.Context) []*User {
 }
 
 // Sort teams by score
-type TeamByScore []*Team
+type TeamByAccuracy []*Team
 
-func (a TeamByScore) Len() int           { return len(a) }
-func (a TeamByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a TeamByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }
+func (a TeamByAccuracy) Len() int           { return len(a) }
+func (a TeamByAccuracy) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accuracy }
+
+func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) *Accuracy {
+	//query accuracy
+	accs := AccuracyByTeamTournament(c, t.Id, tournament.Id)
+	if len(accs) == 0 || len(accs) > 1 {
+		return nil
+	}
+	return accs[0]
+}

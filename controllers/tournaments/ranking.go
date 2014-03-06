@@ -78,7 +78,7 @@ func RankingJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Infof(c, "%s ready to build team array", desc)
 			teams := t.RankingByTeam(c)
 
-			fieldsToKeep := []string{"Id", "Name", "Score"}
+			fieldsToKeep := []string{"Id", "Name", "Accuracy"}
 			teamsJson := make([]mdl.TeamJson, len(teams))
 			helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 
