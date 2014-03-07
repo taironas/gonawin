@@ -382,7 +382,7 @@ func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
 	return nil
 }
 
-// Adds a team Id in the UserId array.
+// Adds a user Id in the UserId array.
 func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
 
 	if hasUser, _ := t.ContainsUserId(uId); hasUser {

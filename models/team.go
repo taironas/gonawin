@@ -192,6 +192,9 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 	if err := t.AddUserId(c, u.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
+	if err := t.AddUserToTournaments(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf("Team.Join, error adding user:%v to teams tournaments Error: %v", u.Id, err))
+	}
 	return nil
 }
 
@@ -204,7 +207,13 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := t.RemoveUserId(c, u.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err))
 	}
+	// sar: 7 mar 2014
+	// when a user leaves a team should we unsubscribe him from the tournaments of that team?
+	// for now I would say no.
 
+	// if err := t.RemoveUserFromTournaments(c, u); err != nil{
+	// 	return errors.New(fmt.Sprintf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.Id, err))
+	// }
 	return nil
 
 }
@@ -345,6 +354,21 @@ func (t *Team) AddUserId(c appengine.Context, uId int64) error {
 	t.UserIds = append(t.UserIds, uId)
 	if err := t.Update(c); err != nil {
 		return err
+	}
+	return nil
+}
+
+// Add user to teams tournaments
+func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
+
+	for _, tId := range t.TournamentIds {
+		if tournament, err := TournamentById(c, tId); err != nil {
+			log.Errorf(c, "Cannot find tournament with Id=%d", t.Id)
+		} else {
+			if err := tournament.AddUserId(c, uId); err != nil {
+				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%v to tournament:%v", uId, tId)
+			}
+		}
 	}
 	return nil
 }
