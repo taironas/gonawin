@@ -46,7 +46,7 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
-// Update the accuracy of the teams members of the tournament.
+// Update the accuracy of the teams members in a specific tournament.
 func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 	desc := "Update Teams score:"
 	teams := t.Teams(c)
@@ -65,13 +65,13 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 		// compute current accuracy, get accuracy entity , add accuracy to entity.
 		newAcc := float64(sumScore) / float64(max)
-		if acc := team.TournamentAccuracy(c, t); acc == nil {
+		if acc, _ := team.TournamentAcc(c, t); acc == nil {
 			log.Infof(c, "%s create accuracy if not exist", desc)
 			if acc1, err := CreateAccuracy(c, team.Id, t.Id); err != nil {
 				log.Errorf(c, "%s unable to create accuracy", desc)
 				return err
 			} else {
-				//team.AddAccuracyId(c, acc1.ID)
+				team.AddTournamentAcc(c, acc1.ID, t.Id)
 				log.Infof(c, "%s accuracy exists now, lets update it", desc)
 				if err := acc1.Add(c, newAcc); err != nil {
 					log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)

@@ -7,6 +7,7 @@ import (
 	"appengine/aetest"
 	"appengine/datastore"
 
+	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
@@ -214,23 +215,10 @@ func TestFindTournaments(t *testing.T) {
 				t.Errorf("TestFindTournaments(%q): got array of %v  wanted %v: query:%v t:%v", test.name, len(got), test.want.Len, query, got)
 			}
 			for _, tour := range got {
-				var a arrayOfStrings
-				a = test.want.Names
-				if !a.Contains(tour.Name) {
+				if !helpers.SliceContains(test.want.Names, tour.Name) {
 					t.Errorf("TestFindTournaments(%q): name not found. got %v  wanted among %v", test.name, tour.Name, test.want.Names)
 				}
 			}
 		}
 	}
-}
-
-type arrayOfStrings []string
-
-func (a arrayOfStrings) Contains(s string) bool {
-	for _, e := range a {
-		if e == s {
-			return true
-		}
-	}
-	return false
 }

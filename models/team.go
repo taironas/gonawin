@@ -30,30 +30,36 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// Accuracy of Tournament
+type AccOfTournament struct {
+	AccID  int64 // id of accuracy entity
+	TourID int64 // id of tournament
+}
+
 type Team struct {
-	Id            int64
-	KeyName       string
-	Name          string
-	AdminId       int64
-	Private       bool
-	Created       time.Time
-	UserIds       []int64 // ids of Users <=> members of the team.
-	TournamentIds []int64 // ids of Tournaments <=> Tournaments the team subscribed.
-	Accuracy      float64 // Overall Team accuracy.
-	AccuracyIds   []int64 // ids of Accuracies <=> history of progresion of team.
+	Id               int64
+	KeyName          string
+	Name             string
+	AdminId          int64
+	Private          bool
+	Created          time.Time
+	UserIds          []int64           // ids of Users <=> members of the team.
+	TournamentIds    []int64           // ids of Tournaments <=> Tournaments the team subscribed.
+	Accuracy         float64           // Overall Team accuracy.
+	AccOfTournaments []AccOfTournament // ids of Accuracies for each tournament the team is participating on .
 }
 
 type TeamJson struct {
-	Id            *int64     `json:",omitempty"`
-	KeyName       *string    `json:",omitempty"`
-	Name          *string    `json:",omitempty"`
-	AdminId       *int64     `json:",omitempty"`
-	Private       *bool      `json:",omitempty"`
-	Created       *time.Time `json:",omitempty"`
-	UserIds       *[]int64   `json:",omitempty"`
-	TournamentIds *[]int64   `json:",omitempty"`
-	Accuracy      *float64   `json:",omitempty"`
-	AccuracyIds   *[]int64   `json:",omitempty"` // ids of Accuracies <=> history of progresion of team.
+	Id            *int64             `json:",omitempty"`
+	KeyName       *string            `json:",omitempty"`
+	Name          *string            `json:",omitempty"`
+	AdminId       *int64             `json:",omitempty"`
+	Private       *bool              `json:",omitempty"`
+	Created       *time.Time         `json:",omitempty"`
+	UserIds       *[]int64           `json:",omitempty"`
+	TournamentIds *[]int64           `json:",omitempty"`
+	Accuracy      *float64           `json:",omitempty"`
+	AccuracyIds   *[]AccOfTournament `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -66,8 +72,8 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 	emptyArray := make([]int64, 0)
-
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emptyArray}
+	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -296,20 +302,19 @@ func (t *Team) Tournaments(c appengine.Context) []*Tournament {
 	return tournaments
 }
 
-// from a team return an array of tournament the user is involved in.
+// from a team return an array of accuracy the user is involved in.
 func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 
 	var accs []*Accuracy
 
-	for _, aId := range t.AccuracyIds {
-		a, err := AccuracyById(c, aId)
+	for _, acc := range t.AccOfTournaments {
+		a, err := AccuracyById(c, acc.AccID)
 		if err != nil {
-			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", aId)
+			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccID)
 		} else {
 			accs = append(accs, a)
 		}
 	}
-
 	return accs
 }
 
@@ -379,11 +384,46 @@ func (a TeamByAccuracy) Len() int           { return len(a) }
 func (a TeamByAccuracy) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accuracy }
 
-func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) *Accuracy {
+func (t *Team) TournamentAcc(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
-	accs := AccuracyByTeamTournament(c, t.Id, tournament.Id)
-	if len(accs) == 0 || len(accs) > 1 {
-		return nil
+	for _, acc := range t.AccOfTournaments {
+		if acc.TourID == tournament.Id {
+			return AccuracyById(c, acc.AccID)
+		}
 	}
-	return accs[0]
+	return nil, errors.New("model/team: accuracy not found")
+}
+
+// add accuracy to team entity and run update.
+func (t *Team) AddTournamentAcc(c appengine.Context, accID int64, tourID int64) error {
+
+	tournamentExist := false
+	for _, tid := range t.TournamentIds {
+		if tid == tourID {
+			tournamentExist = true
+			break
+		}
+	}
+	if !tournamentExist {
+		return errors.New("model/team: not member of tournament")
+	}
+	accExist := false
+	for _, acc := range t.AccOfTournaments {
+		if acc.AccID == accID {
+			accExist = true
+			break
+		}
+	}
+	if accExist {
+		return errors.New("model/team: accuracy allready present")
+	}
+
+	var a AccOfTournament
+	a.AccID = accID
+	a.TourID = tourID
+	t.AccOfTournaments = append(t.AccOfTournaments, a)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
 }
