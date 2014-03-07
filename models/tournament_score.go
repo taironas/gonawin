@@ -70,6 +70,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 
 		// compute current accuracy, get accuracy entity , add accuracy to entity.
 		newAcc := float64(sumScore) / float64(max)
+		computedAcc := float64(0)
 		if acc, _ := team.TournamentAcc(c, t); acc == nil {
 			log.Infof(c, "%s create accuracy if not exist", desc)
 			if acc1, err := CreateAccuracy(c, team.Id, t.Id); err != nil {
@@ -78,19 +79,27 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 			} else {
 				team.AddTournamentAcc(c, acc1.Id, t.Id)
 				log.Infof(c, "%s accuracy exists now, lets update it", desc)
-				if err := acc1.Add(c, newAcc); err != nil {
+				var err error
+				if computedAcc, err = acc1.Add(c, newAcc); err != nil {
 					log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
 				}
 			}
 		} else {
 			log.Infof(c, "%s accuracy entity exists, lets update it", desc)
-			if err := acc.Add(c, newAcc); err != nil {
+			var err error
+			if computedAcc, err = acc.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
 			}
 		}
 
 		// ToDo: update team overall accuracy.
-		// go through all acc of team, sum all last acc, divide by number of acc of team.
+		// go through all acc of team for this tournament, compute accuracy.
+		log.Infof(c, "%s ready to update accuracy for team: %v", desc, team.Id)
+		if err := team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
+			log.Errorf(c, "%s unable to update accuracy for team: %v, %v", desc, team.Id, err)
+		} else {
+			log.Infof(c, "%s update successfull: %v", desc, team.Id)
+		}
 	}
 	if err := UpdateTeams(c, teamsToUpdate); err != nil {
 		log.Errorf(c, "%s unable udpate teams scores: %v", desc, err)

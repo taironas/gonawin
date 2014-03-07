@@ -32,8 +32,8 @@ import (
 
 // Accuracy of Tournament
 type AccOfTournament struct {
-	AccID  int64 // id of accuracy entity
-	TourID int64 // id of tournament
+	AccuracyId   int64 // id of accuracy entity
+	TournamentId int64 // id of tournament
 }
 
 type Team struct {
@@ -317,9 +317,9 @@ func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 	var accs []*Accuracy
 
 	for _, acc := range t.AccOfTournaments {
-		a, err := AccuracyById(c, acc.AccID)
+		a, err := AccuracyById(c, acc.AccuracyId)
 		if err != nil {
-			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccID)
+			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccuracyId)
 		} else {
 			accs = append(accs, a)
 		}
@@ -411,19 +411,19 @@ func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accura
 func (t *Team) TournamentAcc(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
 	for _, acc := range t.AccOfTournaments {
-		if acc.TourID == tournament.Id {
-			return AccuracyById(c, acc.AccID)
+		if acc.TournamentId == tournament.Id {
+			return AccuracyById(c, acc.AccuracyId)
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")
 }
 
 // add accuracy to team entity and run update.
-func (t *Team) AddTournamentAcc(c appengine.Context, accID int64, tourID int64) error {
+func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) error {
 
 	tournamentExist := false
 	for _, tid := range t.TournamentIds {
-		if tid == tourID {
+		if tid == tourId {
 			tournamentExist = true
 			break
 		}
@@ -433,7 +433,7 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accID int64, tourID int64) 
 	}
 	accExist := false
 	for _, acc := range t.AccOfTournaments {
-		if acc.AccID == accID {
+		if acc.AccuracyId == accId {
 			accExist = true
 			break
 		}
@@ -443,11 +443,43 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accID int64, tourID int64) 
 	}
 
 	var a AccOfTournament
-	a.AccID = accID
-	a.TourID = tourID
+	a.AccuracyId = accId
+	a.TournamentId = tourId
 	t.AccOfTournaments = append(t.AccOfTournaments, a)
 	if err := t.Update(c); err != nil {
 		return err
 	}
+	return nil
+}
+
+// Compute accuracy for tournament id
+func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) error {
+	log.Infof(c, "Updating accuracy of team")
+
+	t.Accuracy = newAcc
+	if err := t.Update(c); err != nil {
+		log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
+		return err
+	}
+
+	// for _, accOfTournament := range t.AccOfTournaments{
+	// 	if accOfTournament.TournamentId != tId{
+	// 		continue
+	// 	}
+	// 	if acc, err := AccuracyById(c, accOfTournament.AccuracyId); err != nil && acc != nil{
+	// 		if len(acc.Accuracies) > 0{
+	// 			log.Infof(c, "Updating accuracy of team")
+	// 			t.Accuracy = acc.Accuracies[len(acc.Accuracies) - 1]
+	// 			if err := t.Update(c); err != nil{
+	// 				log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err )
+
+	// 				return err
+	// 			}
+	// 		}
+	// 	}else{
+	// 		log.Infof(c, "Accuracy not found %v", accOfTournament.AccuracyId )
+	// 	}
+	// 	break
+	// }
 	return nil
 }

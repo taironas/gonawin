@@ -55,12 +55,12 @@ func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64) (*Acc
 }
 
 // Add accuracy to array of accuracies in Accuracy entity
-func (a *Accuracy) Add(c appengine.Context, acc float64) error {
+func (a *Accuracy) Add(c appengine.Context, acc float64) (float64, error) {
 	// add acc with previous acc / # item + 1
 	sum := sum(&a.Accuracies)
 	newAcc := float64(sum+acc) / float64(len(a.Accuracies)+1)
 	a.Accuracies = append(a.Accuracies, newAcc)
-	return a.Update(c)
+	return newAcc, a.Update(c)
 }
 
 // Update a team given an id and a team pointer.
