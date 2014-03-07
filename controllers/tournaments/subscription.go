@@ -58,10 +58,9 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
+		u.Publish(c, "tournament", "joined tournament", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -98,10 +97,9 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
+		u.Publish(c, "tournament", "left tournament", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -144,10 +142,9 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "tournament", "joined tournament", actor, object, target, u.Id)
+		u.Publish(c, "tournament", "joined tournament", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -190,10 +187,9 @@ func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "tournament", "left tournament", actor, object, target, u.Id)
+		u.Publish(c, "tournament", "left tournament", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}

@@ -427,3 +427,16 @@ func (t *Tournament) RankingByTeam(c appengine.Context) []*Team {
 	sort.Sort(TeamByAccuracy(teams))
 	return teams
 }
+
+func (t *Tournament) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
+	var activity Activity
+	activity.Type = activityType
+	activity.Verb = verb
+	activity.Actor = ActivityEntity{ ID: t.Id, Type: "tournament", DisplayName: t.Name }
+	activity.Object = object
+	activity.Target = target
+	activity.Published = time.Now()
+  activity.CreatorID = t.Id
+
+	return activity.save(c)
+}

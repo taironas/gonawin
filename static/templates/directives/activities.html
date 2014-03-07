@@ -2,7 +2,8 @@
   <div class="activities-line"></div>
   <div class="row activity" ng-repeat="activity in activities">
     <span class="activity-icon">
-      <div ng-switch on="activity.Object.Type">
+      <div ng-switch on="activity.Type">
+        <i class="fa fa-check fa-lg fa-inverse" ng-switch-when="welcome"/>
         <i class="fa fa-users fa-lg fa-inverse" ng-switch-when="team"/>
         <i class="fa fa-trophy fa-lg fa-inverse" ng-switch-when="tournament"/>
       </div>

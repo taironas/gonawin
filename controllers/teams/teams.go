@@ -93,10 +93,9 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
-			actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 			object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 			target := mdl.ActivityEntity{}
-			mdl.Publish(c, "team", "created a new team", actor, object, target, u.Id)
+			u.Publish(c, "team", "created a new team", object, target)
 
 			// return the newly created team
 			var tJson mdl.TeamJson
@@ -259,10 +258,9 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		team.Destroy(c)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "team", "deleted team", actor, object, target, u.Id)
+		u.Publish(c, "team", "deleted team", object, target)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "team has been destroyed")
@@ -474,10 +472,9 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "team", "joined team", actor, object, target, u.Id)
+		u.Publish(c, "team", "joined team", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
@@ -517,10 +514,9 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "team", "left team", actor, object, target, u.Id)
+		u.Publish(c, "team", "left team", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}

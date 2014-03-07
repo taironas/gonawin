@@ -170,6 +170,8 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 		} else {
 			user = userCreate
 		}
+    // publish new activity
+		user.Publish(c, "welcome", "joined gonawin", ActivityEntity{}, ActivityEntity{})
 	}
 
 	return user, nil
@@ -351,3 +353,29 @@ type UserByScore []*User
 func (a UserByScore) Len() int           { return len(a) }
 func (a UserByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a UserByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }
+
+// Find all activities
+func (u *User) Activities(c appengine.Context) []*Activity {
+	q := datastore.NewQuery("Activity").Filter("CreatorID=", u.Id).Order("-Published")
+
+	var activities []*Activity
+
+	if _, err := q.GetAll(c, &activities); err != nil {
+		log.Errorf(c, "model/activity, FindAll: error occurred during GetAll call: %v", err)
+	}
+
+	return activities
+}
+
+func (u *User) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
+	var activity Activity
+	activity.Type = activityType
+	activity.Verb = verb
+	activity.Actor = ActivityEntity{ ID: u.Id, Type: "user", DisplayName: u.Username }
+	activity.Object = object
+	activity.Target = target
+	activity.Published = time.Now()
+  activity.CreatorID = u.Id
+
+	return activity.save(c)
+}

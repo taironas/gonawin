@@ -94,11 +94,9 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			var tJson mdl.TournamentJson
 			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
-			// publish new activity
-			actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 			object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 			target := mdl.ActivityEntity{}
-			mdl.Publish(c, "tournament", "created a tournament", actor, object, target, u.Id)
+			u.Publish(c, "tournament", "created a tournament", object, target)
 
 			return templateshlp.RenderJson(w, c, tJson)
 		}
@@ -197,10 +195,9 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournament.Destroy(c)
 
 		// publish new activity
-		actor := mdl.ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		mdl.Publish(c, "tournament", "deleted tournament", actor, object, target, u.Id)
+		u.Publish(c, "tournament", "deleted tournament", object, target)
 
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "tournament has been destroyed")

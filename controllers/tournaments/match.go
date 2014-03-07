@@ -170,6 +170,19 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
 
 		mjson.Result1 = match.Result1
 		mjson.Result2 = match.Result2
+    
+    // publish new activity
+    object := mdl.ActivityEntity{ID: match.TeamId1, Type: "tteam", DisplayName: mapIdTeams[match.TeamId1]}
+		target := mdl.ActivityEntity{ID: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
+    verb := ""
+    if match.Result1 > match.Result2 {
+      verb = "won against"
+    } else if match.Result1 < match.Result2 {
+      verb = "loose against"
+    } else {
+      verb = "tie against"
+    }
+		tournament.Publish(c, "match", verb, object, target)
 
 		return templateshlp.RenderJson(w, c, mjson)
 	}

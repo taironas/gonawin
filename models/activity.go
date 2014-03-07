@@ -34,7 +34,7 @@ type Activity struct {
 	Object    ActivityEntity
 	Target    ActivityEntity
 	Published time.Time
-	UserID    int64
+  CreatorID int64
 }
 
 type ActivityEntity struct {
@@ -46,29 +46,16 @@ type ActivityEntity struct {
 type ActivityJson struct {
 	ID        *int64          `json:",omitempty"`
 	Type      *string         `json:",omitempty"`
-	Verb      *string         `json:",omitempty"`
+	Verb     *string          `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
 	Object    *ActivityEntity `json:",omitempty"`
 	Target    *ActivityEntity `json:",omitempty"`
 	Published *time.Time      `json:",omitempty"`
-	UserID    *int64          `json:",omitempty"`
-}
-
-func Publish(c appengine.Context, activityType string, verb string, actor ActivityEntity, object ActivityEntity, target ActivityEntity, userID int64) error {
-	var activity Activity
-	activity.Type = activityType
-	activity.Verb = verb
-	activity.Actor = actor
-	activity.Object = object
-	activity.Target = target
-	activity.Published = time.Now()
-	activity.UserID = userID
-
-	return activity.create(c)
+  CreatorID *int64          `json:",omitempty"`
 }
 
 // creates an activity entity,
-func (a *Activity) create(c appengine.Context) error {
+func (a *Activity) save(c appengine.Context) error {
 	// create new user
 	id, _, err := datastore.AllocateIDs(c, "Activity", nil, 1)
 	if err != nil {
@@ -85,17 +72,4 @@ func (a *Activity) create(c appengine.Context) error {
 	}
 
 	return nil
-}
-
-// find all activities present in datastore
-func FindActivitiesByUser(c appengine.Context, userID int64) []*Activity {
-	q := datastore.NewQuery("Activity").Filter("UserID=", userID)
-
-	var activities []*Activity
-
-	if _, err := q.GetAll(c, &activities); err != nil {
-		log.Errorf(c, "model/activity, FindAll: error occurred during GetAll call: %v", err)
-	}
-
-	return activities
 }

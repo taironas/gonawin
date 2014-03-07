@@ -33,7 +33,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		activities := mdl.FindActivitiesByUser(c, u.Id)
+		activities := u.Activities(c)
 
 		fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
 		activitiesJson := make([]mdl.ActivityJson, len(activities))

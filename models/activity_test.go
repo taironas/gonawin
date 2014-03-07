@@ -9,14 +9,14 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
-func TestPublishActivity(t *testing.T) {
+func TestSaveActivity(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer c.Close()
 
-	log.Infof(c, "Test Publish Activity")
+	log.Infof(c, "Test Save Activity")
 
 	tests := []struct {
 		name     string
@@ -24,7 +24,7 @@ func TestPublishActivity(t *testing.T) {
 		want     *Activity
 	}{
 		{
-			name: "Simple publish",
+			name: "Simple save",
 			activity: Activity{
 				Type:      "Team",
 				Verb:      "created",
@@ -46,9 +46,9 @@ func TestPublishActivity(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		err := Publish(c, test.activity.Type, test.activity.Verb, test.activity.Actor, test.activity.Object, test.activity.Target, test.activity.UserID)
+		err := test.activity.save(c)
 		if err != nil {
-			t.Errorf("TestPublishActivity(%q): got '%v' error wanted no err", test.name, err)
+			t.Errorf("TestSaveActivity(%q): got '%v' error wanted no err", test.name, err)
 		}
 	}
 }
