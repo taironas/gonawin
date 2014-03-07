@@ -180,7 +180,7 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
     } else if match.Result1 < match.Result2 {
       verb = "loose against"
     } else {
-      verb = "tie against"
+      verb = "tied against"
     }
 		tournament.Publish(c, "match", verb, object, target)
 
