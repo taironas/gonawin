@@ -17,6 +17,6 @@ navigationControllers.controller('NavigationCtrl', ['$scope', '$location', '$coo
       $cookieStore.remove('user_id');
       $cookieStore.remove('logged_in');
       
-      $location.path('/');
+      $location.path('/welcome');
     };
 }]);
