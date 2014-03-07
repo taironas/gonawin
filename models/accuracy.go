@@ -17,77 +17,59 @@
 package models
 
 import (
-	"errors"
-
 	"appengine"
 	"appengine/datastore"
 
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// Accuracy entity, a placeholder for progression of the accuracy of a team in a tournament.
 type Accuracy struct {
-	ID           int64
-	TeamID       int64
-	TournamentID int64
+	Id           int64
+	TeamId       int64
+	TournamentId int64
 	Accuracies   []float64
 }
 
+// The Json version
 type AccuracyJson struct {
-	ID           *int64     `json:",omitempty"`
-	TeamID       *int64     `json:",omitempty"`
-	TournamentID *int64     `json:",omitempty"`
+	Id           *int64     `json:",omitempty"`
+	TeamId       *int64     `json:",omitempty"`
+	TournamentId *int64     `json:",omitempty"`
 	Accuracies   *[]float64 `json:",omitempty"`
 }
 
-func CreateAccuracy(c appengine.Context, teamID int64, tournamentID int64) (*Accuracy, error) {
-	var a Accuracy
-	a.TeamID = teamID
-	a.TournamentID = tournamentID
-	a.Accuracies = make([]float64, 0)
-
-	return a.create(c)
-}
-
-// creates an activity entity,
-func (a *Accuracy) create(c appengine.Context) (*Accuracy, error) {
-	// create new accuracy
-	id, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
+// create an Accuracy entity.
+func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64) (*Accuracy, error) {
+	aId, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
 	if err != nil {
-		log.Errorf(c, "model/accuracy, create: %v", err)
-		return nil, errors.New("model/accuracy, unable to allocate an identifier for Accuracy")
+		return nil, err
 	}
-
-	key := datastore.NewKey(c, "Accuracy", "", id, nil)
-
-	_, err = datastore.Put(c, key, a)
-	if err != nil {
-		log.Errorf(c, "model/accuracy, create: %v", err)
-		return nil, errors.New("model/accuracy, unable to put Accuracy in Datastore")
+	key := datastore.NewKey(c, "Accuracy", "", aId, nil)
+	accs := make([]float64, 0)
+	a := &Accuracy{aId, teamId, tournamentId, accs}
+	if _, err = datastore.Put(c, key, a); err != nil {
+		return nil, err
 	}
-
 	return a, nil
 }
 
+// Add accuracy to array of accuracies in Accuracy entity
 func (a *Accuracy) Add(c appengine.Context, acc float64) error {
 	// add acc with previous acc / # item + 1
-	log.Infof(c, "acc: %v", acc)
-	log.Infof(c, "accs: %v", a.Accuracies)
 	sum := sum(&a.Accuracies)
-	log.Infof(c, "sums ready : %v", sum)
 	newAcc := float64(sum+acc) / float64(len(a.Accuracies)+1)
-	log.Infof(c, "accuracy ready : %v", newAcc)
 	a.Accuracies = append(a.Accuracies, newAcc)
-	log.Infof(c, "append ready  : %v", a.Accuracies)
 	return a.Update(c)
 }
 
 // Update a team given an id and a team pointer.
 func (a *Accuracy) Update(c appengine.Context) error {
-
-	k := AccuracyKeyById(c, a.ID)
+	k := AccuracyKeyById(c, a.Id)
 	oldAcc := new(Accuracy)
 	if err := datastore.Get(c, k, oldAcc); err == nil {
 		if _, err = datastore.Put(c, k, a); err != nil {
+			log.Infof(c, "Accuracy.Update: error at Put, %v", err)
 			return err
 		}
 	}
@@ -103,23 +85,22 @@ func sum(a *[]float64) (sum float64) {
 
 // get an accuracy key given an id
 func AccuracyKeyById(c appengine.Context, id int64) *datastore.Key {
-
 	key := datastore.NewKey(c, "Accuracy", "", id, nil)
 	return key
 }
 
-func AccuracyByTeamTournament(c appengine.Context, teamID interface{}, tournamentID interface{}) []*Accuracy {
+func AccuracyByTeamTournament(c appengine.Context, teamId interface{}, tournamentId interface{}) []*Accuracy {
 
 	q := datastore.NewQuery("Accuracy").
-		Filter("TeamID"+" =", teamID).
-		Filter("TournamentID"+" =", tournamentID)
+		Filter("TeamId"+" =", teamId).
+		Filter("TournamentId"+" =", tournamentId)
 
 	var accs []*Accuracy
 
 	if _, err := q.GetAll(c, &accs); err == nil {
 		return accs
 	} else {
-		log.Errorf(c, " Team.Find, error occurred during GetAll: %v", err)
+		log.Errorf(c, "AccuracyByTeamTournament: error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -131,7 +112,7 @@ func AccuracyById(c appengine.Context, id int64) (*Accuracy, error) {
 	key := datastore.NewKey(c, "Accuracy", "", id, nil)
 
 	if err := datastore.Get(c, key, &a); err != nil {
-		log.Errorf(c, " accuracy not found : %v", err)
+		log.Errorf(c, " AccuracyById: accuracy not found : %v", err)
 		return &a, err
 	}
 	return &a, nil

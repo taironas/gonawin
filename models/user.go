@@ -170,7 +170,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 		} else {
 			user = userCreate
 		}
-    // publish new activity
+		// publish new activity
 		user.Publish(c, "welcome", "joined gonawin", ActivityEntity{}, ActivityEntity{})
 	}
 
@@ -371,11 +371,11 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ ID: u.Id, Type: "user", DisplayName: u.Username }
+	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
-  activity.CreatorID = u.Id
+	activity.CreatorID = u.Id
 
 	return activity.save(c)
 }

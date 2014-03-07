@@ -34,7 +34,7 @@ type Activity struct {
 	Object    ActivityEntity
 	Target    ActivityEntity
 	Published time.Time
-  CreatorID int64
+	CreatorID int64
 }
 
 type ActivityEntity struct {
@@ -46,12 +46,12 @@ type ActivityEntity struct {
 type ActivityJson struct {
 	ID        *int64          `json:",omitempty"`
 	Type      *string         `json:",omitempty"`
-	Verb     *string          `json:",omitempty"`
+	Verb      *string         `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
 	Object    *ActivityEntity `json:",omitempty"`
 	Target    *ActivityEntity `json:",omitempty"`
 	Published *time.Time      `json:",omitempty"`
-  CreatorID *int64          `json:",omitempty"`
+	CreatorID *int64          `json:",omitempty"`
 }
 
 // creates an activity entity,
