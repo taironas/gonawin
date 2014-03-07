@@ -18,7 +18,7 @@
 
 <div class="accuracy">
   <h2>Team accuracy:</h2>
-  <p>{{teamData.Team.Accuracy}}</p>
+  <p>{{100*teamData.Team.Accuracy | number:2}}%</p>
 </div>
 
 <div ng-if="rankingData.Users">
