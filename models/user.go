@@ -30,36 +30,44 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// Accuracy of Tournament
+type ScoreOfTournament struct {
+	ScoreId      int64 // id of score entity
+	TournamentId int64 // id of tournament
+}
+
 type User struct {
 	Id                    int64
 	Email                 string
 	Username              string
 	Name                  string
-	IsAdmin               bool    // is user gonawin admin.
-	Auth                  string  // authentication auth token
-	PredictIds            []int64 // current user predicts.
-	ArchivedPredictInds   []int64 // archived user predicts.
-	TournamentIds         []int64 // current tournament ids of user <=> tournaments user subscribed.
-	ArchivedTournamentIds []int64 // archived tournament ids of user <=> finnished tournametns user subscribed.
-	TeamIds               []int64 // current team ids of user <=> teams user belongs to.
-	Score                 int64   // overall user score.
+	IsAdmin               bool                // is user gonawin admin.
+	Auth                  string              // authentication auth token
+	PredictIds            []int64             // current user predicts.
+	ArchivedPredictInds   []int64             // archived user predicts.
+	TournamentIds         []int64             // current tournament ids of user <=> tournaments user subscribed.
+	ArchivedTournamentIds []int64             // archived tournament ids of user <=> finnished tournametns user subscribed.
+	TeamIds               []int64             // current team ids of user <=> teams user belongs to.
+	Score                 int64               // overall user score.
+	ScoreOfTournaments    []ScoreOfTournament // ids of Scores for each tournament the user is participating on.
 	Created               time.Time
 }
 
 type UserJson struct {
-	Id                    *int64     `json:",omitempty"`
-	Email                 *string    `json:",omitempty"`
-	Username              *string    `json:",omitempty"`
-	Name                  *string    `json:",omitempty"`
-	IsAdmin               *bool      `json:",omitempty"`
-	Auth                  *string    `json:",omitempty"`
-	PredictIds            *[]int64   `json:",omitempty"`
-	ArchivedPredictInds   *[]int64   `json:",omitempty"`
-	TournamentIds         *[]int64   `json:",omitempty"`
-	ArchivedTournamentIds *[]int64   `json:",omitempty"`
-	TeamIds               *[]int64   `json:",omitempty"`
-	Score                 *int64     `json:",omitempty"`
-	Created               *time.Time `json:",omitempty"`
+	Id                    *int64               `json:",omitempty"`
+	Email                 *string              `json:",omitempty"`
+	Username              *string              `json:",omitempty"`
+	Name                  *string              `json:",omitempty"`
+	IsAdmin               *bool                `json:",omitempty"`
+	Auth                  *string              `json:",omitempty"`
+	PredictIds            *[]int64             `json:",omitempty"`
+	ArchivedPredictInds   *[]int64             `json:",omitempty"`
+	TournamentIds         *[]int64             `json:",omitempty"`
+	ArchivedTournamentIds *[]int64             `json:",omitempty"`
+	TeamIds               *[]int64             `json:",omitempty"`
+	Score                 *int64               `json:",omitempty"`
+	ScoreOfTournaments    *[]ScoreOfTournament `json:",omitempty"`
+	Created               *time.Time           `json:",omitempty"`
 }
 
 // Creates a user entity.
@@ -73,8 +81,8 @@ func CreateUser(c appengine.Context, email string, username string, name string,
 	key := datastore.NewKey(c, "User", "", userId, nil)
 
 	emptyArray := make([]int64, 0)
-
-	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), time.Now()}
+	emptyScores := make([]ScoreOfTournament, 0)
+	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
