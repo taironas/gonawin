@@ -387,3 +387,53 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 
 	return activity.save(c)
 }
+
+func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {
+	//query score
+	for _, s := range u.ScoreOfTournaments {
+		if s.TournamentId == tournament.Id {
+			return ScoreById(c, s.ScoreId)
+		}
+	}
+	return nil, errors.New("model/team: score entity not found")
+}
+
+// add accuracy to team entity and run update.
+func (u *User) AddTournamentScore(c appengine.Context, scoreId int64, tourId int64) error {
+	log.Infof(c, "model/user: add tournament score")
+	tournamentExist := false
+	for _, tid := range u.TournamentIds {
+		if tid == tourId {
+			tournamentExist = true
+			break
+		}
+	}
+	if !tournamentExist {
+		log.Infof(c, "model/user: add tournament score, tournament does not exist")
+		return errors.New("model/team: not member of tournament")
+	}
+	scoreExist := false
+	for _, s := range u.ScoreOfTournaments {
+		if s.ScoreId == scoreId {
+			scoreExist = true
+			break
+		}
+	}
+	if scoreExist {
+		log.Infof(c, "model/user: add tournament score, score entity already member")
+		return errors.New("model/team: score allready present")
+	}
+	log.Infof(c, "model/user: add tournament score, create score entity")
+
+	var s ScoreOfTournament
+	s.ScoreId = scoreId
+	s.TournamentId = tourId
+	u.ScoreOfTournaments = append(u.ScoreOfTournaments, s)
+	log.Infof(c, "model/user: add tournament score, update user entity")
+	if err := u.Update(c); err != nil {
+		log.Infof(c, "model/user: add tournament score, something went wrong cannot update")
+		return err
+	}
+	log.Infof(c, "model/user: add tournament score, all good user updated")
+	return nil
+}

@@ -368,6 +368,11 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
 			if err := tournament.AddUserId(c, uId); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%v to tournament:%v", uId, tId)
 			}
+			if u, err := UserById(c, uId); err != nil {
+				if err1 := u.AddTournamentId(c, tournament.Id); err1 != nil {
+					log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%v to user:%v", tId, uId)
+				}
+			}
 		}
 	}
 	return nil
