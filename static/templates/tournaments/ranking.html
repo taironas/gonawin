@@ -37,7 +37,7 @@
 	<tbody>
 	  <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
             <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	    <td>{{t.Accuracy}}</td>
+	    <td>{{100*t.Accuracy | number:2}}%</td>
 	  </tr>
 	</tbody>
       </table>

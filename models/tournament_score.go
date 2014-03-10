@@ -94,7 +94,10 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 
 		// compute current accuracy, get accuracy entity , add accuracy to entity.
+		log.Infof(c, "sum of score is: %v", sumScore)
+		log.Infof(c, "max: %v", max)
 		newAcc := float64(sumScore) / float64(max)
+		log.Infof(c, "new Acc: %v", newAcc)
 		computedAcc := float64(0)
 		if acc, _ := team.TournamentAcc(c, t); acc == nil {
 			log.Infof(c, "%s create accuracy if not exist", desc)
@@ -135,8 +138,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 }
 
 // Computes the score to be given with respect to a match and a predict.
-func computeScore(m *Tmatch, p *Predict) int64 {
-
+func computeScore(c appengine.Context, m *Tmatch, p *Predict) int64 {
 	// exact result
 	if (m.Result1 == p.Result1) && (m.Result2 == p.Result2) {
 		return int64(3)
@@ -150,13 +152,13 @@ func computeScore(m *Tmatch, p *Predict) int64 {
 	// losign trend
 	trendL := (m.Result1 < m.Result2)
 	ptrendL := (p.Result1 < p.Result2)
-	if trendL == ptrendL == true {
+	if trendL && ptrendL {
 		return int64(1)
 	}
 	// tied trend
 	trendT := (m.Result1 == m.Result2)
 	ptrendT := (p.Result1 == p.Result2)
-	if trendT == ptrendT == true {
+	if trendT && ptrendT {
 		return int64(1)
 	}
 	// bad predict

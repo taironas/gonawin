@@ -19,7 +19,7 @@ package activities
 import (
 	"errors"
 	"net/http"
-  "sort"
+	"sort"
 
 	"appengine"
 
@@ -34,14 +34,14 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-    // fetch user activities
+		// fetch user activities
 		activities := u.Activities(c)
-    // fetch activities for user tournaments
-    for _, t := range u.Tournaments(c) {
-      activities = append(activities, t.Activities(c)...)
-      // sort current slice by date of publication
-      sort.Sort(activities)
-    }
+		// fetch activities for user tournaments
+		for _, t := range u.Tournaments(c) {
+			activities = append(activities, t.Activities(c)...)
+			// sort current slice by date of publication
+			sort.Sort(activities)
+		}
 
 		fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
 		activitiesJson := make([]mdl.ActivityJson, len(activities))
