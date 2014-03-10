@@ -42,7 +42,7 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 			// if does not exist, create it and update it
 			// else update it
 			if scoreEntity, _ := u.TournamentScore(c, t); scoreEntity == nil {
-				log.Infof(c, "%s create score entity if not exist", desc)
+				log.Infof(c, "%s create score entity as it does not exist", desc)
 				if scoreEntity1, err := CreateScore(c, u.Id, t.Id); err != nil {
 					log.Errorf(c, "%s unable to create score entity", desc)
 					return err

@@ -266,13 +266,25 @@ func (t *Team) ContainsTournamentId(id int64) (bool, int) {
 
 // Adds a tournament Id in the TournamentId array.
 func (t *Team) AddTournamentId(c appengine.Context, tId int64) error {
-
+	log.Infof(c, "team Add tournament id")
 	if hasTournament, _ := t.ContainsTournamentId(tId); hasTournament {
+		log.Infof(c, "team Add tournament id all ready member")
 		return errors.New(fmt.Sprintf("AddTournamentId, allready a member."))
 	}
+	log.Infof(c, "team Add tournament id append tournament ids")
 	t.TournamentIds = append(t.TournamentIds, tId)
 	if err := t.Update(c); err != nil {
 		return err
+	}
+	log.Infof(c, "team Add tournament id loop through all users and update arrays")
+	for _, uId := range t.UserIds {
+		user, err := UserById(c, uId)
+		if err != nil {
+			log.Errorf(c, "Team.AddTournamentId, user not found")
+		} else {
+			log.Infof(c, "team Add tournament id add tournament id%v", user.Id)
+			user.AddTournamentId(c, tId)
+		}
 	}
 	return nil
 }
@@ -361,16 +373,24 @@ func (t *Team) AddUserId(c appengine.Context, uId int64) error {
 // Add user to teams tournaments
 func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
 
+	log.Infof(c, "Team.AddUserToTournaments")
 	for _, tId := range t.TournamentIds {
 		if tournament, err := TournamentById(c, tId); err != nil {
 			log.Errorf(c, "Cannot find tournament with Id=%d", t.Id)
 		} else {
+			log.Infof(c, "Team.AddUserToTournaments add user id to tournament")
 			if err := tournament.AddUserId(c, uId); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%v to tournament:%v", uId, tId)
 			}
+			log.Infof(c, "Team.AddUserToTournaments get user")
 			if u, err := UserById(c, uId); err != nil {
+				log.Errorf(c, "User not found %v", uId)
+			} else {
+				log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v", u.Id)
 				if err1 := u.AddTournamentId(c, tournament.Id); err1 != nil {
 					log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%v to user:%v", tId, uId)
+				} else {
+					log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v successfully", u.Id)
 				}
 			}
 		}
