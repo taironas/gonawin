@@ -32,14 +32,14 @@ type Score struct {
 }
 
 // The Json version
-type ScoreyJson struct {
+type ScoreJson struct {
 	Id           *int64   `json:",omitempty"`
 	UserId       *int64   `json:",omitempty"`
 	TournamentId *int64   `json:",omitempty"`
 	Scores       *[]int64 `json:",omitempty"`
 }
 
-// create an Score entity.
+// create a Score entity.
 func CreateScore(c appengine.Context, userId int64, tournamentId int64) (*Score, error) {
 	sId, _, err := datastore.AllocateIDs(c, "Score", nil, 1)
 	if err != nil {
@@ -54,9 +54,8 @@ func CreateScore(c appengine.Context, userId int64, tournamentId int64) (*Score,
 	return s, nil
 }
 
-// Add score to array of scores in Score entity
+// Add accuracy to array of accuracies in Accuracy entity
 func (s *Score) Add(c appengine.Context, score int64) error {
-	// add acc with previous acc / # item + 1
 	s.Scores = append(s.Scores, score)
 	return s.Update(c)
 }
@@ -74,7 +73,7 @@ func (s *Score) Update(c appengine.Context) error {
 	return nil
 }
 
-// get a score key given an id
+// Get a score key given an id
 func ScoreKeyById(c appengine.Context, id int64) *datastore.Key {
 	key := datastore.NewKey(c, "Score", "", id, nil)
 	return key
@@ -91,7 +90,7 @@ func ScoreByUserTournament(c appengine.Context, userId interface{}, tournamentId
 	if _, err := q.GetAll(c, &scores); err == nil {
 		return scores
 	} else {
-		log.Errorf(c, "ScoreByTeamTournament: error occurred during GetAll: %v", err)
+		log.Errorf(c, "ScoreByUserTournament: error occurred during GetAll: %v", err)
 		return nil
 	}
 }
@@ -104,7 +103,7 @@ func ScoreById(c appengine.Context, id int64) (*Score, error) {
 
 	if err := datastore.Get(c, key, &s); err != nil {
 		log.Errorf(c, " ScoreById: Score not found : %v", err)
-		return nil, err
+		return &s, err
 	}
 	return &s, nil
 }
