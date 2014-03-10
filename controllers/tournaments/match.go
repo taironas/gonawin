@@ -176,11 +176,11 @@ func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) 
 		target := mdl.ActivityEntity{ID: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
 		verb := ""
 		if match.Result1 > match.Result2 {
-			verb = "won against"
+			verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
 		} else if match.Result1 < match.Result2 {
-			verb = "loose against"
+			verb = fmt.Sprintf("loose %d-%d against", match.Result1, match.Result2)
 		} else {
-			verb = "tied against"
+			verb = fmt.Sprintf("tied %d-%d against", match.Result1, match.Result2)
 		}
 		tournament.Publish(c, "match", verb, object, target)
 

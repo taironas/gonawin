@@ -73,3 +73,15 @@ func (a *Activity) save(c appengine.Context) error {
 
 	return nil
 }
+
+type Activities []*Activity
+// Methods required by sort.Interface.
+func (a Activities) Len() int {
+    return len(a)
+}
+func (a Activities) Less(i, j int) bool {
+    return a[i].Published.After(a[j].Published)
+}
+func (a Activities) Swap(i, j int) {
+    a[i], a[j] = a[j], a[i]
+}

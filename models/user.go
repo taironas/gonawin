@@ -363,7 +363,7 @@ func (a UserByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a UserByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }
 
 // Find all activities
-func (u *User) Activities(c appengine.Context) []*Activity {
+func (u *User) Activities(c appengine.Context) Activities {
 	q := datastore.NewQuery("Activity").Filter("CreatorID=", u.Id).Order("-Published")
 
 	var activities []*Activity

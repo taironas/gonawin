@@ -428,6 +428,19 @@ func (t *Tournament) RankingByTeam(c appengine.Context) []*Team {
 	return teams
 }
 
+// Find tournament activities
+func (t *Tournament) Activities(c appengine.Context) Activities {
+	q := datastore.NewQuery("Activity").Filter("CreatorID=", t.Id).Order("-Published")
+
+	var activities []*Activity
+
+	if _, err := q.GetAll(c, &activities); err != nil {
+		log.Errorf(c, "model/activity, FindAll: error occurred during GetAll call: %v", err)
+	}
+
+	return activities
+}
+
 func (t *Tournament) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
