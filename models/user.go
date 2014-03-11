@@ -450,9 +450,9 @@ func (u *User) Scores(c appengine.Context) []*Score{
 	scores := make([]*Score, 0)
 	for _, s := range u.ScoreOfTournaments{
 		if score, err := ScoreById(c, s.ScoreId); err != nil{
-			scores = append(scores, score)
-		} else{
 			log.Errorf(c, "User.Scores: error when calling ScoreById")
+		} else{
+			scores = append(scores, score)
 		}
 	}
 	return scores

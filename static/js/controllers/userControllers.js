@@ -49,3 +49,21 @@ userControllers.controller('UserEditCtrl', ['$scope', 'User', '$location', funct
 		});
   }
 }]);
+
+userControllers.controller('UserScoresCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {
+  console.log('User Scores controller');
+  $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments" },
+			     function(data){},
+			     function(err){
+			       console.log('get user failed: ', err.data);
+			       $scope.messageDanger = err.data;
+			     });
+
+  $scope.scoreData = User.scores({id:$routeParams.id},
+				 function(response){
+				   console.log('response: ', response);
+				 },
+				 function(err){
+				   console.log('user scores failed', err.data)
+				 });
+}]);

@@ -1,6 +1,6 @@
 <div>
   <div class="page-header">
-    <h4>User</h4>
+    <h4>User Scores</h4>
   </div>
   <!-- User: -->
   <dl class="dl-horizontal">
@@ -16,8 +16,17 @@
     <dd>{{userData.User.Created}}</dd>
   </dl>
 
-  <a href="/ng#/users/{{userData.User.Id}}/scores"> User scores </a>
-  <div ng-include src="'templates/users/teams.html'"></div>
-  <div ng-include src="'templates/users/tournaments.html'"></div>
-  <div ng-include src="'templates/users/teamRequests.html'"></div>
+  <div class="scores">
+  <table class="table table-striped">
+    <thead><tr><th>TournamentId</th><th>Scores</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="score in scoreData.Scores">
+	<td>{{score.TournamentId}}</td>
+	<td>{{score.Scores}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
 </div>

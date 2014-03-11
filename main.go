@@ -53,7 +53,7 @@ func init() {
 	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.IndexJson)))
 	h.HandleFunc("/j/users/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.ShowJson)))
 	h.HandleFunc("/j/users/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.UpdateJson)))
-	h.HandleFunc("/j/users/[0-9]+/score/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.ScoreJson)))
+	h.HandleFunc("/j/users/[0-9]+/scores/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.ScoreJson)))
 
 	// team
 	h.HandleFunc("/j/teams/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.IndexJson)))
