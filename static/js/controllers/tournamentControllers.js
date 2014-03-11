@@ -228,6 +228,19 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
       }
     }
   };
+  // action triggered when 'Create new button' is clicked.
+  // Modal will be hidden
+  $scope.newTeam = function(){
+    $('#tournament-modal').modal('hide');
+  };
+  // listen 'hidden.bs.modal' event to redirect to new team page
+  $('#tournament-modal').on('hidden.bs.modal', function (e) {
+    // need to have scope for $location to work. So add 'apply' function
+    // inside js listener
+    $scope.$apply(function(){
+      $location.path('/teams/new/');
+    });
+  })
 }]);
 
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {

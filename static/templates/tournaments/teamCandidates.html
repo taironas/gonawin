@@ -4,12 +4,12 @@
     <tbody>
       <tr ng-repeat="c in candidates">
         <form accept-charset="UTF-8" class="form-horizontal">
-	  <div class="form-group">
+          <div class="form-group">
             <td><a href="/ng#/teams/show/{{c.Team.Id}}">{{c.Team.Name}}</a></td>
             <td>
               <joinbutton action="joinAsTeamButtonMethod[c.Team.Id](c.Team.Id)" name="joinAsTeamButtonName[c.Team.Id]" />
             </td>
-	  </div>
+          </div>
         </form>
       </tr>
     </tbody>
@@ -18,7 +18,7 @@
 <div ng-if="!candidates || candidates.length == 0">
   <div id="no_team">
     <p>No team has been created by you.</p>
-    <a href="/ng#/teams/new" class="btn btn-primary"><span>Create new team</span></a>
+    <button class="btn btn-primary" ng-click="newTeam()" data-dismiss="modal"><span>Create new team</span></button>
   </div>
 </div>
 <!-- end of candidates -->
