@@ -443,3 +443,17 @@ func (u *User) AddTournamentScore(c appengine.Context, scoreId int64, tourId int
 	log.Infof(c, "model/user: add tournament score, all good user updated")
 	return nil
 }
+
+
+func (u *User) Scores(c appengine.Context) []*Score{
+	
+	scores := make([]*Score, 0)
+	for _, s := range u.ScoreOfTournaments{
+		if score, err := ScoreById(c, s.ScoreId); err != nil{
+			scores = append(scores, score)
+		} else{
+			log.Errorf(c, "User.Scores: error when calling ScoreById")
+		}
+	}
+	return scores
+}
