@@ -186,12 +186,16 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 // Make a user join a team.
 func (t *Team) Join(c appengine.Context, u *User) error {
 	// add
+	log.Infof(c, "Team.Join: user")
+	log.Infof(c, "Team.Join: add team id to user entity")
 	if err := u.AddTeamId(c, t.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
+	log.Infof(c, "Team.Join: add user id to team entity")
 	if err := t.AddUserId(c, u.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err))
 	}
+	log.Infof(c, "Team.Join: add user id to tournaments")
 	if err := t.AddUserToTournaments(c, u.Id); err != nil {
 		return errors.New(fmt.Sprintf("Team.Join, error adding user:%v to teams tournaments Error: %v", u.Id, err))
 	}

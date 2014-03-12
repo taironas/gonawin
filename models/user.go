@@ -398,9 +398,11 @@ func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Sc
 	//query score
 	for _, s := range u.ScoreOfTournaments {
 		if s.TournamentId == tournament.Id {
+			log.Infof(c, "User.TournamentScore tournament found in ScoreOfTournaments array")
 			return ScoreById(c, s.ScoreId)
 		}
 	}
+	log.Infof(c, "User.TournamentScore score entity not found")
 	return nil, errors.New("model/team: score entity not found")
 }
 
