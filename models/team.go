@@ -176,7 +176,7 @@ func TeamsByIds(c appengine.Context, ids []int64) []*Team {
 	return teams
 }
 
-// Checkes if a user has joined a team or not.
+// Checks if a user has joined a team or not.
 func (t *Team) Joined(c appengine.Context, u *User) bool {
 
 	hasTeam, _ := u.ContainsTeamId(t.Id)
@@ -184,6 +184,9 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 }
 
 // Make a user join a team.
+// TeamId is added to user entity.
+// UserId is added to team entity.
+// UserId is added to all tournaments joined by the team entity.
 func (t *Team) Join(c appengine.Context, u *User) error {
 	// add
 	log.Infof(c, "Team.Join: user")
@@ -490,6 +493,10 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 		log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
 		return err
 	}
+  
+  // publish new activity
+  verb := fmt.Sprintf("has a new accuracy of %f%", newAcc)
+  t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
 
 	// for _, accOfTournament := range t.AccOfTournaments{
 	// 	if accOfTournament.TournamentId != tId{
@@ -511,4 +518,30 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 	// 	break
 	// }
 	return nil
+}
+
+// Find all activities
+func (t *Team) Activities(c appengine.Context) Activities {
+	q := datastore.NewQuery("Activity").Filter("CreatorID=", t.Id).Order("-Published")
+
+	var activities []*Activity
+
+	if _, err := q.GetAll(c, &activities); err != nil {
+		log.Errorf(c, "model/team, Activities: error occurred during GetAll call: %v", err)
+	}
+
+	return activities
+}
+
+func (t *Team) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
+	var activity Activity
+	activity.Type = activityType
+	activity.Verb = verb
+	activity.Actor = ActivityEntity{ID: t.Id, Type: "team", DisplayName: t.Name}
+	activity.Object = object
+	activity.Target = target
+	activity.Published = time.Now()
+	activity.CreatorID = t.Id
+
+	return activity.save(c)
 }
