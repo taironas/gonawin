@@ -165,3 +165,12 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
   $scope.predicate = '';
 
 }]);
+
+//Team Accuracies controller
+teamControllers.controller('TeamAccuraciesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
+  console.log('Team accuracies controller');
+  console.log('route params', $routeParams)
+  $scope.teamData = Team.get({ id:$routeParams.id });
+
+  $scope.accuraciesData = Team.accuracies({id:$routeParams.id});
+}]);

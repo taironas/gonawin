@@ -545,3 +545,19 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 
 	return activity.save(c)
 }
+
+func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
+	accs := make([]AccuracyOverall, 0)
+	for _, aot := range t.AccOfTournaments {
+		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
+			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retreive accuracy entity from id, ", err)
+		} else {
+			var a AccuracyOverall
+			a.Id = aot.AccuracyId
+			a.TournamentId = aot.TournamentId
+			a.Accuracy = 0
+			a.Progression = acc.Accuracies
+		}
+	}
+	return &accs
+}

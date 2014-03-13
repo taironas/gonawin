@@ -21,12 +21,13 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
     delete: { method: 'POST', url: 'j/teams/destroy/:id' },
     search: { method: 'GET', url: 'j/teams/search?q=:q'},
     members: { method: 'GET', url:'j/teams/:id/members' },
-    join: {method: 'POST', url: 'j/teams/join/:id'},///teamrels/create/:id'},
-    leave: {method: 'POST', url: 'j/teams/leave/:id'},//teamrels/destroy/:id'},
+    join: {method: 'POST', url: 'j/teams/join/:id'},
+    leave: {method: 'POST', url: 'j/teams/leave/:id'},
     invite: {method: 'POST', url: 'j/teams/invite/:id'},
     allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
     denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
-    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby'}
+    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby'},
+    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'}
   })
 });
 

@@ -31,6 +31,13 @@ type Accuracy struct {
 	Accuracies   []float64
 }
 
+type AccuracyOverall struct {
+	Id           int64
+	TournamentId int64
+	Accuracy     float64   // overall accuracy
+	Progression  []float64 // progression of accuracies of team in tournament. (right now the last 5 accuracy logs)
+}
+
 // The Json version
 type AccuracyJson struct {
 	Id           *int64     `json:",omitempty"`
