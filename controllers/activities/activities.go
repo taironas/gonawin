@@ -36,9 +36,15 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
 		// fetch user activities
 		activities := u.Activities(c)
-		// fetch activities for user tournaments
-		for _, t := range u.Tournaments(c) {
-			activities = append(activities, t.Activities(c)...)
+    // fetch activities for user tournaments
+		for _, tournament := range u.Tournaments(c) {
+			activities = append(activities, tournament.Activities(c)...)
+			// sort current slice by date of publication
+			sort.Sort(activities)
+		}
+    // fetch activities for user teams
+		for _, team := range u.Teams(c) {
+			activities = append(activities, team.Activities(c)...)
 			// sort current slice by date of publication
 			sort.Sort(activities)
 		}

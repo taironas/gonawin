@@ -495,7 +495,7 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 	}
   
   // publish new activity
-  verb := fmt.Sprintf("has a new accuracy of %f%", newAcc)
+  verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
   t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
 
 	// for _, accOfTournament := range t.AccOfTournaments{
