@@ -31,6 +31,15 @@ type Score struct {
 	Scores       []int64
 }
 
+// ScoreOverall is a placeholder for the overall score of a user in different tournaments.
+type ScoreOverall struct {
+	Id              int64
+	UserId          int64
+	TournamentId    int64
+	Score           int64
+	LastProgression int64
+}
+
 // The Json version
 type ScoreJson struct {
 	Id           *int64   `json:",omitempty"`

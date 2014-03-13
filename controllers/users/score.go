@@ -51,10 +51,11 @@ func ScoreJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
-		scores := user.Scores(c)
+		//scores := user.Scores(c)
+		scores := user.TournamentsScores(c)
 		// data
 		data := struct {
-			Scores         []*mdl.Score
+			Scores []*mdl.ScoreOverall
 		}{
 			scores,
 		}

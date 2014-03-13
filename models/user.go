@@ -446,15 +446,37 @@ func (u *User) AddTournamentScore(c appengine.Context, scoreId int64, tourId int
 	return nil
 }
 
+// Returns an array of score entities group by tournament.
+func (u *User) Scores(c appengine.Context) []*Score {
 
-func (u *User) Scores(c appengine.Context) []*Score{
-	
 	scores := make([]*Score, 0)
-	for _, s := range u.ScoreOfTournaments{
-		if score, err := ScoreById(c, s.ScoreId); err != nil{
+	for _, s := range u.ScoreOfTournaments {
+		if score, err := ScoreById(c, s.ScoreId); err != nil {
 			log.Errorf(c, "User.Scores: error when calling ScoreById")
-		} else{
+		} else {
 			scores = append(scores, score)
+		}
+	}
+	return scores
+}
+
+// Returns an array of scoreOverall entities group by tournament.
+func (u *User) TournamentsScores(c appengine.Context) []*ScoreOverall {
+
+	scores := make([]*ScoreOverall, 0)
+	for _, s := range u.ScoreOfTournaments {
+		if score, err := ScoreById(c, s.ScoreId); err != nil {
+			log.Errorf(c, "User.Scores: error when calling ScoreById")
+		} else {
+			var so ScoreOverall
+			so.Id = score.Id
+			so.UserId = score.UserId
+			so.TournamentId = score.TournamentId
+			so.Score = sumInt64(&score.Scores)
+			if len(score.Scores) > 0 {
+				so.LastProgression = score.Scores[len(score.Scores)-1]
+			}
+			scores = append(scores, &so)
 		}
 	}
 	return scores

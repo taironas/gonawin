@@ -58,7 +58,7 @@ func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64) (*Acc
 func (a *Accuracy) Add(c appengine.Context, acc float64) (float64, error) {
 	// add acc with previous acc / # item + 1
 	log.Infof(c, "Accuracy add %v", acc)
-	sum := sum(&a.Accuracies)
+	sum := sumFloat64(&a.Accuracies)
 	log.Infof(c, "Accuracy add sum of accs: %v", a.Accuracies)
 	log.Infof(c, "Accuracy add sum of accs: %v", sum)
 	newAcc := float64(sum+acc) / float64(len(a.Accuracies)+1)
@@ -81,7 +81,14 @@ func (a *Accuracy) Update(c appengine.Context) error {
 	return nil
 }
 
-func sum(a *[]float64) (sum float64) {
+func sumFloat64(a *[]float64) (sum float64) {
+	for _, v := range *a {
+		sum += v
+	}
+	return
+}
+
+func sumInt64(a *[]int64) (sum int64) {
 	for _, v := range *a {
 		sum += v
 	}

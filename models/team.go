@@ -493,10 +493,10 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 		log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
 		return err
 	}
-  
-  // publish new activity
-  verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
-  t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
+
+	// publish new activity
+	verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
+	t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
 
 	// for _, accOfTournament := range t.AccOfTournaments{
 	// 	if accOfTournament.TournamentId != tId{

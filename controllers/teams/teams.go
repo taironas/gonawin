@@ -59,8 +59,8 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // json new handler
 func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team New Handler:"
-  
-  c := appengine.NewContext(r)
+
+	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
 		defer r.Body.Close()
