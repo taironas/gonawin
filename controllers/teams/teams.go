@@ -58,38 +58,40 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // json new handler
 func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
+	desc := "Team New Handler:"
+  
+  c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Errorf(c, "Team New Handler: Error when decoding request body: %v", err)
+			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 		}
 
 		var data TeamData
 		err = json.Unmarshal(body, &data)
 		if err != nil {
-			log.Errorf(c, "Team New Handler: Error when decoding request body: %v", err)
+			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 		}
 
 		if len(data.Name) <= 0 {
-			log.Errorf(c, "Team New Handler: 'Name' field cannot be empty")
+			log.Errorf(c, "%s 'Name' field cannot be empty", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
 		} else if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
-			log.Errorf(c, "Team New Handler: That team name already exists.")
+			log.Errorf(c, "%s That team name already exists.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 		} else {
 			team, err := mdl.CreateTeam(c, data.Name, u.Id, data.Visibility == "Private")
 			if err != nil {
-				log.Errorf(c, "Team New Handler: error when trying to create a team: %v", err)
+				log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// join the team
-			if err = u.AddTeamId(c, team.Id); err != nil {
-				log.Errorf(c, "Team New Handler: error when trying to create a team relationship: %v", err)
+			if err = team.Join(c, u); err != nil {
+				log.Errorf(c, "%s error when trying to create a team relationship: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
@@ -445,7 +447,10 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// json Join handler for team relations
+// JSON Join handler when user joins team
+// User will join the team.
+// New user activity will be pushlished
+// Reponse: JSON formatted team
 func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
