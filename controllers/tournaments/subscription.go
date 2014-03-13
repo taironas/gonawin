@@ -144,7 +144,7 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// publish new activity
 		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
-		u.Publish(c, "tournament", "joined tournament", object, target)
+		team.Publish(c, "tournament", "joined tournament", object, target)
 
 		return templateshlp.RenderJson(w, c, tJson)
 	}
