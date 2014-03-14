@@ -30,11 +30,15 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
+// A GroupJson is a variable to hold a the name of a group and an array of Teams.
+// We use it to group tournament teams information by group to meet world cup organization.
 type GroupJson struct {
 	Name  string
 	Teams []TeamJson
 }
 
+// A TeamJson is a variable to hold the basic information of a Team:
+// The name of the team, the number of points recorded in the group phase, the goals for and against.
 type TeamJson struct {
 	Name   string
 	Points int64
@@ -75,6 +79,7 @@ func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
+// Format a TGroup array into a GroupJson array.
 func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 
 	groupsJson := make([]GroupJson, len(groups))

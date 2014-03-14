@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package activities provides the JSON handlers to get gonawin activities.
 package activities
 
 import (

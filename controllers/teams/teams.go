@@ -14,6 +14,23 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package teams provides the JSON handlers to handle teams data in gonawin app.
+//
+// It provides methods
+//	GET	/j/teams/			Retreives all teams.
+//	POST	/j/teams/new/			Creates a new team.
+//	GET	/j/teams/show/[0-9]+/		Retreives the team with the given id.
+//	POST	/j/teams/update/[0-9]+/		Updates the team with the given id.
+//	POST	/j/teams/destroy/[0-9]+/	Destroys the team with the given id.
+//	POST	/j/teams/invite/[0-9]+/		Request an invitation to a private team with the given id.
+//	POST	/j/teams/allow/[0-9]+/		Allow a user to be a member of a team with the given id.
+//	POST	/j/teams/deny/[0-9]+/		Deny entrance of user to be a member of a team with the given id.
+//	GET	/j/teams/search/		Search for all teams respecting the query "q"
+//	GET	/j/teams/[0-9]+/members/	Retreives all members of a team with the given id.
+//	GET	/j/teams/[0-9]+/ranking/	Retreives the ranking of a team with the given id.
+//	GET	/j/teams/[0-9]+/accuracies/	Retreives all the tournament accuracies of a team with the given id.
+//
+// Every method below gives more information aboyt every API call, its parameters, and its resutls.
 package teams
 
 import (

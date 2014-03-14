@@ -30,7 +30,7 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// json Join handler for tournament relationships
+// JSON Join handler for tournament relationships
 func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join Handler:"
@@ -67,7 +67,7 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json Leave handler for tournament relationships
+// JSON Leave handler for tournament relationships
 func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave Handler:"
@@ -106,7 +106,7 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Join as Team handler for tournament teams realtionship
+// JSON Join as Team handler for tournament teams realtionship.
 func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join as a Team Handler:"
@@ -151,7 +151,7 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Leave as Team handler for tournament teams realtionship
+// JSON Leave as Team handler for tournament teams realtionship.
 func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave as a Team Handler:"

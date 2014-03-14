@@ -41,7 +41,7 @@ func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
-		return templateshlp.RenderJson(w, c, tournament) //Json)
+		return templateshlp.RenderJson(w, c, tournament)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

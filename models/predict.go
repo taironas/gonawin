@@ -14,7 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Package predict provides use of Predict entity in GAE datastore.
 package models
 
 import (

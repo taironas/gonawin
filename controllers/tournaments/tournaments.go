@@ -39,7 +39,7 @@ type TournamentData struct {
 	Name string
 }
 
-// json index tournaments handler
+// JSON index tournaments handler.
 func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -61,32 +61,32 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // json new tournament handler
 func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "Tournament New Handler:"
 	if r.Method == "POST" {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Errorf(c, "Tournament New Handler: Error when decoding request body: %v", err)
+			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
 		var data TournamentData
 		err = json.Unmarshal(body, &data)
 		if err != nil {
-			log.Errorf(c, "Tournament New Handler: Error when decoding request body: %v", err)
+			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
 		if len(data.Name) <= 0 {
-			log.Errorf(c, "Tournamnet New Handler: 'Name' field cannot be empty")
+			log.Errorf(c, "%s 'Name' field cannot be empty", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
 		} else if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
-			log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
+			log.Errorf(c, "%s That tournament name already exists.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 		} else {
 			tournament, err := mdl.CreateTournament(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
 			if err != nil {
-				log.Errorf(c, "Tournament New Handler: error when trying to create a tournament: %v", err)
+				log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 			}
 			// return the newly created tournament
@@ -104,22 +104,22 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json show tournament handler
+// JSON show tournament handler
 func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "Tournament Show Handler:"
 	if r.Method == "GET" {
 
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Tournament Show Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
-			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
+			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, intID, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -155,26 +155,27 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json tournament destroy handler
+// JSON tournament destroy handler.
 func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
+	desc := "Tournament Destroy Handler:"
 
 	if r.Method == "POST" {
 
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Tournament Destroy Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotDelete)}
 		}
 
 		if !mdl.IsTournamentAdmin(c, intID, u.Id) {
-			log.Errorf(c, "Tournament Destroy Handler: user is not admin")
+			log.Errorf(c, "%s user is not admin", desc)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 		}
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, intID)
 		if err != nil {
-			log.Errorf(c, "Tournament Show Handler: tournament with id:%v was not found %v", intID, err)
+			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, intID, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -182,13 +183,13 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		for _, participant := range tournament.Participants(c) {
 			participant.RemoveTournamentId(c, tournament.Id)
 			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
-				log.Errorf(c, " error when trying to remove tournament id from user: %v", err)
+				log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
 			}
 		}
 		// delete all tournament-team relationships
 		for _, team := range tournament.Teams(c) {
 			if err := tournament.TeamLeave(c, team); err != nil {
-				log.Errorf(c, " error when trying to destroy team relationship: %v", err)
+				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 			}
 		}
 		// delete the tournament
@@ -205,7 +206,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-//  Json Update tournament handler
+//  JSON Update tournament handler.
 func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
