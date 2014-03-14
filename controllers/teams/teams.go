@@ -16,7 +16,8 @@
 
 // Package teams provides the JSON handlers to handle teams data in gonawin app.
 //
-// It provides methods
+// It provides the following methods
+//
 //	GET	/j/teams/			Retreives all teams.
 //	POST	/j/teams/new/			Creates a new team.
 //	GET	/j/teams/show/[0-9]+/		Retreives the team with the given id.

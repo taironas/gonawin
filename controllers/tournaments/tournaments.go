@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package tournaments provides the JSON handlers to handle tournaments data in gonawin app.
 package tournaments
 
 import (

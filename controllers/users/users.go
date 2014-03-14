@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package users provides the JSON handlers to handle users data in gonawin app.
 package users
 
 import (
