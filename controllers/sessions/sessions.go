@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package sessions provides the JSON handlers to handle connections to gonawin app.
 package sessions
 
 import (
@@ -47,7 +48,7 @@ var twitterCallbackURL string = "/j/auth/twitter/callback"
 var googleVerifyTokenURL string = "https://www.google.com/accounts/AuthSubTokenInfo?bearer_token"
 var facebookVerifyTokenURL string = "https://graph.facebook.com/me?access_token"
 
-// json authentication handler
+// JSON authentication handler
 func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
@@ -83,7 +84,7 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// Twitter
+// JSON authentication for Twitter.
 func JsonTwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 

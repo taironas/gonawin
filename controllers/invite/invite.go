@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package invite provides the JSON handlers to send invitations to gonawin app.
 package invite
 
 import (
