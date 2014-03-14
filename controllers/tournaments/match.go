@@ -34,6 +34,7 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
+// A MatchJson is a variable to hold of match information.
 type MatchJson struct {
 	IdNumber   int64
 	Date       time.Time
@@ -246,6 +247,5 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		// append second round results
 		matchesJson = append(matchesJson, matchJson2ndPhase)
 	}
-
 	return matchesJson
 }

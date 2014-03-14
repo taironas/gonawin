@@ -32,11 +32,15 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
+// A DayJson is a variable to hold a date and match field.
+// We use it to group tournament matches information by days.
 type DayJson struct {
 	Date    time.Time
 	Matches []MatchJson
 }
 
+// A PhaseJson is a variable to hold a the name of a phase and an array of days.
+// We use it to group tournament matches information by phases.
 type PhaseJson struct {
 	Name string
 	Days []DayJson
@@ -44,10 +48,12 @@ type PhaseJson struct {
 
 // Json tournament calendar handler:
 // Use this handler to get the calendar of a tournament.
-// The calendar structure is an array of matches of the tournament with the location,
-// the teams involved and the date by default the data returned is grouped by days.
-// This means we will return an array of days, each of which can have an array of matches.
-// You can specify the groupby parameter to be "day" or "phase" in that case you would have an array of phases,
+// The calendar structure is an array of the tournament matches with the following information:
+// * the location
+// * the teams involved
+// * the date
+// by default the data returned is grouped by days.This means we will return an array of days, each of which can have an array of matches.
+// You can also specify the 'groupby' parameter to be 'day' or 'phase' in which case you would have an array of phases,
 // each of which would have an array of days who would have an array of matches.
 func CalendarJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
@@ -103,6 +109,8 @@ func CalendarJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
+// From an array of Matches, create an array of Phases where the matches are grouped in.
+// We use the Phases intervals and the IdNumber of each match to do this operation.
 func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 	limits := mdl.MapOfPhaseIntervals()
 	phaseNames := mdl.ArrayOfPhases()
@@ -119,12 +127,13 @@ func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
-
 		phases[i].Days = matchesGroupByDay(filteredMatches)
 	}
 	return phases
 }
 
+// From an array of matches, create an array of Days where the matches are grouped in.
+// We use the Date of each match to do this.
 func matchesGroupByDay(matches []MatchJson) []DayJson {
 
 	mapOfDays := make(map[string][]MatchJson)
@@ -155,7 +164,7 @@ func matchesGroupByDay(matches []MatchJson) []DayJson {
 	return days
 }
 
-// ByDate implements sort.Interface for []Tday based on the date field.
+// ByDate type implements the sort.Interface for []DayJson based on the date field.
 type ByDate []DayJson
 
 func (a ByDate) Len() int           { return len(a) }
