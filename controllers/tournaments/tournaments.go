@@ -446,6 +446,12 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s: tournament with id:%v was not found %v", desc, tournamentId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+    
+    // check if user joined the tournament
+    if !tournament.Joined(c, u) {
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotAllowedToSetPrediction)}
+    }
+    
 		// extract match
 		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
 		if err2 != nil {
