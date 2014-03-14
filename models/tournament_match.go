@@ -113,6 +113,18 @@ func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 	return nil
 }
 
+// Destroy an array of matches.
+func DestroyMatches(c appengine.Context, matchIds []int64) error {
+	keys := make([]*datastore.Key, len(matchIds))
+	for i, _ := range keys {
+		keys[i] = KeyByIdMatch(c, matchIds[i])
+	}
+	if err := datastore.DeleteMulti(c, keys); err != nil {
+		return err
+	}
+	return nil
+}
+
 // Set results in an array of matches and triggers a match update and group update.
 func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, results2 []int64, t *Tournament) error {
 	desc := "Set Results:"

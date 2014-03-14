@@ -84,7 +84,7 @@ func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 	return nil
 }
 
-// Update a group given an a group pointer.
+// Update a group.
 func UpdateGroup(c appengine.Context, g *Tgroup) error {
 	k := KeyByIdGroup(c, g.Id)
 	oldGroup := new(Tgroup)
@@ -92,6 +92,18 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 		if _, err = datastore.Put(c, k, g); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+// Destroy an array of groups.
+func DestroyGroups(c appengine.Context, groupIds []int64) error {
+	keys := make([]*datastore.Key, len(groupIds))
+	for i, _ := range keys {
+		keys[i] = KeyByIdGroup(c, groupIds[i])
+	}
+	if err := datastore.DeleteMulti(c, keys); err != nil {
+		return err
 	}
 	return nil
 }

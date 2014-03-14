@@ -193,6 +193,19 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 			}
 		}
+		// delete matches of first stage
+		if err := mdl.DestroyMatches(c, tournament.Matches1stStage); err != nil {
+			log.Errorf(c, "%s error when trying to destroy tournament's matches of first stage: %v", desc, err)
+		}
+		// delete matches of second stage
+		if err := mdl.DestroyMatches(c, tournament.Matches2ndStage); err != nil {
+			log.Errorf(c, "%s error when trying to destroy tournament's matches of second stage: %v", desc, err)
+		}
+		// delete groups
+		if err := mdl.DestroyGroups(c, tournament.GroupIds); err != nil {
+			log.Errorf(c, "%s error when trying to destroy tournament's groups: %v", desc, err)
+		}
+		
 		// delete the tournament
 		tournament.Destroy(c)
 
