@@ -226,10 +226,13 @@ func (t *Tournament) TeamJoined(c appengine.Context, team *Team) bool {
 func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	// add
 	if err := team.AddTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error joining tournament for team:%v Error: %v", team.Id, err))
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.Id, err))
 	}
 	if err := t.AddTeamId(c, team.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error joining tournament for team:%v Error: %v", team.Id, err))
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", team.Id, err))
+	}
+	if err := t.AddUserIds(c, team.UserIds); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", team.Id, err))
 	}
 	return nil
 }
@@ -384,7 +387,6 @@ func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
 
 // Adds a user Id in the UserId array.
 func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
-
 	if hasUser, _ := t.ContainsUserId(uId); hasUser {
 		return errors.New(fmt.Sprintf("AddUserId, allready a member."))
 	}
@@ -392,6 +394,16 @@ func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
 	t.UserIds = append(t.UserIds, uId)
 	if err := t.Update(c); err != nil {
 		return err
+	}
+	return nil
+}
+
+// Add user ids in the tournament entity.
+func (t *Tournament) AddUserIds(c appengine.Context, uIds []int64) error {
+	for _, uId := range uIds {
+		if err := t.AddUserId(c, uId); err != nil {
+			log.Errorf(c, "Tournament.AddUserIds, error adding user id to tournament entity: %v", err)
+		}
 	}
 	return nil
 }
