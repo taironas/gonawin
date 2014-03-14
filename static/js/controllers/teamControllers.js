@@ -172,5 +172,5 @@ teamControllers.controller('TeamAccuraciesCtrl', ['$scope', '$routeParams', 'Tea
   console.log('route params', $routeParams)
   $scope.teamData = Team.get({ id:$routeParams.id });
 
-  $scope.accuraciesData = Team.accuracies({id:$routeParams.id});
+  $scope.accData = Team.accuracies({id:$routeParams.id});
 }]);

@@ -446,12 +446,12 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s: tournament with id:%v was not found %v", desc, tournamentId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-    
-    // check if user joined the tournament
-    if !tournament.Joined(c, u) {
+
+		// check if user joined the tournament
+		if !tournament.Joined(c, u) {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotAllowedToSetPrediction)}
-    }
-    
+		}
+
 		// extract match
 		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
 		if err2 != nil {
@@ -493,14 +493,14 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				msg,
 				p,
 			}
-      
-      // publish activity
-      mapIdTeams := mdl.MapOfIdTeams(c, tournament)
-      verb := fmt.Sprintf("predicted %d-%d for match", p.Result1, p.Result2)
-      object := mdl.ActivityEntity{ID: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1]+"-"+mapIdTeams[match.TeamId2]}
+
+			// publish activity
+			mapIdTeams := mdl.MapOfIdTeams(c, tournament)
+			verb := fmt.Sprintf("predicted %d-%d for match", p.Result1, p.Result2)
+			object := mdl.ActivityEntity{ID: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
 			target := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-      u.Publish(c, "predict", verb, object, target)
-      
+			u.Publish(c, "predict", verb, object, target)
+
 			return templateshlp.RenderJson(w, c, data)
 		}
 	}

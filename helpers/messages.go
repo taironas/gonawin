@@ -70,7 +70,7 @@ const (
 	ErrorCodeMatchNotFound                    = "Match not found"
 	ErrorCodeMatchNotFoundCannotSetPrediction = "Match not found, unable to set prediction"
 	ErrorCodeCannotSetPrediction              = "Something went wrong, unable to set prediction"
-  ErrorCodeNotAllowedToSetPrediction        = "You have to join the tournament to be able to set a predict for this match"
+	ErrorCodeNotAllowedToSetPrediction        = "You have to join the tournament to be able to set a predict for this match"
 	ErrorCodeTeamsCannotUpdate                = "Could not update teams"
 
 	// invite
