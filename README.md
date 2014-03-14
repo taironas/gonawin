@@ -30,3 +30,7 @@ We want to create a platform that people can use to bet/play with there friends 
 ## Deployment
 
     go_appengine\appcfg.py update purple-wing
+    
+## Documentation
+
+    godoc -http=:6060
