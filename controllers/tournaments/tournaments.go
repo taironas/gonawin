@@ -487,10 +487,10 @@ func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			}
       
       // publish activity
-      verb := fmt.Sprintf("predicted %s-%s")
+      /*verb := fmt.Sprintf("predicted %s-%s")
       object := ActivityEntity{ID: match.Id, Type: "match", DisplayName: match.Name}
 			target := ActivityEntity{}
-      u.Publish(c, "predict", verb, )
+      u.Publish(c, "predict", verb, )*/
       
 			return templateshlp.RenderJson(w, c, data)
 		}
