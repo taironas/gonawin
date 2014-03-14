@@ -385,7 +385,7 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: "You"}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
