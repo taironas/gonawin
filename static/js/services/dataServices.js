@@ -14,7 +14,7 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 
-  return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId', rankby: '@rankby'}, {
+  return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId', rankby: '@rankby', tournamentId: '@tournamentId'}, {
     get: { method: 'GET', url: 'j/teams/show/:id' },
     save: { method: 'POST', url: 'j/teams/new' },
     update: { method: 'POST', url: 'j/teams/update/:id' },
@@ -27,7 +27,8 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
     allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
     denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
     ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby'},
-    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'}
+    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'},
+    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId'}
   })
 });
 

@@ -148,7 +148,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build team json
 		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private", "Accuracy"}
+		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private", "TournamentIds", "Accuracy"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// build players json

@@ -80,6 +80,18 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.isTeamAdmin = result;
   });
 
+  // set tournament ids with "values" so that angular understands:
+  // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
+  $scope.teamData.$promise.then(function(teamresp){
+    var len = teamresp.Team.TournamentIds.length;
+    var tournamentIds = new Array();
+    for(var i = 0; i < len; i++){
+      tournamentIds.push({value: teamresp.Team.TournamentIds[i]});
+    }
+    $scope.teamData.Team.TournamentIds = tournamentIds;
+    console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
+  });
+
   $scope.requestInvitation = function(){
     console.log('team request invitation');
     Team.invite( {id:$routeParams.id}, function(){
@@ -157,7 +169,7 @@ teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$
 // Ranking controller
 teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
   console.log('Team ranking controller');
-  console.log('route params', $routeParams)
+  console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
@@ -169,8 +181,17 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
 //Team Accuracies controller
 teamControllers.controller('TeamAccuraciesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
   console.log('Team accuracies controller');
-  console.log('route params', $routeParams)
+  console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.accuracyData = Team.accuracies({id:$routeParams.id});
+}]);
+
+// team Accuracy in tournament
+teamControllers.controller('TeamAccuracyByTournamentCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location){
+  console.log('Team accuracy for team controller');
+  console.log('route params', $routeParams);
+  $scope.teamData = Team.get({ id:$routeParams.id });
+  $scope.accuracyData = Team.accuracy({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
+  
 }]);
