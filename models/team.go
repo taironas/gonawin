@@ -548,7 +548,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 }
 
 // Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.
-func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
+func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]AccuracyOverall {
 	accs := make([]AccuracyOverall, 0)
 	for _, aot := range t.AccOfTournaments {
 		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
@@ -564,7 +564,6 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 			}
 			a.Progression = make([]Progression, 0)
 			counter := 0
-			limit := 5
 			// get last
 			for i := len(acc.Accuracies) - 1; i > -1; i-- {
 				cur := acc.Accuracies[i]
@@ -580,4 +579,34 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 		}
 	}
 	return &accs
+}
+
+func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
+	for _, aot := range t.AccOfTournaments {
+		if aot.TournamentId != tour.Id {
+			continue
+		}
+		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
+			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retreive accuracy entity from id, ", err)
+		} else {
+			var a AccuracyOverall
+			a.Id = aot.AccuracyId
+			a.TournamentId = aot.TournamentId
+			if len(acc.Accuracies) > 0 {
+				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
+			} else {
+				a.Accuracy = 1
+			}
+			a.Progression = make([]Progression, len(acc.Accuracies))
+			// get last
+			for i, cur := range acc.Accuracies {
+				var prog Progression
+				prog.Value = cur
+				a.Progression[i] = prog
+			}
+			return &a
+		}
+	}
+	return nil
+
 }
