@@ -121,10 +121,9 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 
 		// ToDo: update team overall accuracy.
-		// go through all acc of team for this tournament, compute accuracy.
-		log.Infof(c, "%s ready to update accuracy for team: %v", desc, team.Id)
+		log.Infof(c, "%s ready to update global accuracy for team: %v", desc, team.Id)
 		if err := team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
-			log.Errorf(c, "%s unable to update accuracy for team: %v, %v", desc, team.Id, err)
+			log.Errorf(c, "%s unable to update global accuracy for team: %v, %v", desc, team.Id, err)
 		} else {
 			log.Infof(c, "%s update successfull: %v", desc, team.Id)
 		}

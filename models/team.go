@@ -222,7 +222,6 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 	// 	return errors.New(fmt.Sprintf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.Id, err))
 	// }
 	return nil
-
 }
 
 // Check if user is admin of that team.
@@ -484,10 +483,12 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) 
 	return nil
 }
 
-// Compute accuracy for tournament id
+// Update global accuracy for team, with new accuracy and other ones.
+// Compute the overall accuracy of team by computing all accs of tournaments it participates.
 func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) error {
 	log.Infof(c, "Updating accuracy of team")
 
+	// this is wrong
 	t.Accuracy = newAcc
 	if err := t.Update(c); err != nil {
 		log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
@@ -497,6 +498,11 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 	// publish new activity
 	verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
 	t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
+
+	// Algo:
+	// go through all accuracies of tournaments the team participates on
+	// sum all overall accuracies. Overall accuracy of a accuracy entity is it's late element in the array of accs
+	// normalize by the number of tournaments it participates.
 
 	// for _, accOfTournament := range t.AccOfTournaments{
 	// 	if accOfTournament.TournamentId != tId{
@@ -569,14 +575,3 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 	}
 	return &accs
 }
-
-
-
-
-
-
-
-
-
-
-
