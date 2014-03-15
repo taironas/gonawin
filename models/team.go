@@ -1,4 +1,4 @@
- /*
+/*
  * Copyright (c) 2013 Santiago Arias | Remy Jourde | Carlos Bernal
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -483,46 +483,41 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) 
 	return nil
 }
 
-// Update global accuracy for team, with new accuracy and other ones.
-// Compute the overall accuracy of team by computing all accs of tournaments it participates.
+// Update the global accuracy for team, with new accuracy and accuracies of other tournaments.
+// From all accuracies of tournaments the team participates on we sum the overall accuracies.
+// Overall accuracy is it's last element in the array of accuracies. We then normalize by the number of tournaments the teams participates on.
 func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) error {
 	log.Infof(c, "Updating accuracy of team")
 
-	// this is wrong
-	t.Accuracy = newAcc
-	if err := t.Update(c); err != nil {
-		log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
-		return err
+	sum := float64(0)
+	counter := 0
+	for _, accOfTournament := range t.AccOfTournaments {
+		if accOfTournament.TournamentId == tId {
+			sum += newAcc
+			counter++
+			continue
+		}
+		if acc, err := AccuracyById(c, accOfTournament.AccuracyId); err == nil && acc != nil {
+			// only take into account tournaments with accuracies
+			if len(acc.Accuracies) > 0 {
+				sum += acc.Accuracies[len(acc.Accuracies)-1]
+				counter++
+			}
+		} else if err != nil {
+			log.Infof(c, "Accuracy not found %v, error:", accOfTournament.AccuracyId, err)
+		}
 	}
-
-	// publish new activity
-	verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
-	t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
-
-	// Algo:
-	// go through all accuracies of tournaments the team participates on
-	// sum all overall accuracies. Overall accuracy of a accuracy entity is it's late element in the array of accs
-	// normalize by the number of tournaments it participates.
-
-	// for _, accOfTournament := range t.AccOfTournaments{
-	// 	if accOfTournament.TournamentId != tId{
-	// 		continue
-	// 	}
-	// 	if acc, err := AccuracyById(c, accOfTournament.AccuracyId); err != nil && acc != nil{
-	// 		if len(acc.Accuracies) > 0{
-	// 			log.Infof(c, "Updating accuracy of team")
-	// 			t.Accuracy = acc.Accuracies[len(acc.Accuracies) - 1]
-	// 			if err := t.Update(c); err != nil{
-	// 				log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err )
-
-	// 				return err
-	// 			}
-	// 		}
-	// 	}else{
-	// 		log.Infof(c, "Accuracy not found %v", accOfTournament.AccuracyId )
-	// 	}
-	// 	break
-	// }
+	if counter > 0 {
+		t.Accuracy = sum / float64(counter)
+		if err := t.Update(c); err != nil {
+			log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
+			return err
+		} else {
+			// publish new activity
+			verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
+			t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
+		}
+	}
 	return nil
 }
 
@@ -562,7 +557,7 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 			a.Id = aot.AccuracyId
 			a.TournamentId = aot.TournamentId
 			if len(acc.Accuracies) > 0 {
-				a.Accuracy = acc.Accuracies[len(acc.Accuracies) - 1]
+				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
 				a.Accuracy = 1
 			}
