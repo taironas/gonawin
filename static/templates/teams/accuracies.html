@@ -14,25 +14,24 @@
   <dd>{{teamData.Team.Private}}</dd>
   <dt><strong>Joined:</strong></dt>
   <dd>{{teamData.Joined}}</dd>
+  <dt><strong>Global accuracy:</strong></dt>
+  <dd>{{100*teamData.Team.Accuracy | number:2}}%</dd>
 </dl>
 
-<div class="accuracy">
-  <h2>Team accuracy:</h2>
-  <p>{{100*teamData.Team.Accuracy | number:2}}%</p>
-</div>
-
-<div ng-if="accData.Accuracies">
-  <div class="accuracies" ng-repeat="acc in accData.Accuracies">
-    <p>Tournament: {{acc.TournamentId}}. Accuracy of team: {{acc.Accuracy}}</p>
-    <table class="table table-striped">
+<div class="row" ng-repeat="acc in accuracyData.Accuracies">
+  <div class="col-md-1"></div>
+  <div class="col-md-3">
+    <h4>Tournament: {{acc.TournamentId}}</h4>
+    <h5>Team Accuracy in tournament: {{acc.Accuracy}}</h5>
+  </div>
+  <div class="col-md-3">
+    <table class="table table-striped table-condensed">
       <thead>
-	<tr>
-	  <th>Accuracy</th>
-	</tr>
+	<th>Progression</th>
       </thead>
       <tbody>
-	<tr ng-repeat="prog in acc.Progression">
-	  <td>{{prog}}</td>
+	<tr ng-repeat="p in acc.Progression">
+	  <td class="col-md-8">{{100 * p.Value | number:2}}%</td>
 	</tr>
       </tbody>
     </table>

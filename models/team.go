@@ -556,7 +556,11 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 			a.Id = aot.AccuracyId
 			a.TournamentId = aot.TournamentId
 			a.Accuracy = 0
-			a.Progression = acc.Accuracies
+			a.Progression = make([]Progression, len(acc.Accuracies))
+			for i, cur := range acc.Accuracies {
+				a.Progression[i].Value = cur
+			}
+			accs = append(accs, a)
 		}
 	}
 	return &accs

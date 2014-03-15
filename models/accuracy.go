@@ -34,8 +34,12 @@ type Accuracy struct {
 type AccuracyOverall struct {
 	Id           int64
 	TournamentId int64
-	Accuracy     float64   // overall accuracy
-	Progression  []float64 // progression of accuracies of team in tournament. (right now the last 5 accuracy logs)
+	Accuracy     float64       // overall accuracy
+	Progression  []Progression // progression of accuracies of team in tournament. (right now the last 5 accuracy logs)
+}
+
+type Progression struct {
+	Value float64
 }
 
 // The Json version

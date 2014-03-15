@@ -205,7 +205,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if err := mdl.DestroyGroups(c, tournament.GroupIds); err != nil {
 			log.Errorf(c, "%s error when trying to destroy tournament's groups: %v", desc, err)
 		}
-		
+
 		// delete the tournament
 		tournament.Destroy(c)
 
