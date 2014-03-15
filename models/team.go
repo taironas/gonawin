@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright (c) 2013 Santiago Arias | Remy Jourde | Carlos Bernal
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -555,7 +555,11 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 			var a AccuracyOverall
 			a.Id = aot.AccuracyId
 			a.TournamentId = aot.TournamentId
-			a.Accuracy = 0
+			if len(acc.Accuracies) > 0 {
+				a.Accuracy = acc.Accuracies[len(acc.Accuracies) - 1]
+			} else {
+				a.Accuracy = 1
+			}
 			a.Progression = make([]Progression, len(acc.Accuracies))
 			for i, cur := range acc.Accuracies {
 				a.Progression[i].Value = cur
@@ -565,3 +569,14 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 	}
 	return &accs
 }
+
+
+
+
+
+
+
+
+
+
+

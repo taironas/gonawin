@@ -22,7 +22,7 @@
   <div class="col-md-1"></div>
   <div class="col-md-3">
     <h4>Tournament: {{acc.TournamentId}}</h4>
-    <h5>Team Accuracy in tournament: {{acc.Accuracy}}</h5>
+    <h5>Team Accuracy in tournament: {{acc.Accuracy*100 | number:2}}%</h5>
   </div>
   <div class="col-md-3">
     <table class="table table-striped table-condensed">
