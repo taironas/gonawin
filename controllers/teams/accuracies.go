@@ -30,9 +30,12 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// Json team accuracies handler:
+// Team accuracies handler:
+//
 // Use this handler to get the accuracies of a team.
-// The accuracies data response is an array of accurracies of the team group by tournament with the last 5 progressions.
+//	GET	/j/teams/[0-9]+/accuracies/	Retreives all the tournament accuracies of a team with the given id.
+//
+// The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
 func AccuraciesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies Handler:"
@@ -54,10 +57,6 @@ func AccuraciesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Infof(c, "%s ready to build a acc array", desc)
 		accs := t.AccuraciesGroupByTournament(c, 5)
 
-		// fieldsToKeep := []string{"Id", "Name", "Score"}
-		// usersJson := make([]mdl.UserJson, len(users))
-		// helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
-
 		data := struct {
 			Accuracies *[]mdl.AccuracyOverall
 		}{
@@ -69,9 +68,12 @@ func AccuraciesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json team accuracies by tourmant handler:
+// Team accuracies by tournament handler:
+//
 // Use this handler to get the accuracies of a team for a specific tournament.
-// The accuracies data response is an array of accurracies of the team group by tournament with all progressions.
+//	GET	/j/teams/[0-9]+/accuracies/[0-9]+/	Retreives accuracies of a team with the given id for the specified tournament.
+//
+// The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
 func AccuracyByTournamentJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies by tournament Handler:"
@@ -105,10 +107,6 @@ func AccuracyByTournamentJson(w http.ResponseWriter, r *http.Request, u *mdl.Use
 
 		log.Infof(c, "%s ready to build a acc array", desc)
 		acc := t.AccuracyByTournament(c, tour)
-
-		// fieldsToKeep := []string{"Id", "Name", "Score"}
-		// usersJson := make([]mdl.UserJson, len(users))
-		// helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
 		data := struct {
 			Accuracy *mdl.AccuracyOverall

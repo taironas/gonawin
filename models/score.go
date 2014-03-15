@@ -23,7 +23,15 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
-// Score entity, a placeholder for progression of the score of a user in a tournament.
+// Score entity is a placeholder for progression of the score of a user in a tournament.
+//
+// A User should have a score as well as a score for each tournament it participates in.
+// It should be able to access the history of his score in a specific tournament.
+//
+// The score of a user evolves following the same rules.
+//        If the prediction matches perfectly you get a +3
+//        If prediction matches the trend you get a +1
+//        If the prediction does not match the match result you get +0.
 type Score struct {
 	Id           int64
 	UserId       int64
@@ -48,7 +56,7 @@ type ScoreJson struct {
 	Scores       *[]int64 `json:",omitempty"`
 }
 
-// create a Score entity.
+// Create a Score entity.
 func CreateScore(c appengine.Context, userId int64, tournamentId int64) (*Score, error) {
 	sId, _, err := datastore.AllocateIDs(c, "Score", nil, 1)
 	if err != nil {
@@ -88,6 +96,7 @@ func ScoreKeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
+// Get an array of scores for a user, tournament pair.
 func ScoreByUserTournament(c appengine.Context, userId interface{}, tournamentId interface{}) []*Score {
 
 	q := datastore.NewQuery("Score").
