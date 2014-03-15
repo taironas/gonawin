@@ -547,6 +547,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	return activity.save(c)
 }
 
+// Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.
 func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 	accs := make([]AccuracyOverall, 0)
 	for _, aot := range t.AccOfTournaments {
@@ -561,9 +562,19 @@ func (t *Team) AccuraciesByTournament(c appengine.Context) *[]AccuracyOverall {
 			} else {
 				a.Accuracy = 1
 			}
-			a.Progression = make([]Progression, len(acc.Accuracies))
-			for i, cur := range acc.Accuracies {
-				a.Progression[i].Value = cur
+			a.Progression = make([]Progression, 0)
+			counter := 0
+			limit := 5
+			// get last
+			for i := len(acc.Accuracies) - 1; i > -1; i-- {
+				cur := acc.Accuracies[i]
+				var prog Progression
+				prog.Value = cur
+				a.Progression = append(a.Progression, prog)
+				counter++
+				if counter == limit {
+					break
+				}
 			}
 			accs = append(accs, a)
 		}
