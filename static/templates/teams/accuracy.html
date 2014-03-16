@@ -30,7 +30,7 @@
 	<th>Progression</th>
       </thead>
       <tbody>
-	<tr ng-repeat="p in accuracyData.Accuracy.Progression">
+	<tr ng-repeat="p in accuracyData.Accuracy.Progression | reverse">
 	  <td class="col-md-8">{{100 * p.Value | number:2}}%</td>
 	</tr>
       </tbody>

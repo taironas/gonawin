@@ -11,6 +11,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.joinButton',
   '$strap.directives',
   'filter.fromNow',
+  'filter.reverse',
   
   'navigationControllers',
   'activitiesControllers',

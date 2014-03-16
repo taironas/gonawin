@@ -564,7 +564,7 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 			}
 			a.Progression = make([]Progression, 0)
 			counter := 0
-			// get last
+			// get most recent accuracies with a 'limit' progression.
 			for i := len(acc.Accuracies) - 1; i > -1; i-- {
 				cur := acc.Accuracies[i]
 				var prog Progression
@@ -581,6 +581,8 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 	return &accs
 }
 
+// Get the overall accuracy of a team in the specified tournament.
+// the progression of accuracies is in reverse order to have the most reset accuracy as first element.
 func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
 	for _, aot := range t.AccOfTournaments {
 		if aot.TournamentId != tour.Id {
@@ -598,7 +600,6 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 				a.Accuracy = 1
 			}
 			a.Progression = make([]Progression, len(acc.Accuracies))
-			// get last
 			for i, cur := range acc.Accuracies {
 				var prog Progression
 				prog.Value = cur
