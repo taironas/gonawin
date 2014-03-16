@@ -228,18 +228,24 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
       }
     }
   };
-  // action triggered when 'Create new button' is clicked.
-  // Modal will be hidden
+
+  // Action triggered when 'Create new button' is clicked, modal window will be hidden.
+  // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
   $scope.newTeam = function(){
     $('#tournament-modal').modal('hide');
+    $scope.redirectToNewTeam = true;
   };
+
   // listen 'hidden.bs.modal' event to redirect to new team page
+  // Only redirect if flag 'redirectToNewTeam' is set.
   $('#tournament-modal').on('hidden.bs.modal', function (e) {
     // need to have scope for $location to work. So add 'apply' function
     // inside js listener
-    $scope.$apply(function(){
-      $location.path('/teams/new/');
-    });
+    if($scope.redirectToNewTeam == true){
+      $scope.$apply(function(){
+	$location.path('/teams/new/');
+      });
+    }
   })
 }]);
 
