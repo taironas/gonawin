@@ -102,6 +102,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     });
   };
 
+  // This function makes a user join a team. 
+  // It does so by caling Join on a Team.
+  // This will update players data and join button name.
   $scope.joinTeam = function(){
     Team.join({ id:$routeParams.id }).$promise.then(function(result){
       Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){

@@ -29,15 +29,16 @@ import (
 )
 
 type Tmatch struct {
-	Id       int64
-	IdNumber int64
-	Date     time.Time
-	TeamId1  int64
-	TeamId2  int64
-	Location string
-	Rule     string // we use this field to store a specific match rule.
-	Result1  int64
-	Result2  int64
+	Id       int64     // datastore match id
+	IdNumber int64     // id of match in tournament
+	Date     time.Time // date of match
+	TeamId1  int64     // id of 1st team
+	TeamId2  int64     // id of 2nd team
+	Location string    // match location
+	Rule     string    // we use this field to store a specific match rule.
+	Result1  int64     // result of 1st team
+	Result2  int64     // result of 2nd team
+	Finished bool      // is match finished
 }
 
 // Get a Tmatch entity by id.
@@ -189,6 +190,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	}
 	m.Result1 = result1
 	m.Result2 = result2
+	m.Finished = true
 	if err := UpdateMatch(c, m); err != nil {
 		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id, err)
 		return err
@@ -209,6 +211,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		}
 		UpdateGroup(c, g)
 	}
+	// all when well,
 	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
@@ -306,4 +309,16 @@ func MatchesGroupByDay(matches []Tmatch) []Tday {
 	}
 	sort.Sort(ByDate(days))
 	return days
+}
+
+// Get the number of matches in a tournament that are finished.
+func (t *Tournament) OldMatches(c appengine.Context) int {
+	matches := GetAllMatchesFromTournament(c, t)
+	old := 0
+	for _, m := range matches {
+		if m.Finished {
+			old++
+		}
+	}
+	return old
 }

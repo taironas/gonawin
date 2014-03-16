@@ -26,6 +26,7 @@
 //	POST	/j/teams/invite/[0-9]+/			Request an invitation to a private team with the given id.
 //	POST	/j/teams/allow/[0-9]+/			Allow a user to be a member of a team with the given id.
 //	POST	/j/teams/deny/[0-9]+/			Deny entrance of user to be a member of a team with the given id.
+//	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 //	GET	/j/teams/search/			Search for all teams respecting the query "q"
 //	GET	/j/teams/[0-9]+/members/		Retreives all members of a team with the given id.
 //	GET	/j/teams/[0-9]+/ranking/		Retreives the ranking of a team with the given id.
@@ -467,10 +468,10 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// JSON Join handler when user joins team
-// User will join the team.
+// Join handler will make a user join a team.
 // New user activity will be pushlished
-// Reponse: JSON formatted team
+//	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
+// Reponse: a JSON formatted team.
 func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 

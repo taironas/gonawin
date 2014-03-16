@@ -24,13 +24,13 @@ import (
 )
 
 // Accuracy entity is a placeholder for progression of the accuracy of a team in a tournament.
+// Teams should have a global accuracy as well as an accuracy for each tournament they participate in.
+// Teams should be able to see the evolution of their accuracy for each tournament.
 //
-// Teams should have a global accuracy as well as an accuracy for each tournament they participate in. Teams should be able to see the evolution of their accuracy for each tournament.
-//
-//The Team accuracy of a specific tournament is computed as follows:
+// The Team accuracy of a specific tournament is computed as follows:
 //        (sum(scores of match for each team member) + previous accuracy) / (number of matches played by the team)
 //
-//If some participants arrive later to the tournament, previous accuracies count as 0, and this does not impact previous teams accuracy.
+// If some participants arrive later to the tournament, previous accuracies count as 0, and this does not impact previous teams accuracy.
 type Accuracy struct {
 	Id           int64
 	TeamId       int64
@@ -58,13 +58,13 @@ type AccuracyJson struct {
 }
 
 // create an Accuracy entity.
-func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64) (*Accuracy, error) {
+func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64, oldmatches int) (*Accuracy, error) {
 	aId, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Accuracy", "", aId, nil)
-	accs := make([]float64, 0)
+	accs := make([]float64, oldmatches)
 	a := &Accuracy{aId, teamId, tournamentId, accs}
 	if _, err = datastore.Put(c, key, a); err != nil {
 		return nil, err
