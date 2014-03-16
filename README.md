@@ -6,31 +6,31 @@ We believe that todays betting platforms are just full of adds that polute the g
 We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between.
 
 
-## Contributors :
+#### Contributors :
 * Santiago (sar)
 * Remy (rej)
 * Cabernal (cab)
 
-## Thrid Parties Installation
+#### Thrid Parties Installation
 
     go get github.com/garyburd/go-oauth/oauth
     
-## Installation
+#### Installation
 
     todo
     
-## Run App
+#### Run App
 
     go_appengine\dev_appserver.py purple-wing
     
-## Formatting
+#### Formatting
 
     go fmt ..\purple-wing\...
 
-## Deployment
+#### Deployment
 
     go_appengine\appcfg.py update purple-wing
     
-## Documentation
+#### Documentation
 
     godoc -http=:6060
