@@ -25,6 +25,7 @@ import (
 	activitiesctrl "github.com/santiaago/purple-wing/controllers/activities"
 	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
 	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
+	tasksctrl "github.com/santiaago/purple-wing/controllers/tasks"
 	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
 	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
 	usersctrl "github.com/santiaago/purple-wing/controllers/users"
@@ -102,6 +103,9 @@ func init() {
 
 	// activities - json
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.IndexJson)))
+
+	// admin handlers
+	h.HandleFunc("/a/update/scores/", handlers.ErrorHandler(tasksctrl.UpdateScores))
 
 	http.Handle("/", h)
 }
