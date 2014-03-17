@@ -279,6 +279,8 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
   $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
     console.log('Tournament calendar controller: predict:', matchIdNumber);
+    console.log('Tournament calendar controller: predict: index:', index);
+    console.log('Tournament calendar controller: predict: parent parent index:', parentIndex);
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
     $scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
