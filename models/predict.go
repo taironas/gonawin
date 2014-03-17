@@ -27,24 +27,25 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
-// A Predict entity is defined the result of a Match: Result1 and Result2 and a MatchId that references a Match entity in the datastore.
+// A Predict entity is defined by the result of a Match: Result1 and Result2 a match id and a user id.
 type Predict struct {
-	Id      int64
-	Result1 int64
-	Result2 int64
-	MatchId int64
-	Created time.Time
+	Id      int64     // predict id
+	UserId  int64     // user id, a prediction is binded to a single user.
+	Result1 int64     // result of first team
+	Result2 int64     // result of second team
+	MatchId int64     // match id in tournament
+	Created time.Time // date of creation
 }
 
-// Create a Predict given a name, a result and a match id admin id and a private mode.
-func CreatePredict(c appengine.Context, result1 int64, result2 int64, matchId int64) (*Predict, error) {
+// Create a Predict entity given a name, a user id, a result and a match id admin id and a private mode.
+func CreatePredict(c appengine.Context, userId, result1, result2, matchId int64) (*Predict, error) {
 
 	pId, _, err := datastore.AllocateIDs(c, "Predict", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Predict", "", pId, nil)
-	p := &Predict{pId, result1, result2, matchId, time.Now()}
+	p := &Predict{pId, userId, result1, result2, matchId, time.Now()}
 	if _, err = datastore.Put(c, key, p); err != nil {
 		return nil, err
 	}
@@ -74,6 +75,32 @@ func FindPredicts(c appengine.Context, filter string, value interface{}) []*Pred
 		return predicts
 	} else {
 		log.Errorf(c, " Predict.Find, error occurred during GetAll: %v", err)
+		return nil
+	}
+}
+
+// Search for a Predict entity given a userId and a matchId. 
+// The pair (user id , match id) should be unique. So if the query returns more than one entity we return 'nil' and write in the error log.
+func FindPredictByUserMatch(c appengine.Context, userId, matchId int64) *Predict {
+	desc := "Predict.FindPredictByUserMatch:"
+	q := datastore.NewQuery("Predict").
+		Filter("UserId"+" =", userId).
+		Filter("MatchId"+" =", matchId)
+
+	var predicts []*Predict
+
+	if _, err := q.GetAll(c, &predicts); err == nil {
+		if len(predicts) == 1 {
+			return predicts[0]
+		} else if len(predicts) == 0 {
+			log.Infof(c, "%s no predicts found.", desc)
+			return nil
+		} else {
+			log.Errorf(c, "%s too many predicts found. pair matchId, UserId should be unique.", desc)
+			return nil
+		}
+	} else {
+		log.Errorf(c, "%s an error occurred during GetAll: %v", err)
 		return nil
 	}
 }
