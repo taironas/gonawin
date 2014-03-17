@@ -63,7 +63,7 @@ func (p *Predict) Destroy(c appengine.Context) error {
 	}
 }
 
-// Given a filter and a value look query the datastore for predict entities and returns an array of Predict pointers.
+// Search for an array of Predict entities given a filter and a value.
 func FindPredicts(c appengine.Context, filter string, value interface{}) []*Predict {
 
 	q := datastore.NewQuery("Predict").Filter(filter+" =", value)
@@ -112,7 +112,7 @@ func (p *Predict) Update(c appengine.Context) error {
 }
 
 // Get all Predicts in datastore.
-func FindAll(c appengine.Context) []*Predict {
+func FindAllPredicts(c appengine.Context) []*Predict {
 	q := datastore.NewQuery("Predict")
 
 	var predicts []*Predict

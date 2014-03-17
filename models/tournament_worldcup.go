@@ -201,7 +201,7 @@ func MapOf2ndRoundMatches() map[string][][]string {
 	return mapMatches2ndRound
 }
 
-// Array of phases of world cup tournament: (FirstStage, RoundOf16, QuarterFinals, SemiFinals, ThirdPlace, Finals)
+// Return an array of the phases names of world cup tournament: (FirstStage, RoundOf16, QuarterFinals, SemiFinals, ThirdPlace, Finals)
 func ArrayOfPhases() []string {
 	return []string{cFirstStage, cRoundOf16, cQuarterFinals, cSemiFinals, cThirdPlace, cFinals}
 }

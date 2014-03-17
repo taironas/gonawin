@@ -57,7 +57,7 @@ type AccuracyJson struct {
 	Accuracies   *[]float64 `json:",omitempty"`
 }
 
-// create an Accuracy entity.
+// Create an Accuracy entity.
 func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64, oldmatches int) (*Accuracy, error) {
 	aId, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
 	if err != nil {
@@ -113,12 +113,13 @@ func sumInt64(a *[]int64) (sum int64) {
 	return
 }
 
-// get an accuracy key given an id
+// Get an accuracy key given an id.
 func AccuracyKeyById(c appengine.Context, id int64) *datastore.Key {
 	key := datastore.NewKey(c, "Accuracy", "", id, nil)
 	return key
 }
 
+// Get an array of Accuracies filtered by teamId and tournamentId.
 func AccuracyByTeamTournament(c appengine.Context, teamId interface{}, tournamentId interface{}) []*Accuracy {
 
 	q := datastore.NewQuery("Accuracy").

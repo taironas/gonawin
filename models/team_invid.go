@@ -75,10 +75,11 @@ func CreateTeamInvertedIndex(c appengine.Context, word string, teamIds string) (
 	return t, err
 }
 
-// AddToTeamInvertedIndex
-// Split name by words.
-// For each word check if it exist in the Team Inverted Index.
-// if not create a line with the word as key and team id as value.
+// Add name to team inverted index entity.
+//
+// We do this by spliting the name in words (split by spaces),
+// for each word we check if it already exists a team inverted index entity.
+// If it does not yet exist, we create an entity with the word as key and team id as value.
 func AddToTeamInvertedIndex(c appengine.Context, name string, id int64) error {
 
 	words := strings.Split(name, " ")
