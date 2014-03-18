@@ -222,8 +222,7 @@ func TeamInvertedIndexKeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// given an array of words returns an array of ids that correspond to the
-// inverted indexes ids.
+// Given an array of words, return an array of indexes that correspond to the team ids of the teams that use these words.
 func GetTeamInvertedIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
@@ -305,7 +304,7 @@ func TeamInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	return x.Count, nil
 }
 
-// get the frequency of a word with respect to the teams
+// Get the number of teams that have 'word' in their name.
 func GetTeamFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
 	if invId, err := FindTeamInvertedIndex(c, "KeyName", word); err != nil {

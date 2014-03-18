@@ -97,7 +97,7 @@ func (t *Team) Destroy(c appengine.Context) error {
 	}
 }
 
-// Given a filter and a value look query the datastore for teams and returns an array of team pointers.
+// Search for all Team entities with respect of a filter and a value.
 func FindTeams(c appengine.Context, filter string, value interface{}) []*Team {
 
 	q := datastore.NewQuery("Team").Filter(filter+" =", value)
@@ -224,7 +224,7 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 	return nil
 }
 
-// Check if user is admin of that team.
+// Check if user is admin of the team with id 'teamId'.
 func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 
 	if team, err := TeamById(c, teamId); err == nil {

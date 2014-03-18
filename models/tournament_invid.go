@@ -222,7 +222,7 @@ func TournamentInvertedIndexKeyById(c appengine.Context, id int64) *datastore.Ke
 	return key
 }
 
-// get an array of ids given a set of words pass as paramenters.
+// Given an array of words, return an array of indexes that correspond to the tournament ids of the tournaments that use these words.
 func GetTournamentInvertedIndexes(c appengine.Context, words []string) ([]int64, error) {
 	var err1 error = nil
 	strMerge := ""
@@ -305,7 +305,7 @@ func TournamentInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	return x.Count, nil
 }
 
-// get frequency of a given word base on tournamentinverted index data
+// Get the number of tournaments that have 'word' in their name.
 func GetTournamentFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
 	if invId, err := FindTournamentInvertedIndex(c, "KeyName", word); err != nil {

@@ -45,7 +45,7 @@ type MatchJson struct {
 	Result2    int64
 	HasPredict bool
 	Predict    string
-	Finished bool
+	Finished   bool
 }
 
 // Json tournament Matches handler

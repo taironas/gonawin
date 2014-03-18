@@ -97,9 +97,7 @@ func CreateUser(c appengine.Context, email string, username string, name string,
 func FindUser(c appengine.Context, filter string, value interface{}) *User {
 
 	q := datastore.NewQuery("User").Filter(filter+" =", value)
-
 	var users []*User
-
 	if _, err := q.GetAll(c, &users); err == nil && len(users) > 0 {
 		return users[0]
 	} else if len(users) == 0 {
@@ -113,13 +111,10 @@ func FindUser(c appengine.Context, filter string, value interface{}) *User {
 // Find all users present in datastore.
 func FindAllUsers(c appengine.Context) []*User {
 	q := datastore.NewQuery("User")
-
 	var users []*User
-
 	if _, err := q.GetAll(c, &users); err != nil {
 		log.Errorf(c, "FindAllUser, error occurred during GetAll call: %v", err)
 	}
-
 	return users
 }
 
@@ -128,7 +123,6 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
 	key := datastore.NewKey(c, "User", "", id, nil)
-
 	if err := datastore.Get(c, key, &u); err != nil {
 		log.Errorf(c, " user not found : %v", err)
 		return nil, err
@@ -140,7 +134,6 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 func UserKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "User", "", id, nil)
-
 	return key
 }
 
@@ -186,6 +179,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 }
 
 // Generate authentication string key.
+// We use this function to create an authentication token for a user entity.
 func GenerateAuthKey() string {
 	b := make([]byte, 16)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {

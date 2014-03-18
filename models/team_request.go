@@ -73,7 +73,7 @@ func (tr *TeamRequest) Destroy(c appengine.Context) error {
 	}
 }
 
-// Search for an array of TeamRequest entities given a filter and a value.
+// Search for all TeamRequest entities with respect of a filter and a value.
 func FindTeamRequest(c appengine.Context, filter string, value interface{}) []*TeamRequest {
 
 	q := datastore.NewQuery("TeamRequest").Filter(filter+" =", value)

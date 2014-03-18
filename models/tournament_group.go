@@ -48,7 +48,7 @@ func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	return &g, nil
 }
 
-// From an array of groups id return array of Tgroups.
+// Get an array of groups entities (Tgroup) from an array of group ids.
 func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 
 	var groups []*Tgroup
@@ -66,7 +66,7 @@ func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 }
 
 // Get pointer to a group key given a group id.
-func KeyByIdGroup(c appengine.Context, id int64) *datastore.Key {
+func GroupKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Tgroup", "", id, nil)
 	return key
@@ -76,7 +76,7 @@ func KeyByIdGroup(c appengine.Context, id int64) *datastore.Key {
 func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 	keys := make([]*datastore.Key, len(groups))
 	for i, _ := range keys {
-		keys[i] = KeyByIdGroup(c, groups[i].Id)
+		keys[i] = GroupKeyById(c, groups[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, groups); err != nil {
 		return err
@@ -86,7 +86,7 @@ func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 
 // Update a group.
 func UpdateGroup(c appengine.Context, g *Tgroup) error {
-	k := KeyByIdGroup(c, g.Id)
+	k := GroupKeyById(c, g.Id)
 	oldGroup := new(Tgroup)
 	if err := datastore.Get(c, k, oldGroup); err == nil {
 		if _, err = datastore.Put(c, k, g); err != nil {
@@ -100,7 +100,7 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 func DestroyGroups(c appengine.Context, groupIds []int64) error {
 	keys := make([]*datastore.Key, len(groupIds))
 	for i, _ := range keys {
-		keys[i] = KeyByIdGroup(c, groupIds[i])
+		keys[i] = GroupKeyById(c, groupIds[i])
 	}
 	if err := datastore.DeleteMulti(c, keys); err != nil {
 		return err
@@ -132,8 +132,8 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 	return nil
 }
 
-// Check if the match is part of a group phase in current tournament.
-func IsMatchInGroup(c appengine.Context, t *Tournament, m *Tmatch) (bool, *Tgroup) {
+// Check if the match is part of a group phase in the current tournament.
+func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgroup) {
 	groups := Groups(c, t.GroupIds)
 	for i, g := range groups {
 		for _, match := range g.Matches {

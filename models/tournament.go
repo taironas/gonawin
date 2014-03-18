@@ -98,7 +98,7 @@ func (t *Tournament) Destroy(c appengine.Context) error {
 	}
 }
 
-// Find all tournaments in datastore given a filter and value.
+// Find all entity tournaments with respect of a filter and value.
 func FindTournaments(c appengine.Context, filter string, value interface{}) []*Tournament {
 
 	q := datastore.NewQuery("Tournament").Filter(filter+" =", value)
@@ -206,12 +206,11 @@ func (t *Tournament) Leave(c appengine.Context, u *User) error {
 	return nil
 }
 
-// Checks if user is admin of given tournament.
+// Checks if user is admin of tournament with id 'tournamentId'.
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
 	if tournament, err := TournamentById(c, tournamentId); err == nil {
 		return tournament.AdminId == userId
 	}
-
 	return false
 }
 

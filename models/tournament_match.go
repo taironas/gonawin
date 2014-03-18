@@ -155,7 +155,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 	for _, m := range matches {
 		log.Infof(c, "%s Trigger current match: %v", desc, m.Id)
 
-		if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
+		if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 			if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
 				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 				return errors.New(helpers.ErrorCodeMatchCannotUpdate)
@@ -204,7 +204,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 			log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.Id, err)
 		}
 	}
-	if ismatch, g := IsMatchInGroup(c, t, m); ismatch == true {
+	if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
 			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
@@ -226,7 +226,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	return nil
 }
 
-// From a tournament entity return an array of Matches.
+// Get an array of all matches of a tournament.
 func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []*Tmatch {
 
 	matches := Matches(c, tournament.Matches1stStage)

@@ -64,7 +64,7 @@ func (p *Predict) Destroy(c appengine.Context) error {
 	}
 }
 
-// Search for an array of Predict entities given a filter and a value.
+// Search for all Predict entities with respect to a filter and a value.
 func FindPredicts(c appengine.Context, filter string, value interface{}) []*Predict {
 
 	q := datastore.NewQuery("Predict").Filter(filter+" =", value)
@@ -79,7 +79,7 @@ func FindPredicts(c appengine.Context, filter string, value interface{}) []*Pred
 	}
 }
 
-// Search for a Predict entity given a userId and a matchId. 
+// Search for a Predict entity given a userId and a matchId.
 // The pair (user id , match id) should be unique. So if the query returns more than one entity we return 'nil' and write in the error log.
 func FindPredictByUserMatch(c appengine.Context, userId, matchId int64) *Predict {
 	desc := "Predict.FindPredictByUserMatch:"
