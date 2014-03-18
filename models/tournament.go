@@ -258,7 +258,7 @@ func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) i
 }
 
 // Reset tournament values: Points, GoalsF, GoalsA to zero.
-func Reset(c appengine.Context, t *Tournament) error {
+func (t *Tournament) Reset(c appengine.Context) error {
 	groups := Groups(c, t.GroupIds)
 	for _, g := range groups {
 		g.Points = make([]int64, len(g.Teams))

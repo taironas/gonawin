@@ -421,7 +421,7 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Tournament Update Match Result Handler: tournament with id:%v was not found %v", tournamentId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		if err = mdl.Reset(c, t); err != nil {
+		if err = t.Reset(c); err != nil {
 			log.Errorf(c, "Tournament Reset Handler: Unable to reset tournament: %v error:", tournamentId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 		}

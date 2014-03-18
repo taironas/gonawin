@@ -54,7 +54,10 @@ func MapOfGroups() map[string][]string {
 }
 
 // Map of group matches, key: group name, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
-// example: Group A:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
+//
+// Example:
+//
+// 	Group A:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
 func MapOfGroupMatches() map[string][][]string {
 
 	mapGroupMatches := make(map[string][][]string)
@@ -153,8 +156,13 @@ func MapOfGroupMatches() map[string][][]string {
 	return mapGroupMatches
 }
 
-// Map of 2nd round matches, key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
-// example: round 16:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
+// Returns the Map of 2nd round matches, of the world cup tournament.
+// key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
+//
+// Example:
+//
+//	round 16:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
+//
 func MapOf2ndRoundMatches() map[string][][]string {
 
 	// Round of 16

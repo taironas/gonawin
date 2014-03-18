@@ -85,14 +85,14 @@ func GetMatchByIdNumber(c appengine.Context, tournament Tournament, matchInterna
 }
 
 // Return a pointer to a match key given a match id.
-func KeyByIdMatch(c appengine.Context, id int64) *datastore.Key {
+func MatchKeyById(c appengine.Context, id int64) *datastore.Key {
 	key := datastore.NewKey(c, "Tmatch", "", id, nil)
 	return key
 }
 
 // Update a match given a match pointer
 func UpdateMatch(c appengine.Context, m *Tmatch) error {
-	k := KeyByIdMatch(c, m.Id)
+	k := MatchKeyById(c, m.Id)
 	oldMatch := new(Tmatch)
 	if err := datastore.Get(c, k, oldMatch); err == nil {
 		if _, err = datastore.Put(c, k, m); err != nil {
@@ -106,7 +106,7 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 	keys := make([]*datastore.Key, len(matches))
 	for i, _ := range keys {
-		keys[i] = KeyByIdMatch(c, matches[i].Id)
+		keys[i] = MatchKeyById(c, matches[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, matches); err != nil {
 		return err
@@ -118,7 +118,7 @@ func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 func DestroyMatches(c appengine.Context, matchIds []int64) error {
 	keys := make([]*datastore.Key, len(matchIds))
 	for i, _ := range keys {
-		keys[i] = KeyByIdMatch(c, matchIds[i])
+		keys[i] = MatchKeyById(c, matchIds[i])
 	}
 	if err := datastore.DeleteMulti(c, keys); err != nil {
 		return err
