@@ -41,7 +41,6 @@ purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $l
 
 purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
-    console.log('purpleWingApp.config');
     $routeProvider.
       when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
       when('/', { templateUrl:  'templates/home.html', requireLogin: true }).
@@ -84,8 +83,9 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', function($rootScope, $location, $window, sAuth, Session) {
-  $rootScope.currentUser = {};
+purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, sAuth, Session, User) {
+  $rootScope.currentUser = undefined;
+  $rootScope.isLoggedIn = false;
   
   $window.fbAsyncInit = function() {
     // Executed when the SDK is loaded
@@ -120,27 +120,30 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
   }(document));
   
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
-    console.log('routeChangeStart');
+    console.log('routeChangeStart, requireLogin = ', next.requireLogin);
+    console.log('routeChangeStart, current user = ', $rootScope.currentUser);
+    console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
     if($location.$$path === '/auth/twitter/callback')
     {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else {
-      // Everytime the route in our app changes check authentication status
-      sAuth.getCurrentUser().then(function(currentUser){
-        $rootScope.currentUser = currentUser;
-        
-        console.log('current user = ', $rootScope.currentUser);
-        if (next.requireLogin) {
-          if(!$rootScope.currentUser) {
-            // if you're logged out send to home page.
-            $location.path('/welcome');
-          } else if($location.path() === '/welcome') {
-              $location.path('/');
-          }
-        } else if($rootScope.currentUser && $location.path() === '/welcome') {
-          $location.path('/');
-        }
-      });
+      $rootScope.isLoggedIn = sAuth.isLoggedIn();
+      // Everytime the route in our app changes check authentication status.
+      // Get current user only if we are logged in.
+      if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
+        $rootScope.currentUser = User.get({ id:sAuth.getUserID() });
+        console.log('routeChangeStart, current user = ', $rootScope.currentUser);
+      }
+      // Redirect user to root if he tries to go on welcome page and he is logged in.
+      if( $location.path() === '/welcome' && (undefined != $rootScope.currentUser) ) {
+        console.log('routeChangeStart, redirect to root');
+        $location.path('/');
+      }
+      // Redidrect to welcome if route requires to be logged in and user is not logged in.
+      if ( next.requireLogin && (undefined == $rootScope.currentUser) ) {
+        console.log('routeChangeStart, redirect to welcome');
+        $location.path('/welcome');
+      }
     }
   });
   
@@ -148,17 +151,17 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', fun
     // User successfully authorized the G+ App!
     console.log('event:google-plus-signin-success');
     Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
-      Session.fetchUser({  access_token: authResult.access_token,
-                           provider: 'google',
-                           id:userInfo.id,
-                           name:userInfo.displayName,
-                           email:userInfo.emails[0].value } ).$promise.then(function(userData) {
-       $rootScope.currentUser = userData.User;
-       console.log('current user: ', $rootScope.currentUser);
-
-       sAuth.storeCookies(authResult.access_token, $rootScope.currentUser.Auth, $rootScope.currentUser.Id);
-       
-       $location.path('/');
+      $rootScope.currentUser = Session.fetchUser({  
+        access_token: authResult.access_token,
+        provider: 'google',
+        id:userInfo.id,
+        name:userInfo.displayName,
+        email:userInfo.emails[0].value } );
+      $rootScope.currentUser.$promise.then(function(currentUser){
+        console.log('event:google-plus-signin-success: current user = ', currentUser);
+        sAuth.storeCookies(authResult.access_token, currentUser.User.Auth, currentUser.User.Id);
+        $rootScope.isLoggedIn = true;
+        $location.path('/');
       });
     });
   });
