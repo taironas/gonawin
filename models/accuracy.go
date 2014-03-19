@@ -119,23 +119,6 @@ func AccuracyKeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// Get an array of Accuracies filtered by teamId and tournamentId.
-func AccuracyByTeamTournament(c appengine.Context, teamId interface{}, tournamentId interface{}) []*Accuracy {
-
-	q := datastore.NewQuery("Accuracy").
-		Filter("TeamId"+" =", teamId).
-		Filter("TournamentId"+" =", tournamentId)
-
-	var accs []*Accuracy
-
-	if _, err := q.GetAll(c, &accs); err == nil {
-		return accs
-	} else {
-		log.Errorf(c, "AccuracyByTeamTournament: error occurred during GetAll: %v", err)
-		return nil
-	}
-}
-
 // Get a team given an id.
 func AccuracyById(c appengine.Context, id int64) (*Accuracy, error) {
 
