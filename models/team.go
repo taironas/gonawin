@@ -125,11 +125,9 @@ func TeamById(c appengine.Context, id int64) (*Team, error) {
 	return &t, nil
 }
 
-// get a team key given an id
+// Get a team key given a team id.
 func TeamKeyById(c appengine.Context, id int64) *datastore.Key {
-
 	key := datastore.NewKey(c, "Team", "", id, nil)
-
 	return key
 }
 
