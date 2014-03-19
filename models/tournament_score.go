@@ -35,7 +35,6 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	// ------------------------------------------------------------
 	log.Infof(c, "%s Sending to taskqueue: update scores", desc)
 
-	//json.NewEncoder(w).Encode(data)
 	b1, errm := json.Marshal(t)
 	if errm != nil {
 		log.Errorf(c, "%s Error marshaling", desc, errm)
