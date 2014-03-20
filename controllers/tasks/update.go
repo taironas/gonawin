@@ -43,7 +43,6 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	desc := "Task queue - Update Scores Handler:"
 	log.Infof(c, "%s task called, processing...", desc)
 	if r.Method == "POST" {
-		// all or nothing here :)
 		tournamentBlob := []byte(r.FormValue("tournament"))
 		matchBlob := []byte(r.FormValue("match"))
 
@@ -65,6 +64,8 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		users := t.Participants(c)
 
 		// prepare data.
+		log.Infof(c, "%s preparing data...", desc)
+
 		scores := make([]int64, 0)
 		userIds := make([]int64, 0)
 		userIdsToCreateSE := make([]int64, 0)
@@ -81,8 +82,11 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 				userIdsToCreateSE = append(userIdsToCreateSE, u.Id)
 			}
 		}
+		log.Infof(c, "%s the data is ready.", desc)
 
 		// task queue for updating scores of users.
+		log.Infof(c, "%s task queue for updating scores of users: -->", desc)
+
 		bscores, errm11 := json.Marshal(scores)
 		if errm11 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, errm11)
@@ -106,8 +110,11 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		} else {
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
+		log.Infof(c, "%s task queue for updating scores of users: <--", desc)
 
 		// task queue for adding necessary score entities.
+		log.Infof(c, "%s task queue for adding necessary score entities.: -->", desc)
+
 		buserIdsToCreateSE, errm21 := json.Marshal(userIdsToCreateSE)
 		if errm21 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, errm21)
@@ -117,9 +124,10 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			log.Errorf(c, "%s Error marshaling", desc, errm22)
 		}
 
-		task2 := taskqueue.NewPOSTTask("/a/create/scoreentities", url.Values{
-			"userIds": []string{string(buserIdsToCreateSE)},
-			"scores":  []string{string(bscores)},
+		task2 := taskqueue.NewPOSTTask("/a/create/scoreentities/", url.Values{
+			"userIds":      []string{string(buserIdsToCreateSE)},
+			"scores":       []string{string(bscores)},
+			"tournamentId": []string{string(btournamentId)},
 		})
 		if _, err := taskqueue.Add(c, task2, ""); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
@@ -127,8 +135,11 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		} else {
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
+		log.Infof(c, "%s task queue for adding necessary score entities.: <--", desc)
 
 		// task queue for adding the score to the score entity.
+		log.Infof(c, "%s task queue for adding the score to the score entity: -->", desc)
+
 		bscores, errm31 := json.Marshal(scores)
 		if errm31 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, errm31)
@@ -137,7 +148,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		if errm2 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, errm2)
 		}
-		task := taskqueue.NewPOSTTask("/a/add/scoreentities/score", url.Values{
+		task := taskqueue.NewPOSTTask("/a/add/scoreentities/score/", url.Values{
 			"userIds":    []string{string(buserIds)},
 			"scores":     []string{string(bscores)},
 			"tournament": []string{string(tournamentBlob)},
@@ -148,6 +159,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		} else {
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
+		log.Infof(c, "%s task queue for adding the score to the score entity: <--", desc)
 
 		// users := t.Participants(c)
 		// usersToUpdate := make([]*mdl.User, 0)
@@ -196,12 +208,14 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Upadte users scores.
+// Update users scores.
 func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Users Scores Handler:"
 	log.Infof(c, "%s task called, processing...", desc)
 	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
+
 		userIdsBlob := []byte(r.FormValue("userIds"))
 		scoresBlob := []byte(r.FormValue("scores"))
 
@@ -212,7 +226,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		var scores []int64
-		err2 := json.Unmarshal(scoresBlob, &scoresBlob)
+		err2 := json.Unmarshal(scoresBlob, &scores)
 		if err2 != nil {
 			log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
 		}
@@ -220,6 +234,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 		log.Infof(c, "%s value of user ids: %v", desc, userIds)
 		log.Infof(c, "%s value of scores: %v", desc, scores)
 
+		log.Infof(c, "%s crunching data...", desc)
 		usersToUpdate := make([]*mdl.User, 0)
 		for i, id := range userIds {
 			if u, err := mdl.UserById(c, id); err != nil {
@@ -229,12 +244,12 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 				usersToUpdate = append(usersToUpdate, u)
 			}
 		}
+		log.Infof(c, "%s update users", desc)
 
 		if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
 			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
 			return errors.New(helpers.ErrorCodeUsersCannotUpdate)
 		}
-
 		log.Infof(c, "%s task done!", desc)
 		return nil
 	}
@@ -248,6 +263,8 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	desc := "Task queue - Create score entities Handler:"
 	log.Infof(c, "%s task called, processing...", desc)
 	if r.Method == "POST" {
+		log.Infof(c, "%s preparing data", desc)
+
 		userIdsBlob := []byte(r.FormValue("userIds"))
 		tournamentIdBlob := []byte(r.FormValue("tournamentId"))
 
@@ -264,7 +281,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 		if err1 != nil {
 			log.Errorf(c, "%s unable to extract tournamentId from data, %v", desc, err1)
 		}
-
+		log.Infof(c, "%s crunching data...", desc)
 		for _, id := range userIds {
 			if u, err := mdl.UserById(c, id); err != nil {
 				log.Errorf(c, "%s cannot find user with id=%", desc, id)
@@ -293,6 +310,7 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	desc := "Task queue - Add score to score entity Handler:"
 	log.Infof(c, "%s task called, processing...", desc)
 	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
 		userIdsBlob := []byte(r.FormValue("userIds"))
 		scoresBlob := []byte(r.FormValue("scores"))
 		tournamentBlob := []byte(r.FormValue("tournament"))
@@ -316,7 +334,10 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+		log.Infof(c, "%s value of scores: %v", desc, scores)
+		log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
 
+		log.Infof(c, "%s crunching data...", desc)
 		for i, id := range userIds {
 			if u, err := mdl.UserById(c, id); err != nil {
 				log.Errorf(c, "%s cannot find user with id=%", desc, id)
