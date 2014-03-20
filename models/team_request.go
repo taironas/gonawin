@@ -122,13 +122,11 @@ func WasTeamRequestSent(c appengine.Context, teamId int64, userId int64) bool {
 	return findByTeamIdAndUserId(c, teamId, userId) != nil
 }
 
-// build a teamRequest array from an array of teams
+// Return an array of teamRequest entities from an array of teams.
 func TeamsRequests(c appengine.Context, teams []*Team) []*TeamRequest {
 	var teamRequests []*TeamRequest
-
 	for _, team := range teams {
 		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.Id)...)
 	}
-
 	return teamRequests
 }

@@ -112,7 +112,7 @@ func AddToTournamentInvertedIndex(c appengine.Context, name string, id int64) er
 	return nil
 }
 
-// update a team inverted index given an oldname, a new name and an id
+// Update a team inverted index given an oldname, a new name and an id.
 func UpdateTournamentInvertedIndex(c appengine.Context, oldname string, newname string, id int64) error {
 
 	var err error
@@ -196,12 +196,13 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 	return nil
 }
 
-// add word to tournament inverted index is handled the same way as AddToTournamentInvertedIndex.
-// we add this function for clarity
+// Add word to tournament inverted index entity. It is handled the same way as AddToTournamentInvertedIndex.
+// We add this function for clarity.
 func tournamentInvertedIndexAddWord(c appengine.Context, word string, id int64) error {
 	return AddToTournamentInvertedIndex(c, word, id)
 }
 
+// Return a tournament inverted index entity given a filter and its value. Returns nil if no entity was found.
 func FindTournamentInvertedIndex(c appengine.Context, filter string, value interface{}) (*TournamentInvertedIndex, error) {
 	q := datastore.NewQuery("TournamentInvertedIndex").Filter(filter+" =", value).Limit(1)
 
@@ -214,11 +215,9 @@ func FindTournamentInvertedIndex(c appengine.Context, filter string, value inter
 	}
 }
 
-// get key pointer to tournament inverted index given an id
+// Get a key pointer to a tournament inverted index entity given an id.
 func TournamentInvertedIndexKeyById(c appengine.Context, id int64) *datastore.Key {
-
 	key := datastore.NewKey(c, "TournamentInvertedIndex", "", id, nil)
-
 	return key
 }
 
@@ -295,7 +294,7 @@ func decrementWordCountTournament(c appengine.Context, key *datastore.Key) (int6
 	return x.Count, nil
 }
 
-// get current word count in tournaments
+// Get the number of words used in tournament names.
 func TournamentInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "WordCountTournament", "singleton", 0, nil)
 	var x WordCountTournament

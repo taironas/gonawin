@@ -112,8 +112,7 @@ func AddToTeamInvertedIndex(c appengine.Context, name string, id int64) error {
 	return nil
 }
 
-// from the oldname and the new name we handle removal of words no longer present.
-// the addition of new words.
+// From the old team name and the new team name we handle the removal of the words that are no longer present and the addition of new words.
 func UpdateTeamInvertedIndex(c appengine.Context, oldname string, newname string, id int64) error {
 
 	var err error
@@ -214,11 +213,10 @@ func FindTeamInvertedIndex(c appengine.Context, filter string, value interface{}
 	}
 }
 
-// given an id returns a pointer to the corresponding key if found.
+// Given an id returns a pointer to the corresponding key of a team inverted index entity if found.
 func TeamInvertedIndexKeyById(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "TeamInvertedIndex", "", id, nil)
-
 	return key
 }
 
@@ -294,7 +292,7 @@ func decrementWordCountTeam(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
-// returns the current word count on teams
+// Returns the current number of words on team names.
 func TeamInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "WordCountTeam", "singleton", 0, nil)
 	var x WordCountTeam

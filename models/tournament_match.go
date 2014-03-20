@@ -90,7 +90,7 @@ func MatchKeyById(c appengine.Context, id int64) *datastore.Key {
 	return key
 }
 
-// Update a match given a match pointer
+// Update a match.
 func UpdateMatch(c appengine.Context, m *Tmatch) error {
 	k := MatchKeyById(c, m.Id)
 	oldMatch := new(Tmatch)
@@ -211,7 +211,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		}
 		UpdateGroup(c, g)
 	}
-	// all when well,
+
 	allMatches := GetAllMatchesFromTournament(c, t)
 	phases := MatchesGroupByPhase(allMatches)
 	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
