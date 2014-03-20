@@ -41,7 +41,7 @@ import (
 func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Scores Handler:"
-	log.Infof(c, "%s task called, processing...", desc)
+	log.Infof(c, "%s processing...", desc)
 	if r.Method == "POST" {
 		tournamentBlob := []byte(r.FormValue("tournament"))
 		matchBlob := []byte(r.FormValue("match"))
@@ -212,7 +212,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Users Scores Handler:"
-	log.Infof(c, "%s task called, processing...", desc)
+	log.Infof(c, "%s processing...", desc)
 	if r.Method == "POST" {
 		log.Infof(c, "%s reading data...", desc)
 
@@ -261,7 +261,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Create score entities Handler:"
-	log.Infof(c, "%s task called, processing...", desc)
+	log.Infof(c, "%s processing...", desc)
 	if r.Method == "POST" {
 		log.Infof(c, "%s preparing data", desc)
 
@@ -274,13 +274,15 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
 		}
 
-		log.Infof(c, "%s value of user ids: %v", desc, userIds)
-
 		var tournamentId int64
 		err1 = json.Unmarshal(tournamentIdBlob, &tournamentId)
 		if err1 != nil {
 			log.Errorf(c, "%s unable to extract tournamentId from data, %v", desc, err1)
 		}
+
+		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+		log.Infof(c, "%s value of tournamentId: %v", desc, TournamentId)
+
 		log.Infof(c, "%s crunching data...", desc)
 		for _, id := range userIds {
 			if u, err := mdl.UserById(c, id); err != nil {
@@ -288,12 +290,11 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 			} else {
 				log.Infof(c, "%s create score entity as it does not exist", desc)
 				if se, err := mdl.CreateScore(c, u.Id, tournamentId); err != nil {
-					log.Errorf(c, "%s unable to create score entity", desc)
+					log.Errorf(c, "%s unable to create score entity. %v", desc, err)
 					return err
 				} else {
 					log.Infof(c, "%s score ready add it to tournament %v", desc, se)
 					u.AddTournamentScore(c, se.Id, se.TournamentId)
-					log.Infof(c, "%s score entity exists now, lets update it", desc)
 				}
 			}
 		}
@@ -308,7 +309,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Add score to score entity Handler:"
-	log.Infof(c, "%s task called, processing...", desc)
+	log.Infof(c, "%s processing...", desc)
 	if r.Method == "POST" {
 		log.Infof(c, "%s reading data...", desc)
 		userIdsBlob := []byte(r.FormValue("userIds"))
@@ -342,11 +343,11 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 			if u, err := mdl.UserById(c, id); err != nil {
 				log.Errorf(c, "%s cannot find user with id=%", desc, id)
 			} else {
-				log.Infof(c, "%s create score entity as it does not exist", desc)
-				if se, _ := u.TournamentScore(c, &t); se == nil {
-					log.Errorf(c, "%s score entity does not exist", desc)
+				log.Infof(c, "%s retrieving score entity.", desc)
+				if se, err1 := u.TournamentScore(c, &t); se == nil {
+					log.Errorf(c, "%s score entity does not exist. %v", desc, err1)
 				} else {
-					log.Infof(c, "%s score entity exists, lets update it", desc)
+					log.Infof(c, "%s score entity exists, lets add the score.", desc)
 					var err error
 					if err = se.Add(c, scores[i]); err != nil {
 						log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
