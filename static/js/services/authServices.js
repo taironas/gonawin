@@ -39,8 +39,8 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         $rootScope.currentUser.$promise.then(function(currentUser){
           console.log('authServices.getFBUserInfo: current user = ', currentUser);
           _self.storeCookies(accessToken, currentUser.User.Auth, currentUser.User.Id);
-          
-          //$location.path('/');
+          $rootScope.isLoggedIn = true;
+          $location.path('/');
         });
       });
     },
@@ -59,15 +59,12 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         if (response.status === 'connected') {
           FB.logout(function(response) {
             console.log('Facebook logout = ', response);
-            $rootScope.$apply(function() {
-              $rootScope.currentUser = {};
-            });
           });
         }
       });
     },
     /* Complete signin with Twitter.
-     * Fetch Twitter user info the set the current user
+     * Fetch Twitter user info then set the current user
      * and store the cookies */
     signinWithTwitter: function(oauthToken, oauthVerifier) {
       var _self = this;
@@ -76,8 +73,9 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
 
       $rootScope.currentUser = Session.fetchTwitterUser({ oauth_token: oauthToken, oauth_verifier: oauthVerifier });
       $rootScope.currentUser.$promise.then(function(currentUser){
-        console.log('current user: ', currentUser);
+        console.log('signinWithTwitter: current user = ', currentUser);
         _self.storeCookies(oauthToken, currentUser.User.Auth, currentUser.User.Id);
+        $rootScope.isLoggedIn = true;
         $location.path('/');
       });
     }

@@ -123,11 +123,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
+    
+    $rootScope.isLoggedIn = sAuth.isLoggedIn();
     if($location.$$path === '/auth/twitter/callback')
     {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else {
-      $rootScope.isLoggedIn = sAuth.isLoggedIn();
       // Everytime the route in our app changes check authentication status.
       // Get current user only if we are logged in.
       if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
@@ -135,7 +136,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
         console.log('routeChangeStart, current user = ', $rootScope.currentUser);
       }
       // Redirect user to root if he tries to go on welcome page and he is logged in.
-      if( $location.path() === '/welcome' && (undefined != $rootScope.currentUser) ) {
+      if( $location.path() === '/welcome' && $rootScope.isLoggedIn ) {
         console.log('routeChangeStart, redirect to root');
         $location.path('/');
       }
@@ -145,6 +146,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
         $location.path('/welcome');
       }
     }
+    console.log('end of routeChangeStart');
   });
   
   $rootScope.$on('event:google-plus-signin-success', function (event, authResult) {
