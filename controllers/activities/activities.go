@@ -31,7 +31,7 @@ import (
 )
 
 // json index activity handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {

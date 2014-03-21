@@ -39,7 +39,7 @@ type UserData struct {
 }
 
 // json index user handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -60,7 +60,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // Json show user handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -133,7 +133,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json update user handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {

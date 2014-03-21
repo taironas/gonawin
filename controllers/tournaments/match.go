@@ -53,7 +53,7 @@ type MatchJson struct {
 // use the filter parameter to specify the matches you want:
 // if filter is equal to 'first' you wil get matches of the first phase of the tournament.
 // if filter is equal to 'second' you will get the matches of the second  phase of the tournament.
-func MatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Matches Handler:"
 
@@ -99,7 +99,7 @@ func MatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Update Match handler.
 // Update match of tournament with results information.
 // from parameter 'result' with format 'result1 result2' the match information is updated accordingly.
-func UpdateMatchResultJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Update Match Result Handler:"
 

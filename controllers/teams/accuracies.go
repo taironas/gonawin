@@ -36,7 +36,7 @@ import (
 //	GET	/j/teams/[0-9]+/accuracies/	Retreives all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
-func AccuraciesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies Handler:"
 
@@ -74,7 +74,7 @@ func AccuraciesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 //	GET	/j/teams/[0-9]+/accuracies/[0-9]+/	Retreives accuracies of a team with the given id for the specified tournament.
 //
 // The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
-func AccuracyByTournamentJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies by tournament Handler:"
 

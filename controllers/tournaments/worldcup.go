@@ -30,7 +30,7 @@ import (
 )
 
 // Json new world cup tournament handler.
-func NewWorldCupJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "World Cup Handler:"
 

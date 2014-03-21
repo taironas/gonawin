@@ -49,7 +49,7 @@ var googleVerifyTokenURL string = "https://www.google.com/accounts/AuthSubTokenI
 var facebookVerifyTokenURL string = "https://graph.facebook.com/me?access_token"
 
 // JSON authentication handler
-func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
+func Authenticate(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
@@ -85,7 +85,7 @@ func JsonAuthenticate(w http.ResponseWriter, r *http.Request) error {
 }
 
 // JSON authentication for Twitter.
-func JsonTwitterAuth(w http.ResponseWriter, r *http.Request) error {
+func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
@@ -107,14 +107,14 @@ func JsonTwitterAuth(w http.ResponseWriter, r *http.Request) error {
 }
 
 // Twitter Authentication Callback
-func JsonTwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
+func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 
 	http.Redirect(w, r, "http://localhost:8080/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 	return nil
 }
 
 // Twitter Authentication Callback
-func JsonTwitterUser(w http.ResponseWriter, r *http.Request) error {
+func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	var err error

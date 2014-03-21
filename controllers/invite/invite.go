@@ -46,7 +46,7 @@ Your friends @ Gonawin
 `
 
 // invite json handler
-func InviteJson(w http.ResponseWriter, r *http.Request) error {
+func Invite(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {

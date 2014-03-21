@@ -60,7 +60,7 @@ type TeamData struct {
 }
 
 // json index handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -78,7 +78,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json new handler
-func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team New Handler:"
 
 	c := appengine.NewContext(r)
@@ -132,7 +132,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json show handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -177,7 +177,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json update handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -243,7 +243,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json destroy handler
-func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -295,7 +295,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // json invite handler
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
-func InviteJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -318,7 +318,7 @@ func InviteJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Json Allow handler
 // use this handler to allow a request send by a user on a team.
 // after this, the user that send the request will be part of the team
-func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -361,7 +361,7 @@ func AllowRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 // Json Deny handler
 // use this handler to deny a request send by a user on a team.
 // the user will not be able to be part of the team
-func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -387,7 +387,7 @@ func DenyRequestJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 // json search handler
 // use this handler to search for a team.
-func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	keywords := r.FormValue("q")
@@ -435,7 +435,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // json team members handler
 // use this handler to get members of a team.
-func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	log.Infof(c, "json team members handler.")
 
@@ -472,7 +472,7 @@ func MembersJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // New user activity will be pushlished
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 // Reponse: a JSON formatted team.
-func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -508,7 +508,7 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json destroy handler for team relations
-func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {

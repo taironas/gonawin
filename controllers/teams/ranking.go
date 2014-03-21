@@ -33,7 +33,7 @@ import (
 // Json team ranking handler:
 // Use this handler to get the ranking of a team.
 // The ranking is an array of users (members of the team),
-func RankingJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Ranking Handler:"
 

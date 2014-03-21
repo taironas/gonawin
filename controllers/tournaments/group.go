@@ -48,7 +48,7 @@ type TeamJson struct {
 
 // json tournament groups handler
 // use this handler to get groups of a tournament.
-func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Group Handler:"
 
