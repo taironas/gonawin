@@ -40,6 +40,8 @@ type MatchJson struct {
 	Date       time.Time
 	Team1      string
 	Team2      string
+	Iso1       string
+	Iso2       string
 	Location   string
 	Result1    int64
 	Result2    int64
@@ -202,6 +204,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
 	mapIdTeams := mdl.MapOfIdTeams(c, t)
+	mapCountryCodes := mdl.MapOfCountryCodes()
 
 	matchesJson := make([]MatchJson, len(matches))
 	for i, m := range matches {
@@ -209,6 +212,9 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		matchesJson[i].Date = m.Date
 		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 		matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
+		matchesJson[i].Iso1 = mapCountryCodes[matchesJson[i].Team1]
+		matchesJson[i].Iso2 = mapCountryCodes[matchesJson[i].Team2]
+
 		matchesJson[i].Location = m.Location
 		matchesJson[i].Result1 = m.Result1
 		matchesJson[i].Result2 = m.Result2

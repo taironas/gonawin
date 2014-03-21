@@ -26,6 +26,7 @@ import (
 type Tteam struct {
 	Id   int64
 	Name string
+	Iso  string
 }
 
 // Get a Tteam entity by id.

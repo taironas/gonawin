@@ -44,6 +44,7 @@ type TeamJson struct {
 	Points int64
 	GoalsF int64
 	GoalsA int64
+	Iso    string
 }
 
 // json tournament groups handler
@@ -91,7 +92,7 @@ func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 			teams[j].Points = g.Points[j]
 			teams[j].GoalsF = g.GoalsF[j]
 			teams[j].GoalsA = g.GoalsA[j]
-
+			teams[j].Iso = t.Iso
 		}
 		groupsJson[i].Teams = teams
 	}
