@@ -10,6 +10,10 @@ teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location', funct
     if(!$scope.teams || ($scope.teams && !$scope.teams.length))
       $scope.noTeamsMessage = 'You have no teams';
   });
+  
+  $scope.getMembers = function(teamId) {
+    return Team.members({ id:teamId });
+  }
 
   $scope.searchTeam = function(){
     console.log('TeamListCtrl: searchTeam');
@@ -104,13 +108,13 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
   // This function makes a user join a team. 
   // It does so by caling Join on a Team.
-  // This will update players data and join button name.
+  // This will update members data and join button name.
   $scope.joinTeam = function(){
     Team.join({ id:$routeParams.id }).$promise.then(function(result){
       Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-	$scope.teamData.Players = membersResult.Members;
-	$scope.joinButtonName = 'Leave';
-	$scope.joinButtonMethod = $scope.leaveTeam;
+        $scope.teamData.Members = membersResult.Members;
+        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonMethod = $scope.leaveTeam;
       } );
       
     });
@@ -119,9 +123,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.leaveTeam = function(){
     Team.leave({ id:$routeParams.id }).$promise.then(function(result){
       Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-	$scope.teamData.Players = membersResult.Members;
-	$scope.joinButtonName = 'Join';
-	$scope.joinButtonMethod = $scope.joinTeam;
+        $scope.teamData.Members = membersResult.Members;
+        $scope.joinButtonName = 'Join';
+        $scope.joinButtonMethod = $scope.joinTeam;
       });
     });
   };

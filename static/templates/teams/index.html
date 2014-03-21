@@ -1,44 +1,38 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1><a href="/ng#/teams">Teams</a></h1>
-  <div class="btn-toolbar">
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><h4><a href="/ng#/teams">Teams</a></h4></li>
+  </ol>
+  <div class="page-content">
     <div class="row">
-      <div class="col-md-1"></div>
+      <div class="col-md-5"></div>
       <div class="col-md-2">
-	<a class="btn btn-primary" href="/ng#/teams/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create new team</a>
+        <a class="btn btn-primary" href="/ng#/teams/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> </a>
       </div>
       <!-- search box -->
-      <div class="col-md-8">
-	<div class="input-group">
-	  <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-	  <form ng-submit="searchTeam()">
-	    <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
-	  </form>
-	</div>
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+          <form ng-submit="searchTeam()">
+            <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
+          </form>
+        </div>
       </div>
       <!-- / search box -->
+    </div>
+    </br></br>
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-10">
+        <div class="panel panel-default" ng-repeat="team in teams">
+          <div class="panel-body">
+            <a href="/ng#/teams/show/{{team.Id}}">{{team.Name}}</a>
+          </div>
+          <div class="panel-footer">members</div>
+        </div>
+        <h3 style="text-align: center">{{noTeamsMessage}}</h3>
+      </div>
       <div class="col-md-1"></div>
     </div>
   </div>
-</div>
-<div class="page-content">
-  <table class="table table-striped" ng-show="teams.length">
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Admin Id</th>
-        <th>Private</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="team in teams | filter:query">
-        <td>{{team.Id}}</td>
-        <td><a href="/ng#/teams/show/{{team.Id}}">{{team.Name}}</a></td>
-        <td>{{team.AdminId}}</td>
-        <td>{{team.Private}}</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 style="text-align: center">{{noTeamsMessage}}</h3>
 </div>
