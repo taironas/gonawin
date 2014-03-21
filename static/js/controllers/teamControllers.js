@@ -73,14 +73,16 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		});
   };
 
-  // set isTeamAdmin boolean
+  // set isTeamAdmin boolean:
+  // This variable defines if the current user is admin of the current team.
   $scope.teamData.$promise.then(function(teamResult){
     console.log('team is admin ready');
     // as it depends of currentUser, make a promise
     var deferred = $q.defer();
-    deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.Id));
+    deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.User.Id));
     return deferred.promise;
   }).then(function(result){
+    console.log('is team admin:', result);
     $scope.isTeamAdmin = result;
   });
 
