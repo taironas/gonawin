@@ -14,6 +14,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'filter.reverse',
   
   'navigationControllers',
+  'dashboardControllers',
   'activitiesControllers',
   'userControllers',
   'teamControllers',
