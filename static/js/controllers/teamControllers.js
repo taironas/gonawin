@@ -2,24 +2,29 @@
 
 var teamControllers = angular.module('teamControllers', []);
 
-teamControllers.controller('TeamListCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
-  console.log('Team list controller:');
-  $scope.teams = Team.query();
-
-  $scope.teams.$promise.then(function(result){
-    if(!$scope.teams || ($scope.teams && !$scope.teams.length))
-      $scope.noTeamsMessage = 'You have no teams';
-  });
+teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location',
+  function($rootScope, $scope, Team, User, $location) {
+    console.log('Team list controller:');
+    $scope.teams = Team.query();
   
-  $scope.getMembers = function(teamId) {
-    return Team.members({ id:teamId });
-  }
-
-  $scope.searchTeam = function(){
-    console.log('TeamListCtrl: searchTeam');
-    console.log('keywords: ', $scope.keywords);
-    $location.search('q', $scope.keywords).path('/teams/search');
-  };
+    $scope.teams.$promise.then(function(result){
+      if(!$scope.teams || ($scope.teams && !$scope.teams.length))
+        $scope.noTeamsMessage = 'You have no teams';
+    });
+    
+    $rootScope.currentUser.$promise.then(function(currentUser){
+      var userData = User.get({ id:currentUser.User.Id, including: "Teams" });
+      console.log('user data = ', userData);
+      userData.$promise.then(function(result){
+        $scope.joinedTeams = result.Teams;
+      });
+    });
+  
+    $scope.searchTeam = function(){
+      console.log('TeamListCtrl: searchTeam');
+      console.log('keywords: ', $scope.keywords);
+      $location.search('q', $scope.keywords).path('/teams/search');
+    };
 }]);
 
 teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
@@ -108,7 +113,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     });
   };
 
-  // This function makes a user join a team. 
+  // This function makes a user join a team.
   // It does so by caling Join on a Team.
   // This will update members data and join button name.
   $scope.joinTeam = function(){

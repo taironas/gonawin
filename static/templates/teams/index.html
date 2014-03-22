@@ -3,36 +3,53 @@
   <ol class="breadcrumb">
     <li><h4><a href="/ng#/teams">Teams</a></h4></li>
   </ol>
-  <div class="page-content">
-    <div class="row">
-      <div class="col-md-5"></div>
-      <div class="col-md-2">
-        <a class="btn btn-primary" href="/ng#/teams/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> </a>
-      </div>
-      <!-- search box -->
-      <div class="col-md-4">
-        <div class="input-group">
-          <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-          <form ng-submit="searchTeam()">
-            <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
-          </form>
+  <div class="panel-body">
+    <div class="page-content">
+      <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-2">
+          <a class="btn btn-primary" href="/ng#/teams/new">New Team</a>
         </div>
-      </div>
-      <!-- / search box -->
-    </div>
-    </br></br>
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-10">
-        <div class="panel panel-default" ng-repeat="team in teams">
-          <div class="panel-body">
-            <a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a>
+        <div class="col-md-4">
+          <!-- search box -->
+          <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+            <form ng-submit="searchTeam()">
+              <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
+            </form>
           </div>
-          <div class="panel-footer">members</div>
+          <!-- / search box -->
         </div>
+      </div>
+      </br></br>
+      <h4>Teams you've joined:</h4>
+      </br>
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+          <div class="panel panel-default team-card" ng-repeat="team in joinedTeams">
+              <div class="media">
+                <a class="pull-left" href="#">
+                  <img src="static/img/placeholder_140.png" height="80" width="80" class="media-object">
+                </a>
+                <div class="media-body">
+                  <h4 class="media-heading"><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4>
+                  50 members
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-1"></div>
         <h3 style="text-align: center">{{noTeamsMessage}}</h3>
       </div>
-      <div class="col-md-1"></div>
+      </br></br><hr>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary">More Teams</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
     </div>
   </div>
 </div>
