@@ -65,7 +65,6 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
 }]);
 
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', function($scope, $routeParams, Team, $location, $q) {
-  $scope.subParams = $routeParams;
   $scope.teamData = Team.get({ id:$routeParams.id });
   
   $scope.deleteTeam = function() {
@@ -189,7 +188,7 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
 
   $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
   // predicate is udate for ranking tables
-  $scope.predicate = '';
+  $scope.predicate = 'Score';
 
 }]);
 

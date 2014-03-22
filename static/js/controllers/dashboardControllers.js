@@ -8,6 +8,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
   console.log('DashboardCtrl, current user = ', $rootScope.currentUser);
   console.log('DashboardCtrl, isLoggedIn = ', $rootScope.isLoggedIn);
   $scope.dashboard = {};
+  $scope.predicate = 'Score';
   
   // Set the dashboard data with respect of the url:
   // Current urls watches:
@@ -17,7 +18,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
   //
   // the context variable has the current state of the dashboard.
   // context can take values 'user', 'team', 'tournament', 'default'.
-  $scope.setDashboard = function($routeParams){
+  $scope.setDashboard = function(){
     var ctx = 'set dashboard: ';
     console.log(ctx, 'location - abs url: ', $location.absUrl());
     console.log(ctx, 'location - url: ', $location.url());
@@ -29,12 +30,13 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
     console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
 
     // reset dashboard before any set.
-      $scope.dashboard = {};
+    $scope.dashboard = {};
     if(url.match('^/$') != null){
       $scope.dashboard.location = 'root';
       $scope.dashboard.context = 'user';
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
+	$scope.dashboard.id = currentUser.User.Name;
 	$scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
 	$scope.dashboard.nteams = currentUser.User.TeamIds.length;
 	// get user score information:
@@ -47,6 +49,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
     } else if(url.match('^/teams/[0-9]+.*') != null){
       $scope.dashboard.location = 'team';
       $scope.dashboard.context = 'team';
+
+      $rootScope.currentUser.$promise.then(function(currentUser){
+	$scope.dashboard.user = currentUser.User.Name;
+	$scope.dashboard.id = currentUser.User.Id;
+      });
+
       // We are not able to get the current team id with $routeParams, so we use $route instead.
       // from angular documentation: 
       // http://docs.angularjs.org/api/ngRoute/service/$routeParams
@@ -60,8 +68,14 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	$scope.dashboard.nmembers = teamResult.Players.length;
 	$scope.dashboard.accuracy = teamResult.Team.Accuracy;
       });
+
+      Team.ranking({id:$route.current.params.id}).$promise.then(function(rankResult){
+	console.log(ctx, 'get team ranking', rankResult);
+	$scope.dashboard.members = rankResult.Users;
+      });
+
       
-    } else{
+    } else {
       $scope.dashboard.location = 'default';
       $scope.dashboard.context = 'default';
     }
@@ -70,13 +84,13 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
   // set dashboard with respect to url in the global controller.
   // We do this because the $locationChangeSuccess event is not triggered by a refresh.
   // As the controller is called when there is a refresh we are able to set the Dashboard with the proper information.
-  $scope.setDashboard($routeParams);
+  $scope.setDashboard();
 
   // $locationChangeSuccess event is triggered when url changes.
   // note: this event is not triggered when page is refreshed.
   $scope.$on('$locationChangeSuccess', function(event) {
     console.log('location changed:');
-    $scope.setDashboard($routeParams);
+    $scope.setDashboard();
   });
 
 }]);

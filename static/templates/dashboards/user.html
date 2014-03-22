@@ -14,7 +14,23 @@
 	<h5>{{dashboard.team}}</h5>
 	<h5>Accuracy: {{100 * dashboard.accuracy | number:2}}%</h5>
 	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
-	<h5>Members: {{dashboard.nmembers}}</h5>	
+	<h5>Members: {{dashboard.nmembers}}</h5>
+	<table class="table table-condensed table-hover text-left">
+	  <thead>
+            <tr>
+              <th>Member</th>
+              <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+            </tr>
+	  </thead>
+	  <tbody>
+	    <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
+	      <td ng-show="m.Id == dashboard.id" class="info"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
+	      <td ng-show="m.Id != dashboard.id"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
+	      <td ng-show="m.Id == dashboard.id" class="info">{{m.Score}}</td>
+	      <td ng-show="m.Id != dashboard.id">{{m.Score}}</td>
+	    </tr>
+      </tbody>
+	</table>
       </div>
       <!-- tournament -->
   </div>
