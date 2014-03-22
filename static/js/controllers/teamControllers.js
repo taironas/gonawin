@@ -60,6 +60,7 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
 }]);
 
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', function($scope, $routeParams, Team, $location, $q) {
+  $scope.subParams = $routeParams;
   $scope.teamData = Team.get({ id:$routeParams.id });
   
   $scope.deleteTeam = function() {

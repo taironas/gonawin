@@ -2,9 +2,20 @@
   <div class="panel-heading text-center"><h4>dashboard {{dashboard.location}}</h4></div>
   <div class="panel-body text-center">
       <img src="static/img/placeholder_140.png" height="80" width="80" class="img-circle">
-      <h5>{{dashboard.user}}</h5>
-      <h5>Score: {{dashboard.score}}</h5>
-      <h5>Tournaments: {{dashboard.ntournaments}}</h5>
-      <h5>Teams: {{dashboard.nteams}}</h5>
+      <!-- user -->
+      <div class="dashboard-user" ng-show="dashboard.context == 'user'">
+	<h5>{{dashboard.user}}</h5>
+	<h5>Score: {{dashboard.score}}</h5>
+	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
+	<h5>Teams: {{dashboard.nteams}}</h5>
+      </div>
+      <!-- team -->
+      <div class="dashboard-team" ng-show="dashboard.context == 'team'">
+	<h5>{{dashboard.team}}</h5>
+	<h5>Accuracy: {{100 * dashboard.accuracy | number:2}}%</h5>
+	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
+	<h5>Members: {{dashboard.nmembers}}</h5>	
+      </div>
+      <!-- tournament -->
   </div>
 </div>
