@@ -34,7 +34,7 @@
     <tbody>
       <tr ng-repeat="tournament in tournaments | filter:query">
         <td>{{tournament.Id}}</td>
-        <td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
+        <td><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></td>
       </tr>
     </tbody>
   </table>

@@ -50,7 +50,7 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', functi
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
 	      function(team) {
-		$location.path('/teams/show/' + team.Id);
+		$location.path('/teams/' + team.Id);
 	      },
 	      function(err) {
 		$scope.messageDanger = err.data;
@@ -166,7 +166,7 @@ teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$
     var teamData = Team.get({ id:$routeParams.id });
     Team.update({ id:$routeParams.id }, $scope.teamData.Team,
 		function(err){
-		  $location.path('/teams/show/' + $routeParams.id);
+		  $location.path('/teams/' + $routeParams.id);
 		},
 		function(err) {
 		  $scope.messageDanger = err.data;

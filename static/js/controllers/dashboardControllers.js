@@ -24,7 +24,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$loca
     $scope.dashboard.location = 'team';
   }
 
-  // event triggered when url changes. 
+  // $locationChangeSuccess event is triggered when url changes.
   // note: this event is not triggered when page is refreshed.
   $scope.$on('$locationChangeSuccess', function(event) {
     console.log('location changed:');

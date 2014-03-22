@@ -15,18 +15,18 @@
       <div class="panel-body">
         <div ng-switch on="activity.Type">
           <span ng-switch-when="predict">
-            <strong><a href="/ng#/{{activity.Target.Type}}s/show/{{activity.Target.ID}}">{{activity.Target.DisplayName}}</a></strong>: 
-            <strong><a href="/ng#/{{activity.Actor.Type}}s/show/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
-            <strong><a href="/ng#/{{activity.Object.Type}}s/show/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong>
+            <strong><a href="/ng#/{{activity.Target.Type}}s/{{activity.Target.ID}}">{{activity.Target.DisplayName}}</a></strong>: 
+            <strong><a href="/ng#/{{activity.Actor.Type}}s/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/ng#/{{activity.Object.Type}}s/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong>
           </span>
           <span ng-switch-when="match">
-            <strong><a href="/ng#/{{activity.Actor.Type}}s/show/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong>: 
-            <strong><a href="/ng#/{{activity.Object.Type}}s/show/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}} 
-            <strong><a href="/ng#/{{activity.Target.Type}}s/show/{{activity.Target.ID}}">{{activity.Target.DisplayName}}</a></strong>
+            <strong><a href="/ng#/{{activity.Actor.Type}}s/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong>: 
+            <strong><a href="/ng#/{{activity.Object.Type}}s/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/ng#/{{activity.Target.Type}}s/{{activity.Target.ID}}">{{activity.Target.DisplayName}}</a></strong>
           </span>
           <span ng-switch-default>
-            <strong><a href="/ng#/{{activity.Actor.Type}}s/show/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
-            <strong><a href="/ng#/{{activity.Object.Type}}s/show/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong>
+            <strong><a href="/ng#/{{activity.Actor.Type}}s/{{activity.Actor.ID}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/ng#/{{activity.Object.Type}}s/{{activity.Object.ID}}">{{activity.Object.DisplayName}}</a></strong>
           </span>
         </div>
         <h5 class="text-right"><small>{{activity.Published | fromNow}}</small></h5>

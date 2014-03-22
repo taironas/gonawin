@@ -24,7 +24,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     Tournament.saveWorldCup($scope.tournament,
 		    function(tournament) {
 		      console.log('World Cup Tournament: ', tournament);
-		      $location.path('/tournaments/show/' + tournament.Id);
+		      $location.path('/tournaments/' + tournament.Id);
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
@@ -62,7 +62,7 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
   $scope.addTournament = function() {
     Tournament.save($scope.tournament,
 		    function(tournament) {
-		      $location.path('/tournaments/show/' + tournament.Id);
+		      $location.path('/tournaments/' + tournament.Id);
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
@@ -256,7 +256,7 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
     var tournamentData = Tournament.get({ id:$routeParams.id });
     Tournament.update({ id:$routeParams.id }, $scope.tournamentData.Tournament,
 		      function(){
-			$location.path('/tournaments/show/' + $routeParams.id);
+			$location.path('/tournaments/' + $routeParams.id);
 		      },
 		      function(err) {
 			console.log('update failed: ', err.data);
