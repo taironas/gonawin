@@ -80,7 +80,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
+		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
 
