@@ -427,16 +427,30 @@ func (t *Tournament) ContainsUserId(id int64) (bool, int) {
 	return false, -1
 }
 
-func (t *Tournament) RankingByUser(c appengine.Context) []*User {
+func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
+	if limit < 0{
+		return nil
+	}
 	users := t.Participants(c)
 	sort.Sort(UserByScore(users))
-	return users
+	if len(users) <= limit{
+		return users
+	} else {
+		return users[0:limit]
+	}
 }
 
-func (t *Tournament) RankingByTeam(c appengine.Context) []*Team {
+func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
+	if limit < 0{
+		return nil
+	}
 	teams := t.Teams(c)
 	sort.Sort(TeamByAccuracy(teams))
-	return teams
+	if len(teams) <= limit{
+		return teams
+	} else {
+		return teams[0:limit]
+	}
 }
 
 // Find tournament activities

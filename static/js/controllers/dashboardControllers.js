@@ -67,12 +67,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       });
       $scope.dashboard.rank = {};
 
-      Tournament.ranking({id:$route.current.params.id, rankby:'users'}).$promise.then(function(rankResult){
+      Tournament.ranking({id:$route.current.params.id, rankby:'users', limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get users ranking ', rankResult);
 	$scope.dashboard.rank.users = rankResult.Users;
       });
 
-      Tournament.ranking({id:$route.current.params.id, rankby:'teams'}).$promise.then(function(rankResult){
+      Tournament.ranking({id:$route.current.params.id, rankby:'teams', limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get teams ranking', rankResult);
 	$scope.dashboard.rank.teams = rankResult.Teams;
       });
@@ -101,7 +101,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	$scope.dashboard.accuracy = teamResult.Team.Accuracy;
       });
 
-      Team.ranking({id:$route.current.params.id}).$promise.then(function(rankResult){
+      Team.ranking({id:$route.current.params.id, limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get team ranking', rankResult);
 	$scope.dashboard.members = rankResult.Users;
       });
