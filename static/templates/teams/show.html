@@ -1,70 +1,75 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1>Team</h1>
-  <!-- uncomment this to debug -->
-  <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>teamData.Joined: {{teamData.Joined}}<br>team.Private: {{teamData.Team.Private}}<br>team.RequestSent: {{teamData.RequestSent}}</p> -->
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/teams">Teams</a></li>
+    <li class="active">{{teamData.Team.Name}}</li>
+  </ol>
+  <div class="panel-body">
+    <h1>{{teamData.Team.Name}}</h1>
+    <!-- uncomment this to debug -->
+    <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>teamData.Joined: {{teamData.Joined}}<br>team.Private: {{teamData.Team.Private}}<br>team.RequestSent: {{teamData.RequestSent}}</p> -->
 
-  <!-- start if !isTeamAdmin && !teamData.Joined -->
-  <div ng-if="!isTeamAdmin && !teamData.Joined">
-    <p>debug: team not admin</p>
-    <div ng-if="teamData.Team.Private">
-      <form accept-charset="UTF-8" class="form-horizontal" method="post">
-	<div class="form-control">
-    	  <div ng-if="teamData.RequestSent">
-    	    <input class="btn btn-default disabled" name="commit" type="submit" value="Request sent..." />
-    	  </div>
-    	  <div ng-if="!teamData.RequestSent">
-    	    <input class="btn btn-primary" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" />
-    	  </div>
-	</div>
-      </form>
+    <!-- start if !isTeamAdmin && !teamData.Joined -->
+    <div ng-if="!isTeamAdmin && !teamData.Joined">
+      <p>debug: team not admin</p>
+      <div ng-if="teamData.Team.Private">
+        <form accept-charset="UTF-8" class="form-horizontal" method="post">
+          <div class="form-control">
+      	     <div ng-if="teamData.RequestSent">
+      	        <input class="btn btn-default disabled" name="commit" type="submit" value="Request sent..." />
+    	       </div>
+    	      <div ng-if="!teamData.RequestSent">
+      	       <input class="btn btn-primary" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" />
+    	      </div>
+          </div>
+        </form>
+      </div>
+      <div ng-if="!teamData.Team.Private">
+        <joinbutton action="joinButtonMethod()" name="joinButtonName" />
+      </div>
     </div>
-    <div ng-if="!teamData.Team.Private">
-      <joinbutton action="joinButtonMethod()" name="joinButtonName" />
+    <!-- end if !isTeamAdmin && !teamData.Joined -->
+    <!-- start if !isTeamAdmin && teamData.Joined -->
+    <div ng-if="!isTeamAdmin && teamData.Joined">
+      <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
     </div>
-  </div>
-  <!-- end if !isTeamAdmin && !teamData.Joined -->
-  <!-- start if !isTeamAdmin && teamData.Joined -->
-  <div ng-if="!isTeamAdmin && teamData.Joined">
-    <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-  </div>
-  <!-- end if !isTeamAdmin && team && teamData.Joined -->
-</div>
-<!-- end page header -->
-<dl class="dl-horizontal">
-  <dt><strong>Id:</strong></dt>
-  <dd>{{teamData.Team.Id}}</dd>
-  <dt><strong>Name:</strong></dt>
-  <dd>{{teamData.Team.Name}}</dd>
-  <dt><strong>AdminId:</strong></dt>
-  <dd>{{teamData.Team.AdminId}}</dd>
-  <dt><strong>Private:</strong></dt>
-  <dd>{{teamData.Team.Private}}</dd>
-  <dt><strong>Joined:</strong></dt>
-  <dd>{{teamData.Joined}}</dd>
-</dl>
+    <!-- end if !isTeamAdmin && team && teamData.Joined -->
 
-<div ng-if="isTeamAdmin">
-  <p>debug: team  admin</p>
-  <div>
-    <form class="form-horizontal">
-      <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn btn-default"><span>Edit</span></a>
-      <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
-    </form>
-  </div>
-</div>
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="links col-md-3">
-    <a href="/ng#/teams/{{teamData.Team.Id}}/ranking">Ranking</a><br>
-    <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies">Accuracies</a><br>
-    <div ng-repeat="tid in teamData.Team.TournamentIds">
-      <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies/{{tid.value}}">Accuracy for tournament {{tid.value}}</a><br>
+    <dl class="dl-horizontal">
+      <dt><strong>Id:</strong></dt>
+      <dd>{{teamData.Team.Id}}</dd>
+      <dt><strong>Name:</strong></dt>
+      <dd>{{teamData.Team.Name}}</dd>
+      <dt><strong>AdminId:</strong></dt>
+      <dd>{{teamData.Team.AdminId}}</dd>
+      <dt><strong>Private:</strong></dt>
+      <dd>{{teamData.Team.Private}}</dd>
+      <dt><strong>Joined:</strong></dt>
+      <dd>{{teamData.Joined}}</dd>
+    </dl>
+
+    <div ng-if="isTeamAdmin">
+      <p>debug: team  admin</p>
+      <div>
+        <form class="form-horizontal">
+          <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn btn-default"><span>Edit</span></a>
+          <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTeam()">Delete</button>
+        </form>
+      </div>
     </div>
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="links col-md-3">
+        <a href="/ng#/teams/{{teamData.Team.Id}}/ranking">Ranking</a><br>
+        <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies">Accuracies</a><br>
+        <div ng-repeat="tid in teamData.Team.TournamentIds">
+          <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies/{{tid.value}}">Accuracy for tournament {{tid.value}}</a><br>
+        </div>
+      </div>
+    </div>
+
+    <!-- start players -->
+    <div ng-include src="'templates/teams/Players.html'"></div>
+    <!-- end players -->
   </div>
 </div>
-
-
-<!-- start players -->
-<div ng-include src="'templates/teams/Players.html'"></div>
-<!-- end players -->
