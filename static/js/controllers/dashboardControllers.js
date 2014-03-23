@@ -47,7 +47,8 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       $scope.dashboard.context = 'user';
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
-	$scope.dashboard.id = currentUser.User.Name;
+	$scope.dashboard.name = currentUser.User.Name;
+	$scope.dashboard.userid = currentUser.User.Id;
 	if (currentUser.User.TournamentIds){
 	  $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
 	} else {
@@ -72,6 +73,8 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       Tournament.get({ id:$route.current.params.id }).$promise.then(function(tournamentResult){
       	console.log(ctx, 'get tournament ', tournamentResult);
 	$scope.dashboard.tournament = tournamentResult.Tournament.Name;
+	$scope.dashboard.tournamentid = tournamentResult.Tournament.Id;
+
 	if(tournamentResult.Participants){
 	  $scope.dashboard.nparticipants = tournamentResult.Participants.length;
 	} else{
@@ -98,7 +101,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
-	$scope.dashboard.id = currentUser.User.Id;
+	$scope.dashboard.userid = currentUser.User.Id;
       });
 
     } else if(url.match('^/teams/[0-9]+.*') != null){
@@ -108,13 +111,14 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
-	$scope.dashboard.id = currentUser.User.Id;
+	$scope.dashboard.userid = currentUser.User.Id;
       });
 
       console.log(ctx, 'route', $route);
       Team.get({ id:$route.current.params.id }).$promise.then(function(teamResult){
       	console.log(ctx, 'get team ', teamResult);
 	$scope.dashboard.team = teamResult.Team.Name;
+	$scope.dashboard.teamid = teamResult.Team.Id;
 
 	if(teamResult.Team.TournamentIds){
 	  $scope.dashboard.ntournaments = teamResult.Team.TournamentIds.length;
