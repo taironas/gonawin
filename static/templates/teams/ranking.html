@@ -1,41 +1,48 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1>Team Ranking</h1>
-</div>
-<!-- end page header -->
-<dl class="dl-horizontal">
-  <dt><strong>Id:</strong></dt>
-  <dd>{{teamData.Team.Id}}</dd>
-  <dt><strong>Name:</strong></dt>
-  <dd>{{teamData.Team.Name}}</dd>
-  <dt><strong>AdminId:</strong></dt>
-  <dd>{{teamData.Team.AdminId}}</dd>
-  <dt><strong>Private:</strong></dt>
-  <dd>{{teamData.Team.Private}}</dd>
-  <dt><strong>Joined:</strong></dt>
-  <dd>{{teamData.Joined}}</dd>
-</dl>
+<div class="panel panel-default">
+<ol class="breadcrumb">
+  <li><a href="/ng#/teams">Teams</a></li>
+  <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
+  <li class="active">Ranking</li>
+</ol>
+  <div class="panel-body">
+    <h1>Ranking</h1>
 
-<div class="accuracy">
-  <h2>Team accuracy:</h2>
-  <p>{{100*teamData.Team.Accuracy | number:2}}%</p>
-</div>
+    <dl class="dl-horizontal">
+      <dt><strong>Id:</strong></dt>
+      <dd>{{teamData.Team.Id}}</dd>
+      <dt><strong>Name:</strong></dt>
+      <dd>{{teamData.Team.Name}}</dd>
+      <dt><strong>AdminId:</strong></dt>
+      <dd>{{teamData.Team.AdminId}}</dd>
+      <dt><strong>Private:</strong></dt>
+      <dd>{{teamData.Team.Private}}</dd>
+      <dt><strong>Joined:</strong></dt>
+      <dd>{{teamData.Joined}}</dd>
+    </dl>
 
-<div ng-if="rankingData.Users">
-  <div class="players">
-    <table class="table table-striped">
-      <thead>
-	<tr>
-	  <th>Players</th>
-	  <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
-	</tr>
-      </thead>
-      <tbody>
-	<tr ng-repeat="u in rankingData.Users | orderBy:predicate:!reverse">
-	  <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
-	  <td>{{u.Score}}</td>
-	</tr>
-      </tbody>
-    </table>
+    <div class="accuracy">
+      <h2>Accuracy:</h2>
+      <p>{{100*teamData.Team.Accuracy | number:2}}%</p>
+    </div>
+
+    <div ng-if="rankingData.Users">
+      <div class="players">
+        <table class="table table-striped">
+          <thead>
+    	<tr>
+    	  <th>Players</th>
+    	  <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+    	</tr>
+          </thead>
+          <tbody>
+    	<tr ng-repeat="u in rankingData.Users | orderBy:predicate:!reverse">
+    	  <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
+    	  <td>{{u.Score}}</td>
+    	</tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
