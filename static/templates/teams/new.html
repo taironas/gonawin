@@ -1,28 +1,37 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1>New Team</h1>
-</div>
-<form name="newTeamForm" class="form-horizontal">
-  <div class="from-group" ng-class="{error: newTeamForm.name.$invalid}">
-    <!-- <div class="form-control"> -->
-      <label class="control-label">Name</label>
-      <input class="text_field" name="name" size="30" type="text" ng-model="team.name" required/>
-      <span ng-show="newTeamForm.name.$error.required" class="help-inline"> Required</span>
-    <!-- </div> -->
-  </div>
-  <div class="form-group">
-    <!-- <div class="form-control"> -->
-      <label class="control-label">Visibility</label>
-      <div class="radio">
-	<label>
-	  <input name="visibility" type="radio" value="Public" ng-model="team.visibility" ng-init="team.visibility='Public'"/> Public (Anyone can subscribe to this team)<br>
-	  <input name="visibility" type="radio" value="Private" ng-model="team.visibility"/> Private (users need to request an invitation)
-	</label>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/teams">Teams</a></li>
+    <li class="active">New Team</li>
+  </ol>
+  <div class="panel-body">
+    <form class="form-horizontal" role="form" name="newTeamForm">
+      <div class="form-group" ng-class="{error: newTeamForm.name.$invalid}">
+        <label class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-4">
+          <input class="text_field" name="name" size="40" type="text" ng-model="team.name" required/>
+        </div>
+        <div class="col-sm-6">
+          <span ng-show="newTeamForm.name.$error.required" class="text-danger"> Required</span>
+        </div>
       </div>
-    <!-- </div> -->
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Visibility</label>
+        <div class="col-sm-10">
+          <div class="radio">
+            <label>
+              <input name="visibility" type="radio" value="Public" ng-model="team.visibility" ng-init="team.visibility='Public'"/> Public (Anyone can subscribe to this team)<br>
+              <input name="visibility" type="radio" value="Private" ng-model="team.visibility"/> Private (users need to request an invitation)
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <a href="/ng#/teams" class="btn btn-default">Cancel</a>
+          <button class="btn btn-primary" ng-click="addTeam()" ng-disabled="newTeamForm.$invalid">Create Team</button>
+        </div>
+      </div>
+    </form>
   </div>
-  <div class="form-group">
-    <a href="/ng#/teams" class="btn btn-default">Cancel</a>
-    <button class="btn btn-primary" ng-click="addTeam()" ng-disabled="newTeamForm.$invalid">Create Team</button>
-  </div>
-</form>
+</div>
