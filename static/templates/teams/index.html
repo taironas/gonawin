@@ -1,7 +1,7 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <div class="panel panel-default">
   <ol class="breadcrumb">
-    <li><h4><a href="/ng#/teams">Teams</a></h4></li>
+    <li class="active"><h4>Teams</h4></li>
   </ol>
   <div class="panel-body">
     <div class="page-content">
@@ -25,31 +25,42 @@
       <h4>Teams you've joined:</h4>
       </br>
       <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-10">
-          <div class="panel panel-default team-card" ng-repeat="team in joinedTeams">
-              <div class="media">
-                <a class="pull-left" href="#">
-                  <img src="static/img/placeholder_140.png" height="80" width="80" class="media-object">
-                </a>
-                <div class="media-body">
-                  <h4 class="media-heading"><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4>
-                  50 members
-                </div>
-              </div>
+        <div class="col-md-4" ng-repeat="team in joinedTeams" ng-controller="TeamCardCtrl">
+          <div class="panel panel-default team card center-block">
+            <div class="panel-body text-center">
+              <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4>
+            </div>
+            <div class="panel-footer text-center">members: {{membersCount}} | accuracy: {{team.Accuracy}}
+              <i class="fa fa-lock fa-lg pull-right" ng-if="team.Private"></i>
+            </div>
           </div>
         </div>
-        <div class="col-md-1"></div>
         <h3 style="text-align: center">{{noTeamsMessage}}</h3>
       </div>
-      </br></br><hr>
+      </br><hr>
       <div class="row">
         <div class="col-md-5"></div>
         <div class="col-md-2">
-          <button type="button" class="btn btn-primary">More Teams</button>
+          <button type="button" class="btn btn-primary" ng-click="moreTeams()" ng-hide="showMoreTeams">More Teams</button>
         </div>
         <div class="col-md-5"></div>
       </div>
+      <span ng-if="showMoreTeams">
+        <h4>Teams you can join:</h4>
+        </br>
+        <div class="row">
+          <div class="col-md-4" ng-repeat="team in teams" ng-controller="TeamCardCtrl">
+            <div class="panel panel-default team card center-block">
+              <div class="panel-body text-center">
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4>
+              </div>
+              <div class="panel-footer text-center">members: {{membersCount}} | accuracy: {{team.Accuracy}}
+                <i class="fa fa-lock fa-lg pull-right" ng-if="team.Private"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </span>
     </div>
   </div>
 </div>

@@ -130,9 +130,3 @@ p {
 .user-dashboard h3 {
 	text-align: center;
 }
-
-/* teams */
-.team-card {
-  height: 80px;
-  width: 260px;
-}
