@@ -428,12 +428,12 @@ func (t *Tournament) ContainsUserId(id int64) (bool, int) {
 }
 
 func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
-	if limit < 0{
+	if limit < 0 {
 		return nil
 	}
 	users := t.Participants(c)
 	sort.Sort(UserByScore(users))
-	if len(users) <= limit{
+	if len(users) <= limit {
 		return users
 	} else {
 		return users[0:limit]
@@ -441,12 +441,12 @@ func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 }
 
 func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
-	if limit < 0{
+	if limit < 0 {
 		return nil
 	}
 	teams := t.Teams(c)
 	sort.Sort(TeamByAccuracy(teams))
-	if len(teams) <= limit{
+	if len(teams) <= limit {
 		return teams
 	} else {
 		return teams[0:limit]

@@ -425,12 +425,12 @@ func UpdateTeams(c appengine.Context, teams []*Team) error {
 }
 
 func (t *Team) RankingByUser(c appengine.Context, limit int) []*User {
-	if limit < 0{
+	if limit < 0 {
 		return nil
 	}
 	users := t.Players(c)
 	sort.Sort(UserByScore(users))
-	if len(users) <= limit{
+	if len(users) <= limit {
 		return users
 	} else {
 		return users[0:limit]

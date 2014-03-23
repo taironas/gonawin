@@ -88,7 +88,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/joinasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.JoinAsTeam)))
 	h.HandleFunc("/j/tournaments/leaveasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.LeaveAsTeam)))
 	// invite - json
-	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(invitectrl.Invite))
+	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(handlers.Authorized(invitectrl.Invite)))
 
 	// experimental: sar
 	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCup)))
@@ -109,6 +109,7 @@ func init() {
 	h.HandleFunc("/a/update/users/scores/", handlers.ErrorHandler(tasksctrl.UpdateUsersScores))
 	h.HandleFunc("/a/create/scoreentities/", handlers.ErrorHandler(tasksctrl.CreateScoreEntities))
 	h.HandleFunc("/a/add/scoreentities/score/", handlers.ErrorHandler(tasksctrl.AddScoreToScoreEntities))
+	h.HandleFunc("/a/invite/", handlers.ErrorHandler(tasksctrl.Invite))
 
 	http.Handle("/", h)
 }

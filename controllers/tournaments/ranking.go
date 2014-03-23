@@ -58,14 +58,14 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if rankby != "teams" && rankby != "users" {
 			rankby = "users"
 		}
-		
+
 		strlimit := r.FormValue("limit")
 		limit := 10
-		if len(strlimit) > 0{
+		if len(strlimit) > 0 {
 			if n, err := strconv.ParseInt(strlimit, 10, 64); err != nil {
 				log.Infof(c, "%s, unable to parse %v, error:%v", strlimit, err)
 			} else {
-				if n > 0{
+				if n > 0 {
 					limit = int(n)
 				}
 			}

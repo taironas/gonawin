@@ -18,17 +18,21 @@
 package invite
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"appengine"
-	"appengine/mail"
+	"appengine/taskqueue"
 
 	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 const inviteMessage = `
@@ -46,12 +50,12 @@ Your friends @ Gonawin
 `
 
 // invite json handler
-func Invite(w http.ResponseWriter, r *http.Request) error {
+func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	desc := "invite handler:"
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
 		emailsList := r.FormValue("emails")
-		name := r.FormValue("name")
 
 		if len(emailsList) <= 0 {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
@@ -62,18 +66,36 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
 		}
 
-		url := fmt.Sprintf("http://%s/ng#", r.Host)
+		currenturl := fmt.Sprintf("http://%s/ng#", r.Host)
+		body := fmt.Sprintf(inviteMessage, currenturl)
+
+		bname, errname := json.Marshal(u.Name)
+		if errname != nil {
+			log.Errorf(c, "%s Error marshaling", desc, errname)
+		}
+
+		bbody, errbody := json.Marshal(body)
+		if errbody != nil {
+			log.Errorf(c, "%s Error marshaling", desc, errbody)
+		}
+
 		for _, email := range emails {
-			msg := &mail.Message{
-				Sender:  "No Reply gonawin <no-reply@gonawin.com>",
-				To:      []string{email},
-				Subject: name + " wants you to join Gonawin!",
-				Body:    fmt.Sprintf(inviteMessage, url),
+
+			bemail, errm := json.Marshal(email)
+			if errm != nil {
+				log.Errorf(c, "%s Error marshaling", desc, errm)
 			}
 
-			if err := mail.Send(c, msg); err != nil {
-				log.Errorf(c, "Invite Handler: couldn't send email: %v", err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
+			task := taskqueue.NewPOSTTask("/a/invite/", url.Values{
+				"email": []string{string(bemail)},
+				"name":  []string{string(bname)},
+				"body":  []string{string(bbody)},
+			})
+			if _, err := taskqueue.Add(c, task, ""); err != nil {
+				log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+				return err
+			} else {
+				log.Infof(c, "%s add task to taskqueue successfully", desc)
 			}
 		}
 		return templateshlp.RenderJson(w, c, "Email has been sent successfully")
