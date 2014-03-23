@@ -222,6 +222,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     if(!teams) {
       return false;
     }
+
     for (var i=0 ; i<teams.length; i++){
       if(teams[i].Id == teamId){
         return true;

@@ -48,8 +48,18 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
 	$scope.dashboard.id = currentUser.User.Name;
-	$scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
-	$scope.dashboard.nteams = currentUser.User.TeamIds.length;
+	if (currentUser.User.TournamentIds){
+	  $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
+	} else {
+	  $scope.dashboard.ntournaments = 0;
+	}
+	
+	if (currentUser.User.TeamIds){
+	  $scope.dashboard.nteams = currentUser.User.TeamIds.length;
+	}else{
+	   $scope.dashboard.nteams = 0;
+	}
+	
 	// get user score information:
 	$scope.dashboard.score = currentUser.User.Score;
       });
@@ -62,8 +72,17 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       Tournament.get({ id:$route.current.params.id }).$promise.then(function(tournamentResult){
       	console.log(ctx, 'get tournament ', tournamentResult);
 	$scope.dashboard.tournament = tournamentResult.Tournament.Name;
-	$scope.dashboard.nparticipants = tournamentResult.Participants.length;
-	$scope.dashboard.nteams = tournamentResult.Teams.length;
+	if(tournamentResult.Participants){
+	  $scope.dashboard.nparticipants = tournamentResult.Participants.length;
+	} else{
+	  $scope.dashboard.nparticipants = 0;
+	}
+	if(tournamentResult.Teams){
+	  $scope.dashboard.nteams = tournamentResult.Teams.length;
+	} else{
+	  $scope.dashboard.nteams = 0;
+	}
+
       });
       $scope.dashboard.rank = {};
 
@@ -96,8 +115,19 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       Team.get({ id:$route.current.params.id }).$promise.then(function(teamResult){
       	console.log(ctx, 'get team ', teamResult);
 	$scope.dashboard.team = teamResult.Team.Name;
-	$scope.dashboard.ntournaments = teamResult.Team.TournamentIds.length;
-	$scope.dashboard.nmembers = teamResult.Players.length;
+
+	if(teamResult.Team.TournamentIds){
+	  $scope.dashboard.ntournaments = teamResult.Team.TournamentIds.length;
+	}else{
+	  $scope.dashboard.ntournaments = 0;
+	}
+
+	if(teamResult.Players){
+	  $scope.dashboard.nmembers = teamResult.Players.length;
+	}else{
+	  $scope.dashboard.nmembers = 0;
+	}
+
 	$scope.dashboard.accuracy = teamResult.Team.Accuracy;
       });
 

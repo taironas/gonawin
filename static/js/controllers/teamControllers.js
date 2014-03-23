@@ -94,7 +94,10 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   // set tournament ids with "values" so that angular understands:
   // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
   $scope.teamData.$promise.then(function(teamresp){
-    var len = teamresp.Team.TournamentIds.length;
+    var len  = 0
+    if(teamresp.Team.TournamentIds){
+	len = teamresp.Team.TournamentIds.length;
+    }
     var tournamentIds = new Array();
     for(var i = 0; i < len; i++){
       tournamentIds.push({value: teamresp.Team.TournamentIds[i]});

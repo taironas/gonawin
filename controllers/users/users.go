@@ -75,6 +75,8 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// user
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)
+		log.Infof(c, "USER: %v", user)
+		log.Infof(c, "USER: %v", user.TeamIds)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: user not found")
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -83,6 +85,9 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
+		log.Infof(c, "USER: %v", uJson.TeamIds)
+		log.Infof(c, "USER: %v", uJson)
+		log.Infof(c, "USER: %v", *uJson.TeamIds)
 
 		// get with param:
 		with := r.FormValue("including")
