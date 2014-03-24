@@ -3,7 +3,7 @@
   <div class="panel-body text-center">
       <!-- user -->
       <div class="dashboard-user" ng-show="dashboard.context == 'user'">
-	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png" height="80" width="80" class="img-circle">
+	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
 	<h5>{{dashboard.user}}</h5>
 	<h5>Score: {{dashboard.score}}</h5>
 	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
@@ -11,7 +11,7 @@
       </div>
       <!-- team -->
       <div class="dashboard-team" ng-show="dashboard.context == 'team'">
-	<img src="https://sigil.cupcake.io/{{dashboard.teamid}}.png" height="80" width="80" class="img-circle">
+	<img src="https://sigil.cupcake.io/{{dashboard.teamid}}.png?inverted=1" height="80" width="80" class="img-circle">
 	<h5>{{dashboard.team}}</h5>
 	<h5>Accuracy: {{100 * dashboard.accuracy | number:2}}%</h5>
 	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
@@ -35,7 +35,7 @@
       </div>
       <!-- tournament -->
       <div class="dashboard-tournament" ng-show="dashboard.context == 'tournament'">
-	<img src="https://sigil.cupcake.io/{{dashboard.tournamentid}}.png" height="80" width="80" class="img-circle">
+	<img src="https://sigil.cupcake.io/{{dashboard.tournamentid}}.png?inverted=1" height="80" width="80" class="img-circle">
 	<h5>{{dashboard.tournament}}</h5>
 	<h5>Teams: {{dashboard.nteams}}</h5>
 	<h5>Participants: {{dashboard.nparticipants}}</h5>
