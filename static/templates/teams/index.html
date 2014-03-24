@@ -15,7 +15,7 @@
           <div class="input-group">
             <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
             <form ng-submit="searchTeam()">
-              <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
+              <input type="text" class="form-control" name="TeamInputSearch" id="inputIcon" ng-model="keywords">
             </form>
           </div>
           <!-- / search box -->
@@ -53,16 +53,20 @@
         <h4>Teams you can join:</h4>
         </br>
         <div class="row">
-          <div class="col-md-4" ng-repeat="team in teams" ng-controller="TeamCardCtrl">
-            <div class="panel panel-default team card center-block">
-              <div class="panel-body text-center">
-                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4>
-              </div>
-              <div class="panel-footer text-center">members: {{membersCount}} | accuracy: {{team.Accuracy}}
-                <i class="fa fa-lock fa-lg pull-right" ng-if="team.Private"></i>
-              </div>
+          <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
+          <div class="panel panel-default team-card">
+            <img class="team-card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="team-card-body">
+              <p>
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <small>members: {{membersCount}}</small>
+              </p>
+            </div>
+            <div class="team-card-footer">
+              <p>accuracy: {{team.Accuracy}}</p>
             </div>
           </div>
+        </div>
         </div>
       </span>
     </div>

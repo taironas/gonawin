@@ -1,14 +1,14 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1>Tournament First stage</h1>
-
-<dl class="dl-horizontal">
-  <dt><strong>Id:</strong></dt>
-  <dd>{{tournamentData.Tournament.Id}}</dd>
-  <dt><strong>Name:</strong></dt>
-  <dd>{{tournamentData.Tournament.Name}}</dd>
-</dl>
-
-<!-- Groups -->
-<div ng-include src="'templates/tournaments/groups.html'"></div>
-<!-- /Groups -->
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/tournaments">Tournaments</a></li>
+    <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></li>
+    <li class="active">Calendar</li>
+  </ol>
+  <div class="panel-body">
+    <h1>{{tournamentData.Tournament.Name}} First Stage</h1>
+    <!-- Groups -->
+    <div ng-include src="'templates/tournaments/groups.html'"></div>
+    <!-- /Groups -->
+  </div>
+</div>

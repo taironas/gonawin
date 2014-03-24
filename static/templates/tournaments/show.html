@@ -1,106 +1,107 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-11">
-      <h1>Tournament</h1>
-      <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-      <button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
-      <!-- Modal -->
-      <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-              <h3 id="tournamentModalLabel">Add Team</h3>
-            </div>
-            <div class="modal-body">
-              <div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
-            </div>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/teams">Tournaments</a></li>
+    <li class="active">{{tournamentData.Tournament.Name}}</li>
+  </ol>
+  <div class="panel-body">
+    <h1>{{tournamentData.Tournament.Name}}</h1>
+    <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+    <button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+    <!-- Modal -->
+    <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="tournamentModalLabel">Add Team</h3>
+          </div>
+          <div class="modal-body">
+            <div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <dl class="dl-horizontal">
-      <dt><strong>Id:</strong></dt>
-      <dd>{{tournamentData.Tournament.Id}}</dd>
-      <dt><strong>Name:</strong></dt>
-      <dd>{{tournamentData.Tournament.Name}}</dd>
-    </dl>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <div ng-if="isTournamentAdmin">
-      <div>
-	<form class="form-horizontal">
-	  <div class="form-group">
-            <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><span>Edit</span></a>
-            <input id="action" name="Action" type="hidden" value="delete" />
-            <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
-	  </div>
-	</form>
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-11">
+        <dl class="dl-horizontal">
+          <dt><strong>Id:</strong></dt>
+          <dd>{{tournamentData.Tournament.Id}}</dd>
+          <dt><strong>Name:</strong></dt>
+          <dd>{{tournamentData.Tournament.Name}}</dd>
+        </dl>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-11">
+        <div ng-if="isTournamentAdmin">
+          <div>
+      <form class="form-horizontal">
+        <div class="form-group">
+                <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><span>Edit</span></a>
+                <input id="action" name="Action" type="hidden" value="delete" />
+                <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
+        </div>
+      </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="links col-md-3">
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=phase">Calendar by phase</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=date">Calendar by date</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Second Stage Horizontal</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Second Stage Vertical</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/setresults">Admin: set results</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a><br>
+        <button class="btn btn-primary btn-xs" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></button>
+      </div>
+    </div>
+
+    <!-- participants -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="participants col-md-11">
+        <table class="table table-striped">
+          <thead><tr><th>Participants</th></tr></thead>
+          <tbody>
+      <tr ng-repeat="p in tournamentData.Participants">
+          <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
+      </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- / participants -->
+
+    <!-- Teams -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="teams col-md-11">
+        <table class="table table-striped">
+          <thead><tr><th>Teams</th></tr></thead>
+          <tbody>
+      <tr ng-repeat="t in tournamentData.Teams">
+              <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+      </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- / Teams -->
+
+    <!-- Groups -->
+    <div ng-include src="'templates/tournaments/groups.html'"></div>
+    <!-- /Groups -->
   </div>
 </div>
-
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="links col-md-3">
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=phase">Calendar by phase</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=date">Calendar by date</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Second Stage Horizontal</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Second Stage Vertical</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/setresults">Admin: set results</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a><br>
-    <button class="btn btn-primary btn-xs" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></button>
-  </div>
-</div>
-
-<!-- participants -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="participants col-md-11">
-    <table class="table table-striped">
-      <thead><tr><th>Participants</th></tr></thead>
-      <tbody>
-	<tr ng-repeat="p in tournamentData.Participants">
-  	  <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
-	</tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<!-- / participants -->
-
-<!-- Teams -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="teams col-md-11">
-    <table class="table table-striped">
-      <thead><tr><th>Teams</th></tr></thead>
-      <tbody>
-	<tr ng-repeat="t in tournamentData.Teams">
-          <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	</tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-<!-- / Teams -->
-
-<!-- Groups -->
-<div ng-include src="'templates/tournaments/groups.html'"></div>
-<!-- /Groups -->

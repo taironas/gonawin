@@ -1,19 +1,30 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1>New Tournament</h1>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/tournaments">Tournaments</a></li>
+    <li class="active">New Tournament</li>
+  </ol>
+  <div class="panel-body">
+    <form class="form-horizontal" role="form" name="newTournamentForm">
+      <div class="form-group" ng-class="{error: newTournamentForm.name.$invalid}">
+        <label class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-4">
+          <input class="text-field form-control" name="name" size="30" type="text" ng-model="tournament.name" required/>
+        </div>
+        <span ng-show="newTournamentForm.name.$error.required" class="text-danger"> Required</span>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-2 control-label">Description</label>
+        <div class="col-sm-4">
+          <textarea  class="form-control" name="description" size="30" rows="3" ng-model="tournament.description" /></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <a href="/ng#/tournaments" class="btn btn-default">Cancel</a>
+          <button class="btn btn-primary" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid">Create Tournament</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
-<form class="form-horizontal" role="form" name="newTournamentForm">
-  <div class="form-group" ng-class="{error: newTournamentForm.name.$invalid}">
-    <label class="col-sm-1 control-label">Name</label>
-    <div class="col-sm-6">
-      <input class="col-sm-6 form-control" name="name" size="30" type="text" ng-model="tournament.name" required/>
-    </div>
-    <span ng-show="newTournamentForm.name.$error.required" class=" col-sm-5help-inline"> Required</span>
-  </div>
-  <div class="form-group">
-    <div class="col-sm-7">
-      <a href="/ng#/tournaments" class="btn btn-default">Cancel</a>
-      <button class="btn btn-primary" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid">Create Tournament</button>
-    </div>
-  </div>
-</form>

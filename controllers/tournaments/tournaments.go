@@ -38,6 +38,7 @@ import (
 
 type TournamentData struct {
 	Name string
+  Description string
 }
 
 // JSON index tournaments handler.
@@ -85,7 +86,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s That tournament name already exists.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 		} else {
-			tournament, err := mdl.CreateTournament(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
+			tournament, err := mdl.CreateTournament(c, data.Name, data.Description, time.Now(), time.Now(), u.Id)
 			if err != nil {
 				log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -128,7 +129,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := tournament.Teams(c)
 
 		// tournament
-		fieldsToKeep := []string{"Id", "Name"}
+		fieldsToKeep := []string{"Id", "Name", "Description"}
 		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant

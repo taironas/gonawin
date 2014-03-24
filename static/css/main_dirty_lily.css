@@ -154,3 +154,9 @@ body {
   border-bottom-left-radius: 4px;
   color: #67c2ef;
 }
+
+/* tournaments */
+.panel-match h4 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
