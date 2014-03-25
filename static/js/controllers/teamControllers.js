@@ -46,7 +46,6 @@ teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
     });
 }]);
 
-
 teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
   console.log('Team search controller');
   console.log('routeParams: ', $routeParams);

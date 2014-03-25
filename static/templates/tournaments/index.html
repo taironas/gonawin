@@ -26,20 +26,18 @@
       </div>
       </br></br>
       <div class="row center-block">
-        <table class="table table-striped" ng-show="tournaments.length">
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="tournament in tournaments | filter:query">
-              <td>{{tournament.Id}}</td>
-              <td><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></td>
-            </tr>
-          </tbody>
-        </table>
+         <div ng-repeat="tournament in tournaments" ng-controller="TournamentCardCtrl">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <small>participants: {{participantsCount}}</small>
+                <small>teams: {{teamsCount}}</small>
+              </p>
+            </div>
+          </div>
+        </div>
         <h3 style="text-align: center">{{noTournamentsMessage}}</h3>
       </div>
     </div>

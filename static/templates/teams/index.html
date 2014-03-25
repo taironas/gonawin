@@ -26,15 +26,15 @@
       </br>
       <div class="row center-block">
         <div ng-repeat="team in joinedTeams" ng-controller="TeamCardCtrl">
-          <div class="panel panel-default team-card">
-            <img class="team-card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
-            <div class="team-card-body">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
               <p>
                 <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
                 <small>members: {{membersCount}}</small>
               </p>
             </div>
-            <div class="team-card-footer">
+            <div class="card-footer">
               <p>accuracy: {{team.Accuracy}}</p>
             </div>
           </div>
