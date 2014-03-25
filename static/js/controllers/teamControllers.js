@@ -91,6 +91,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.teamData = Team.get({ id:$routeParams.id });
   // get message info from redirects.
   $scope.messageInfo = $rootScope.messageInfo;
+  // reset to nil var message info in root scope.
+  $rootScope.messageInfo = undefined;
+
   $scope.deleteTeam = function() {
     Team.delete({ id:$routeParams.id },
 		function(){
