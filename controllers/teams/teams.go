@@ -77,7 +77,9 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// json new handler
+// team new handler
+//	POST	/j/teams/new/				Creates a new team.
+//
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team New Handler:"
 
@@ -125,7 +127,16 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
-			return templateshlp.RenderJson(w, c, tJson)
+			msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
+			data := struct {
+				MessageInfo string `json:",omitempty"`
+				Team mdl.TeamJson
+			}{
+				msg,
+				tJson,
+			}
+
+			return templateshlp.RenderJson(w, c, data)
 		}
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}

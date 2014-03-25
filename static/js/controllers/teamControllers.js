@@ -69,23 +69,28 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
   };
 }]);
 
-teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
+// New Team controller. Use this controller to create a team.
+teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', '$rootScope', function($scope, Team, $location, $rootScope) {
   $scope.addTeam = function() {
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
-      function(team) {
-	      $location.path('/teams/' + team.Id);
-      },
-      function(err) {
-        $scope.messageDanger = err.data;
-	      console.log('save failed: ', err.data);
-      });
+	      function(response) {
+		// set message information in root scope to retreive it in team show controller.
+		// http://stackoverflow.com/questions/13740885/angularjs-location-scope
+		$rootScope.messageInfo = response.MessageInfo; 
+		$location.path('/teams/' + response.Team.Id);
+	      },
+	      function(err) {
+		$scope.messageDanger = err.data;
+		console.log('save failed: ', err.data);
+	      });
   };
 }]);
 
-teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', function($scope, $routeParams, Team, $location, $q) {
+teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', '$rootScope', function($scope, $routeParams, Team, $location, $q, $rootScope) {
   $scope.teamData = Team.get({ id:$routeParams.id });
-
+  // get message info from redirects.
+  $scope.messageInfo = $rootScope.messageInfo;
   $scope.deleteTeam = function() {
     Team.delete({ id:$routeParams.id },
 		function(){
