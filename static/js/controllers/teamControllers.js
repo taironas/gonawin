@@ -1,7 +1,10 @@
 'use strict';
 
+// Team controllers manage team entities (creation, update, deletion) by getting
+// data from REST service (resource).
+// Handle also user subscription to a team (join/leave)
 var teamControllers = angular.module('teamControllers', []);
-
+// TeamListCtrl: fetch all teams 
 teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location',
   function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
@@ -32,22 +35,21 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     };
 
 }]);
-
+// TeamCardCtrl: fetch data of a particular team
 teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
   function($scope, Team) {
     console.log('Team card controller:');
-
+    console.log('team ID: ', $scope.$parent.team.Id);
     $scope.teamData = Team.get({ id:$scope.$parent.team.Id});
 
     $scope.teamData.$promise.then(function(teamData){
       $scope.team = teamData.Team;
-      console.log('team card controller, teamData = ', teamData);
       $scope.membersCount = teamData.Players.length;
     });
 }]);
-
+// TeamSearchCtrl: returns an array of teams based on a search query
 teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-  console.log('Team search controller');
+  console.log('Team search controller:');
   console.log('routeParams: ', $routeParams);
   // get teams result from search query
   $scope.teamsData = Team.search( {q:$routeParams.q});
@@ -68,9 +70,9 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
     $location.search('q', $scope.keywords).path('/teams/search');
   };
 }]);
-
 // New Team controller. Use this controller to create a team.
-teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', '$rootScope', function($scope, Team, $location, $rootScope) {
+teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
+  console.log('Team new controller:');
   $scope.addTeam = function() {
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
@@ -86,8 +88,9 @@ teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', '$root
 	      });
   };
 }]);
-
+// TeamShowCtrl: fetch data of specific team and handle also deletion of this same team
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', '$rootScope', function($scope, $routeParams, Team, $location, $q, $rootScope) {
+  console.log('Team show controller:');
   $scope.teamData = Team.get({ id:$routeParams.id });
   // get message info from redirects.
   $scope.messageInfo = $rootScope.messageInfo;
@@ -104,7 +107,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		  console.log('delete failed: ', err.data);
 		});
   };
-
   // set isTeamAdmin boolean:
   // This variable defines if the current user is admin of the current team.
   $scope.teamData.$promise.then(function(teamResult){
@@ -156,7 +158,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     });
   };
-
+  // This function makes a user leave a team.
+  // It does so by caling Leave on a Team.
+  // This will update members data and leave button name.
   $scope.leaveTeam = function(){
     Team.leave({ id:$routeParams.id }).$promise.then(function(result){
       Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
@@ -193,8 +197,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.joinButtonMethod = result;
   });
 }]);
-
+// TeamEditCtrl: collects data to update an existing team
 teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
+  console.log('Team edit controller:');
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.updateTeam = function() {
@@ -209,10 +214,9 @@ teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$
 		});
   }
 }]);
-
-// Ranking controller
+// TeamRankingCtrl: fetch ranking data of a specific team
 teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
-  console.log('Team ranking controller');
+  console.log('Team ranking controller:');
   console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
 
@@ -221,21 +225,18 @@ teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team',
   $scope.predicate = 'Score';
 
 }]);
-
-//Team Accuracies controller
+// TeamAccuraciesCtrl: fetch accuracies data of a specific team
 teamControllers.controller('TeamAccuraciesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
-  console.log('Team accuracies controller');
+  console.log('Team accuracies controller:');
   console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.accuracyData = Team.accuracies({id:$routeParams.id});
 }]);
-
-// team Accuracy in tournament
+// TeamAccuracyByTournamentCtrl: fetch accuracy data by tournament of a specific team
 teamControllers.controller('TeamAccuracyByTournamentCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location){
-  console.log('Team accuracy for team controller');
+  console.log('Team accuracy by tournament controller:');
   console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
   $scope.accuracyData = Team.accuracy({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
-
 }]);
