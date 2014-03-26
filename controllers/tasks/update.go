@@ -116,6 +116,19 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
 		log.Infof(c, "%s task queue for updating scores of users: <--", desc)
+    
+    task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
+			"userIds":      []string{string(buserIds)},
+			"scores":       []string{string(bscores)},
+			"tournamentId": []string{string(btournamentId)},
+		})
+		if _, err := taskqueue.Add(c, task3, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+			return err
+		} else {
+			log.Infof(c, "%s add task to taskqueue successfully", desc)
+		}
+		log.Infof(c, "%s task queue for publishing user score activities: <--", desc)
 
 		// task queue for adding necessary score entities.
 		log.Infof(c, "%s task queue for adding necessary score entities.: -->", desc)
@@ -266,7 +279,6 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
 			}
 			log.Infof(c, "%s task done!", desc)
-			return nil
 		}
 		log.Infof(c, "%s something went wrong...")
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -387,6 +399,64 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 						}
 					}
 				}
+			}
+			log.Infof(c, "%s task done!", desc)
+			return nil
+		}
+		log.Infof(c, "%s something went wrong...")
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}, &datastore.TransactionOptions{XG: true})
+	if err != nil {
+		c.Errorf("%s error: %v", err)
+		log.Infof(c, "%s something went wrong...")
+		return err
+	}
+	return nil
+}
+
+// Publish score activities for array of users.
+func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+	desc := "Task queue - Publish Users Score Activities Handler:"
+	log.Infof(c, "%s processing...", desc)
+	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+
+		if r.Method == "POST" {
+			log.Infof(c, "%s reading data...", desc)
+
+			userIdsBlob := []byte(r.FormValue("userIds"))
+			scoresBlob := []byte(r.FormValue("scores"))
+
+			var userIds []int64
+			err1 := json.Unmarshal(userIdsBlob, &userIds)
+			if err1 != nil {
+				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+			}
+
+			var scores []int64
+			err2 := json.Unmarshal(scoresBlob, &scores)
+			if err2 != nil {
+				log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
+			}
+
+			log.Infof(c, "%s value of user ids: %v", desc, userIds)
+			log.Infof(c, "%s value of scores: %v", desc, scores)
+
+			log.Infof(c, "%s crunching data...", desc)
+			users := make([]*mdl.User, 0)
+			for i, id := range userIds {
+				if u, err := mdl.UserById(c, id); err != nil {
+					log.Errorf(c, "cannot find user with id=%", id)
+				} else {
+					u.Score += scores[i]
+					users = append(users, u)
+				}
+			}
+			log.Infof(c, "%s publish user activities", desc)
+
+      if err := mdl.PublishUserScoreActivities(c, users); err != nil {
+				log.Errorf(c, "%s unable publish user score activities: %v", desc, err)
+				return errors.New(helpers.ErrorCodeUsersCannotPublishScore)
 			}
 			log.Infof(c, "%s task done!", desc)
 			return nil
