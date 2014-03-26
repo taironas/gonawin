@@ -19,6 +19,7 @@ package tasks
 import (
 	"encoding/json"
 	"errors"
+  "fmt"
 	"net/http"
 	"net/url"
 
@@ -116,19 +117,6 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
 		log.Infof(c, "%s task queue for updating scores of users: <--", desc)
-    
-    task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
-			"userIds":      []string{string(buserIds)},
-			"scores":       []string{string(bscores)},
-			"tournamentId": []string{string(btournamentId)},
-		})
-		if _, err := taskqueue.Add(c, task3, ""); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-		log.Infof(c, "%s task queue for publishing user score activities: <--", desc)
 
 		// task queue for adding necessary score entities.
 		log.Infof(c, "%s task queue for adding necessary score entities.: -->", desc)
@@ -178,60 +166,26 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
 		log.Infof(c, "%s task queue for adding the score to the score entity: <--", desc)
+    
+    // task queue for updating scores of users.
+		log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
+    
+    task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
+			"userIds":      []string{string(buserIds)},
+		})
+		if _, err := taskqueue.Add(c, task3, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+			return err
+		} else {
+			log.Infof(c, "%s add task to taskqueue successfully", desc)
+		}
+		log.Infof(c, "%s task queue for publishing user score activities: <--", desc)
 
-		// users := t.Participants(c)
-		// usersToUpdate := make([]*mdl.User, 0)
-		// for i, u := range users {
-		// 	if score, err := u.ScoreForMatch(c, &m); err != nil {
-		// 		log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
-		// 	} else {
-		// 		// update user overall score
-		// 		users[i].Score += score
-		// 		usersToUpdate = append(usersToUpdate, users[i])
-		// 		// update score entity for user, tournament pair.
-		// 		// if does not exist, create it and update it
-		// 		// else update it
-		// 		if scoreEntity, _ := u.TournamentScore(c, &t); scoreEntity == nil {
-		// 			log.Infof(c, "%s create score entity as it does not exist", desc)
-		// 			if scoreEntity1, err := mdl.CreateScore(c, u.Id, t.Id); err != nil {
-		// 				log.Errorf(c, "%s unable to create score entity", desc)
-		// 				return err
-		// 			} else {
-		// 				log.Infof(c, "%s score ready add it to tournament %v", desc, scoreEntity1)
-		// 				u.AddTournamentScore(c, scoreEntity1.Id, t.Id)
-		// 				log.Infof(c, "%s score entity exists now, lets update it", desc)
-		// 				var err error
-		// 				if err = scoreEntity1.Add(c, score); err != nil {
-		// 					log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
-		// 				}
-		// 			}
-		// 		} else {
-		// 			log.Infof(c, "%s score entity exists, lets update it", desc)
-		// 			var err error
-		// 			if err = scoreEntity.Add(c, score); err != nil {
-		// 				log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-		// if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
-		// 	log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-		// 	return errors.New(helpers.ErrorCodeUsersCannotUpdate)
-		// }
 		log.Infof(c, "%s task done!", desc)
 		return nil
 	}
 	log.Infof(c, "%s something went wrong...")
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-
-	// }, &datastore.TransactionOptions{XG: true})
-	// if err != nil {
-	// 	c.Errorf("%s error: %v", err)
-	// 	log.Infof(c, "%s something went wrong...")
-	// 	return err
-	// }
-	return nil
 }
 
 // Update users scores.
@@ -279,13 +233,14 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
 			}
 			log.Infof(c, "%s task done!", desc)
+      return nil
 		}
-		log.Infof(c, "%s something went wrong...")
+		log.Infof(c, "%s something went wrong...", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}, &datastore.TransactionOptions{XG: true})
 	if err != nil {
 		c.Errorf("%s error: %v", err)
-		log.Infof(c, "%s something went wrong...")
+		log.Infof(c, "%s something went wrong...", desc)
 		return err
 	}
 	return nil
@@ -425,7 +380,6 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 			log.Infof(c, "%s reading data...", desc)
 
 			userIdsBlob := []byte(r.FormValue("userIds"))
-			scoresBlob := []byte(r.FormValue("scores"))
 
 			var userIds []int64
 			err1 := json.Unmarshal(userIdsBlob, &userIds)
@@ -433,31 +387,18 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
 			}
 
-			var scores []int64
-			err2 := json.Unmarshal(scoresBlob, &scores)
-			if err2 != nil {
-				log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
-			}
-
 			log.Infof(c, "%s value of user ids: %v", desc, userIds)
-			log.Infof(c, "%s value of scores: %v", desc, scores)
 
 			log.Infof(c, "%s crunching data...", desc)
-			users := make([]*mdl.User, 0)
-			for i, id := range userIds {
+			for _, id := range userIds {
 				if u, err := mdl.UserById(c, id); err != nil {
-					log.Errorf(c, "cannot find user with id=%", id)
+          log.Errorf(c, "%s cannot find user with id=%", desc, id)
 				} else {
-					u.Score += scores[i]
-					users = append(users, u)
+					verb := fmt.Sprintf(" score is now %d", u.Score)
+          u.Publish(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{})
 				}
 			}
-			log.Infof(c, "%s publish user activities", desc)
-
-      if err := mdl.PublishUserScoreActivities(c, users); err != nil {
-				log.Errorf(c, "%s unable publish user score activities: %v", desc, err)
-				return errors.New(helpers.ErrorCodeUsersCannotPublishScore)
-			}
+			
 			log.Infof(c, "%s task done!", desc)
 			return nil
 		}

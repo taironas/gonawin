@@ -328,16 +328,6 @@ func UpdateUsers(c appengine.Context, users []*User) error {
 	return nil
 }
 
-// Publish score activities for an array of users.
-func PublishUserScoreActivities(c appengine.Context, users []*User) error {
-	var err error
-  for _, u := range users {
-		verb := fmt.Sprintf("is now %d", u.Score)
-		err = u.Publish(c, "score", verb, ActivityEntity{}, ActivityEntity{})
-	}
-	return err
-}
-
 func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, error) {
 	predicts := PredictsByIds(c, u.PredictIds)
 	for i, p := range predicts {
@@ -390,7 +380,11 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: "You"}
+  displayName := "You"
+  if activity.Type == "score" {
+    displayName = "Your"
+  }
+	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: displayName}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()

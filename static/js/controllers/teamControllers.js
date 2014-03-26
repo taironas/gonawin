@@ -71,7 +71,7 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
   };
 }]);
 // TeamNewCtrl: use this controller to create a team.
-teamControllers.controller('TeamNewCtrl', ['$scope', 'Team', '$location', function($scope, Team, $location) {
+teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$location', function($rootScope, $scope, Team, $location) {
   console.log('Team new controller:');
   $scope.addTeam = function() {
     console.log('TeamNewCtrl: AddTeam');
