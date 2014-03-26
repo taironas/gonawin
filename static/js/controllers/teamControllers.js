@@ -9,10 +9,10 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
   function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
     $scope.teams = Team.query();
-
+    
     $scope.teams.$promise.then(function(result){
-      if(!$scope.teams || ($scope.teams && !$scope.teams.length))
-        $scope.noTeamsMessage = 'You have no teams';
+    if(!$scope.teams || ($scope.teams && !$scope.teams.length))
+      $scope.noTeamsMessage = 'No team has been created';
     });
 
     $rootScope.currentUser.$promise.then(function(currentUser){
@@ -20,6 +20,8 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
       console.log('user data = ', userData);
       userData.$promise.then(function(result){
         $scope.joinedTeams = result.Teams;
+        if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length))
+          $scope.noJoinedTeamsMessage = 'You didn\'t join a team';
       });
     });
 

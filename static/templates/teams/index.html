@@ -39,7 +39,7 @@
             </div>
           </div>
         </div>
-        <h3 style="text-align: center">{{noTeamsMessage}}</h3>
+        <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
       </div>
       </br><hr>
       <div class="row">
@@ -54,19 +54,20 @@
         </br>
         <div class="row center-block">
           <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
-          <div class="panel panel-default card">
-            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
-            <div class="card-body">
-              <p>
-                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
-                <small>members: {{membersCount}}</small>
-              </p>
-            </div>
-            <div class="card-footer">
-              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+            <div class="panel panel-default card">
+              <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+              <div class="card-body">
+                <p>
+                  <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                  <small>members: {{membersCount}}</small>
+                </p>
+              </div>
+              <div class="card-footer">
+                <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+              </div>
             </div>
           </div>
-        </div>
+          <h3 style="text-align: center">{{noTeamsMessage}}</h3>
         </div>
       </span>
     </div>
