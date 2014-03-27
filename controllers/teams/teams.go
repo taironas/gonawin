@@ -423,8 +423,10 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// json search handler
-// use this handler to search for a team.
+// Team search handler.
+// Use this handler to search for a team.
+//	GET	/j/teams/search/			Search for all teams respecting the query "q"
+//
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
