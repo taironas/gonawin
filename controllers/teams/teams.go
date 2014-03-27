@@ -247,6 +247,12 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
+		
+		// publish new activity
+		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
+		target := mdl.ActivityEntity{}
+		u.Publish(c, "team", "updated team", object, target)
+
 		// keep only needed fields for json api
 		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
@@ -265,7 +271,9 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json destroy handler
+// team destroy handler
+//	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
+//
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -308,8 +316,15 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "team", "deleted team", object, target)
 
+		msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+		}{
+			msg,
+		}
+
 		// return destroyed status
-		return templateshlp.RenderJson(w, c, "team has been destroyed")
+		return templateshlp.RenderJson(w, c, data)
 	} else {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}

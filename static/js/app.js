@@ -12,7 +12,8 @@ var purpleWingApp = angular.module('purpleWingApp', [
   '$strap.directives',
   'filter.fromNow',
   'filter.reverse',
-  
+
+  'rootControllers',
   'navigationControllers',
   'dashboardControllers',
   'activitiesControllers',
@@ -44,7 +45,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
       when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
-      when('/', { templateUrl:  'templates/home.html', requireLogin: true }).
+      when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
