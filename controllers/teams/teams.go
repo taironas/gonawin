@@ -143,7 +143,9 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json show handler
+// team show handler
+//	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
+//
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -188,7 +190,9 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json update handler
+// team update handler
+//	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
+//
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -229,7 +233,6 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		updatedPrivate := updatedData.Visibility == "Private"
 
 		if helpers.IsStringValid(updatedData.Name) && (updatedData.Name != team.Name || updatedPrivate != team.Private) {
-
 			// be sure that team with that name does not exist in datastore
 			if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 				log.Errorf(c, "Team Update Handler: That team name already exists.")
@@ -240,7 +243,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			team.Private = updatedPrivate
 			team.Update(c)
 		} else {
-			log.Errorf(c, "Cannot update because updated data are not valid")
+			log.Errorf(c, "Cannot update because updated is not valid.")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
@@ -248,8 +251,16 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-		return templateshlp.RenderJson(w, c, tJson)
+		
+		msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Team        mdl.TeamJson
+		}{
+			msg,
+			tJson,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

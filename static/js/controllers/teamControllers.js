@@ -195,14 +195,15 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   });
 }]);
 // TeamEditCtrl: collects data to update an existing team.
-teamControllers.controller('TeamEditCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
+teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', '$location', function($rootScope, $scope, $routeParams, Team, $location) {
   console.log('Team edit controller:');
   $scope.teamData = Team.get({ id:$routeParams.id });
 
   $scope.updateTeam = function() {
     var teamData = Team.get({ id:$routeParams.id });
     Team.update({ id:$routeParams.id }, $scope.teamData.Team,
-		function(err){
+		function(response){
+		  $rootScope.messageInfo = response.MessageInfo; 
 		  $location.path('/teams/' + $routeParams.id);
 		},
 		function(err) {
