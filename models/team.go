@@ -543,7 +543,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ID: t.Id, Type: "team", DisplayName: t.Name}
+	activity.Actor = ActivityEntity{Id: t.Id, Type: "team", DisplayName: t.Name}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()

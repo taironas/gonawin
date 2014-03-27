@@ -27,7 +27,7 @@ import (
 )
 
 type Activity struct {
-	ID        int64
+	Id        int64
 	Type      string
 	Verb      string
 	Actor     ActivityEntity
@@ -38,13 +38,13 @@ type Activity struct {
 }
 
 type ActivityEntity struct {
-	ID          int64
+	Id          int64
 	Type        string
 	DisplayName string
 }
 
 type ActivityJson struct {
-	ID        *int64          `json:",omitempty"`
+	Id        *int64          `json:",omitempty"`
 	Type      *string         `json:",omitempty"`
 	Verb      *string         `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
@@ -62,15 +62,13 @@ func (a *Activity) save(c appengine.Context) error {
 		log.Errorf(c, "model/activity, create: %v", err)
 		return errors.New("model/activity, unable to allocate an identifier for Activity")
 	}
-
 	key := datastore.NewKey(c, "Activity", "", id, nil)
-
+	a.Id = id
 	_, err = datastore.Put(c, key, a)
 	if err != nil {
 		log.Errorf(c, "model/activity, create: %v", err)
 		return errors.New("model/activity, unable to put Activity in Datastore")
 	}
-
 	return nil
 }
 

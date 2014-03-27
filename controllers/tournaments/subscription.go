@@ -58,7 +58,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "joined tournament", object, target)
 
@@ -97,7 +97,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "left tournament", object, target)
 
@@ -142,7 +142,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		team.Publish(c, "tournament", "joined tournament", object, target)
 
@@ -187,7 +187,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
+		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "left tournament", object, target)
 

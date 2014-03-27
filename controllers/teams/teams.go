@@ -118,7 +118,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
-			object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+			object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
 			target := mdl.ActivityEntity{}
 			u.Publish(c, "team", "created a new team", object, target)
 
@@ -292,7 +292,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		team.Destroy(c)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "team", "deleted team", object, target)
 
@@ -509,7 +509,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "team", "joined team", object, target)
 
@@ -551,7 +551,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{ID: team.Id, Type: "team", DisplayName: team.Name}
+		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "team", "left team", object, target)
 

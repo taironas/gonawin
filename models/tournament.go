@@ -470,7 +470,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ID: t.Id, Type: "tournament", DisplayName: t.Name}
+	activity.Actor = ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: t.Name}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
