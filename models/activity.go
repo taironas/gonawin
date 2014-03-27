@@ -26,21 +26,26 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
+// Activity is an update that shows the activity of the user on gonawin.
+//
+// An activity can be published as long as a type, a verb and an actor
+// has been specified.
 type Activity struct {
 	Id        int64
-	Type      string
-	Verb      string
-	Actor     ActivityEntity
-	Object    ActivityEntity
-	Target    ActivityEntity
+	Type      string          // Type of the activity (welcome, team, tournament, match, accuracy, predict, score)
+	Verb      string          // Describes the action
+	Actor     ActivityEntity  // The one who/which performs the action
+	Object    ActivityEntity  // The one who/which is used to performs the action (can be empty)
+	Target    ActivityEntity  // The one who/which is affected by the action (can be empty)
 	Published time.Time
 	CreatorID int64
 }
 
+// Activity Entity
 type ActivityEntity struct {
 	Id          int64
 	Type        string
-	DisplayName string
+	DisplayName string  // Name which will be displayed in the view
 }
 
 type ActivityJson struct {
