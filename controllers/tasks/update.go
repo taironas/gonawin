@@ -19,7 +19,7 @@ package tasks
 import (
 	"encoding/json"
 	"errors"
-  "fmt"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -166,12 +166,12 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			log.Infof(c, "%s add task to taskqueue successfully", desc)
 		}
 		log.Infof(c, "%s task queue for adding the score to the score entity: <--", desc)
-    
-    // task queue for updating scores of users.
+
+		// task queue for updating scores of users.
 		log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
-    
-    task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
-			"userIds":      []string{string(buserIds)},
+
+		task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
+			"userIds": []string{string(buserIds)},
 		})
 		if _, err := taskqueue.Add(c, task3, ""); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
@@ -233,7 +233,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
 			}
 			log.Infof(c, "%s task done!", desc)
-      return nil
+			return nil
 		}
 		log.Infof(c, "%s something went wrong...", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -392,13 +392,13 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 			log.Infof(c, "%s crunching data...", desc)
 			for _, id := range userIds {
 				if u, err := mdl.UserById(c, id); err != nil {
-          log.Errorf(c, "%s cannot find user with id=%", desc, id)
+					log.Errorf(c, "%s cannot find user with id=%", desc, id)
 				} else {
 					verb := fmt.Sprintf(" score is now %d", u.Score)
-          u.Publish(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{})
+					u.Publish(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{})
 				}
 			}
-			
+
 			log.Infof(c, "%s task done!", desc)
 			return nil
 		}

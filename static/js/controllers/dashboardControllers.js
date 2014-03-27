@@ -21,7 +21,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
   //
   // On RouteParams:
   //
-  //   We are not able to get the current team id with $routeParams, so we use $route instead.
+  //   We are not able to get the current team id with $routeParams all the time, so we use $route when $routeParams does not work.
   //   from angular documentation: 
   //   http://docs.angularjs.org/api/ngRoute/service/$routeParams
   //     Note that the $routeParams are only updated after a route change completes successfully. 
@@ -38,6 +38,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
     console.log(ctx, 'match root? ', url.match('^/$') != null);
     console.log(ctx, 'match tournaments? ', url.match('^/tournaments/[0-9]+.*') != null);
     console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
+    console.log(ctx, 'route:--->', $route);
 
     // reset dashboard before any set.
     $scope.dashboard = {};
@@ -69,8 +70,19 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       $scope.dashboard.location = 'tournament';
       $scope.dashboard.context = 'tournament';
 
-      console.log(ctx, 'route', $route);
-      Tournament.get({ id:$route.current.params.id }).$promise.then(function(tournamentResult){
+	// depending on how we get here, either by refresh, redirect or following link,
+	// sometimes routeparams will have the tournament id and other times route.current will have it.
+	var tournamentId;
+	if($route.current.params.id != undefined){
+	    tournamentId = $route.current.params.id;
+	} else if($routeParams.id != undefined){
+	    tournamentId = $routeParams.id;
+	} else{
+	    console.log(ctx, 'unable to get tournament id.');
+	    return;
+	}
+
+      Tournament.get({ id:tournamentId }).$promise.then(function(tournamentResult){
       	console.log(ctx, 'get tournament ', tournamentResult);
 	$scope.dashboard.tournament = tournamentResult.Tournament.Name;
 	$scope.dashboard.tournamentid = tournamentResult.Tournament.Id;
@@ -89,12 +101,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       });
       $scope.dashboard.rank = {};
 
-      Tournament.ranking({id:$route.current.params.id, rankby:'users', limit:'10'}).$promise.then(function(rankResult){
+      Tournament.ranking({id:tournamentId, rankby:'users', limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get users ranking ', rankResult);
 	$scope.dashboard.rank.users = rankResult.Users;
       });
 
-      Tournament.ranking({id:$route.current.params.id, rankby:'teams', limit:'10'}).$promise.then(function(rankResult){
+      Tournament.ranking({id:tournamentId, rankby:'teams', limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get teams ranking', rankResult);
 	$scope.dashboard.rank.teams = rankResult.Teams;
       });
@@ -109,13 +121,24 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       $scope.dashboard.location = 'team';
       $scope.dashboard.context = 'team';
 
+	var teamId;
+	if($route.current.params.id != undefined){
+	    teamId = $route.current.params.id;
+	} else if($routeParams.id != undefined){
+	    teamId = $routeParams.id;
+	} else{
+	    console.log(ctx, 'unable to get tournament id.');
+	    return;
+	}
+
+
       $rootScope.currentUser.$promise.then(function(currentUser){
 	$scope.dashboard.user = currentUser.User.Name;
 	$scope.dashboard.userid = currentUser.User.Id;
       });
 
       console.log(ctx, 'route', $route);
-      Team.get({ id:$route.current.params.id }).$promise.then(function(teamResult){
+      Team.get({ id:teamId }).$promise.then(function(teamResult){
       	console.log(ctx, 'get team ', teamResult);
 	$scope.dashboard.team = teamResult.Team.Name;
 	$scope.dashboard.teamid = teamResult.Team.Id;
@@ -135,7 +158,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	$scope.dashboard.accuracy = teamResult.Team.Accuracy;
       });
 
-      Team.ranking({id:$route.current.params.id, limit:'10'}).$promise.then(function(rankResult){
+      Team.ranking({id:teamId, limit:'10'}).$promise.then(function(rankResult){
 	console.log(ctx, 'get team ranking', rankResult);
 	$scope.dashboard.members = rankResult.Users;
       });

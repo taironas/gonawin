@@ -130,7 +130,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
 			data := struct {
 				MessageInfo string `json:",omitempty"`
-				Team mdl.TeamJson
+				Team        mdl.TeamJson
 			}{
 				msg,
 				tJson,

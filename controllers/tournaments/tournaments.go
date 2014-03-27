@@ -37,8 +37,8 @@ import (
 )
 
 type TournamentData struct {
-	Name string
-  Description string
+	Name        string
+	Description string
 }
 
 // JSON index tournaments handler.

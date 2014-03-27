@@ -380,10 +380,10 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-  displayName := "You"
-  if activity.Type == "score" {
-    displayName = "Your"
-  }
+	displayName := "You"
+	if activity.Type == "score" {
+		displayName = "Your"
+	}
 	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: displayName}
 	activity.Object = object
 	activity.Target = target
