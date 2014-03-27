@@ -30,7 +30,7 @@ import (
 )
 
 // Simulate the scores of a phase in a tournament.
-func SimulateMatchesJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {

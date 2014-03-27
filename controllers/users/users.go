@@ -39,7 +39,7 @@ type UserData struct {
 }
 
 // json index user handler
-func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -60,7 +60,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // Json show user handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -75,14 +75,19 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// user
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)
+		log.Infof(c, "USER: %v", user)
+		log.Infof(c, "USER: %v", user.TeamIds)
 		if err != nil {
 			log.Errorf(c, "User Show Handler: user not found")
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth"}
+		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
+		log.Infof(c, "USER: %v", uJson.TeamIds)
+		log.Infof(c, "USER: %v", uJson)
+		log.Infof(c, "USER: %v", *uJson.TeamIds)
 
 		// get with param:
 		with := r.FormValue("including")
@@ -133,7 +138,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json update user handler
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {

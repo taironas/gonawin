@@ -44,11 +44,12 @@ type TeamJson struct {
 	Points int64
 	GoalsF int64
 	GoalsA int64
+	Iso    string
 }
 
 // json tournament groups handler
 // use this handler to get groups of a tournament.
-func GroupsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Group Handler:"
 
@@ -91,7 +92,7 @@ func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 			teams[j].Points = g.Points[j]
 			teams[j].GoalsF = g.GoalsF[j]
 			teams[j].GoalsA = g.GoalsA[j]
-
+			teams[j].Iso = t.Iso
 		}
 		groupsJson[i].Teams = teams
 	}

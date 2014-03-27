@@ -55,7 +55,7 @@ type PhaseJson struct {
 // by default the data returned is grouped by days.This means we will return an array of days, each of which can have an array of matches.
 // You can also specify the 'groupby' parameter to be 'day' or 'phase' in which case you would have an array of phases,
 // each of which would have an array of days who would have an array of matches.
-func CalendarJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Calendar Handler:"
 

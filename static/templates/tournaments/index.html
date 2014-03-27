@@ -1,42 +1,45 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1><a href="/ng#/tournaments">Tournaments</a></h1>
-  <div class="btn-toolbar">
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-2">
-	<a class="btn btn-primary" href="/ng#/tournaments/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create</a>
-	<!-- experimental sar -->
-	<button class="btn btn-primary" ng-click="createWorldCup()">wc</button>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li class="active">Tournaments</li>
+  </ol>
+  <div class="panel-body">
+    <div class="page-content">
+      <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-2">
+          <a class="btn btn-primary" href="/ng#/tournaments/new">New Tournament</a>
+          <!-- temporary button -->
+          <button class="btn btn-primary" ng-click="createWorldCup()">wc</button>
+          <!-- / temporary button -->
+        </div>
+        <div class="col-md-4">
+          <!-- search box -->
+          <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+            <form ng-submit="searchTournament()">
+              <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
+            </form>
+          </div>
+          <!-- / search box -->
+        </div>
       </div>
-      <!-- search box -->
-      <div class="col-md-8">
-	<div class="input-group">
-	  <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-	  <form ng-submit="searchTournament()">
-	    <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
-	  </form>
-	</div>
+      </br></br>
+      <div class="row center-block">
+         <div ng-repeat="tournament in tournaments" ng-controller="TournamentCardCtrl">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <small>participants: {{participantsCount}}</small>
+                <small>teams: {{teamsCount}}</small>
+              </p>
+            </div>
+          </div>
+        </div>
+        <h3 style="text-align: center">{{noTournamentsMessage}}</h3>
       </div>
-      <!-- / search box -->
-      <div class="col-md-1"></div>
     </div>
   </div>
-</div>
-<div class="page-content">
-  <table class="table table-striped" ng-show="tournaments.length">
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Name</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="tournament in tournaments | filter:query">
-        <td>{{tournament.Id}}</td>
-        <td><a href="/ng#/tournaments/show/{{tournament.Id}}">{{tournament.Name}}</a></td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 style="text-align: center">{{noTournamentsMessage}}</h3>
 </div>

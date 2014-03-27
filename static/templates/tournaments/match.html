@@ -2,11 +2,11 @@
   <div class="panel-body">
     <div class="row">
       <div class="col-md-1"><h4>#{{m.IdNumber}}</h4></div>
-      <div class="col-md-2"><p class="text-right">{{m.Team1}}</p></div>
+      <div class="col-md-2"><p class="text-right"><span class="flag-icon flag-icon-{{m.Iso1}}"></span> {{m.Team1}}</p></div>
       <div class="col-md-1"><p class="text-center">{{m.Result1}}</p></div>
       <div class="col-md-1"><p class="text-center"> - </p></div>
       <div class="col-md-1"><p class="text-center">{{m.Result2}}</p></div>
-      <div class="col-md-2"><p class="text-left">{{m.Team2}}</p></div>
+      <div class="col-md-2"><p class="text-left"><span class="flag-icon flag-icon-{{m.Iso2}}"></span> {{m.Team2}}</p></div>
     </div>
     <div ng-show="m.wantToPredict">
       <form class="form" role="form" ng-submit="updateResult()">

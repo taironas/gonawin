@@ -53,6 +53,49 @@ func MapOfGroups() map[string][]string {
 	return mapWCGroups
 }
 
+// Map of country codes, key: team name, value: ISO code
+// example: Brazil: BR
+func MapOfCountryCodes() map[string]string {
+
+	var codes map[string]string
+	codes = make(map[string]string)
+
+	codes["Brazil"] = "br"
+	codes["Croatia"] = "hr"
+	codes["Mexico"] = "mx"
+	codes["Cameroon"] = "cm"
+	codes["Spain"] = "es"
+	codes["Netherlands"] = "nl"
+	codes["Chile"] = "cl"
+	codes["Australia"] = "at"
+	codes["Colombia"] = "co"
+	codes["Greece"] = "gr"
+	codes["Côte d'Ivoire"] = "ci"
+	codes["Japan"] = "jp"
+	codes["Uruguay"] = "uy"
+	codes["Costa Rica"] = "cr"
+	codes["England"] = "gb"
+	codes["Italy"] = "it"
+	codes["Switzerland"] = "ch"
+	codes["Ecuador"] = "ec"
+	codes["France"] = "fr"
+	codes["Honduras"] = "hn"
+	codes["Argentina"] = "ar"
+	codes["Bosnia-Herzegovina"] = "ba"
+	codes["Iran"] = "ir"
+	codes["Nigeria"] = "ng"
+	codes["Germany"] = "de"
+	codes["Portugal"] = "pt"
+	codes["Ghana"] = "gh"
+	codes["United States"] = "us"
+	codes["Belgium"] = "be"
+	codes["Algeria"] = "dz"
+	codes["Russia"] = "ru"
+	codes["South Korea"] = "kr"
+
+	return codes
+}
+
 // Map of group matches, key: group name, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
 //
 // Example:
@@ -250,6 +293,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	var mapWCGroups map[string][]string
 	mapWCGroups = MapOfGroups()
 
+	var mapCountryCodes map[string]string
+	mapCountryCodes = MapOfCountryCodes()
 	// build map of matches
 	var mapTeamId map[string]int64
 	mapTeamId = make(map[string]int64)
@@ -301,7 +346,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			teamkey := datastore.NewKey(c, "Tteam", "", teamID, nil)
 			log.Infof(c, "World Cup: team: %v NewKey ok", teamName)
 
-			team := &Tteam{teamID, teamName}
+			team := &Tteam{teamID, teamName, mapCountryCodes[teamName]}
 			log.Infof(c, "World Cup: team: %v instance of team ok", teamName)
 
 			_, err = datastore.Put(c, teamkey, team)

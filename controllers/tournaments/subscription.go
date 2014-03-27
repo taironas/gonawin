@@ -31,7 +31,7 @@ import (
 )
 
 // JSON Join handler for tournament relationships
-func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join Handler:"
 
@@ -68,7 +68,7 @@ func JoinJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // JSON Leave handler for tournament relationships
-func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave Handler:"
 
@@ -107,7 +107,7 @@ func LeaveJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // JSON Join as Team handler for tournament teams realtionship.
-func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join as a Team Handler:"
 
@@ -152,7 +152,7 @@ func JoinAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // JSON Leave as Team handler for tournament teams realtionship.
-func LeaveAsTeamJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave as a Team Handler:"
 

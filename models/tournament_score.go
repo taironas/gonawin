@@ -35,7 +35,6 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	// ------------------------------------------------------------
 	log.Infof(c, "%s Sending to taskqueue: update scores", desc)
 
-	//json.NewEncoder(w).Encode(data)
 	b1, errm := json.Marshal(t)
 	if errm != nil {
 		log.Errorf(c, "%s Error marshaling", desc, errm)
@@ -56,46 +55,6 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	} else {
 		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
-	// -----------------------------------------------------------
-	// users := t.Participants(c)
-	// usersToUpdate := make([]*User, 0)
-	// for i, u := range users {
-	// 	if score, err := u.ScoreForMatch(c, m); err != nil {
-	// 		log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
-	// 	} else {
-	// 		// update user overall score
-	// 		users[i].Score += score
-	// 		usersToUpdate = append(usersToUpdate, users[i])
-	// 		// update score entity for user, tournament pair.
-	// 		// if does not exist, create it and update it
-	// 		// else update it
-	// 		if scoreEntity, _ := u.TournamentScore(c, t); scoreEntity == nil {
-	// 			log.Infof(c, "%s create score entity as it does not exist", desc)
-	// 			if scoreEntity1, err := CreateScore(c, u.Id, t.Id); err != nil {
-	// 				log.Errorf(c, "%s unable to create score entity", desc)
-	// 				return err
-	// 			} else {
-	// 				log.Infof(c, "%s score ready add it to tournament %v", desc, scoreEntity1)
-	// 				u.AddTournamentScore(c, scoreEntity1.Id, t.Id)
-	// 				log.Infof(c, "%s score entity exists now, lets update it", desc)
-	// 				var err error
-	// 				if err = scoreEntity1.Add(c, score); err != nil {
-	// 					log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
-	// 				}
-	// 			}
-	// 		} else {
-	// 			log.Infof(c, "%s score entity exists, lets update it", desc)
-	// 			var err error
-	// 			if err = scoreEntity.Add(c, score); err != nil {
-	// 				log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// if err := UpdateUsers(c, usersToUpdate); err != nil {
-	// 	log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-	// 	return errors.New(helpers.ErrorCodeUsersCannotUpdate)
-	// }
 	return nil
 }
 

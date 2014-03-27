@@ -22,15 +22,15 @@ import (
 
 // information overrides the infof of appengine to be able to centralize the prefix of all logs
 func Infof(c appengine.Context, format string, args ...interface{}) {
-	c.Infof("pw: "+format, args...)
+	c.Infof("gonawin: "+format, args...)
 }
 
 // error overrides the infof of appengine to be able to centralize the prefix of all logs
 func Errorf(c appengine.Context, format string, args ...interface{}) {
-	c.Errorf("pw: "+format, args...)
+	c.Errorf("gonawin: "+format, args...)
 }
 
 // warning overrides the infof of appengine to be able to centralize the prefix of all logs
 func Warningf(c appengine.Context, format string, args ...interface{}) {
-	c.Warningf("pw: "+format, args...)
+	c.Warningf("gonawin: "+format, args...)
 }

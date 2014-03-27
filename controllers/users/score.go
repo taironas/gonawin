@@ -31,7 +31,7 @@ import (
 )
 
 // Json score user handler
-func ScoreJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
 

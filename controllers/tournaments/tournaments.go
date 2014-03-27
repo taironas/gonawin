@@ -38,10 +38,11 @@ import (
 
 type TournamentData struct {
 	Name string
+  Description string
 }
 
 // JSON index tournaments handler.
-func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -60,7 +61,7 @@ func IndexJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json new tournament handler
-func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament New Handler:"
 	if r.Method == "POST" {
@@ -85,7 +86,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s That tournament name already exists.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 		} else {
-			tournament, err := mdl.CreateTournament(c, data.Name, "description foo", time.Now(), time.Now(), u.Id)
+			tournament, err := mdl.CreateTournament(c, data.Name, data.Description, time.Now(), time.Now(), u.Id)
 			if err != nil {
 				log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -106,7 +107,7 @@ func NewJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // JSON show tournament handler
-func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Show Handler:"
 	if r.Method == "GET" {
@@ -128,7 +129,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := tournament.Teams(c)
 
 		// tournament
-		fieldsToKeep := []string{"Id", "Name"}
+		fieldsToKeep := []string{"Id", "Name", "Description"}
 		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
@@ -157,7 +158,7 @@ func ShowJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // JSON tournament destroy handler.
-func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Destroy Handler:"
 
@@ -221,7 +222,7 @@ func DestroyJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 //  JSON Update tournament handler.
-func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -285,7 +286,7 @@ func UpdateJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json search tournaments handler
-func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	keywords := r.FormValue("q")
@@ -326,7 +327,7 @@ func SearchJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // json team candidates for a specific tournament:
-func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -371,7 +372,7 @@ func CandidateTeamsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 
 // json tournament participants handler
 // use this handler to get participants of a tournament.
-func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
@@ -405,7 +406,7 @@ func ParticipantsJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error
 }
 
 // Reset a tournament information. Reset points and goals.
-func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -442,7 +443,7 @@ func ResetJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // Set a Predict entity of a specific match for the current User.
-func PredictJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Predict Handler:"
 

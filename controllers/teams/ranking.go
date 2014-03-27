@@ -30,10 +30,10 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// Json team ranking handler:
+// Team ranking handler:
 // Use this handler to get the ranking of a team.
 // The ranking is an array of users (members of the team),
-func RankingJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Ranking Handler:"
 
@@ -52,7 +52,7 @@ func RankingJson(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		log.Infof(c, "%s ready to build a user array", desc)
-		users := t.RankingByUser(c)
+		users := t.RankingByUser(c, 50)
 
 		fieldsToKeep := []string{"Id", "Name", "Score"}
 		usersJson := make([]mdl.UserJson, len(users))

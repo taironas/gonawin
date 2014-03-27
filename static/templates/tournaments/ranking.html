@@ -1,70 +1,66 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-11">
-      <h1>Tournament Ranking</h1>
-      <dl class="dl-horizontal">
-	<dt><strong>Id:</strong></dt>
-	<dd>{{tournamentData.Tournament.Id}}</dd>
-	<dt><strong>Name:</strong></dt>
-	<dd>{{tournamentData.Tournament.Name}}</dd>
-      </dl>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li><a href="/ng#/tournaments">Tournaments</a></li>
+    <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></li>
+    <li class="active">Rankings</li>
+  </ol>
+  <div class="panel-body">
+    <h1>{{tournamentData.Tournament.Name}} Rankings</h1>
+    <!-- links -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="links col-md-3">
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=users">Users rank</a><br>
+        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=teams">Teams rank</a><br>
+      </div>
     </div>
-  </div>
-</div>
-<!-- links -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="links col-md-3">
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=users">Users rank</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=teams">Teams rank</a><br>
-  </div>
-</div>
- <!-- / links -->
-<div ng-if="rankingData.Teams">
-  <!-- Teams -->
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="teams col-md-11">
-      <table class="table table-striped">
-	<thead>
-	  <tr>
-	    <th>Teams</th>
-	    <th><a href="" ng-click="predicate = 'Accuracy'; reverse=!reverse">Accuracy</a></th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
-            <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	    <td>{{100*t.Accuracy | number:2}}%</td>
-	  </tr>
-	</tbody>
-      </table>
+     <!-- / links -->
+     <!-- Teams -->
+    <div ng-if="rankingData.Teams">
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="teams col-md-11">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Teams</th>
+                <th><a href="" ng-click="predicate = 'Accuracy'; reverse=!reverse">Accuracy</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
+                <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+                <td>{{100*t.Accuracy | number:2}}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-<!-- / Teams -->
-<!-- participants -->
-<div ng-if="rankingData.Users">
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="participants col-md-11">
-      <table class="table table-striped">
-	<thead>
-	  <tr>
-	    <th>Participants</th>
-	    <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
-	  </tr>
-	</thead>
-	<tbody>
-	  <tr ng-repeat="u in rankingData.Users |  orderBy:predicate:reverse">
-  	    <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
-	    <td>{{u.Score}}</td>
-	  </tr>
-	</tbody>
-      </table>
+    <!-- / Teams -->
+    <!-- participants -->
+    <div ng-if="rankingData.Users">
+      <div class="row">
+        <div class="col-md-1"></div>
+        <div class="participants col-md-11">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Participants</th>
+                <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="u in rankingData.Users |  orderBy:predicate:reverse">
+                <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
+                <td>{{u.Score}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+    <!-- / participants -->
   </div>
 </div>
-<!-- / participants -->

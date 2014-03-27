@@ -4,11 +4,6 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Paragraph & Typographic */
-p {
-  margin-bottom: 25px;
-}
-
 .centered {
   text-align: center;
 }
@@ -129,4 +124,43 @@ p {
 
 .user-dashboard h3 {
 	text-align: center;
+}
+
+/* teams */
+.card {
+  width: 260px;
+  height: 81px;
+  float: left;
+  margin-left: 25px;
+}
+
+.card-avatar {
+  margin-right: 10px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.card-body {
+  height: 49px;
+}
+
+.card-body h4 {
+  margin-bottom: 0px;
+}
+
+.card-footer {
+  background-color: #F5F5F5;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  color: #67c2ef;
+}
+
+/* tournaments */
+.panel-match h4 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.circle-avatar {
+  border: 2px solid #67c2ef;
 }

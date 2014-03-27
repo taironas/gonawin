@@ -1,44 +1,75 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="page-header">
-  <h1><a href="/ng#/teams">Teams</a></h1>
-  <div class="btn-toolbar">
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-2">
-	<a class="btn btn-primary" href="/ng#/teams/new"><i class="glyphicon glyphicon-plus glyphicon-white"></i> Create new team</a>
+<div class="panel panel-default">
+  <ol class="breadcrumb">
+    <li class="active">Teams</li>
+  </ol>
+  <div class="panel-body">
+    <div class="page-content">
+      <div class="row">
+        <div class="col-md-6"></div>
+        <div class="col-md-2">
+          <a class="btn btn-primary" href="/ng#/teams/new">New Team</a>
+        </div>
+        <div class="col-md-4">
+          <!-- search box -->
+          <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+            <form ng-submit="searchTeam()">
+              <input type="text" class="form-control" name="TeamInputSearch" id="inputIcon" ng-model="keywords">
+            </form>
+          </div>
+          <!-- / search box -->
+        </div>
       </div>
-      <!-- search box -->
-      <div class="col-md-8">
-	<div class="input-group">
-	  <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-	  <form ng-submit="searchTeam()">
-	    <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
-	  </form>
-	</div>
+      </br></br>
+      <h4>Teams you've joined:</h4>
+      </br>
+      <div class="row center-block">
+        <div ng-repeat="team in joinedTeams" ng-controller="TeamCardCtrl">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <small>members: {{membersCount}}</small>
+              </p>
+            </div>
+            <div class="card-footer">
+              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+            </div>
+          </div>
+        </div>
+        <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
       </div>
-      <!-- / search box -->
-      <div class="col-md-1"></div>
+      </br><hr>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="moreTeams()" ng-hide="showMoreTeams">More Teams</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+      <span ng-if="showMoreTeams">
+        <h4>Teams you can join:</h4>
+        </br>
+        <div class="row center-block">
+          <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
+            <div class="panel panel-default card">
+              <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+              <div class="card-body">
+                <p>
+                  <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                  <small>members: {{membersCount}}</small>
+                </p>
+              </div>
+              <div class="card-footer">
+                <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+              </div>
+            </div>
+          </div>
+          <h3 style="text-align: center">{{noTeamsMessage}}</h3>
+        </div>
+      </span>
     </div>
   </div>
-</div>
-<div class="page-content">
-  <table class="table table-striped" ng-show="teams.length">
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Name</th>
-        <th>Admin Id</th>
-        <th>Private</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="team in teams | filter:query">
-        <td>{{team.Id}}</td>
-        <td><a href="/ng#/teams/show/{{team.Id}}">{{team.Name}}</a></td>
-        <td>{{team.AdminId}}</td>
-        <td>{{team.Private}}</td>
-      </tr>
-    </tbody>
-  </table>
-  <h3 style="text-align: center">{{noTeamsMessage}}</h3>
 </div>

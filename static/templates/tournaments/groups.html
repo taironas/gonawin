@@ -16,7 +16,7 @@
       </thead>
       <tbody>
 	<tr ng-repeat="t in g.Teams | orderBy:predicate:reverse">
-	  <td class="col-md-8">{{t.Name}}</td>
+	  <td class="col-md-8"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</td>
 	  <td class="col-md-4">{{t.Points}}</td>
 	  <td class="col-md-4">{{t.GoalsF}}</td>
 	  <td class="col-md-4">{{t.GoalsA}}</td>

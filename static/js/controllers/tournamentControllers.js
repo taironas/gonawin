@@ -1,9 +1,12 @@
 'use strict';
 
+// Tournament controllers manage tournament entities (creation, update, deletion) by getting
+// data from REST service (resource).
+// Handle also user subscription to a tournament (join/leave and join as team/leave as team).
 var tournamentControllers = angular.module('tournamentControllers', []);
-
+// TournamentListCtrl: fetch all tournaments data 
 tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
-  console.log('Tournament list controller');
+  console.log('Tournament list controller:');
   $scope.tournaments = Tournament.query();
 
   $scope.tournaments.$promise.then(function(result){
@@ -24,7 +27,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     Tournament.saveWorldCup($scope.tournament,
 		    function(tournament) {
 		      console.log('World Cup Tournament: ', tournament);
-		      $location.path('/tournaments/show/' + tournament.Id);
+		      $location.path('/tournaments/' + tournament.Id);
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
@@ -33,7 +36,21 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
   };
   // end world cup create action
 }]);
+// TournamentCardCtrl: fetch data of a particular tournament.
+tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',
+  function($scope, Tournament) {
+    console.log('Tournament card controller:');
+    console.log('tournament ID: ', $scope.$parent.tournament.Id);
+    $scope.tournamentData = Tournament.get({ id:$scope.$parent.tournament.Id});
 
+    $scope.tournamentData.$promise.then(function(tournamentData){
+      $scope.tournament = tournamentData.Tournament;
+      console.log('tournament card controller, tournamentData = ', tournamentData);
+      $scope.participantsCount = tournamentData.Participants.length;
+      $scope.teamsCount = tournamentData.Teams.length;
+    });
+}]);
+// TournamentSearchCtrl: returns an array of tournaments based on a search query.
 tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament search controller');
   console.log('routeParams: ', $routeParams);
@@ -55,14 +72,14 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
     $location.search('q', $scope.keywords).path('/tournaments/search');
   };
 }]);
-
+// TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
   console.log('Tournament New controller');
   
   $scope.addTournament = function() {
     Tournament.save($scope.tournament,
 		    function(tournament) {
-		      $location.path('/tournaments/show/' + tournament.Id);
+		      $location.path('/tournaments/' + tournament.Id);
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
@@ -70,7 +87,8 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
 		    });
   };
 }]);
-
+// TournamentShowCtrl: fetch data of specific tournament. 
+// Handle also deletion of this same tournament and join/leave and join/leave as team.
 tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', '$q', function($scope, $routeParams, Tournament, $location, $q) {
   console.log('Tournament Show controller');
   
@@ -222,6 +240,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     if(!teams) {
       return false;
     }
+
     for (var i=0 ; i<teams.length; i++){
       if(teams[i].Id == teamId){
         return true;
@@ -248,7 +267,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams'
     }
   })
 }]);
-
+// TournamentEditCtrl: collects data to update an existing tournament.
 tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
   
@@ -256,7 +275,7 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
     var tournamentData = Tournament.get({ id:$routeParams.id });
     Tournament.update({ id:$routeParams.id }, $scope.tournamentData.Tournament,
 		      function(){
-			$location.path('/tournaments/show/' + $routeParams.id);
+			$location.path('/tournaments/' + $routeParams.id);
 		      },
 		      function(err) {
 			console.log('update failed: ', err.data);
@@ -264,7 +283,7 @@ tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams'
 		      });
   }
 }]);
-
+// TournamentCalendarCtrl: collects complete data of specific tournament (matches, predict)
 tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament calendar controller');
   console.log('route params', $routeParams)
@@ -301,12 +320,10 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   };  
 
 }]);
-
-
-// Controller for Admin: update results.
+// TournamentSetResultsCtrl (admin): update results.
 // ToDo: Should only be available if you are admin
 tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament set results controller');
+  console.log('Tournament set results controller:');
   console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
@@ -346,9 +363,9 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
   };
     
 }]);
-
+// TournamentFirstStageCtrl: fetch first stage data of a specific tournament.
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament first stage controller');
+  console.log('Tournament first stage controller:');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
   // #experimental: sar
@@ -358,16 +375,15 @@ tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$route
   $scope.predicate = '';
 
 }]);
-
+// TournamentSecondStageCtrl: fetch second stage data of a specific tournament.
 tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament second stage controller');
+  console.log('Tournament second stage controller:');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
   $scope.matchesData = Tournament.matches({id:$routeParams.id, filter:"second"});
 }]);
-
-// Predict controller
+// TournamentPredictCtrl: fetch predicts of a specific tournament.
 tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament predict controller');
+  console.log('Tournament predict controller:');
   console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
@@ -397,10 +413,9 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
       });
   };  
 }]);
-
-// Ranking controller
+// TournamentRankingCtrl: fetch ranking data of a specific tournament.
 tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament ranking controller');
+  console.log('Tournament ranking controller:');
   console.log('route params', $routeParams)
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
@@ -409,4 +424,3 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
   $scope.predicate = '';
 
 }]);
-

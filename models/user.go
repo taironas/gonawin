@@ -375,11 +375,16 @@ func (u *User) Activities(c appengine.Context) Activities {
 	return activities
 }
 
+// Publish user activity
 func (u *User) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: "You"}
+  displayName := "You"
+  if activity.Type == "score" {
+    displayName = "Your"
+  }
+	activity.Actor = ActivityEntity{ID: u.Id, Type: "user", DisplayName: displayName}
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
