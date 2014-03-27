@@ -30,12 +30,6 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
       console.log('keywords: ', $scope.keywords);
       $location.search('q', $scope.keywords).path('/teams/search');
     };
-
-    $scope.showMoreTeams = false;
-    $scope.moreTeams = function() {
-      $scope.showMoreTeams = true;
-    };
-
 }]);
 // TeamCardCtrl: fetch data of a particular team.
 teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',

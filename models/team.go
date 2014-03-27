@@ -160,6 +160,20 @@ func FindAllTeams(c appengine.Context) []*Team {
 	return teams
 }
 
+// Get all teams which have not been joined by a specific user
+func GetNotJoinedTeams(c appengine.Context, u *User) []*Team {
+	teams := FindAllTeams(c)
+
+  var notJoinedTeams []*Team
+	for _, team := range teams {
+    if !team.Joined(c, u) {
+      notJoinedTeams = append(notJoinedTeams, team)
+    }
+  }
+
+	return notJoinedTeams
+}
+
 // Get an array of pointers to Teams with respect to an array of ids.
 func TeamsByIds(c appengine.Context, ids []int64) []*Team {
 

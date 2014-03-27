@@ -64,7 +64,8 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		teams := mdl.FindAllTeams(c)
+		teams := mdl.GetNotJoinedTeams(c, u)
+    
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}

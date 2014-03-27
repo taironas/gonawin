@@ -49,27 +49,25 @@
         </div>
         <div class="col-md-5"></div>
       </div>
-      <span ng-if="showMoreTeams">
-        <h4>Teams you can join:</h4>
-        </br>
-        <div class="row center-block">
-          <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
-            <div class="panel panel-default card">
-              <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
-              <div class="card-body">
-                <p>
-                  <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
-                  <small>members: {{membersCount}}</small>
-                </p>
-              </div>
-              <div class="card-footer">
-                <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
-              </div>
+      <h4>Teams you can join:</h4>
+      </br>
+      <div class="row center-block">
+        <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <small>members: {{membersCount}}</small>
+              </p>
+            </div>
+            <div class="card-footer">
+              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
             </div>
           </div>
-          <h3 style="text-align: center">{{noTeamsMessage}}</h3>
         </div>
-      </span>
+        <h3 style="text-align: center">{{noTeamsMessage}}</h3>
+      </div>
     </div>
   </div>
 </div>
