@@ -140,21 +140,23 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
   };
   
   $scope.joinTournament = function(){
-    Tournament.join({ id:$routeParams.id }).$promise.then(function(result){
+    Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
+      $scope.joinButtonName = 'Leave';
+      $scope.joinButtonMethod = $scope.leaveTournament;
+      $scope.messageInfo = response.MessageInfo;
       Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
         $scope.tournamentData.Participants = participantsResult.Participants;
-        $scope.joinButtonName = 'Leave';
-        $scope.joinButtonMethod = $scope.leaveTournament;
       });
     });
   };
   
   $scope.leaveTournament = function(){
-    Tournament.leave({ id:$routeParams.id }).$promise.then(function(result){
+    Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
+      $scope.joinButtonName = 'Join';
+      $scope.joinButtonMethod = $scope.joinTournament;
+      $scope.messageInfo = response.MessageInfo;
       Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
         $scope.tournamentData.Participants = participantsResult.Participants;
-        $scope.joinButtonName = 'Join';
-        $scope.joinButtonMethod = $scope.joinTournament;
       });
     });
   };

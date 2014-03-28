@@ -17,6 +17,7 @@
 package tournaments
 
 import (
+	"fmt"
 	"errors"
 	"net/http"
 
@@ -30,7 +31,7 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// JSON Join handler for tournament relationships
+// Join handler for tournament.
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join Handler:"
@@ -62,12 +63,21 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "joined tournament", object, target)
 
-		return templateshlp.RenderJson(w, c, tJson)
+		msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Tournament        mdl.TournamentJson
+		}{
+			msg,
+			tJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// JSON Leave handler for tournament relationships
+// Leave handler for tournament relationships
 func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave Handler:"
@@ -101,7 +111,15 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "left tournament", object, target)
 
-		return templateshlp.RenderJson(w, c, tJson)
+		msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Tournament        mdl.TournamentJson
+		}{
+			msg,
+			tJson,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
