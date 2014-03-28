@@ -204,6 +204,13 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', '$location', function($rootScope, $scope, $routeParams, Team, $location) {
   console.log('Team edit controller:');
   $scope.teamData = Team.get({ id:$routeParams.id });
+  $scope.visibility = 'public';
+  console.log('$scope.teamData = ', $scope.teamData);
+  $scope.teamData.$promise.then(function(response){
+    if(response.Team.Private){
+      $scope.visibility = 'private';
+    }
+  });
 
   $scope.updateTeam = function() {
     var teamData = Team.get({ id:$routeParams.id });
