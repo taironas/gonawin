@@ -73,13 +73,14 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
   };
 }]);
 // TournamentNewCtrl: use this controller to create a new tournament.
-tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
+tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');
   
   $scope.addTournament = function() {
     Tournament.save($scope.tournament,
-		    function(tournament) {
-		      $location.path('/tournaments/' + tournament.Id);
+		    function(response) {
+		      $rootScope.messageInfo = response.MessageInfo; 
+		      $location.path('/tournaments/' + response.Tournament.Id);
 		    },
 		    function(err) {
 		      console.log('save failed: ', err.data);
@@ -89,11 +90,16 @@ tournamentControllers.controller('TournamentNewCtrl', ['$scope', 'Tournament', '
 }]);
 // TournamentShowCtrl: fetch data of specific tournament. 
 // Handle also deletion of this same tournament and join/leave and join/leave as team.
-tournamentControllers.controller('TournamentShowCtrl', ['$scope', '$routeParams', 'Tournament', '$location', '$q', function($scope, $routeParams, Tournament, $location, $q) {
+tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', function($rootScope, $scope, $routeParams, Tournament, $location, $q) {
   console.log('Tournament Show controller');
   
   $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
   console.log('tournamentData', $scope.tournamentData);
+
+  // get message info from redirects.
+  $scope.messageInfo = $rootScope.messageInfo;
+  // reset to nil var message info in root scope.
+  $rootScope.messageInfo = undefined;
 
   // get candidates data from tournament id
   $scope.candidatesData = Tournament.candidates({id:$routeParams.id});

@@ -41,7 +41,7 @@ type TournamentData struct {
 	Description string
 }
 
-// JSON index tournaments handler.
+// index tournaments handler.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -60,7 +60,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json new tournament handler
+// new tournament handler.
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament New Handler:"
@@ -100,7 +100,16 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			target := mdl.ActivityEntity{}
 			u.Publish(c, "tournament", "created a tournament", object, target)
 
-			return templateshlp.RenderJson(w, c, tJson)
+			msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
+			data := struct {
+				MessageInfo string `json:",omitempty"`
+				Tournament        mdl.TournamentJson
+			}{
+				msg,
+				tJson,
+			}
+
+			return templateshlp.RenderJson(w, c, data)
 		}
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
