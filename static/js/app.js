@@ -88,7 +88,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
 purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, sAuth, Session, User) {
   $rootScope.currentUser = undefined;
   $rootScope.isLoggedIn = false;
-  
+
   $window.fbAsyncInit = function() {
     // Executed when the SDK is loaded
     FB.init({

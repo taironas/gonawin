@@ -20,7 +20,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
 
       FB.Event.subscribe('auth.authResponseChange', function(response) {
         console.log('auth.authResponseChange, response = ', response);
-        if (response.status === 'connected') {
+        if (response.status === 'connected' && $rootScope.isLoggedIn == false) {
           _self.getFBUserInfo(response.authResponse.accessToken);
         }
       });
