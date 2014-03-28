@@ -124,7 +124,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// JSON Join as Team handler for tournament teams realtionship.
+// Join as Team handler for tournament teams realtionship.
 func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Join as a Team Handler:"
@@ -164,7 +164,16 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		target := mdl.ActivityEntity{}
 		team.Publish(c, "tournament", "joined tournament", object, target)
 
-		return templateshlp.RenderJson(w, c, tJson)
+		msg := fmt.Sprintf("Team %s joined tournament %s.", team.Name, tournament.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Tournament        mdl.TournamentJson
+		}{
+			msg,
+			tJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -209,7 +218,16 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "left tournament", object, target)
 
-		return templateshlp.RenderJson(w, c, tJson)
+		msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Tournament        mdl.TournamentJson
+		}{
+			msg,
+			tJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
