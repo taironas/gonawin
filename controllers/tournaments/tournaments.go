@@ -115,7 +115,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// JSON show tournament handler
+// Show tournament handler.
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Show Handler:"
@@ -223,7 +223,6 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "deleted tournament", object, target)
-
 		
 		msg := fmt.Sprintf("The tournament %s has been destroyed!", tournament.Name)
 		data := struct {
@@ -238,7 +237,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-//  JSON Update tournament handler.
+//  Update tournament handler.
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -311,7 +310,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// json search tournaments handler
+// Search tournaments handler.
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
