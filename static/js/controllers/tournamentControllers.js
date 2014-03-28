@@ -129,7 +129,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
   $scope.deleteTournament = function() {
     Tournament.delete({ id:$routeParams.id },
-		      function(){
+		      function(response){
+			$rootScope.messageInfo = response.MessageInfo;
 			$location.path('/');
 		      },
 		      function(err) {
