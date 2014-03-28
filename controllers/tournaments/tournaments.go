@@ -515,6 +515,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		msg := ""
+		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
 		var p *mdl.Predict
 		if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
 			log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
@@ -529,7 +530,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				}
 				p = predict
 			}
-			msg = fmt.Sprintf("Prediction is now set.")
+			msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
 
 		} else {
 			// predict already exist so just update resulst.
@@ -539,7 +540,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
 				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 			}
-			msg = fmt.Sprintf("Prediction is now updated.")
+			msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
 		}
 
 		data := struct {
@@ -551,7 +552,6 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// publish activity
-		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
 		verb := fmt.Sprintf("predicted %d-%d for match", p.Result1, p.Result2)
 		object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
 		target := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
