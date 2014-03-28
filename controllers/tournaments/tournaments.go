@@ -287,8 +287,17 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeep := []string{"Id", "Name"}
 		var tJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-		return templateshlp.RenderJson(w, c, tJson)
+		
+		msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Tournament        mdl.TournamentJson
+		}{
+			msg,
+			tJson,
+		}
+		
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 

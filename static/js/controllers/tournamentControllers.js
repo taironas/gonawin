@@ -274,13 +274,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
   })
 }]);
 // TournamentEditCtrl: collects data to update an existing tournament.
-tournamentControllers.controller('TournamentEditCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location',function($rootScope, $scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
   
   $scope.updateTournament = function() {
     var tournamentData = Tournament.get({ id:$routeParams.id });
     Tournament.update({ id:$routeParams.id }, $scope.tournamentData.Tournament,
-		      function(){
+		      function(response){
+			$rootScope.messageInfo = response.MessageInfo;
 			$location.path('/tournaments/' + $routeParams.id);
 		      },
 		      function(err) {
