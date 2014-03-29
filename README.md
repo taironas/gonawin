@@ -11,9 +11,20 @@ We want to create a platform that people can use to bet/play with there friends 
 * Remy (rej)
 * Cabernal (cab)
 
-#### Thrid Parties Installation
+#### Third Parties Installation
 
     go get github.com/garyburd/go-oauth/oauth
+    
+#### Third Parties
+* [Google App Engine for Go](https://developers.google.com/appengine/docs/go/)
+* [Boostrap v3](http://getbootstrap.com/)
+* [Angularjs](http://angularjs.org/)
+* [go-oauth](github.com/garyburd/go-oauth/oauth)
+* [flags](https://github.com/lipis/flag-icon-css)
+* [avatars](https://github.com/cupcake/sigil)
+* icons
+  * [font-awesome](http://fortawesome.github.io/Font-Awesome/icons/)
+  * [glyphicons](http://glyphicons.com/)
     
 #### Installation
 
