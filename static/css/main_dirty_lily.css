@@ -164,3 +164,15 @@ body {
 .circle-avatar {
   border: 2px solid #67c2ef;
 }
+
+/* style for chevron icon*/
+.gw-chevron {
+    color: silver;
+    text-decoration: none; /* no underline */
+    a:hover { color:blue; }
+}
+
+/* Force inline for titles in order to be able to set icons before them without a break line in between*/ 
+.gw-h1 {
+    display: inline;
+}
