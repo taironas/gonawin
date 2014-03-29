@@ -98,7 +98,14 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Infof(c, "%s add task to taskqueue successfully", desc)
 			}
 		}
-		return templateshlp.RenderJson(w, c, "Email has been sent successfully")
+		msg := fmt.Sprintf("Email invitations have been successfully sent.")
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+		}{
+			msg,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

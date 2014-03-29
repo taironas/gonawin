@@ -6,7 +6,8 @@ inviteControllers.controller('InviteCtrl', ['$scope', 'Invite', function($scope,
   $scope.inviteFriends = function() {
     console.log('invite friends');
     Invite.send({emails: $scope.invite.emails},
-		function(result){
+		function(response){
+		  $scope.messageInfo = response.MessageInfo;
 		  console.log('invite successfull');
 		}, 
 		function(err){
