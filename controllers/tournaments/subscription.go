@@ -17,8 +17,8 @@
 package tournaments
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"appengine"
@@ -66,7 +66,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			Tournament        mdl.TournamentJson
+			Tournament  mdl.TournamentJson
 		}{
 			msg,
 			tJson,
@@ -114,7 +114,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			Tournament        mdl.TournamentJson
+			Tournament  mdl.TournamentJson
 		}{
 			msg,
 			tJson,
@@ -167,7 +167,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg := fmt.Sprintf("Team %s joined tournament %s.", team.Name, tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			Tournament        mdl.TournamentJson
+			Tournament  mdl.TournamentJson
 		}{
 			msg,
 			tJson,
@@ -221,7 +221,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			Tournament        mdl.TournamentJson
+			Tournament  mdl.TournamentJson
 		}{
 			msg,
 			tJson,

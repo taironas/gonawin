@@ -60,9 +60,16 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if len(emailsList) <= 0 {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
 		}
-		emails := strings.Split(emailsList, ",")
+		splitemails := strings.Split(emailsList, ",")
+		// remove leading and trailing spaces from each email.
+		emails := make([]string, 0)
+		for _, e := range splitemails {
+			emails = append(emails, strings.Trim(e, " "))
+		}
+
 		// validate emails
 		if !helpers.AreEmailsValid(emails) {
+			log.Errorf(c, "%s emails not valid dude!", desc, emails)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
 		}
 

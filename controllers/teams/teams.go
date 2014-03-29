@@ -65,7 +65,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		teams := mdl.GetNotJoinedTeams(c, u)
-    
+
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
@@ -247,7 +247,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
-		
+
 		// publish new activity
 		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
 		target := mdl.ActivityEntity{}
@@ -257,7 +257,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var tJson mdl.TeamJson
 		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-		
+
 		msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`

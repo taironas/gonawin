@@ -164,12 +164,12 @@ func FindAllTeams(c appengine.Context) []*Team {
 func GetNotJoinedTeams(c appengine.Context, u *User) []*Team {
 	teams := FindAllTeams(c)
 
-  var notJoinedTeams []*Team
+	var notJoinedTeams []*Team
 	for _, team := range teams {
-    if !team.Joined(c, u) {
-      notJoinedTeams = append(notJoinedTeams, team)
-    }
-  }
+		if !team.Joined(c, u) {
+			notJoinedTeams = append(notJoinedTeams, team)
+		}
+	}
 
 	return notJoinedTeams
 }

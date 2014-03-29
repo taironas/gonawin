@@ -103,7 +103,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
 			data := struct {
 				MessageInfo string `json:",omitempty"`
-				Tournament        mdl.TournamentJson
+				Tournament  mdl.TournamentJson
 			}{
 				msg,
 				tJson,
@@ -223,7 +223,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
 		target := mdl.ActivityEntity{}
 		u.Publish(c, "tournament", "deleted tournament", object, target)
-		
+
 		msg := fmt.Sprintf("The tournament %s has been destroyed!", tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
@@ -294,16 +294,16 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeep := []string{"Id", "Name"}
 		var tJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-		
+
 		msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			Tournament        mdl.TournamentJson
+			Tournament  mdl.TournamentJson
 		}{
 			msg,
 			tJson,
 		}
-		
+
 		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
