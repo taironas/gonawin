@@ -215,7 +215,9 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
   });
 
   $scope.updateTeam = function() {
-    var teamData = Team.get({ id:$routeParams.id });
+    $scope.teamData.Team.Visibility = $scope.visibility;
+    console.log('team data at update', $scope.teamData.Team);
+
     Team.update({ id:$routeParams.id }, $scope.teamData.Team,
 		function(response){
 		  $rootScope.messageInfo = response.MessageInfo; 

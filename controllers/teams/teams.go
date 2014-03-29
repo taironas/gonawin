@@ -194,57 +194,64 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
 //
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	desc := "Team Update Handler:"
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
 
 		teamID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Team Update Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
 		if !mdl.IsTeamAdmin(c, teamID, u.Id) {
-			log.Errorf(c, "Team Update Handler: user is not admin")
+			log.Errorf(c, "%s user is not admin", desc)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 		}
 
 		var team *mdl.Team
 		team, err = mdl.TeamById(c, teamID)
 		if err != nil {
-			log.Errorf(c, "Team Update handler: team not found. id: %v, err: %v", teamID, err)
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamID, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 		// only work on name and private. Other values should not be editable
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Errorf(c, "Team Update handler: Error when reading request body err: %v", err)
+			log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 
 		var updatedData TeamData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
-			log.Errorf(c, "Team Update handler: Error when decoding request body err: %v", err)
+			log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 
-		updatedPrivate := updatedData.Visibility == "Private"
+		updatedPrivate := updatedData.Visibility == "private"
+		log.Errorf(c, "%s %v. %v", desc, team.Name, team.Private)
+		log.Errorf(c, "%s %v. %v", desc, updatedData.Name, updatedPrivate)
+		log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
+		log.Errorf(c, "%s updateddata %v.", desc, updatedData)
 
 		if helpers.IsStringValid(updatedData.Name) && (updatedData.Name != team.Name || updatedPrivate != team.Private) {
-			// be sure that team with that name does not exist in datastore
-			if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
-				log.Errorf(c, "Team Update Handler: That team name already exists.")
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
+			// be sure that a team with that name does not exist in datastore.
+			if updatedData.Name != team.Name {
+				if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
+					log.Errorf(c, "%s That team name already exists.", desc)
+					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
+				}
 			}
 			// update data
 			team.Name = updatedData.Name
 			team.Private = updatedPrivate
 			team.Update(c)
 		} else {
-			log.Errorf(c, "Cannot update because updated is not valid.")
-			log.Errorf(c, "Update name = %s", updatedData.Name)
+			log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
+			log.Errorf(c, "%s Update name = %s", desc, updatedData.Name)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 		}
 
@@ -271,7 +278,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// team destroy handler
+// Team destroy handler
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -330,7 +337,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// json invite handler
+// Invite handler.
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
 func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -353,7 +360,7 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json Allow handler
+// Allow handler.
 // use this handler to allow a request send by a user on a team.
 // after this, the user that send the request will be part of the team
 func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -396,7 +403,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// Json Deny handler
+// Deny handler.
 // use this handler to deny a request send by a user on a team.
 // the user will not be able to be part of the team
 func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -473,7 +480,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json team members handler
+// Team members handler.
 // use this handler to get members of a team.
 func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
