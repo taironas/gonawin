@@ -228,10 +228,17 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.Id, err))
 	}
 	if err := t.AddTeamId(c, team.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", team.Id, err))
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", t.Id, err))
 	}
 	if err := t.AddUserIds(c, team.UserIds); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", team.Id, err))
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", t.Id, err))
+	}
+	if p, errp := CreatePrice(c, team.Id, t.Id, ""); errp != nil{
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp))
+	} else{
+		if err := team.AddPriceId(c, p.Id); err != nil{
+			return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.Id, err))
+		}
 	}
 	return nil
 }

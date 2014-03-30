@@ -47,6 +47,7 @@ type Team struct {
 	TournamentIds    []int64           // ids of Tournaments <=> Tournaments the team subscribed.
 	Accuracy         float64           // Overall Team accuracy.
 	AccOfTournaments []AccOfTournament // ids of Accuracies for each tournament the team is participating on .
+	PriceIds []int64 // ids of Prices <=> prices defined for each tournament the team participates.
 }
 
 type TeamJson struct {
@@ -60,6 +61,8 @@ type TeamJson struct {
 	TournamentIds *[]int64           `json:",omitempty"`
 	Accuracy      *float64           `json:",omitempty"`
 	AccuracyIds   *[]AccOfTournament `json:",omitempty"`
+	PriceIds *[]int64 `json:",omitempty"`
+
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -73,7 +76,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
 	emptyArray := make([]int64, 0)
 	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament}
+	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -282,6 +285,16 @@ func (t *Team) ContainsTournamentId(id int64) (bool, int) {
 	return false, -1
 }
 
+func (t *Team) ContainsPriceId(id int64) (bool, int){
+	for i, pid := range t.PriceIds {
+		if pid == id {
+			return true, i
+		}
+	}
+	return false, -1
+
+}
+
 // Adds a tournament Id in the TournamentId array.
 func (t *Team) AddTournamentId(c appengine.Context, tId int64) error {
 	log.Infof(c, "team Add tournament id")
@@ -317,6 +330,38 @@ func (t *Team) RemoveTournamentId(c appengine.Context, tId int64) error {
 		// replace elem at index i with last element and resize slice.
 		t.TournamentIds[i] = t.TournamentIds[len(t.TournamentIds)-1]
 		t.TournamentIds = t.TournamentIds[0 : len(t.TournamentIds)-1]
+	}
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Adds a tournament Id in the TournamentId array.
+func (t *Team) AddPriceId(c appengine.Context, pId int64) error {
+	log.Infof(c, "team Add price id")
+	if hasPrice, _ := t.ContainsPriceId(pId); hasPrice {
+		log.Infof(c, "team Add price id allready member")
+		return errors.New(fmt.Sprintf("AddPriceId, allready a member."))
+	}
+	log.Infof(c, "team Add price id append price ids")
+	t.PriceIds = append(t.PriceIds, pId)
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Remove a price Id in the PriceId array.
+func (t *Team) RemovePriceId(c appengine.Context, pId int64) error {
+
+	if hasPrice, i := t.ContainsPriceId(pId); !hasPrice {
+		return errors.New(fmt.Sprintf("RemovePriceId, not a member."))
+	} else {
+		// as the order of index in tournamentsId is not important,
+		// replace elem at index i with last element and resize slice.
+		t.PriceIds[i] = t.PriceIds[len(t.PriceIds)-1]
+		t.PriceIds = t.PriceIds[0 : len(t.PriceIds)-1]
 	}
 	if err := t.Update(c); err != nil {
 		return err
