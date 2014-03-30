@@ -47,7 +47,7 @@ type Team struct {
 	TournamentIds    []int64           // ids of Tournaments <=> Tournaments the team subscribed.
 	Accuracy         float64           // Overall Team accuracy.
 	AccOfTournaments []AccOfTournament // ids of Accuracies for each tournament the team is participating on .
-	PriceIds []int64 // ids of Prices <=> prices defined for each tournament the team participates.
+	PriceIds         []int64           // ids of Prices <=> prices defined for each tournament the team participates.
 }
 
 type TeamJson struct {
@@ -61,8 +61,7 @@ type TeamJson struct {
 	TournamentIds *[]int64           `json:",omitempty"`
 	Accuracy      *float64           `json:",omitempty"`
 	AccuracyIds   *[]AccOfTournament `json:",omitempty"`
-	PriceIds *[]int64 `json:",omitempty"`
-
+	PriceIds      *[]int64           `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -285,7 +284,7 @@ func (t *Team) ContainsTournamentId(id int64) (bool, int) {
 	return false, -1
 }
 
-func (t *Team) ContainsPriceId(id int64) (bool, int){
+func (t *Team) ContainsPriceId(id int64) (bool, int) {
 	for i, pid := range t.PriceIds {
 		if pid == id {
 			return true, i
@@ -353,7 +352,7 @@ func (t *Team) AddPriceId(c appengine.Context, pId int64) error {
 }
 
 // Remove a price Id in the PriceId array.
-func (t *Team) RemovePriceId(c appengine.Context, pId int64) error {
+func (t *Team) removePriceId(c appengine.Context, pId int64) error {
 
 	if hasPrice, i := t.ContainsPriceId(pId); !hasPrice {
 		return errors.New(fmt.Sprintf("RemovePriceId, not a member."))
@@ -367,6 +366,26 @@ func (t *Team) RemovePriceId(c appengine.Context, pId int64) error {
 		return err
 	}
 	return nil
+}
+
+// Remove price enity and price id from team enity with respect to tournament id.
+func (t *Team) RemovePriceByTournamentId(c appengine.Context, tId int64) error {
+	for _, pid := range t.PriceIds {
+		log.Infof(c, "pid: %v, tid:%v, teamId:%v", pid, tId, t.Id)
+		if p, err := PriceById(c, pid); err == nil {
+			log.Infof(c, "p: %v", p)
+			if p.TeamId == t.Id && p.TournamentId == tId {
+				if err1 := t.removePriceId(c, p.Id); err1 != nil {
+					return err1
+				}
+				if err1 := p.Destroy(c); err1 != nil {
+					return err1
+				}
+				return nil
+			}
+		}
+	}
+	return errors.New(fmt.Sprintf("RemovePriceByTournamentId price id not found. Team: %v tournament:%v", t.Id, tId))
 }
 
 // from a team return an array of tournament the user is involved in.

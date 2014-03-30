@@ -233,10 +233,10 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	if err := t.AddUserIds(c, team.UserIds); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", t.Id, err))
 	}
-	if p, errp := CreatePrice(c, team.Id, t.Id, ""); errp != nil{
+	if p, errp := CreatePrice(c, team.Id, t.Id, ""); errp != nil {
 		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp))
-	} else{
-		if err := team.AddPriceId(c, p.Id); err != nil{
+	} else {
+		if err := team.AddPriceId(c, p.Id); err != nil {
 			return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.Id, err))
 		}
 	}
@@ -251,6 +251,9 @@ func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
 	}
 	if err := t.RemoveTeamId(c, team.Id); err != nil {
 		return errors.New(fmt.Sprintf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.Id, err))
+	}
+	if err := team.RemovePriceByTournamentId(c, t.Id); err != nil {
+		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.Id, err))
 	}
 	return nil
 }
