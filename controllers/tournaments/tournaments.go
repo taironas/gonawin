@@ -148,17 +148,21 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// teams
 		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
+		// progress
+		progress := tournament.Progress(c)
 		// data
 		data := struct {
 			Tournament   mdl.TournamentJson
 			Joined       bool
 			Participants []mdl.UserJson
 			Teams        []mdl.TeamJson
+			Progress     float64
 		}{
 			tournamentJson,
 			tournament.Joined(c, u),
 			participantsJson,
 			teamsJson,
+			progress,
 		}
 
 		return templateshlp.RenderJson(w, c, data)

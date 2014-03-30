@@ -478,3 +478,21 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 
 	return activity.save(c)
 }
+
+func (t *Tournament) Progress(c appengine.Context) float64 {
+	const shortForm = "Jan/02/2006"
+	// remove this line when going in production.
+	now, _ := time.Parse(shortForm, "Jun/28/2014")
+	// add this line when going in production.
+	//now := time.Now()
+	if now.Before(t.Start) {
+		return float64(0)
+	}
+	if now.After(t.End) {
+		return float64(1)
+	}
+	d := t.Start.Sub(now)
+	dt := t.Start.Sub(t.End)
+	log.Infof(c, "ratio: %v", d.Seconds()/dt.Seconds())
+	return d.Seconds() / dt.Seconds()
+}

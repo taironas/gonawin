@@ -7,6 +7,11 @@
   <div class="panel-body">
     <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;">  </i></a><h1 class="gw-h1">  {{tournamentData.Tournament.Name}}</h1>
     <p>{{tournamentData.Tournament.Description}}</p>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournamentData.Progress | number:0}}%;">
+	{{100 * tournamentData.Progress | number:0}}%
+      </div>
+    </div>
     <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
     <button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
     <!-- Modal -->

@@ -312,6 +312,9 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		cMatchLocation = 4
 	)
 
+	// for date parsing
+	const shortForm = "Jan/02/2006"
+
 	// matches1stStageIds is an array of  int64
 	// where we allocate IDs of the Tmatches entities
 	// we will store them in the tournament entity for easy retreival later on.
@@ -360,9 +363,6 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 		// build group matches:
 		log.Infof(c, "World Cup: building group matches")
-
-		// for date parsing
-		const shortForm = "Jan/02/2006"
 
 		groupMatches := mapGroupMatches[groupName]
 		group.Matches = make([]Tmatch, len(groupMatches))
@@ -447,7 +447,6 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	mapMatches2ndRound := MapOf2ndRoundMatches()
 
 	// build matches 2nd phase
-	const shortForm = "Jan/02/2006"
 	for roundNumber, roundMatches := range mapMatches2ndRound {
 		log.Infof(c, "World Cup: building 2nd round matches: round number %v", roundNumber)
 		for _, matchData := range roundMatches {
@@ -492,13 +491,15 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		}
 	}
 
+	tstart, _ := time.Parse(shortForm, "Jun/12/2014")
+	tend, _ := time.Parse(shortForm, "Jul/13/2014")
 	tournament := &Tournament{
 		tournamentID,
 		helpers.TrimLower("world cup"),
 		"World Cup",
 		"FIFA World Cup",
-		time.Now(),
-		time.Now(),
+		tstart,
+		tend,
 		adminId,
 		time.Now(),
 		groupIds,
