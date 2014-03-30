@@ -30,7 +30,8 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
     accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'},
     accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId'},
     prices: {method: 'GET', url: 'j/teams/:id/prices'},
-    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId'}
+    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId'},
+    updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'}
   })
 });
 

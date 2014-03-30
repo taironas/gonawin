@@ -59,6 +59,10 @@ type TeamData struct {
 	Visibility string
 }
 
+type PriceData struct {
+	Description string
+}
+
 // json index handler
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
@@ -578,8 +582,76 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		log.Infof(c, "%s ready to build a acc array", desc)
+		log.Infof(c, "%s ready to get price", desc)
 		p := t.PriceByTournament(c, tournamentId)
+
+		data := struct {
+			Price *mdl.Price
+		}{
+			p,
+		}
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+}
+
+// Team update price by tournament handler:
+//
+// Use this handler to get the price of a team for a specific tournament.
+//	GET	/j/teams/[0-9]+/prices/update/[0-9]+/	Update Retreives price of a team with the given id for the specified tournament.
+//
+func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+	desc := "Team update price Handler:"
+
+	if r.Method == "POST" {
+		teamId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var t *mdl.Team
+		t, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		tournamentId, err := handlers.PermalinkID(r, c, 6)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		log.Infof(c, "%s ready to get price", desc)
+		p := t.PriceByTournament(c, tournamentId)
+
+		// only work on name and private. Other values should not be editable
+		defer r.Body.Close()
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+		}
+
+		var priceData PriceData
+		err = json.Unmarshal(body, &priceData)
+		if err != nil {
+			log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+		}
+
+		if helpers.IsStringValid(priceData.Description) && (p.Description != priceData.Description) {
+			// update data
+			p.Description = priceData.Description
+			p.Update(c)
+		} else {
+			log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
+			log.Errorf(c, "%s Update description = %s", desc, priceData.Description)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+		}
 
 		data := struct {
 			Price *mdl.Price

@@ -280,3 +280,24 @@ teamControllers.controller('TeamPriceByTournamentCtrl', ['$scope', '$routeParams
   $scope.teamData = Team.get({ id:$routeParams.id });
   $scope.priceData = Team.price({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
 }]);
+
+// TeamPriceEditByTournamentCtrl: collects data to update an existing price.
+teamControllers.controller('TeamPriceEditByTournamentCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', '$location', function($rootScope, $scope, $routeParams, Team, $location) {
+  console.log('Team price edit controller:');
+  $scope.teamData = Team.get({ id:$routeParams.id });
+  $scope.priceData = Team.price({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
+
+  $scope.updatePrice = function() {
+    console.log('update, ', $scope.priceData)
+    Team.updatePrice({id:$routeParams.id, tournamentId:$routeParams.tournamentId}, $scope.priceData.Price,
+		function(response){
+		  $rootScope.messageInfo = response.MessageInfo; 
+		  $location.path('/teams/' + $routeParams.id + '/prices/' + $routeParams.tournamentId);
+		},
+		function(err) {
+		  $scope.messageDanger = err.data;
+		  console.log('update failed: ', err.data);
+		});
+  }
+}]);
+

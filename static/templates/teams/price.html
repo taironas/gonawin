@@ -27,7 +27,10 @@
       <div class="col-md-1"></div>
       <div class="col-md-3">
         <h4>Tournament: {{priceData.Price.TournamentId}}</h4>
-        <h5>Price: {{priceData.Price.Description}}</h5>
+        <p>Price: {{priceData.Price.Description}}</p>
+	<form class="form-horizontal">
+          <a href="/ng#/teams/{{teamData.Team.Id}}/prices/edit/{{priceData.Price.TournamentId}}" class="btn btn-default"><span>Edit</span></a>
+        </form>
       </div>
     </div>
   </div>
