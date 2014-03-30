@@ -109,6 +109,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		  console.log('delete failed: ', err.data);
 		});
   };
+
   // set isTeamAdmin boolean:
   // This variable defines if the current user is admin of the current team.
   $scope.teamData.$promise.then(function(teamResult){
@@ -136,6 +137,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.teamData.Team.TournamentIds = tournamentIds;
     console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
   });
+
+  // get prices for current team:
+  $scope.pricesData = Team.prices({ id:$routeParams.id });
 
   $scope.requestInvitation = function(){
     console.log('team request invitation');
@@ -257,4 +261,22 @@ teamControllers.controller('TeamAccuracyByTournamentCtrl', ['$scope', '$routePar
   console.log('route params', $routeParams);
   $scope.teamData = Team.get({ id:$routeParams.id });
   $scope.accuracyData = Team.accuracy({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
+}]);
+
+
+// TeamPricesCtrl: fetch prices data for a specific team.
+teamControllers.controller('TeamPricesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
+  console.log('Team prices controller:');
+  console.log('route params', $routeParams);
+  $scope.teamData = Team.get({ id:$routeParams.id });
+
+  $scope.priceData = Team.prices({id:$routeParams.id});
+}]);
+
+// TeamPriceByTournamentCtrl: fetch accuracy data by tournament of a specific team.
+teamControllers.controller('TeamPriceByTournamentCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location){
+  console.log('Team price by tournament controller:');
+  console.log('route params', $routeParams);
+  $scope.teamData = Team.get({ id:$routeParams.id });
+  $scope.priceData = Team.price({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
 }]);

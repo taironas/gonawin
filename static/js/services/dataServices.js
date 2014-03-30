@@ -28,7 +28,9 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
     denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
     ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit'},
     accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'},
-    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId'}
+    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId'},
+    prices: {method: 'GET', url: 'j/teams/:id/prices'},
+    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId'}
   })
 });
 

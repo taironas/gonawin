@@ -70,6 +70,8 @@ func init() {
 	h.HandleFunc("/j/teams/[0-9]+/ranking/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Ranking)))
 	h.HandleFunc("/j/teams/[0-9]+/accuracies/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.AccuracyByTournament)))
 	h.HandleFunc("/j/teams/[0-9]+/accuracies/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Accuracies)))
+	h.HandleFunc("/j/teams/[0-9]+/prices/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Prices)))
+	h.HandleFunc("/j/teams/[0-9]+/prices/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.PriceByTournament)))
 
 	// tournament - json
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Index)))

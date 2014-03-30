@@ -694,3 +694,27 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 	return nil
 
 }
+
+// Get the prices of a team.
+func (t *Team) Prices(c appengine.Context) []*Price {
+	prices := make([]*Price, len(t.PriceIds))
+
+	for i, pid := range t.PriceIds {
+		if p, err := PriceById(c, pid); err == nil {
+			prices[i] = p
+		}
+	}
+	return prices
+}
+
+//Price by  tournament.
+func (t *Team) PriceByTournament(c appengine.Context, tid int64) *Price {
+	for _, pid := range t.PriceIds {
+		if p, err := PriceById(c, pid); err == nil {
+			if p.TournamentId == tid {
+				return p
+			}
+		}
+	}
+	return nil
+}

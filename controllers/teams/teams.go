@@ -514,3 +514,80 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 }
+
+// team Prices handler.
+// use this handler to get the prices of a team.
+func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+	desc := "Team Prices Handler:"
+
+	if r.Method == "GET" {
+		teamId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var t *mdl.Team
+		t, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		log.Infof(c, "%s ready to build a price array", desc)
+		prices := t.Prices(c)
+
+		data := struct {
+			Prices []*mdl.Price
+		}{
+			prices,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Team prices by tournament handler:
+//
+// Use this handler to get the price of a team for a specific tournament.
+//	GET	/j/teams/[0-9]+/prices/[0-9]+/	Retreives price of a team with the given id for the specified tournament.
+//
+func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+	desc := "Team Prices by tournament Handler:"
+
+	if r.Method == "GET" {
+		teamId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var t *mdl.Team
+		t, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		tournamentId, err := handlers.PermalinkID(r, c, 5)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		log.Infof(c, "%s ready to build a acc array", desc)
+		p := t.PriceByTournament(c, tournamentId)
+
+		data := struct {
+			Price *mdl.Price
+		}{
+			p,
+		}
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+}

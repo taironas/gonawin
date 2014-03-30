@@ -65,6 +65,9 @@
         <div ng-repeat="tid in teamData.Team.TournamentIds">
           <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies/{{tid.value}}">Accuracy for tournament {{tid.value}}</a><br>
         </div>
+        <div ng-repeat="p in pricesData.Prices">
+          <a href="/ng#/teams/{{teamData.Team.Id}}/prices/{{p.Id}}">Price for tournament {{p.TournamentId}}</a><br>
+        </div>
       </div>
     </div>
 
