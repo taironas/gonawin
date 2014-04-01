@@ -36,18 +36,19 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
   };
   // end world cup create action
 }]);
+
 // TournamentCardCtrl: fetch data of a particular tournament.
-tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',
-  function($scope, Tournament) {
+tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',function($scope, Tournament) {
     console.log('Tournament card controller:');
     console.log('tournament ID: ', $scope.$parent.tournament.Id);
     $scope.tournamentData = Tournament.get({ id:$scope.$parent.tournament.Id});
-
+    
     $scope.tournamentData.$promise.then(function(tournamentData){
-      $scope.tournament = tournamentData.Tournament;
-      console.log('tournament card controller, tournamentData = ', tournamentData);
-      $scope.participantsCount = tournamentData.Participants.length;
-      $scope.teamsCount = tournamentData.Teams.length;
+	$scope.tournament = tournamentData.Tournament;
+	console.log('tournament card controller, tournamentData = ', tournamentData);
+	$scope.participantsCount = tournamentData.Participants.length;
+	$scope.teamsCount = tournamentData.Teams.length;
+	$scope.progress = tournamentData.Progress;
     });
 }]);
 // TournamentSearchCtrl: returns an array of tournaments based on a search query.
