@@ -28,8 +28,15 @@ We want to create a platform that people can use to bet/play with there friends 
     
 #### Installation
 
-    todo
-    
+* install [go](http://golang.org/doc/install)
+* set up your [environement](http://golang.org/doc/code.html)
+* install the [go appengine sdk](https://developers.google.com/appengine/downloads)
+* set up the appengine [environement](https://developers.google.com/appengine/docs/go/gettingstarted/devenvironment)
+*   `go get github.com/garyburd/go-oauth/oauth`
+*   `go get github.com/santiaago/purple-wing`
+*   `cd $GOPATH/src/github.com/santiaago/purple-wing`
+*   `goapp serve`
+
 #### Run App
 
     go_appengine\dev_appserver.py purple-wing
