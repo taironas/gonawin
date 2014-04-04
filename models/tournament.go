@@ -475,25 +475,25 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	activity.CreatorID = t.Id
 
 	if err := activity.save(c); err != nil {
-    return err
-  }
-  // add new activity id in user activity table for each participant of the tournament
-  for _, p := range t.Participants(c) {
-    if err := activity.addNewActivityId(c, p.Id); err != nil {
-      log.Errorf(c, "model/tournament, Publish: error occurred during addNewActivityId call: %v", err)
-    }
-  }
-  
-  return nil
+		return err
+	}
+	// add new activity id in user activity table for each participant of the tournament
+	for _, p := range t.Participants(c) {
+		if err := activity.addNewActivityId(c, p.Id); err != nil {
+			log.Errorf(c, "model/tournament, Publish: error occurred during addNewActivityId call: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // Activity entity representation of a tournament
 func (t *Tournament) Entity(name string) ActivityEntity {
-  displayName := t.Name
-  if name != "" {
-    displayName = name
-  }
-  return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
+	displayName := t.Name
+	if name != "" {
+		displayName = name
+	}
+	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
 }
 
 func (t *Tournament) Progress(c appengine.Context) float64 {

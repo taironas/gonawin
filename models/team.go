@@ -616,25 +616,25 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	activity.CreatorID = t.Id
 
 	if err := activity.save(c); err != nil {
-    return err
-  }
-  // add new activity id in user activity table for each member of the team
-  for _, p := range t.Players(c) {
-    if err := activity.addNewActivityId(c, p.Id); err != nil {
-      log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
-    }
-  }
-  
-  return nil
+		return err
+	}
+	// add new activity id in user activity table for each member of the team
+	for _, p := range t.Players(c) {
+		if err := activity.addNewActivityId(c, p.Id); err != nil {
+			log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
+		}
+	}
+
+	return nil
 }
 
 // Activity entity representation of a team
 func (t *Team) Entity(name string) ActivityEntity {
-  displayName := t.Name
-  if name != "" {
-    displayName = name
-  }
-  return ActivityEntity{Id: t.Id, Type: "team", DisplayName: displayName}
+	displayName := t.Name
+	if name != "" {
+		displayName = name
+	}
+	return ActivityEntity{Id: t.Id, Type: "team", DisplayName: displayName}
 }
 
 // Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.

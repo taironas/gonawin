@@ -50,6 +50,7 @@ func init() {
 	h.HandleFunc("/j/auth/twitter/?", handlers.ErrorHandler(sessionsctrl.TwitterAuth))
 	h.HandleFunc("/j/auth/twitter/callback/?", handlers.ErrorHandler(sessionsctrl.TwitterAuthCallback))
 	h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.TwitterUser))
+
 	// user
 	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Index)))
 	h.HandleFunc("/j/users/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Show)))
@@ -74,7 +75,7 @@ func init() {
 	h.HandleFunc("/j/teams/[0-9]+/prices/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.PriceByTournament)))
 	h.HandleFunc("/j/teams/[0-9]+/prices/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.UpdatePrice)))
 
-	// tournament - json
+	// tournament
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Index)))
 	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.New)))
 	h.HandleFunc("/j/tournaments/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Show)))
@@ -83,17 +84,19 @@ func init() {
 	h.HandleFunc("/j/tournaments/search/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Search)))
 	h.HandleFunc("/j/tournaments/candidates/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CandidateTeams)))
 	h.HandleFunc("/j/tournaments/[0-9]+/participants/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Participants)))
-	// relationships - json
+
+	// relationships
 	h.HandleFunc("/j/teams/join/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Join)))
 	h.HandleFunc("/j/teams/leave/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Leave)))
 	h.HandleFunc("/j/tournaments/join/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Join)))
 	h.HandleFunc("/j/tournaments/leave/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Leave)))
 	h.HandleFunc("/j/tournaments/joinasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.JoinAsTeam)))
 	h.HandleFunc("/j/tournaments/leaveasteam/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.LeaveAsTeam)))
-	// invite - json
+
+	// invite
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(handlers.Authorized(invitectrl.Invite)))
 
-	// experimental: sar
+	// tournament world cup
 	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCup)))
 	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Groups)))
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Calendar)))
@@ -104,7 +107,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/predict/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Predict)))
 	h.HandleFunc("/j/tournaments/[0-9]+/ranking/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Ranking)))
 
-	// activities - json
+	// activities
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))
 
 	// admin handlers

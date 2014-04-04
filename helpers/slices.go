@@ -16,11 +16,11 @@
 
 package helpers
 
-// insert new value into a slice at a given position 
+// insert new value into a slice at a given position
 // source: https://code.google.com/p/go-wiki/wiki/SliceTricks
 func Insert(s []int64, value int64, i int64) []int64 {
 	s = append(s, 0)
-  copy(s[i+1:], s[i:])
-  s[i] = value
+	copy(s[i+1:], s[i:])
+	s[i] = value
 	return s
 }

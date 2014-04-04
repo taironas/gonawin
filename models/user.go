@@ -378,19 +378,19 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	activity.CreatorID = u.Id
 
 	if err := activity.save(c); err != nil {
-    return err
-  }
-  // add new activity id in user activity table
-  return activity.addNewActivityId(c, u.Id)
+		return err
+	}
+	// add new activity id in user activity table
+	return activity.addNewActivityId(c, u.Id)
 }
 
 // Activity entity representation of an user
 func (u *User) Entity(name string) ActivityEntity {
-  displayName := u.Username
-  if name != "" {
-    displayName = name
-  }
-  return ActivityEntity{Id: u.Id, Type: "user", DisplayName: displayName}
+	displayName := u.Username
+	if name != "" {
+		displayName = name
+	}
+	return ActivityEntity{Id: u.Id, Type: "user", DisplayName: displayName}
 }
 
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {
