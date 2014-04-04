@@ -437,17 +437,25 @@ func (t *Tournament) ContainsUserId(id int64) (bool, int) {
 	return false, -1
 }
 
+// Rank users with respect to their score in current tournament.
+// Sets the user score to the current tournament score and return array of users
+// sorted by that score.
 func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 	if limit < 0 {
 		return nil
 	}
 	users := t.Participants(c)
+	// set score of user to score of tournament without persisting it.
+	for i, u := range users {
+		users[i].Score = u.ScoreByTournament(c, t.Id)
+	}
+
 	sort.Sort(UserByScore(users))
+
 	if len(users) <= limit {
 		return users
-	} else {
-		return users[0:limit]
 	}
+	return users[0:limit]
 }
 
 func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {

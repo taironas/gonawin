@@ -35,6 +35,10 @@ import (
 // Use this handler to get the ranking of a tournament.
 // The ranking is an array of users (members) or teams,
 // You can specify the rankby parameter to be "users" or "teams".
+//	GET	/j/tournament/[0-9]+/ranking/
+//
+// The response is an array of users.
+//
 func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Ranking Handler:"

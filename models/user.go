@@ -459,6 +459,19 @@ func (u *User) Scores(c appengine.Context) []*Score {
 	return scores
 }
 
+// Get the score of user with respect to tournament.
+// If tournament not found return 0.
+func (u *User) ScoreByTournament(c appengine.Context, tId int64) int64 {
+	for _, s := range u.ScoreOfTournaments {
+		if s.TournamentId == tId {
+			if score, err := ScoreById(c, s.ScoreId); err == nil {
+				return sumInt64(&score.Scores)
+			}
+		}
+	}
+	return int64(0)
+}
+
 // Returns an array of scoreOverall entities group by tournament.
 func (u *User) TournamentsScores(c appengine.Context) []*ScoreOverall {
 
