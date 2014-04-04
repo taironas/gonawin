@@ -73,13 +73,18 @@ type UserActivities struct {
 }
 
 // returns activities for a specific user
-func FindActivities(c appengine.Context, u *User) []*Activity {
+func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Activity {
   var activities []*Activity
   
   if userActivities := findUserActivities(c, u.Id); userActivities != nil {
-    // loop backward on all these ids to fetch the activities
+    // loop backward on all of these ids to fetch the activities
     ids := userActivities.ActivityIds
-    for i := len(ids) - 1; i >= 0; i-- {
+    
+    start, end := calculateStartAndEnd(int64(len(ids)), count, page)
+     
+    log.Infof(c, "model/activity, FindActivities: start = %d, end = %d", start, end)
+    
+    for i := start; i >= end; i-- {
       key := datastore.NewKey(c, "Activity", "", ids[i], nil)
       
       var activity Activity
@@ -158,4 +163,18 @@ func userActivitiesKey(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "UserActivities", "", id, nil)
 	return key
+}
+
+// Calculate the start and the end position in the actitvities slice.
+// Used for activities pagination.
+func calculateStartAndEnd(activitiesLength, count, page int64) (start, end int64) {
+  if activitiesLength % count*page >= 1 {
+    start = (activitiesLength/page) - 1
+    end = start - count + 1
+  } else {
+    start = activitiesLength - 1
+    end = activitiesLength % count
+  }
+  
+  return start, end
 }

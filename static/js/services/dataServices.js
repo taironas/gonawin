@@ -88,7 +88,7 @@ dataServices.factory('Invite', function($http, $cookieStore, $resource){
 dataServices.factory('Activity', function($http, $cookieStore, $resource){
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
   
-  return $resource('j/activities')
+  return $resource('j/activities', {count: '@count', page: '@page'})
 });
 
 dataServices.factory('Session', function($cookieStore, $resource) {
