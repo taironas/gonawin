@@ -362,19 +362,6 @@ func (a UserByScore) Len() int           { return len(a) }
 func (a UserByScore) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a UserByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }
 
-// Find all activities
-func (u *User) Activities(c appengine.Context) Activities {
-	q := datastore.NewQuery("Activity").Filter("CreatorID=", u.Id).Order("-Published")
-
-	var activities []*Activity
-
-	if _, err := q.GetAll(c, &activities); err != nil {
-		log.Errorf(c, "model/activity, FindAll: error occurred during GetAll call: %v", err)
-	}
-
-	return activities
-}
-
 // Publish user activity
 func (u *User) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
@@ -384,13 +371,26 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	if activity.Type == "score" {
 		displayName = "Your"
 	}
-	activity.Actor = ActivityEntity{Id: u.Id, Type: "user", DisplayName: displayName}
+	activity.Actor = u.Entity(displayName)
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
 	activity.CreatorID = u.Id
 
-	return activity.save(c)
+	if err := activity.save(c); err != nil {
+    return err
+  }
+  // add new activity id in user activity table
+  return activity.addNewActivityId(c, u.Id)
+}
+
+// Activity entity representation of an user
+func (u *User) Entity(name string) ActivityEntity {
+  displayName := u.Username
+  if name != "" {
+    displayName = name
+  }
+  return ActivityEntity{Id: u.Id, Type: "user", DisplayName: displayName}
 }
 
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {

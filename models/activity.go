@@ -22,7 +22,7 @@ import (
 
 	"appengine"
 	"appengine/datastore"
-
+  
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
@@ -59,33 +59,103 @@ type ActivityJson struct {
 	CreatorID *int64          `json:",omitempty"`
 }
 
-// creates an activity entity,
+// Publisher interface
+type Publisher interface {
+  Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error
+  Entity(name string) ActivityEntity
+}
+
+// UserActivities Entity
+type UserActivities struct {
+  Id            int64
+  UserId        int64
+  ActivityIds   []int64
+}
+
+// returns activities for a specific user
+func FindActivities(c appengine.Context, u *User) []*Activity {
+  var activities []*Activity
+  
+  if userActivities := findUserActivities(c, u.Id); userActivities != nil {
+    // loop backward on all these ids to fetch the activities
+    ids := userActivities.ActivityIds
+    for i := len(ids) - 1; i >= 0; i-- {
+      key := datastore.NewKey(c, "Activity", "", ids[i], nil)
+      
+      var activity Activity
+      if err := datastore.Get(c, key, &activity); err != nil {
+        log.Errorf(c, "model/activity, FindActivities: error occurred during Get call: %v", err)
+      }
+      activities = append(activities, &activity)
+    }
+  }
+
+  return activities
+}
+
+// returns activities for a specific user
+func findUserActivities(c appengine.Context, userId int64) *UserActivities {
+  // fetch user activities
+  q := datastore.NewQuery("UserActivities").Filter("UserId =", userId).Limit(1)
+  
+  var userActivities []*UserActivities
+  if _, err := q.GetAll(c, &userActivities); err != nil {
+		log.Errorf(c, "model/activity, findUserActivities: error occurred during GetAll call: %v", err)
+	}
+  
+  if len(userActivities) > 0 {
+    return userActivities[0]
+  }
+  return nil
+}
+
+// save an activity entity in datastore
+// returns the id of the newly saved activity
 func (a *Activity) save(c appengine.Context) error {
-	// create new user
-	id, _, err := datastore.AllocateIDs(c, "Activity", nil, 1)
-	if err != nil {
-		log.Errorf(c, "model/activity, create: %v", err)
-		return errors.New("model/activity, unable to allocate an identifier for Activity")
+	// create new activity
+	id, _, err1 := datastore.AllocateIDs(c, "Activity", nil, 1)
+	if err1 != nil {
+		log.Errorf(c, "model/activity, save: %v", err1)
+		return errors.New("model/activity, save: unable to allocate an identifier for Activity")
 	}
 	key := datastore.NewKey(c, "Activity", "", id, nil)
 	a.Id = id
-	_, err = datastore.Put(c, key, a)
+	_, err := datastore.Put(c, key, a)
 	if err != nil {
-		log.Errorf(c, "model/activity, create: %v", err)
-		return errors.New("model/activity, unable to put Activity in Datastore")
+		log.Errorf(c, "model/activity, save: %v", err)
+		return errors.New("model/activity, save: unable to put Activity in Datastore")
 	}
 	return nil
 }
 
-type Activities []*Activity
+// add new activity id for a specific user in UserActivities entity
+func (a *Activity) addNewActivityId(c appengine.Context, userId int64) error {
+  // find user activities
+  userActivities := findUserActivities(c, userId)
+  // intantiate new user activities entity
+  if userActivities == nil {
+    if id, _, err := datastore.AllocateIDs(c, "UserActivities", nil, 1); err != nil {
+      log.Errorf(c, "model/activity, addNewActivityId: %v", err)
+      return errors.New("model/activity, addNewActivityId: unable to allocate an identifier for Activity")
+    } else {
+      userActivities = &UserActivities{id, userId, make([]int64, 0)}
+    }
+  }
+  // add new activity id to user activities
+  userActivities.ActivityIds = append(userActivities.ActivityIds, a.Id)
+  // put updated activity ids
+  key := userActivitiesKey(c, userActivities.Id)
+  if _, err := datastore.Put(c, key, userActivities); err != nil {
+    log.Errorf(c, "model/activity, addNewActivityId: %v", err)
+    return errors.New("model/activity, addNewActivityId: unable to update activity ids for UserActivities")
+  }
+  
+  return nil
+}
 
-// Methods required by sort.Interface.
-func (a Activities) Len() int {
-	return len(a)
-}
-func (a Activities) Less(i, j int) bool {
-	return a[i].Published.After(a[j].Published)
-}
-func (a Activities) Swap(i, j int) {
-	a[i], a[j] = a[j], a[i]
+// Get key pointer given a user activities id.
+func userActivitiesKey(c appengine.Context, id int64) *datastore.Key {
+
+	key := datastore.NewKey(c, "UserActivities", "", id, nil)
+	return key
 }

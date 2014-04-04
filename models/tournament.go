@@ -463,30 +463,37 @@ func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
 	}
 }
 
-// Find tournament activities
-func (t *Tournament) Activities(c appengine.Context) Activities {
-	q := datastore.NewQuery("Activity").Filter("CreatorID=", t.Id).Order("-Published")
-
-	var activities []*Activity
-
-	if _, err := q.GetAll(c, &activities); err != nil {
-		log.Errorf(c, "model/activity, FindAll: error occurred during GetAll call: %v", err)
-	}
-
-	return activities
-}
-
+// Publish tournament activity
 func (t *Tournament) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: t.Name}
+	activity.Actor = t.Entity("")
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
 	activity.CreatorID = t.Id
 
-	return activity.save(c)
+	if err := activity.save(c); err != nil {
+    return err
+  }
+  // add new activity id in user activity table for each participant of the tournament
+  for _, p := range t.Participants(c) {
+    if err := activity.addNewActivityId(c, p.Id); err != nil {
+      log.Errorf(c, "model/tournament, Publish: error occurred during addNewActivityId call: %v", err)
+    }
+  }
+  
+  return nil
+}
+
+// Activity entity representation of a tournament
+func (t *Tournament) Entity(name string) ActivityEntity {
+  displayName := t.Name
+  if name != "" {
+    displayName = name
+  }
+  return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
 }
 
 func (t *Tournament) Progress(c appengine.Context) float64 {

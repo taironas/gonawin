@@ -604,30 +604,37 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 	return nil
 }
 
-// Find all activities
-func (t *Team) Activities(c appengine.Context) Activities {
-	q := datastore.NewQuery("Activity").Filter("CreatorID=", t.Id).Order("-Published")
-
-	var activities []*Activity
-
-	if _, err := q.GetAll(c, &activities); err != nil {
-		log.Errorf(c, "model/team, Activities: error occurred during GetAll call: %v", err)
-	}
-
-	return activities
-}
-
+// Publish team activity
 func (t *Team) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = ActivityEntity{Id: t.Id, Type: "team", DisplayName: t.Name}
+	activity.Actor = t.Entity("")
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
 	activity.CreatorID = t.Id
 
-	return activity.save(c)
+	if err := activity.save(c); err != nil {
+    return err
+  }
+  // add new activity id in user activity table for each member of the team
+  for _, p := range t.Players(c) {
+    if err := activity.addNewActivityId(c, p.Id); err != nil {
+      log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
+    }
+  }
+  
+  return nil
+}
+
+// Activity entity representation of a team
+func (t *Team) Entity(name string) ActivityEntity {
+  displayName := t.Name
+  if name != "" {
+    displayName = name
+  }
+  return ActivityEntity{Id: t.Id, Type: "team", DisplayName: displayName}
 }
 
 // Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.
