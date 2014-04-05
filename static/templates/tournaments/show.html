@@ -52,7 +52,6 @@
       <div class="col-md-1"></div>
       <div class="col-md-11">
 	<div class="btn-group btn-group-justified">
-          <a class="btn btn-default" href="" ng-click="groupOnClick()">Groups</a>
           <a class="btn btn-default" href="" ng-click="calendarOnClick()">Calendar</a>
           <!-- <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a> -->
           <a class="btn btn-default" href="" ng-click="firstStageOnClick()">First Stage</a>
@@ -69,8 +68,9 @@
 	      <!-- <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Vertical</a></li> -->
 	    </ul>
 	  </div>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a>
+          <!-- <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a> -->
+          <!-- <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a> -->
+          <a class="btn btn-default" href="" ng-click="rankingOnClick()">Ranking</a>
 	  <!-- admin buttons -->
 	  <div class="btn-group">
 	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -104,6 +104,11 @@
 	<div ng-if="isSecondPhaseHorizontal">
     	  <div ng-include src="'templates/tournaments/tab_bracketH.html'"></div>
 	</div>
+      </div>
+    </div>
+    <div ng-if="isRanking">
+      <div ng-controller="TournamentRankingCtrl">
+    	  <div ng-include src="'templates/tournaments/tab_ranking.html'"></div>
       </div>
     </div>
   </div>

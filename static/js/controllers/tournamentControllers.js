@@ -183,18 +183,21 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
       });
     });
   };
+
     // Seting up views
     $scope.isCalendar = false;
     $scope.isSecondPhaseHorizontal = false;
     $scope.isSecondPhaseVertical = false;
     $scope.isFirstStage = true;
-
+    $scope.isRanking = false;
+    
     $scope.calendarOnClick = function(){
 	console.log('calendar is active');
 	$scope.isCalendar = true;
 	$scope.isFirstStage = false;
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
+	$scope.isRanking = false;
     };
 
     $scope.firstStageOnClick = function(){
@@ -203,19 +206,31 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isFirstStage = true;
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
-
+	$scope.isRanking = false;
     };
+
     $scope.secondPhaseVerticalOnClick = function(){
 	$scope.isCalendar = false;
 	$scope.isSecondPhaseVertical = true;
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isFirstStage = false;
+	$scope.isRanking = false;
     };
+
     $scope.secondPhaseHorizontalOnClick = function(){
 	$scope.isCalendar = false;
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = true;
 	$scope.isFirstStage = false;
+	$scope.isRanking = false;
+    };
+
+    $scope.rankingOnClick = function(){
+	$scope.isCalendar = false;
+	$scope.isFirstStage = false;
+	$scope.isSecondPhaseVertical = false;
+	$scope.isSecondPhaseHorizontal = false;
+	$scope.isRanking = true;
     };
 
     $scope.isTournamentAdmin = false;
