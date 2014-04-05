@@ -183,7 +183,41 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
       });
     });
   };
-  
+    // Seting up views
+    $scope.isCalendar = false;
+    $scope.isSecondPhaseHorizontal = false;
+    $scope.isSecondPhaseVertical = false;
+    $scope.isFirstStage = true;
+
+    $scope.calendarOnClick = function(){
+	console.log('calendar is active');
+	$scope.isCalendar = true;
+	$scope.isFirstStage = false;
+	$scope.isSecondPhaseVertical = false;
+	$scope.isSecondPhaseHorizontal = false;
+    };
+
+    $scope.firstStageOnClick = function(){
+	$scope.isCalendar = false;
+	$scope.isSecondPhase = false;
+	$scope.isFirstStage = true;
+	$scope.isSecondPhaseVertical = false;
+	$scope.isSecondPhaseHorizontal = false;
+
+    };
+    $scope.secondPhaseVerticalOnClick = function(){
+	$scope.isCalendar = false;
+	$scope.isSecondPhaseVertical = true;
+	$scope.isSecondPhaseHorizontal = false;
+	$scope.isFirstStage = false;
+    };
+    $scope.secondPhaseHorizontalOnClick = function(){
+	$scope.isCalendar = false;
+	$scope.isSecondPhaseVertical = false;
+	$scope.isSecondPhaseHorizontal = true;
+	$scope.isFirstStage = false;
+    };
+
     $scope.isTournamentAdmin = false;
     $scope.tournamentData.$promise.then(function(result){
       console.log('tournament is admin ready!');

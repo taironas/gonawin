@@ -6,11 +6,7 @@
   </ol>
   <div class="panel-body">
     <div class="page-header">
-      <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;"> </i>  </a>
-      <h1 class="gw-h1">
-	<i class="fa fa-trophy fa-lg"></i>
-	{{tournamentData.Tournament.Name}}
-	<small>{{tournamentData.Tournament.Description}}</small></h1>
+      <div ng-include src="'templates/tournaments/header.html'"></div>
       <!-- actions -->
       <div class="row">
       	<div class="col-md-1"></div>
@@ -55,17 +51,22 @@
     <div class="row">
       <div class="col-md-1"></div>
       <div class="col-md-11">
-	<div class="btn-group">
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a>
+	<div class="btn-group btn-group-justified">
+          <a class="btn btn-default" href="" ng-click="groupOnClick()">Groups</a>
+          <a class="btn btn-default" href="" ng-click="calendarOnClick()">Calendar</a>
+          <!-- <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a> -->
+          <a class="btn btn-default" href="" ng-click="firstStageOnClick()">First Stage</a>
+          <!-- <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a> -->
 	  <div class="btn-group">
 	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
 	      Second Stage
 	      <span class="caret"></span>
 	    </button>
 	    <ul class="dropdown-menu">
-              <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Horizontal</a></li>
-	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Vertical</a></li>
+              <li><a href="" ng-click="secondPhaseHorizontalOnClick()">Horizontal</a></li>
+	      <li><a href="" ng-click="secondPhaseVerticalOnClick()">Vertical</a></li>
+              <!-- <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Horizontal</a></li> -->
+	      <!-- <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Vertical</a></li> -->
 	    </ul>
 	  </div>
           <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a>
@@ -84,40 +85,26 @@
 	</div>
       </div>
     </div>
-    <!-- participants -->
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="participants col-md-11">
-	<table class="table table-striped">
-          <thead><tr><th>Participants</th></tr></thead>
-          <tbody>
-	    <tr ng-repeat="p in tournamentData.Participants">
-              <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
-	    </tr>
-          </tbody>
-	</table>
+    <hr>
+    <div ng-if="isCalendar">
+      <div ng-controller="TournamentCalendarCtrl">
+	<div ng-include src="'templates/tournaments/tab_calendar.html'"></div>
       </div>
     </div>
-    <!-- / participants -->
-    
-    <!-- Teams -->
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="teams col-md-11">
-	<table class="table table-striped">
-          <thead><tr><th>Teams</th></tr></thead>
-          <tbody>
-	    <tr ng-repeat="t in tournamentData.Teams">
-              <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-	    </tr>
-          </tbody>
-	</table>
+    <div ng-if="isFirstStage">
+      <div ng-controller="TournamentFirstStageCtrl">
+	<div ng-include src="'templates/tournaments/tab_firststage.html'"></div>
       </div>
     </div>
-    <!-- / Teams -->
-    
-    <!-- Groups -->
-    <div ng-include src="'templates/tournaments/groups.html'"></div>
-    <!-- /Groups -->
+    <div ng-if="isSecondPhaseVertical || isSecondPhaseHorizontal">
+      <div ng-controller="TournamentSecondStageCtrl">
+	<div ng-if="isSecondPhaseVertical">
+    	  <div ng-include src="'templates/tournaments/tab_bracketV.html'"></div>
+	</div>
+	<div ng-if="isSecondPhaseHorizontal">
+    	  <div ng-include src="'templates/tournaments/tab_bracketH.html'"></div>
+	</div>
+      </div>
+    </div>
   </div>
 </div>

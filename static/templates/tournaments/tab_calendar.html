@@ -1,0 +1,39 @@
+<!-- Calendar by days -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="d in matchesData.Days">
+      <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+      <div class="calendar">
+	<div ng-repeat="m in d.Matches" class="row">
+          <div class="col-md-1"></div>
+          <div class="col-md-9">
+            <!-- show use another include that has full match information: location, ... -->
+            <div ng-include src="'templates/tournaments/match.html'"> </div>
+          </div>
+	</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / Calendar by days-->
+<!-- Calendar by phases -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="phase in matchesData.Phases">
+      <h2>{{phase.Name}}</h3>
+<div class="calendar">
+  <div ng-repeat="d in phase.Days">
+    <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+    <div class="calendar">
+      <div ng-repeat="m in d.Matches" class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-9">
+          <div ng-include src="'templates/tournaments/match.html'"> </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Calendar by phases -->
