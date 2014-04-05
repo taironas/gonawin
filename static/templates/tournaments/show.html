@@ -5,58 +5,58 @@
     <li class="active">{{tournamentData.Tournament.Name}}</li>
   </ol>
   <div class="panel-body">
-    <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;">  </i></a><h1 class="gw-h1">  {{tournamentData.Tournament.Name}}</h1>
-    <p>{{tournamentData.Tournament.Description}}</p>
+    <div class="page-header">
+     <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;"> </i>  </a>
+      <h1 class="gw-h1">
+	<i class="fa fa-trophy fa-lg"></i>
+	{{tournamentData.Tournament.Name}}
+      <small>{{tournamentData.Tournament.Description}}</small></h1>
+      <!-- action buttons -->
+      <div class="btn-group pull-right">
+	<joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+	<button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+      </div>
+      <!-- / action buttons -->
+      <!-- modal -->
+      <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+	      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+	      <h3 id="tournamentModalLabel">Add Team</h3>
+            </div>
+              <div class="modal-body">
+		<div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
+              </div>
+          </div>
+	</div>
+      </div>
+      <!-- / modal -->
+    </div>
+    <!-- / page header -->
     <div class="progress">
       <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournamentData.Progress | number:0}}%;">
 	{{100 * tournamentData.Progress | number:0}}%
       </div>
     </div>
-    <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-    <button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
-    <!-- Modal -->
-    <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="tournamentModalLabel">Add Team</h3>
-          </div>
-          <div class="modal-body">
-            <div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- admin actions -->
     <div class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-11">
-        <dl class="dl-horizontal">
-          <dt><strong>Id:</strong></dt>
-          <dd>{{tournamentData.Tournament.Id}}</dd>
-          <dt><strong>Name:</strong></dt>
-          <dd>{{tournamentData.Tournament.Name}}</dd>
-        </dl>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="col-md-11">
-        <div ng-if="isTournamentAdmin">
-          <div>
-      <form class="form-horizontal">
-        <div class="form-group">
-                <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><span>Edit</span></a>
-                <input id="action" name="Action" type="hidden" value="delete" />
-                <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()">Delete</button>
-        </div>
-      </form>
+      	<div class="col-md-1"></div>
+      	<div class="col-md-11">
+      	  <div ng-if="isTournamentAdmin">
+      	    <form class="form-horizontal">
+              <div class="form-group">
+      		<div class="btn-group">  
+                  <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><i class="fa fa-edit fa-fw"></i> Edit</a>
+                  <input id="action" name="Action" type="hidden" value="delete" />
+                  <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+      		</div>
+      	      </div>
+      	    </form>
           </div>
-        </div>
-      </div>
+      	</div>
     </div>
+    <!-- / admin actions -->
 
     <div class="row">
       <div class="col-md-1"></div>
