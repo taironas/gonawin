@@ -58,6 +58,21 @@
     </div>
     <!-- / admin actions -->
 
+    <!-- tournament views -->
+    <div class="row">
+      <div class="col-md-1"></div>
+      <div class="col-md-11">
+	<div class="btn-group">
+          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a>
+          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a>
+          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Second Stage H</a>
+          <a class="btn btn-default"href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Second Stage V</a>
+          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a>
+          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a>
+	</div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-md-1"></div>
       <div class="links col-md-3">
