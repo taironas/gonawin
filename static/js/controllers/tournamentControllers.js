@@ -354,12 +354,20 @@ tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', 
 }]);
 // TournamentCalendarCtrl: collects complete data of specific tournament (matches, predict)
 tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament calendar controller');
-  console.log('route params', $routeParams)
-  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+    console.log('Tournament calendar controller');
+    console.log('route params', $routeParams)
+    $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+    
+    $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
+    
+    $scope.byPhaseOnClick = function(){
+	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+    };
 
-  $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
-
+    $scope.byDateOnClick = function(){
+	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+    };
+    
   $scope.activatePredict = function(matchIdNumber, index, parentIndex){
     console.log('Tournament calendar controller: activate predict:', matchIdNumber);
     $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
