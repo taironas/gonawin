@@ -91,7 +91,7 @@ tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', '
 }]);
 // TournamentShowCtrl: fetch data of specific tournament. 
 // Handle also deletion of this same tournament and join/leave and join/leave as team.
-tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', function($rootScope, $scope, $routeParams, Tournament, $location, $q) {
+tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', '$route', function($rootScope, $scope, $routeParams, Tournament, $location, $q, $route) {
   console.log('Tournament Show controller');
   
   $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
@@ -110,7 +110,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $scope.candidates = result.Candidates;
   });
 
-  // #experimental: sar
   // list of tournament groups
   $scope.groupsData = Tournament.groups({id:$routeParams.id});
   // admin function: reset tournament
@@ -184,12 +183,28 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     });
   };
 
-    // Seting up views
+    // initialize view flag with respect to url:
     $scope.isCalendar = false;
     $scope.isSecondPhaseHorizontal = false;
     $scope.isSecondPhaseVertical = false;
-    $scope.isFirstStage = true;
+    $scope.isFirstStage = false;
     $scope.isRanking = false;
+
+    var url = $location.url();
+    var ctx = 'set tournament view flags: ';
+    console.log(ctx, 'match root? ', url.match('^/$') != null);
+    console.log(ctx, 'match tournaments? ', url.match('^/tournaments/[0-9]+.*') != null);
+    console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
+
+    if(url.match('^/tournaments/[0-9]+$') != null){
+	$scope.isFirstStage = true;
+    }    
+    if(url.match('^/tournaments/[0-9]+/calendar$') != null){
+	$scope.isCalendar = true;
+    }
+    if(url.match('^/tournaments/[0-9]+/matches/firststage$') != null){
+	$scope.isFirstStage = true;
+    }
     
     $scope.calendarOnClick = function(){
 	console.log('calendar is active');
@@ -198,6 +213,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isRanking = false;
+	//$location.url('/tournaments/'+$routeParams.id + '/calendar');
     };
 
     $scope.firstStageOnClick = function(){

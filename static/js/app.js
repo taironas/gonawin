@@ -69,8 +69,8 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
       when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
       when('/tournaments/search', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentSearchCtrl', requireLogin: true }).
-      when('/tournaments/:id/calendar', { templateUrl: 'templates/tournaments/calendar.html', controller: 'TournamentCalendarCtrl', requireLogin: true }).
-      when('/tournaments/:id/matches/firststage', { templateUrl: 'templates/tournaments/firststage.html', controller: 'TournamentFirstStageCtrl', requireLogin: true }).
+      when('/tournaments/:id/calendar', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
+      when('/tournaments/:id/matches/firststage', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
       when('/tournaments/:id/matches/secondstage', { templateUrl: 'templates/tournaments/secondstage.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
       when('/tournaments/:id/matches/secondstage2', { templateUrl: 'templates/tournaments/secondstage2.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
       when('/tournaments/:id/predict/', { templateUrl: 'templates/tournaments/predict.html', controller: 'TournamentPredictCtrl', requireLogin: true }).
