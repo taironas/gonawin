@@ -184,15 +184,22 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     });
   };
   
-  $scope.isTournamentAdmin = $scope.tournamentData.$promise.then(function(result){
-    console.log('tournament is admin ready!');
-    if(result.Tournament.AdminId == $scope.currentUser.Id){
-      return true;
+    $scope.isTournamentAdmin = false;
+    $scope.tournamentData.$promise.then(function(result){
+      console.log('tournament is admin ready!');
+      console.log('result!', result);
+      console.log('scope', $scope);
+      console.log($rootScope);
+      console.log(result.Tournament.AdminId);
+      console.log($rootScope.currentUser.User.Id);
+    if(result.Tournament.AdminId == $rootScope.currentUser.User.Id){
+	console.log('tournament is admin TRUE');
+	$scope.isTournamentAdmin = true;
     }else{
-      return false;
+	console.log('tournament is admin FALSE');
+	$scope.isTournamentAdmin = false;
     }
   });
-  
   // checks if user has joined a tournament
   $scope.joined = $scope.tournamentData.$promise.then(function(result){
     console.log('tournament joined ready!');

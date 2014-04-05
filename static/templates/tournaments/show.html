@@ -6,29 +6,41 @@
   </ol>
   <div class="panel-body">
     <div class="page-header">
-     <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;"> </i>  </a>
+      <a class="gw-chevron" href="/ng#/tournaments"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;"> </i>  </a>
       <h1 class="gw-h1">
 	<i class="fa fa-trophy fa-lg"></i>
 	{{tournamentData.Tournament.Name}}
-      <small>{{tournamentData.Tournament.Description}}</small></h1>
-      <!-- action buttons -->
-      <div class="btn-group pull-right">
-	<joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-	<button class="btn btn-primary" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+	<small>{{tournamentData.Tournament.Description}}</small></h1>
+      <!-- actions -->
+      <div class="row">
+      	<div class="col-md-1"></div>
+      	<div class="col-md-10">
+      	  <form class="form-horizontal">
+            <div class="form-group">
+      	      <div class="btn-group pull-right">  
+		<joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+		<button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+		<a ng-if="isTournamentAdmin" href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><i class="fa fa-edit fa-fw"></i> Edit</a>
+                <input ng-if="isTournamentAdmin" id="action" name="Action" type="hidden" value="delete" />
+                <button ng-if="isTournamentAdmin" class="btn btn-default" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+	      </div>
+      	    </div>
+      	  </form>
+	</div>
       </div>
-      <!-- / action buttons -->
+      <!-- / admin actions -->
       <!-- modal -->
       <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
-          <div class="modal-content">
+	  <div class="modal-content">
             <div class="modal-header">
 	      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 	      <h3 id="tournamentModalLabel">Add Team</h3>
             </div>
-              <div class="modal-body">
-		<div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
-              </div>
-          </div>
+            <div class="modal-body">
+	      <div ng-include src="'templates/tournaments/teamCandidates.html'"></div>
+            </div>
+	  </div>
 	</div>
       </div>
       <!-- / modal -->
@@ -39,25 +51,6 @@
 	{{100 * tournamentData.Progress | number:0}}%
       </div>
     </div>
-    <!-- admin actions -->
-    <div class="row">
-      	<div class="col-md-1"></div>
-      	<div class="col-md-11">
-      	  <div ng-if="isTournamentAdmin">
-      	    <form class="form-horizontal">
-              <div class="form-group">
-      		<div class="btn-group">  
-                  <a href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><i class="fa fa-edit fa-fw"></i> Edit</a>
-                  <input id="action" name="Action" type="hidden" value="delete" />
-                  <button class="btn btn-danger" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
-      		</div>
-      	      </div>
-      	    </form>
-          </div>
-      	</div>
-    </div>
-    <!-- / admin actions -->
-
     <!-- tournament views -->
     <div class="row">
       <div class="col-md-1"></div>
@@ -65,62 +58,64 @@
 	<div class="btn-group">
           <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a>
           <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Second Stage H</a>
-          <a class="btn btn-default"href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Second Stage V</a>
+	  <div class="btn-group">
+	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	      Second Stage
+	      <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu">
+              <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Horizontal</a></li>
+	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Vertical</a></li>
+	    </ul>
+	  </div>
           <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a>
           <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a>
+	  <!-- admin buttons -->
+	  <div class="btn-group">
+	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	      Admin
+	      <span class="caret"></span>
+	    </button>
+	    <ul class="dropdown-menu">
+	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/setresults">set results</a></li>
+              <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
+	    </ul>
+	  </div>
 	</div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="links col-md-3">
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar">Calendar</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=phase">Calendar by phase</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/calendar?groupby=date">Calendar by date</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/firststage">First Stage</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage">Second Stage Horizontal</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/secondstage2">Second Stage Vertical</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/matches/setresults">Admin: set results</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/predict">Predict</a><br>
-        <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking">Ranking</a><br>
-        <button class="btn btn-primary btn-xs" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></button>
-      </div>
-    </div>
-
     <!-- participants -->
     <div class="row">
       <div class="col-md-1"></div>
       <div class="participants col-md-11">
-        <table class="table table-striped">
+	<table class="table table-striped">
           <thead><tr><th>Participants</th></tr></thead>
           <tbody>
-      <tr ng-repeat="p in tournamentData.Participants">
-          <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
-      </tr>
+	    <tr ng-repeat="p in tournamentData.Participants">
+              <td><a href="/ng#/users/{{p.Id}}">{{p.Username}}</a></td>
+	    </tr>
           </tbody>
-        </table>
+	</table>
       </div>
     </div>
     <!-- / participants -->
-
+    
     <!-- Teams -->
     <div class="row">
       <div class="col-md-1"></div>
       <div class="teams col-md-11">
-        <table class="table table-striped">
+	<table class="table table-striped">
           <thead><tr><th>Teams</th></tr></thead>
           <tbody>
-      <tr ng-repeat="t in tournamentData.Teams">
+	    <tr ng-repeat="t in tournamentData.Teams">
               <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
-      </tr>
+	    </tr>
           </tbody>
-        </table>
+	</table>
       </div>
     </div>
     <!-- / Teams -->
-
+    
     <!-- Groups -->
     <div ng-include src="'templates/tournaments/groups.html'"></div>
     <!-- /Groups -->

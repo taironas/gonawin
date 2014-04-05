@@ -138,7 +138,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := tournament.Teams(c)
 
 		// tournament
-		fieldsToKeep := []string{"Id", "Name", "Description"}
+		fieldsToKeep := []string{"Id", "Name", "Description", "AdminId"}
 		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
