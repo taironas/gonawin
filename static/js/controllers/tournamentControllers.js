@@ -423,6 +423,18 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
     
 }]);
 
+// TournamentSetTeamsCtrl (admin): change teams.
+// ToDo: Should only be available if you are admin
+tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+  console.log('Tournament set teams controller:');
+  console.log('route params', $routeParams)
+  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+
+  $scope.teamsData = Tournament.teams({id:$routeParams.id, groupby:"phase"});
+    
+}]);
+
+
 // TournamentFirstStageCtrl: fetch first stage data of a specific tournament.
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament first stage controller:');

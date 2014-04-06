@@ -73,7 +73,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
 		     reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
-		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit'}
+		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit'},
+		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby'}
 		   })
 });
 

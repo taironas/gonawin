@@ -1,0 +1,21 @@
+<!-- Teams by phase -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-5">
+    <div ng-repeat="phase in teamsData.Phases">
+    <table class="table table-striped table-condensed">
+      <thead>
+	<th>{{phase.Name}}</th>
+      </thead>
+      <tbody>
+	<tr ng-repeat="t in phase.Teams">
+	  <td class="col-md-8"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</td>
+	</tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+<!-- <div class="col-md-4"> -->
+
+<!-- / Teams by phase -->

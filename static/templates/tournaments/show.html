@@ -73,6 +73,7 @@
 	    </button>
 	    <ul class="dropdown-menu">
 	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
+	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
               <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
 	    </ul>
 	  </div>
@@ -109,6 +110,11 @@
       <div ng-switch-when="admin.setresults">
 	<div ng-controller="TournamentSetResultsCtrl">
     	  <div ng-include src="'templates/tournaments/tab_setresults.html'"></div>
+	</div>
+      </div>
+      <div ng-switch-when="admin.setteams">
+	<div ng-controller="TournamentSetTeamsCtrl">
+    	  <div ng-include src="'templates/tournaments/tab_setteams.html'"></div>
 	</div>
       </div>
       <div ng-switch-default>

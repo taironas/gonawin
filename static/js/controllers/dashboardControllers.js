@@ -71,6 +71,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	} else if(url.match('^/tournaments/[0-9]+.*') != null){
 	    // if same state as before just exit.
 	    if($scope.state == 'tournaments'){
+		console.log('same!');
 		return;
 	    }
 	    // reset dashboard before getting data
