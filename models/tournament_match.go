@@ -174,7 +174,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 			}
 			log.Infof(c, "%s -------------------------------------------------->", desc)
 			// update flag first phase complete.
-			if phaseId == 0{
+			if phaseId == 0 {
 				t.IsFirstStageComplete = true
 				t.Update(c)
 			}
@@ -228,7 +228,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		}
 		log.Infof(c, "%s -------------------------------------------------->", desc)
 		// update flag first phase complete.
-		if phaseId == 0{
+		if phaseId == 0 {
 			t.IsFirstStageComplete = true
 			t.Update(c)
 		}

@@ -32,37 +32,37 @@ import (
 )
 
 type Tournament struct {
-	Id              int64
-	KeyName         string
-	Name            string
-	Description     string
-	Start           time.Time
-	End             time.Time
-	AdminId         int64
-	Created         time.Time
-	GroupIds        []int64
-	Matches1stStage []int64
-	Matches2ndStage []int64
-	UserIds         []int64
-	TeamIds         []int64
+	Id                   int64
+	KeyName              string
+	Name                 string
+	Description          string
+	Start                time.Time
+	End                  time.Time
+	AdminId              int64
+	Created              time.Time
+	GroupIds             []int64
+	Matches1stStage      []int64
+	Matches2ndStage      []int64
+	UserIds              []int64
+	TeamIds              []int64
 	IsFirstStageComplete bool
 }
 
 type TournamentJson struct {
-	Id              *int64     `json:",omitempty"`
-	KeyName         *string    `json:",omitempty"`
-	Name            *string    `json:",omitempty"`
-	Description     *string    `json:",omitempty"`
-	Start           *time.Time `json:",omitempty"`
-	End             *time.Time `json:",omitempty"`
-	AdminId         *int64     `json:",omitempty"`
-	Created         *time.Time `json:",omitempty"`
-	GroupIds        *[]int64   `json:",omitempty"`
-	Matches1stStage *[]int64   `json:",omitempty"`
-	Matches2ndStage *[]int64   `json:",omitempty"`
-	UserIds         *[]int64   `json:",omitempty"`
-	TeamIds         *[]int64   `json:",omitempty"`
-	IsFirstStageComplete *bool `json:",omitempty"`
+	Id                   *int64     `json:",omitempty"`
+	KeyName              *string    `json:",omitempty"`
+	Name                 *string    `json:",omitempty"`
+	Description          *string    `json:",omitempty"`
+	Start                *time.Time `json:",omitempty"`
+	End                  *time.Time `json:",omitempty"`
+	AdminId              *int64     `json:",omitempty"`
+	Created              *time.Time `json:",omitempty"`
+	GroupIds             *[]int64   `json:",omitempty"`
+	Matches1stStage      *[]int64   `json:",omitempty"`
+	Matches2ndStage      *[]int64   `json:",omitempty"`
+	UserIds              *[]int64   `json:",omitempty"`
+	TeamIds              *[]int64   `json:",omitempty"`
+	IsFirstStageComplete *bool      `json:",omitempty"`
 }
 
 // Create tournament entity given a name and description.
@@ -506,7 +506,7 @@ func (t *Tournament) Entity(name string) ActivityEntity {
 	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
 }
 
-// The progression is a number between 0 and 1 with the progression of the tournament 
+// The progression is a number between 0 and 1 with the progression of the tournament
 // with respect of todays date and start and end date of tournament.
 func (t *Tournament) Progress(c appengine.Context) float64 {
 	const shortForm = "Jan/02/2006"
