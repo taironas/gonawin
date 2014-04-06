@@ -186,30 +186,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     // Initialize tab variable to handle views:
     $scope.tab = $routeParams.tab;
-        
-    $scope.calendarOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=calendar');
-    };
-
-    $scope.firstStageOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=firststage');
-    };
-
-    $scope.secondPhaseVerticalOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstagev');
-    };
-
-    $scope.secondPhaseHorizontalOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstageh');
-    };
-
-    $scope.rankingOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=ranking');
-    };
-
-    $scope.setresultsOnClick = function(){
-	$location.url('/tournaments/'+$routeParams.id + '?tab=admin.setresults');
-    };
 
     // Is tournament admin flag identifies if current user is also the admin of the tournament.
     // Use this flag to show specific information of tournament admin.
