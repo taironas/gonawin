@@ -51,6 +51,7 @@ tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',f
 	$scope.progress = tournamentData.Progress;
     });
 }]);
+
 // TournamentSearchCtrl: returns an array of tournaments based on a search query.
 tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament search controller');
@@ -73,6 +74,7 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
     $location.search('q', $scope.keywords).path('/tournaments/search');
   };
 }]);
+
 // TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');
@@ -317,6 +319,7 @@ tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', 
 		      });
   }
 }]);
+
 // TournamentCalendarCtrl: collects complete data of specific tournament (matches, predict)
 tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
     console.log('Tournament calendar controller');
@@ -362,6 +365,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
   };  
 
 }]);
+
 // TournamentSetResultsCtrl (admin): update results.
 // ToDo: Should only be available if you are admin
 tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
@@ -405,24 +409,26 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
   };
     
 }]);
+
 // TournamentFirstStageCtrl: fetch first stage data of a specific tournament.
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament first stage controller:');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
-  // #experimental: sar
   // list of tournament groups
   $scope.groupsData = Tournament.groups({id:$routeParams.id});
   // predicate is udate for ranking tables
   $scope.predicate = '';
 
 }]);
+
 // TournamentSecondStageCtrl: fetch second stage data of a specific tournament.
 tournamentControllers.controller('TournamentSecondStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament second stage controller:');
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
   $scope.matchesData = Tournament.matches({id:$routeParams.id, filter:"second"});
 }]);
+
 // TournamentPredictCtrl: fetch predicts of a specific tournament.
 tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
   console.log('Tournament predict controller:');
@@ -455,14 +461,34 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
       });
   };  
 }]);
+
 // TournamentRankingCtrl: fetch ranking data of a specific tournament.
 tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament ranking controller:');
-  console.log('route params', $routeParams)
-  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+    console.log('Tournament ranking controller:');
+    console.log('route params', $routeParams)
+    $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+    $scope.rankBy = 'users'
+    $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
 
-  $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
-  // predicate is udate for ranking tables
-  $scope.predicate = '';
+    // predicate is udate for ranking tables
+    $scope.predicate = '';
+    
+    $scope.byUsersRankOnClick = function(){
+	if($scope.rankBy == 'user'){
+	    return;
+	}
+	$scope.rankBy = 'users';
+	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
+	return;
+    };
+
+    $scope.byTeamsRankOnClick = function(){
+	if($scope.rankBy == 'teams'){
+	    return;
+	}
+	$scope.rankBy = 'teams';
+	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
+	return;
+    };
 
 }]);

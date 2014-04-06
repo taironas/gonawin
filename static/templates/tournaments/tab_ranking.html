@@ -1,12 +1,12 @@
-<!-- links -->
 <div class="row">
   <div class="col-md-1"></div>
-  <div class="links col-md-3">
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=users">Users rank</a><br>
-    <a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}/ranking?rankby=teams">Teams rank</a><br>
+  <div class="col-md-9">
+    <div class="btn-group pull-right">
+      <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()">Users rank</a>
+      <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()">Teams rank</a>
+    </div>
   </div>
 </div>
-<!-- / links -->
 <!-- Teams -->
 <div ng-if="rankingData.Teams">
   <div class="row">

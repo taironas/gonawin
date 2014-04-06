@@ -1,0 +1,15 @@
+<!-- teams ranking -->
+<table class="table table-condensed table-hover text-left">
+  <thead>
+    <tr>
+      <th>Teams</th>
+      <th>Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="t in dashboard.rank.teams | orderBy:'Accuracy':!reverse">
+      <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+      <td>{{100*t.Accuracy | number:2}}%</td>
+    </tr>
+  </tbody>
+</table>

@@ -185,18 +185,13 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
     };
 
     $scope.byUsersOnClick = function(){
-	if($scope.dashboard.rank.users != undefined){
-	    $scope.rankBy = 'users';
-	    return;
-	}
+	$scope.rankBy = 'users';
+	return;
     };
 
     $scope.byTeamsOnClick = function(){
-	console.log('teams on click');
-	if($scope.dashboard.rank.teams != undefined){
-	    $scope.rankBy = 'teams';
-	    return;
-	}
+	$scope.rankBy = 'teams';
+	return;
     };
 
     // set dashboard with respect to url in the global controller.
