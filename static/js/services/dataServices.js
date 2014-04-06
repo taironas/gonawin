@@ -77,7 +77,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
 		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit'},
 		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby'},
-		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&oldName=:oldName&newName=:newName'}
+		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'}
 
 		   })
 });

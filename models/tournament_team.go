@@ -17,6 +17,9 @@
 package models
 
 import (
+	"fmt"
+	"strings"
+
 	"appengine"
 	"appengine/datastore"
 
@@ -54,4 +57,69 @@ func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string 
 		}
 	}
 	return mapIdTeams
+}
+
+// Update tournament team.
+// From a phase an old name and a new, update the next phases of the tournament.
+func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldName, newName string) error {
+
+	matches2ndPhase := Matches(c, t.Matches2ndStage)
+	mapIdTeams := MapOfIdTeams(c, t)
+
+	limits := MapOfPhaseIntervals()
+
+	oldTeamId := int64(0)
+	newTeamId := int64(0)
+	for k, v := range mapIdTeams {
+		if v == oldName {
+			oldTeamId = k
+		}
+		if v == newName {
+			newTeamId = k
+		}
+		if newTeamId > 0 && oldTeamId > 0 {
+			break
+		}
+	}
+
+	// low limit, all matches above this limit should be updated.
+	low := limits[phaseName][0]
+	for _, m := range matches2ndPhase {
+		if m.IdNumber < low {
+			continue
+		}
+		updateMatch := false
+		// update teams
+		if m.TeamId1 == oldTeamId {
+			updateMatch = true
+			m.TeamId1 = newTeamId
+		}
+		if m.TeamId2 == oldTeamId {
+			updateMatch = true
+			m.TeamId2 = newTeamId
+		}
+		// update rules if needed.
+		rule := strings.Split(m.Rule, " ")
+		if len(rule) == 2 {
+			update := false
+			if rule[0] == oldName {
+				rule[0] = newName
+				update = true
+			}
+			if rule[1] == oldName {
+				rule[1] = newName
+				update = true
+			}
+			if update {
+				m.Rule = fmt.Sprintf("%s %s", rule[0], rule[1])
+				updateMatch = true
+			}
+		}
+		if updateMatch {
+			if err := UpdateMatch(c, m); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
