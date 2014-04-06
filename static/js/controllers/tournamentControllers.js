@@ -426,12 +426,26 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 // TournamentSetTeamsCtrl (admin): change teams.
 // ToDo: Should only be available if you are admin
 tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament set teams controller:');
-  console.log('route params', $routeParams)
-  $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-
-  $scope.teamsData = Tournament.teams({id:$routeParams.id, groupby:"phase"});
+    console.log('Tournament set teams controller:');
+    console.log('route params', $routeParams)
+    $scope.tournamentData = Tournament.get({ id:$routeParams.id });
     
+    $scope.teamsData = Tournament.teams({id:$routeParams.id, groupby:"phase"});
+    
+    $scope.edit = function(phaseName, teamName, index, parentIndex){
+	console.log('edit team: ', phaseName, ' ', teamName, ' ', index, ' ', parentIndex );
+	$scope.teamsData.Phases[parentIndex].Teams[index].wantToEdit = true;
+	//team.wantToEdit = true;
+	// Tournament.editTeamInPhase({id:$routeParams.id, phaseName:phaseName, }
+    }
+
+    $scope.save = function(teamId, teamIndex, phaseIndex, name){
+	console.log('save team:');
+	console.log('team id:', teamId);
+	console.log('team index:', teamIndex);
+	console.log('phase index:', phaseIndex);
+	console.log('name:', name);
+    }
 }]);
 
 
