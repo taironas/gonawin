@@ -111,14 +111,14 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	    });
 	    $scope.dashboard.rank = {};
 
+	    $scope.rankBy = 'users';
 	    Tournament.ranking({id:tournamentId, rankby:'users', limit:'10'}).$promise.then(function(rankResult){
 		console.log(ctx, 'get users ranking ', rankResult);
 		$scope.dashboard.rank.users = rankResult.Users;
 	    });
-
 	    Tournament.ranking({id:tournamentId, rankby:'teams', limit:'10'}).$promise.then(function(rankResult){
-		console.log(ctx, 'get teams ranking', rankResult);
-		$scope.dashboard.rank.teams = rankResult.Teams;
+	    	console.log(ctx, 'get teams ranking', rankResult);
+	    	$scope.dashboard.rank.teams = rankResult.Teams;
 	    });
 
 	    $rootScope.currentUser.$promise.then(function(currentUser){
@@ -183,7 +183,22 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	    $scope.dashboard.context = 'default';
 	}
     };
-    
+
+    $scope.byUsersOnClick = function(){
+	if($scope.dashboard.rank.users != undefined){
+	    $scope.rankBy = 'users';
+	    return;
+	}
+    };
+
+    $scope.byTeamsOnClick = function(){
+	console.log('teams on click');
+	if($scope.dashboard.rank.teams != undefined){
+	    $scope.rankBy = 'teams';
+	    return;
+	}
+    };
+
     // set dashboard with respect to url in the global controller.
     // We do this because the $locationChangeSuccess event is not triggered by a refresh.
     // As the controller is called when there is a refresh we are able to set the Dashboard with the proper information.
