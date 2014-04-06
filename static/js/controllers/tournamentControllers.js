@@ -183,81 +183,32 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	});
     };
-    
-    // Initialize view flag with respect to url. 
-    // At first all urls are set to false. They are driven with parameter 'tab'
-    // As Tournament show controller is defined with reloadOnSearch: false controller, 
-    // there is no reload when url changes.
-    $scope.isCalendar = false;
-    $scope.isSecondPhaseHorizontal = false;
-    $scope.isSecondPhaseVertical = false;
-    $scope.isFirstStage = false;
-    $scope.isRanking = false;
-    
-    var url = $location.url();
-    var ctx = 'set tournament view flags: ';
-    
-    if(url.match('^/tournaments/[0-9]+$') != null){
-	$scope.isFirstStage = true;
-    }
-    if($routeParams.tab != undefined){
-	if($routeParams.tab == "calendar"){
-	    $scope.isCalendar = true;
-	} else if($routeParams.tab == "firststage"){
-	    $scope.isFirstStage = true;
-	} else if($routeParams.tab == "secondstageh"){
-	    $scope.isSecondPhaseHorizontal = true;
-	} else if($routeParams.tab == "secondstagev"){
-	    $scope.isSecondPhaseVertical = true;
-	} else if($routeParams.tab == "ranking"){
-	    $scope.isRanking = true;
-	}
-    }
-    
+
+    // Initialize tab variable to handle views:
+    $scope.tab = $routeParams.tab;
+        
     $scope.calendarOnClick = function(){
-	$scope.isCalendar = true;
-	$scope.isFirstStage = false;
-	$scope.isSecondPhaseVertical = false;
-	$scope.isSecondPhaseHorizontal = false;
-	$scope.isRanking = false;
 	$location.url('/tournaments/'+$routeParams.id + '?tab=calendar');
     };
 
     $scope.firstStageOnClick = function(){
-	$scope.isCalendar = false;
-	$scope.isSecondPhase = false;
-	$scope.isFirstStage = true;
-	$scope.isSecondPhaseVertical = false;
-	$scope.isSecondPhaseHorizontal = false;
-	$scope.isRanking = false;
 	$location.url('/tournaments/'+$routeParams.id + '?tab=firststage');
     };
 
     $scope.secondPhaseVerticalOnClick = function(){
-	$scope.isCalendar = false;
-	$scope.isSecondPhaseVertical = true;
-	$scope.isSecondPhaseHorizontal = false;
-	$scope.isFirstStage = false;
-	$scope.isRanking = false;
 	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstagev');
     };
 
     $scope.secondPhaseHorizontalOnClick = function(){
-	$scope.isCalendar = false;
-	$scope.isSecondPhaseVertical = false;
-	$scope.isSecondPhaseHorizontal = true;
-	$scope.isFirstStage = false;
-	$scope.isRanking = false;
 	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstageh');
     };
 
     $scope.rankingOnClick = function(){
-	$scope.isCalendar = false;
-	$scope.isFirstStage = false;
-	$scope.isSecondPhaseVertical = false;
-	$scope.isSecondPhaseHorizontal = false;
-	$scope.isRanking = true;
 	$location.url('/tournaments/'+$routeParams.id + '?tab=ranking');
+    };
+
+    $scope.setresultsOnClick = function(){
+	$location.url('/tournaments/'+$routeParams.id + '?tab=admin.setresults');
     };
 
     // Is tournament admin flag identifies if current user is also the admin of the tournament.
@@ -358,6 +309,19 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	}
     })
+
+    // $locationChangeSuccess event is triggered when url changes.
+    // note: this event is not triggered when page is refreshed.
+    $scope.$on('$locationChangeSuccess', function(event) {
+	console.log('tournament show: location changed:');
+	console.log('tournament show: routeparams', $routeParams);
+	// set tab paramter to new tab parameter.
+	// use this to have to last state in order to display the proper view.
+	if($routeParams.tab != undefined){
+	    $scope.tab = $routeParams.tab;
+	}
+    });
+
 }]);
 
 // TournamentEditCtrl: collects data to update an existing tournament.

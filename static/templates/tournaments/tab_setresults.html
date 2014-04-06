@@ -1,0 +1,50 @@
+<!-- Calendar by phase and date -->
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-11">
+    <div ng-repeat="phase in matchesData.Phases">
+      <div class="calendar">
+        <div class="row">
+          <div class="col-md-4">
+            <h3>{{phase.Name}} <button class="btn btn-primary btn-xs" ng-click="simulatePhase(phase.Name, $index)"><span class="glyphicon glyphicon glyphicon-random"> simulate</span></button></h3>
+          </div>
+        </div>
+        <table class="table table-striped  table-condensed">
+          <thead></thead>
+          <tbody>
+            <tr ng-repeat="d in phase.Days">
+              <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
+              <td>
+                <div ng-repeat="m in d.Matches">
+                  <p>
+                    <form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
+                      <div class="row">
+                        <div class="col-xs-1">#{{m.IdNumber}}</div>
+                        <div class="col-xs-1">
+                          <small><label class="control-label">{{m.Team1}}</label></small>
+                        </div>
+                        <div class="col-xs-1">
+                          <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result1" placeholder="">
+                        </div>
+                        <div class="col-xs-1">
+                          <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result2" placeholder="">
+                        </div>
+                        <div class="col-xs-1">
+                          <small><label class="control-label">{{m.Team2}}</label></small>
+                        </div>
+                        <div class="col-xs-2">
+                          <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
+                        </div>
+                      </div>
+                    </form>
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / Calendar -->

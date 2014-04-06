@@ -76,7 +76,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       // when('/tournaments/:id/predict/', { templateUrl: 'templates/tournaments/predict.html', controller: 'TournamentPredictCtrl', requireLogin: true }).
       // when('/tournaments/:id/ranking', { templateUrl: 'templates/tournaments/ranking.html', controller: 'TournamentRankingCtrl', requireLogin: true }).
       // this should be an admin page
-      when('/tournaments/:id/matches/setresults', { templateUrl: 'templates/tournaments/setresults.html', controller: 'TournamentSetResultsCtrl', requireLogin: true }).
+      // when('/tournaments/:id/matches/setresults', { templateUrl: 'templates/tournaments/setresults.html', controller: 'TournamentSetResultsCtrl', requireLogin: true }).
 
       when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
       when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
