@@ -236,9 +236,18 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		if len(rule) == 2 {
 			matchJson2ndPhase.Team1 = rule[0]
 			matchJson2ndPhase.Team2 = rule[1]
+			if _, ok := mapCountryCodes[rule[0]]; ok{
+				matchJson2ndPhase.Iso1 = mapCountryCodes[rule[0]]
+			}
+			if _, ok := mapCountryCodes[rule[1]]; ok{
+				matchJson2ndPhase.Iso2 = mapCountryCodes[rule[1]]
+			}
 		} else {
 			matchJson2ndPhase.Team1 = mapIdTeams[m.TeamId1]
 			matchJson2ndPhase.Team2 = mapIdTeams[m.TeamId2]
+			matchJson2ndPhase.Iso1 = mapCountryCodes[mapIdTeams[m.TeamId1]]
+			matchJson2ndPhase.Iso2 = mapCountryCodes[mapIdTeams[m.TeamId2]]
+
 		}
 
 		matchJson2ndPhase.Location = m.Location
