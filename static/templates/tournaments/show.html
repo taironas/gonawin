@@ -18,7 +18,7 @@
 		<button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
 		<a ng-if="isTournamentAdmin" href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><i class="fa fa-edit fa-fw"></i> Edit</a>
                 <input ng-if="isTournamentAdmin" id="action" name="Action" type="hidden" value="delete" />
-                <button ng-if="isTournamentAdmin" class="btn btn-default" name="delete" onclick="return confirm('Are you sure?');" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
+                <button ng-if="isTournamentAdmin" class="btn btn-default" name="delete" onclick="" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
 	      </div>
       	    </div>
       	  </form>

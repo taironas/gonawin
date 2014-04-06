@@ -99,15 +99,17 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $rootScope.messageInfo = undefined;
 
   $scope.deleteTeam = function() {
-    Team.delete({ id:$routeParams.id },
-		function(response){
-		  $rootScope.messageInfo = response.MessageInfo;
-		  $location.path('/');
-		},
-		function(err) {
-		  $scope.messageDanger = err.data;
-		  console.log('delete failed: ', err.data);
-		});
+      if(confirm('Are you sure?')){
+	  Team.delete({ id:$routeParams.id },
+		      function(response){
+			  $rootScope.messageInfo = response.MessageInfo;
+			  $location.path('/');
+		      },
+		      function(err) {
+			  $scope.messageDanger = err.data;
+			  console.log('delete failed: ', err.data);
+		      });
+      }
   };
 
   // set isTeamAdmin boolean:

@@ -131,15 +131,17 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     
     
     $scope.deleteTournament = function() {
-	Tournament.delete({ id:$routeParams.id },
-			  function(response){
-			      $rootScope.messageInfo = response.MessageInfo;
-			      $location.path('/');
-			  },
-			  function(err) {
-			      console.log('delete failed: ', err.data);
-			      $scope.messageDanger = err.data;
-			  });
+	if(confirm('Are you sure?')){
+	    Tournament.delete({ id:$routeParams.id },
+			      function(response){
+				  $rootScope.messageInfo = response.MessageInfo;
+				  $location.path('/');
+			      },
+			      function(err) {
+				  console.log('delete failed: ', err.data);
+				  $scope.messageDanger = err.data;
+			      });
+	}
     };
     
     $scope.joinTournament = function(){
