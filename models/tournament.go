@@ -45,6 +45,7 @@ type Tournament struct {
 	Matches2ndStage []int64
 	UserIds         []int64
 	TeamIds         []int64
+	IsFirstStageComplete bool
 }
 
 type TournamentJson struct {
@@ -61,6 +62,7 @@ type TournamentJson struct {
 	Matches2ndStage *[]int64   `json:",omitempty"`
 	UserIds         *[]int64   `json:",omitempty"`
 	TeamIds         *[]int64   `json:",omitempty"`
+	IsFirstStageComplete *bool `json:",omitempty"`
 }
 
 // Create tournament entity given a name and description.
@@ -76,7 +78,7 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	// empty groups and tournaments for now
 	emptyArray := make([]int64, 0)
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -504,6 +506,8 @@ func (t *Tournament) Entity(name string) ActivityEntity {
 	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
 }
 
+// The progression is a number between 0 and 1 with the progression of the tournament 
+// with respect of todays date and start and end date of tournament.
 func (t *Tournament) Progress(c appengine.Context) float64 {
 	const shortForm = "Jan/02/2006"
 	// remove this line when going in production.

@@ -507,6 +507,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		matches2ndStageIds,
 		userIds,
 		teamIds,
+		false,
 	}
 	log.Infof(c, "World Cup: instance of tournament ready")
 

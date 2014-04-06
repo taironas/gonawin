@@ -186,8 +186,19 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	});
     };
 
-    // Initialize tab variable to handle views:
-    $scope.tab = $routeParams.tab;
+    // tab at undefined means you are in tournament/:id url
+    if($routeParams.tab == undefined){ 
+	$scope.tournamentData.$promise.then(function(result){
+	    if(result.Tournament.IsFirstStageComplete){
+		$scope.tab = 'secondstageh';
+	    }else{
+		$scope.tab = 'firststage';
+	    }
+	});
+    } else {
+	// Initialize tab variable to handle views:
+	$scope.tab = $routeParams.tab;
+    }
 
     // Is tournament admin flag identifies if current user is also the admin of the tournament.
     // Use this flag to show specific information of tournament admin.
