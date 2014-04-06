@@ -65,16 +65,16 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
 
       when('/tournaments', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentListCtrl', requireLogin: true }).
       when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl', requireLogin: true }).
-      when('/tournaments/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
+      when('/tournaments/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
       when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
       when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
       when('/tournaments/search', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentSearchCtrl', requireLogin: true }).
-      when('/tournaments/:id/calendar', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
-      when('/tournaments/:id/matches/firststage', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true }).
-      when('/tournaments/:id/matches/secondstage', { templateUrl: 'templates/tournaments/secondstage.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
-      when('/tournaments/:id/matches/secondstage2', { templateUrl: 'templates/tournaments/secondstage2.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
-      when('/tournaments/:id/predict/', { templateUrl: 'templates/tournaments/predict.html', controller: 'TournamentPredictCtrl', requireLogin: true }).
-      when('/tournaments/:id/ranking', { templateUrl: 'templates/tournaments/ranking.html', controller: 'TournamentRankingCtrl', requireLogin: true }).
+      // when('/tournaments/:id/calendar', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
+      // when('/tournaments/:id/matches/firststage', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
+      // when('/tournaments/:id/matches/secondstage', { templateUrl: 'templates/tournaments/secondstage.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
+      // when('/tournaments/:id/matches/secondstage2', { templateUrl: 'templates/tournaments/secondstage2.html', controller: 'TournamentSecondStageCtrl', requireLogin: true }).
+      // when('/tournaments/:id/predict/', { templateUrl: 'templates/tournaments/predict.html', controller: 'TournamentPredictCtrl', requireLogin: true }).
+      // when('/tournaments/:id/ranking', { templateUrl: 'templates/tournaments/ranking.html', controller: 'TournamentRankingCtrl', requireLogin: true }).
       // this should be an admin page
       when('/tournaments/:id/matches/setresults', { templateUrl: 'templates/tournaments/setresults.html', controller: 'TournamentSetResultsCtrl', requireLogin: true }).
 

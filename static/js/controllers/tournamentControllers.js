@@ -89,131 +89,138 @@ tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', '
 		    });
   };
 }]);
+
 // TournamentShowCtrl: fetch data of specific tournament. 
 // Handle also deletion of this same tournament and join/leave and join/leave as team.
 tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', '$route', function($rootScope, $scope, $routeParams, Tournament, $location, $q, $route) {
-  console.log('Tournament Show controller');
-  
-  $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
-  console.log('tournamentData', $scope.tournamentData);
-
-  // get message info from redirects.
-  $scope.messageInfo = $rootScope.messageInfo;
-  // reset to nil var message info in root scope.
-  $rootScope.messageInfo = undefined;
-
-  // get candidates data from tournament id
-  $scope.candidatesData = Tournament.candidates({id:$routeParams.id});
-
-  // do we really need theses lines?
-  $scope.candidatesData.$promise.then(function(result){
-    $scope.candidates = result.Candidates;
-  });
-
-  // list of tournament groups
-  $scope.groupsData = Tournament.groups({id:$routeParams.id});
-  // admin function: reset tournament
-  $scope.resetTournament = function(){
-    Tournament.reset({id:$routeParams.id},
-		     function(result){
-		       console.log('reset succeed.');
-		       $scope.messageInfo = result.MessageInfo;
-		       $scope.groupsData.Groups = result.Groups;
-		     },
-		     function(err){
-		       console.log('reset failed: ', err.data);
-		       $scope.messageDanger = err.data;
-		     });
-  };
-
-
-  $scope.deleteTournament = function() {
-    Tournament.delete({ id:$routeParams.id },
-		      function(response){
-			$rootScope.messageInfo = response.MessageInfo;
-			$location.path('/');
-		      },
-		      function(err) {
-			console.log('delete failed: ', err.data);
-			$scope.messageDanger = err.data;
-		      });
-  };
-  
-  $scope.joinTournament = function(){
-    Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
-      $scope.joinButtonName = 'Leave';
-      $scope.joinButtonMethod = $scope.leaveTournament;
-      $scope.messageInfo = response.MessageInfo;
-      Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-        $scope.tournamentData.Participants = participantsResult.Participants;
-      });
+    console.log('Tournament Show controller: Start');
+    
+    $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
+    console.log('tournamentData', $scope.tournamentData);
+    
+    // get message info from redirects.
+    $scope.messageInfo = $rootScope.messageInfo;
+    // reset to nil var message info in root scope.
+    $rootScope.messageInfo = undefined;
+    
+    // get candidates data from tournament id
+    $scope.candidatesData = Tournament.candidates({id:$routeParams.id});
+    
+    // do we really need theses lines?
+    $scope.candidatesData.$promise.then(function(result){
+	$scope.candidates = result.Candidates;
     });
-  };
-  
-  $scope.leaveTournament = function(){
-    Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
-      $scope.joinButtonName = 'Join';
-      $scope.joinButtonMethod = $scope.joinTournament;
-      $scope.messageInfo = response.MessageInfo;
-      Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-        $scope.tournamentData.Participants = participantsResult.Participants;
-      });
-    });
-  };
-  
-  $scope.joinTournamentAsTeam = function(teamId){
-    Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
-      $scope.joinAsTeamButtonName[teamId] = 'Leave';
-      $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
-      $scope.messageInfo = response.MessageInfo;
-      Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-        $scope.tournamentData.Teams = tournamentResult.Teams;
-      });
-    });
-  };
-  
-  $scope.leaveTournamentAsTeam = function(teamId){
-    Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
-      $scope.joinAsTeamButtonName[teamId] = 'Join';
-      $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
-      $scope.messageInfo = response.MessageInfo;
-      Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-        $scope.tournamentData.Teams = tournamentResult.Teams;
-      });
-    });
-  };
-
-    // initialize view flag with respect to url:
+    
+    // list of tournament groups
+    $scope.groupsData = Tournament.groups({id:$routeParams.id});
+    // admin function: reset tournament
+    $scope.resetTournament = function(){
+	Tournament.reset({id:$routeParams.id},
+			 function(result){
+			     console.log('reset succeed.');
+			     $scope.messageInfo = result.MessageInfo;
+			     $scope.groupsData.Groups = result.Groups;
+			 },
+			 function(err){
+			     console.log('reset failed: ', err.data);
+			     $scope.messageDanger = err.data;
+			 });
+    };
+    
+    
+    $scope.deleteTournament = function() {
+	Tournament.delete({ id:$routeParams.id },
+			  function(response){
+			      $rootScope.messageInfo = response.MessageInfo;
+			      $location.path('/');
+			  },
+			  function(err) {
+			      console.log('delete failed: ', err.data);
+			      $scope.messageDanger = err.data;
+			  });
+    };
+    
+    $scope.joinTournament = function(){
+	Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
+	    $scope.joinButtonName = 'Leave';
+	    $scope.joinButtonMethod = $scope.leaveTournament;
+	    $scope.messageInfo = response.MessageInfo;
+	    Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+		$scope.tournamentData.Participants = participantsResult.Participants;
+	    });
+	});
+    };
+    
+    $scope.leaveTournament = function(){
+	Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
+	    $scope.joinButtonName = 'Join';
+	    $scope.joinButtonMethod = $scope.joinTournament;
+	    $scope.messageInfo = response.MessageInfo;
+	    Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+		$scope.tournamentData.Participants = participantsResult.Participants;
+	    });
+	});
+    };
+    
+    $scope.joinTournamentAsTeam = function(teamId){
+	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
+	    $scope.joinAsTeamButtonName[teamId] = 'Leave';
+	    $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
+	    $scope.messageInfo = response.MessageInfo;
+	    Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
+		$scope.tournamentData.Teams = tournamentResult.Teams;
+	    });
+	});
+    };
+    
+    $scope.leaveTournamentAsTeam = function(teamId){
+	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
+	    $scope.joinAsTeamButtonName[teamId] = 'Join';
+	    $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
+	    $scope.messageInfo = response.MessageInfo;
+	    Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
+		$scope.tournamentData.Teams = tournamentResult.Teams;
+	    });
+	});
+    };
+    
+    // Initialize view flag with respect to url. 
+    // At first all urls are set to false. They are driven with parameter 'tab'
+    // As Tournament show controller is defined with reloadOnSearch: false controller, 
+    // there is no reload when url changes.
     $scope.isCalendar = false;
     $scope.isSecondPhaseHorizontal = false;
     $scope.isSecondPhaseVertical = false;
     $scope.isFirstStage = false;
     $scope.isRanking = false;
-
+    
     var url = $location.url();
     var ctx = 'set tournament view flags: ';
-    console.log(ctx, 'match root? ', url.match('^/$') != null);
-    console.log(ctx, 'match tournaments? ', url.match('^/tournaments/[0-9]+.*') != null);
-    console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
-
+    
     if(url.match('^/tournaments/[0-9]+$') != null){
 	$scope.isFirstStage = true;
-    }    
-    if(url.match('^/tournaments/[0-9]+/calendar$') != null){
-	$scope.isCalendar = true;
     }
-    if(url.match('^/tournaments/[0-9]+/matches/firststage$') != null){
-	$scope.isFirstStage = true;
+    if($routeParams.tab != undefined){
+	if($routeParams.tab == "calendar"){
+	    $scope.isCalendar = true;
+	} else if($routeParams.tab == "firststage"){
+	    $scope.isFirstStage = true;
+	} else if($routeParams.tab == "secondstageh"){
+	    $scope.isSecondPhaseHorizontal = true;
+	} else if($routeParams.tab == "secondstagev"){
+	    $scope.isSecondPhaseVertical = true;
+	} else if($routeParams.tab == "ranking"){
+	    $scope.isRanking = true;
+	}
     }
     
     $scope.calendarOnClick = function(){
-	console.log('calendar is active');
 	$scope.isCalendar = true;
 	$scope.isFirstStage = false;
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isRanking = false;
-	//$location.url('/tournaments/'+$routeParams.id + '/calendar');
+	$location.url('/tournaments/'+$routeParams.id + '?tab=calendar');
     };
 
     $scope.firstStageOnClick = function(){
@@ -223,6 +230,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isRanking = false;
+	$location.url('/tournaments/'+$routeParams.id + '?tab=firststage');
     };
 
     $scope.secondPhaseVerticalOnClick = function(){
@@ -231,6 +239,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isFirstStage = false;
 	$scope.isRanking = false;
+	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstagev');
     };
 
     $scope.secondPhaseHorizontalOnClick = function(){
@@ -239,6 +248,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isSecondPhaseHorizontal = true;
 	$scope.isFirstStage = false;
 	$scope.isRanking = false;
+	$location.url('/tournaments/'+$routeParams.id + '?tab=secondstageh');
     };
 
     $scope.rankingOnClick = function(){
@@ -247,110 +257,109 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.isSecondPhaseVertical = false;
 	$scope.isSecondPhaseHorizontal = false;
 	$scope.isRanking = true;
+	$location.url('/tournaments/'+$routeParams.id + '?tab=ranking');
     };
 
+    // Is tournament admin flag identifies if current user is also the admin of the tournament.
+    // Use this flag to show specific information of tournament admin.
     $scope.isTournamentAdmin = false;
     $scope.tournamentData.$promise.then(function(result){
-      console.log('tournament is admin ready!');
-      console.log('result!', result);
-      console.log('scope', $scope);
-      console.log($rootScope);
-      console.log(result.Tournament.AdminId);
-      console.log($rootScope.currentUser.User.Id);
-    if(result.Tournament.AdminId == $rootScope.currentUser.User.Id){
-	console.log('tournament is admin TRUE');
-	$scope.isTournamentAdmin = true;
-    }else{
-	console.log('tournament is admin FALSE');
-	$scope.isTournamentAdmin = false;
-    }
-  });
-  // checks if user has joined a tournament
-  $scope.joined = $scope.tournamentData.$promise.then(function(result){
-    console.log('tournament joined ready!');
-    return result.Joined;
-  });
-  
-  $scope.tournamentData.$promise.then(function(tournamentResult){
-    var deferred = $q.defer();
-    if (tournamentResult.Joined) {
-      deferred.resolve('Leave');
-    }
-    else {
-      deferred.resolve('Join');
-    }
-    return deferred.promise;
-  }).then(function(result){
-    $scope.joinButtonName = result;
-  });
-  
-  $scope.tournamentData.$promise.then(function(tournamentResult){
-    var deferred = $q.defer();
-    if (tournamentResult.Joined) {
-      deferred.resolve($scope.leaveTournament);
-    }
-    else {
-      deferred.resolve($scope.joinTournament);
-    }
-    return deferred.promise;
-  }).then(function(result){
-    $scope.joinButtonMethod = result;
-  });
-  
-  $scope.candidatesData.$promise.then(function(candidatesResult){
-    var candidatesLength = 0;
-    if(candidatesResult.Candidates){
-      candidatesLength = candidatesResult.Candidates.length;
-    }
-    $scope.joinAsTeamButtonName = new Array(candidatesLength);
-    $scope.joinAsTeamButtonMethod = new Array(candidatesLength);
+	if(result.Tournament.AdminId == $rootScope.currentUser.User.Id){
+	    console.log('tournament is admin TRUE');
+	    $scope.isTournamentAdmin = true;
+	}else{
+	    console.log('tournament is admin FALSE');
+	    $scope.isTournamentAdmin = false;
+	}
+    });
+    
+    // Checks if user has joined a tournament
+    $scope.joined = $scope.tournamentData.$promise.then(function(result){
+	console.log('tournament joined ready!');
+	return result.Joined;
+    });
     
     $scope.tournamentData.$promise.then(function(tournamentResult){
-      for (var i=0 ; i<candidatesLength; i++)
-      {
-        if(IsTeamJoined(candidatesResult.Candidates[i].Team.Id, tournamentResult.Teams))
-        {
-          $scope.joinAsTeamButtonName[candidatesResult.Candidates[i].Team.Id] = 'Leave';
-          $scope.joinAsTeamButtonMethod[candidatesResult.Candidates[i].Team.Id] = $scope.leaveTournamentAsTeam;
-        } else {
-          $scope.joinAsTeamButtonName[candidatesResult.Candidates[i].Team.Id] = 'Join';
-          $scope.joinAsTeamButtonMethod[candidatesResult.Candidates[i].Team.Id] = $scope.joinTournamentAsTeam;
-        }
-      }
+	var deferred = $q.defer();
+	if (tournamentResult.Joined) {
+	    deferred.resolve('Leave');
+	}
+	else {
+	    deferred.resolve('Join');
+	}
+	return deferred.promise;
+    }).then(function(result){
+	$scope.joinButtonName = result;
     });
-  });
-  
-  var IsTeamJoined = function(teamId, teams) {
-    if(!teams) {
-      return false;
-    }
-
-    for (var i=0 ; i<teams.length; i++){
-      if(teams[i].Id == teamId){
-        return true;
-      }
-    }
-  };
-
-  // Action triggered when 'Create new button' is clicked, modal window will be hidden.
-  // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
-  $scope.newTeam = function(){
-    $('#tournament-modal').modal('hide');
-    $scope.redirectToNewTeam = true;
-  };
-
-  // listen 'hidden.bs.modal' event to redirect to new team page
-  // Only redirect if flag 'redirectToNewTeam' is set.
-  $('#tournament-modal').on('hidden.bs.modal', function (e) {
-    // need to have scope for $location to work. So add 'apply' function
-    // inside js listener
-    if($scope.redirectToNewTeam == true){
-      $scope.$apply(function(){
-	$location.path('/teams/new/');
-      });
-    }
-  })
+    
+    $scope.tournamentData.$promise.then(function(tournamentResult){
+	var deferred = $q.defer();
+	if (tournamentResult.Joined) {
+	    deferred.resolve($scope.leaveTournament);
+	}
+	else {
+	    deferred.resolve($scope.joinTournament);
+	}
+	return deferred.promise;
+    }).then(function(result){
+	$scope.joinButtonMethod = result;
+    });
+    
+    $scope.candidatesData.$promise.then(function(candidatesResult){
+	var candidatesLength = 0;
+	if(candidatesResult.Candidates){
+	    candidatesLength = candidatesResult.Candidates.length;
+	}
+	$scope.joinAsTeamButtonName = new Array(candidatesLength);
+	$scope.joinAsTeamButtonMethod = new Array(candidatesLength);
+	
+	$scope.tournamentData.$promise.then(function(tournamentResult){
+	    for (var i=0 ; i<candidatesLength; i++)
+	    {
+		if(IsTeamJoined(candidatesResult.Candidates[i].Team.Id, tournamentResult.Teams))
+		{
+		    $scope.joinAsTeamButtonName[candidatesResult.Candidates[i].Team.Id] = 'Leave';
+		    $scope.joinAsTeamButtonMethod[candidatesResult.Candidates[i].Team.Id] = $scope.leaveTournamentAsTeam;
+		} else {
+		    $scope.joinAsTeamButtonName[candidatesResult.Candidates[i].Team.Id] = 'Join';
+		    $scope.joinAsTeamButtonMethod[candidatesResult.Candidates[i].Team.Id] = $scope.joinTournamentAsTeam;
+		}
+	    }
+	});
+    });
+    
+    var IsTeamJoined = function(teamId, teams) {
+	if(!teams) {
+	    return false;
+	}
+	
+	for (var i=0 ; i<teams.length; i++){
+	    if(teams[i].Id == teamId){
+		return true;
+	    }
+	}
+    };
+    
+    // Action triggered when 'Create new button' is clicked, modal window will be hidden.
+    // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
+    $scope.newTeam = function(){
+	$('#tournament-modal').modal('hide');
+	$scope.redirectToNewTeam = true;
+    };
+    
+    // listen 'hidden.bs.modal' event to redirect to new team page
+    // Only redirect if flag 'redirectToNewTeam' is set.
+    $('#tournament-modal').on('hidden.bs.modal', function (e) {
+	// need to have scope for $location to work. So add 'apply' function
+	// inside js listener
+	if($scope.redirectToNewTeam == true){
+	    $scope.$apply(function(){
+		$location.path('/teams/new/');
+	    });
+	}
+    })
 }]);
+
 // TournamentEditCtrl: collects data to update an existing tournament.
 tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location',function($rootScope, $scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
