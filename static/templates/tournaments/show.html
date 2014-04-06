@@ -52,10 +52,10 @@
       <div class="col-md-1"></div>
       <div class="col-md-11">
 	<div class="btn-group btn-group-justified">
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
+          <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
+          <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
 	  <div class="btn-group">
-	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	    <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: (tab == 'secondstageh') || (tab == 'secondstagev')}" data-toggle="dropdown">
 	      Second Stage
 	      <span class="caret"></span>
 	    </button>
@@ -64,10 +64,10 @@
 	      <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstagev">Vertical</a></li>
 	    </ul>
 	  </div>
-          <a class="btn btn-default" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
+          <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
 	  <!-- admin buttons -->
 	  <div class="btn-group">
-	    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+	    <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: tab == 'admin.setresults'}" data-toggle="dropdown">
 	      Admin
 	      <span class="caret"></span>
 	    </button>
