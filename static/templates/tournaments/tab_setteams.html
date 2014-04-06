@@ -15,12 +15,12 @@
 	    <td class="col-md-9">
 	      <form class="form-inline" role="form" ng-submit="">
 		<div ng-show="!t.wantToEdit">
-		  <button class="btn btn-default" name="edit" onclick="" ng-click="edit(phase.Name, t.Name, $index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
+		  <button class="btn btn-default" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
 		</div>
 		<div ng-show="t.wantToEdit">
-		  <button class="btn btn-default" name="edit" onclick="" ng-click="edit(phase.Name, t.Name, $index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
+		  <button class="btn btn-default" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
 		  <input type="text" class="form-control input-sm" id="{{t.Id}}" ng-model="name" placeholder="{{t.Name}}">
-		  <button type="submit" class="btn btn-default btn-xs" ng-click="save(t.Id, $index, $parent.$index, name)"><span class="glyphicon glyphicon-share"> save</span></button>
+		  <button type="submit" class="btn btn-default btn-xs" ng-click="save($index, $parent.$index, t.Name, name, phase.Name)"><span class="glyphicon glyphicon-share"> save</span></button>
 		</div>
 	      </form>
 	    </td>

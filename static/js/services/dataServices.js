@@ -51,7 +51,9 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     result2: '@result2',
 		     phaseName: '@phaseName',
 		     rankby: '@rankby',
-		     limit: '@limit'
+		     limit: '@limit',
+		     oldName: '@oldName',
+		     newName: '@newName'
 		   }, 
 		   {
 		     get: { method: 'GET', url: 'j/tournaments/show/:id' },
@@ -74,7 +76,9 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
 		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit'},
-		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby'}
+		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby'},
+		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&oldName=:oldName&newName=:newName'}
+
 		   })
 });
 

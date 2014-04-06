@@ -432,20 +432,32 @@ tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routePar
     
     $scope.teamsData = Tournament.teams({id:$routeParams.id, groupby:"phase"});
     
-    $scope.edit = function(phaseName, teamName, index, parentIndex){
-	console.log('edit team: ', phaseName, ' ', teamName, ' ', index, ' ', parentIndex );
+    $scope.edit = function(index, parentIndex){
+	console.log('edit team: ', index, ' ', parentIndex );
 	$scope.teamsData.Phases[parentIndex].Teams[index].wantToEdit = true;
-	//team.wantToEdit = true;
-	// Tournament.editTeamInPhase({id:$routeParams.id, phaseName:phaseName, }
     }
 
-    $scope.save = function(teamId, teamIndex, phaseIndex, name){
+    $scope.save = function(index, parentIndex, oldName, newName, phaseName){
 	console.log('save team:');
-	console.log('team id:', teamId);
-	console.log('team index:', teamIndex);
-	console.log('phase index:', phaseIndex);
-	console.log('name:', name);
-    }
+	console.log('team index:', index);
+	console.log('phase index:', parentIndex);
+	console.log('old name:', oldName);
+	console.log('new name:', newName);
+
+	$scope.teamsData.Phases[parentIndex].Teams[index].wantToEdit = false;
+	if(newName == undefined){
+	    return;
+	}
+	Tournament.updateTeamInPhase({id:$routeParams.id, phaseName:phaseName, oldName:oldName, newName:newName},
+				     function(result){
+					 console.log('success setting team');
+					 $scope.teamsData.Phases = result.Phases;
+				     },
+				     function(err) {
+					 console.log('failure setting team ', err.data);
+					 $scope.messageDanger = err.data;
+				     });
+    };
 }]);
 
 
