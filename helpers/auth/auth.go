@@ -100,7 +100,7 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 		currentUser := mdl.FindUser(c, "Username", "purple")
 
 		if currentUser == nil {
-			currentUser, _ = mdl.CreateUser(c, "purple@wing.com", "purple", "wing", true, mdl.GenerateAuthKey())
+			currentUser, _ = mdl.CreateUser(c, "purple@wing.com", "purple", "wing", "", true, mdl.GenerateAuthKey())
 		}
 		return currentUser
 	} else {

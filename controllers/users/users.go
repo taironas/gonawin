@@ -32,13 +32,17 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-type UserData struct {
-	Username string
-	Name     string
-	Email    string
+// use this structure to get information of user in order to update it.
+type userData struct {
+	User struct {
+		Username string
+		Name     string
+		Alias    string
+		Email    string
+	}
 }
 
-// json index user handler
+// User index  handler.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -50,7 +54,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		users := mdl.FindAllUsers(c)
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
+		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
 		usersJson := make([]mdl.UserJson, len(users))
 		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
@@ -59,15 +63,15 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json show user handler
+// User show handler.
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "User show handler:"
 	if r.Method == "GET" {
 		var userId int64
 		intID, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "User Show Handler: error when extracting permalink for url: %v", err)
+			log.Errorf(c, "%s User Show Handler: error when extracting permalink for url: %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 		userId = intID
@@ -75,19 +79,19 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// user
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)
-		log.Infof(c, "USER: %v", user)
-		log.Infof(c, "USER: %v", user.TeamIds)
+		log.Infof(c, "User: %v", user)
+		log.Infof(c, "User: %v", user.TeamIds)
 		if err != nil {
-			log.Errorf(c, "User Show Handler: user not found")
+			log.Errorf(c, "%s user not found", desc)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-		log.Infof(c, "USER: %v", uJson.TeamIds)
-		log.Infof(c, "USER: %v", uJson)
-		log.Infof(c, "USER: %v", *uJson.TeamIds)
+		log.Infof(c, "%s User: %v", desc, uJson.TeamIds)
+		log.Infof(c, "%s User: %v", desc, uJson)
+		log.Infof(c, "%s User: %v", desc, *uJson.TeamIds)
 
 		// get with param:
 		with := r.FormValue("including")
@@ -137,17 +141,18 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json update user handler
+// User update handler.
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "User update handler:"
 	if r.Method == "POST" {
 		userId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "User Update Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error when extracting permalink id: %v.", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
 		if userId != u.Id {
+			log.Errorf(c, "%s error user ids do not match.", desc)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
@@ -155,25 +160,50 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		defer r.Body.Close()
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			log.Errorf(c, "User Show handler: Error when reading request body err: %v", err)
+			log.Errorf(c, "%s Error when reading request body err: %v.", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
-		var updatedData UserData
+		var updatedData userData
 		err = json.Unmarshal(body, &updatedData)
 		if err != nil {
-			log.Errorf(c, "User Show handler: Error when decoding request body err: %v", err)
+			log.Errorf(c, "%s Error when decoding request body err: %v.", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
-		if helpers.IsEmailValid(updatedData.Email) && updatedData.Email != u.Email {
-			u.Email = updatedData.Email
-			u.Update(c)
+		update := false
+		if helpers.IsEmailValid(updatedData.User.Email) && updatedData.User.Email != u.Email {
+			u.Email = updatedData.User.Email
+			update = true
 		}
-		fieldsToKeep := []string{"Id", "Username", "Name", "Email", "Created"}
+
+		if helpers.IsStringValid(updatedData.User.Alias) && updatedData.User.Alias != u.Alias {
+			u.Alias = updatedData.User.Alias
+			update = true
+		}
+
+		if update {
+			u.Update(c)
+		} else {
+			data := struct {
+				MessageInfo string `json:",omitempty"`
+			}{
+				"Nothing to update.",
+			}
+			return templateshlp.RenderJson(w, c, data)
+		}
+
+		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
 
-		return templateshlp.RenderJson(w, c, uJson)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			User        mdl.UserJson
+		}{
+			"User was correctly updated.",
+			uJson,
+		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

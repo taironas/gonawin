@@ -30,7 +30,7 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-// Json score user handler
+// User score user handler.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)

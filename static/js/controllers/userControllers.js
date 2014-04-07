@@ -36,18 +36,19 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
   };
 }]);
 
-userControllers.controller('UserEditCtrl', ['$scope', 'User', '$location', function($scope, User, $location) {
-  
-  $scope.updateUser = function() {
-    User.update({ id:$scope.currentUser.Id }, $scope.currentUser,
-		function(){ 
-		  $location.path('/settings/edit-profile/'); 
-		},
-		function(err) { 
-		  console.log('update failed: ', err.data);
-		  $scope.messageDanger = err.data;
-		});
-  }
+// User edit controller. Use this controller to edit the current user data.
+userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', 'User', '$location', function($scope, $rootScope, User, $location) {
+    
+    $scope.updateUser = function() {
+	User.update({ id:$rootScope.currentUser.User.Id}, $scope.currentUser,
+		    function(response){
+			$rootScope.messageInfo = response.MessageInfo;
+		    },
+		    function(err) { 
+			console.log('update failed: ', err.data);
+			$scope.messageDanger = err.data;
+		    });
+    }
 }]);
 
 userControllers.controller('UserScoresCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {

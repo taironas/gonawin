@@ -41,6 +41,7 @@ type User struct {
 	Email                 string
 	Username              string
 	Name                  string
+	Alias                 string              // name to display chosen by user if requested.
 	IsAdmin               bool                // is user gonawin admin.
 	Auth                  string              // authentication auth token
 	PredictIds            []int64             // current user predicts.
@@ -58,6 +59,7 @@ type UserJson struct {
 	Email                 *string              `json:",omitempty"`
 	Username              *string              `json:",omitempty"`
 	Name                  *string              `json:",omitempty"`
+	Alias                 *string              `json:",omitempty"`
 	IsAdmin               *bool                `json:",omitempty"`
 	Auth                  *string              `json:",omitempty"`
 	PredictIds            *[]int64             `json:",omitempty"`
@@ -71,7 +73,7 @@ type UserJson struct {
 }
 
 // Creates a user entity.
-func CreateUser(c appengine.Context, email string, username string, name string, isAdmin bool, auth string) (*User, error) {
+func CreateUser(c appengine.Context, email, username, name, alias string, isAdmin bool, auth string) (*User, error) {
 	// create new user
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
@@ -82,7 +84,7 @@ func CreateUser(c appengine.Context, email string, username string, name string,
 
 	emptyArray := make([]int64, 0)
 	emptyScores := make([]ScoreOfTournament, 0)
-	user := &User{userId, email, username, name, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, time.Now()}
+	user := &User{userId, email, username, name, alias, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -165,7 +167,9 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	if user = FindUser(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
 		isAdmin := false
-		if userCreate, err := CreateUser(c, email, username, name, isAdmin, GenerateAuthKey()); err != nil {
+		// start with an empty alias.
+		alias := ""
+		if userCreate, err := CreateUser(c, email, username, name, alias, isAdmin, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
 			return nil, errors.New("models/user: Unable to create user.")
 		} else {
