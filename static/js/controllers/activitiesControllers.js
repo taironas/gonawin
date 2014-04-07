@@ -10,7 +10,8 @@ activitiesControllers.controller('ActivitiesCtrl', ['$scope', '$location', 'Acti
   {
     Activity.query({ count:$scope.count, page:$scope.page}).$promise.then(function(response){
       $scope.activities = $scope.activities.concat(response);
-      $scope.more = response.length > $scope.count;
+      console.log('loadActivities: length = ', response.length);
+      $scope.more = response.length === $scope.count;
     });
   }
   // Indicates if there more activities that could be loaded

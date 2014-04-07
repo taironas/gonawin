@@ -82,14 +82,14 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 		log.Infof(c, "calculateStartAndEnd(%v, %v, %v)", int64(len(ids)), count, page)
 		start, end := calculateStartAndEnd(int64(len(ids)), count, page)
 
-		log.Infof(c, "model activity: FindActivities: start = %d, end = %d", start, end)
+		log.Infof(c, " Activity.FindActivities: start = %d, end = %d", start, end)
 
 		for i := start; i >= end; i-- {
 			key := datastore.NewKey(c, "Activity", "", ids[i], nil)
 
 			var activity Activity
 			if err := datastore.Get(c, key, &activity); err != nil {
-				log.Errorf(c, "model activity: FindActivities: error occurred during Get call: %v", err)
+				log.Errorf(c, " Activity.FindActivities: error occurred during Get call: %v", err)
 			}
 			activities = append(activities, &activity)
 		}
@@ -105,7 +105,7 @@ func findUserActivities(c appengine.Context, userId int64) *UserActivities {
 
 	var userActivities []*UserActivities
 	if _, err := q.GetAll(c, &userActivities); err != nil {
-		log.Errorf(c, "model/activity, findUserActivities: error occurred during GetAll call: %v", err)
+		log.Errorf(c, " Activity.findUserActivities: error occurred during GetAll call: %v", err)
 	}
 
 	if len(userActivities) > 0 {
@@ -120,15 +120,14 @@ func (a *Activity) save(c appengine.Context) error {
 	// create new activity
 	id, _, err1 := datastore.AllocateIDs(c, "Activity", nil, 1)
 	if err1 != nil {
-		log.Errorf(c, "model/activity, save: %v", err1)
-		return errors.New("model/activity, save: unable to allocate an identifier for Activity")
+		log.Errorf(c, " Activity.save: error occurred during AllocateIDs call: %v", err1)
+		return errors.New("Activity.save: unable to allocate an identifier for Activity")
 	}
 	key := datastore.NewKey(c, "Activity", "", id, nil)
 	a.Id = id
-	_, err := datastore.Put(c, key, a)
-	if err != nil {
-		log.Errorf(c, "model/activity, save: %v", err)
-		return errors.New("model/activity, save: unable to put Activity in Datastore")
+	if _, err := datastore.Put(c, key, a); err != nil {
+		log.Errorf(c, " Activity.save: error occurred during Put call: %v", err)
+		return errors.New("Activity.save: unable to put Activity in Datastore")
 	}
 	return nil
 }
@@ -140,8 +139,8 @@ func (a *Activity) addNewActivityId(c appengine.Context, userId int64) error {
 	// intantiate new user activities entity
 	if userActivities == nil {
 		if id, _, err := datastore.AllocateIDs(c, "UserActivities", nil, 1); err != nil {
-			log.Errorf(c, "model/activity, addNewActivityId: %v", err)
-			return errors.New("model/activity, addNewActivityId: unable to allocate an identifier for Activity")
+			log.Errorf(c, " Activity.addNewActivityId: error occurred during AllocateIDs call: %v", err)
+			return errors.New("Activity.addNewActivityId: unable to allocate an identifier for Activity")
 		} else {
 			userActivities = &UserActivities{id, userId, make([]int64, 0)}
 		}
@@ -151,8 +150,8 @@ func (a *Activity) addNewActivityId(c appengine.Context, userId int64) error {
 	// put updated activity ids
 	key := userActivitiesKey(c, userActivities.Id)
 	if _, err := datastore.Put(c, key, userActivities); err != nil {
-		log.Errorf(c, "model/activity, addNewActivityId: %v", err)
-		return errors.New("model/activity, addNewActivityId: unable to update activity ids for UserActivities")
+		log.Errorf(c, " Activity.addNewActivityId: error occurred during Put call: %v", err)
+		return errors.New("Activity.addNewActivityId: unable to update activity ids for UserActivities")
 	}
 
 	return nil
@@ -168,11 +167,11 @@ func userActivitiesKey(c appengine.Context, id int64) *datastore.Key {
 // Calculates the start and the end position in the activities slice.
 // Used for activities pagination.
 func calculateStartAndEnd(size, count, page int64) (start, end int64) {
-	if size > count {
-		start = (size / page) - 1
-		end = start - count + 1
+	if size - (count*page) >= 0 {
+		start = size - (page - 1) * count - 1
+    end = start - count + 1
 	} else {
-		start = size - 1
+		start = count + size - (count*page) - 1
 		end = 0
 	}
 
