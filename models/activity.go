@@ -167,11 +167,11 @@ func userActivitiesKey(c appengine.Context, id int64) *datastore.Key {
 // Calculates the start and the end position in the activities slice.
 // Used for activities pagination.
 func calculateStartAndEnd(size, count, page int64) (start, end int64) {
-	if size - (count*page) >= 0 {
-		start = size - (page - 1) * count - 1
-    end = start - count + 1
+	if size-(count*page) >= 0 {
+		start = size - (page-1)*count - 1
+		end = start - count + 1
 	} else {
-		start = count + size - (count*page) - 1
+		start = count + size - (count * page) - 1
 		end = 0
 	}
 

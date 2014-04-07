@@ -15,22 +15,22 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 
   return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId', rankby: '@rankby', tournamentId: '@tournamentId', limit: '@limit'}, {
-    get: { method: 'GET', url: 'j/teams/show/:id' },
+    get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
     save: { method: 'POST', url: 'j/teams/new' },
     update: { method: 'POST', url: 'j/teams/update/:id' },
     delete: { method: 'POST', url: 'j/teams/destroy/:id' },
-    search: { method: 'GET', url: 'j/teams/search?q=:q'},
-    members: { method: 'GET', url:'j/teams/:id/members' },
+    search: { method: 'GET', url: 'j/teams/search?q=:q', cache : true},
+    members: { method: 'GET', url:'j/teams/:id/members', cache : true },
     join: {method: 'POST', url: 'j/teams/join/:id'},
     leave: {method: 'POST', url: 'j/teams/leave/:id'},
     invite: {method: 'POST', url: 'j/teams/invite/:id'},
     allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
     denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
-    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit'},
-    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies'},
-    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId'},
-    prices: {method: 'GET', url: 'j/teams/:id/prices'},
-    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId'},
+    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit', cache : true},
+    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies', cache : true},
+    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId', cache : true},
+    prices: {method: 'GET', url: 'j/teams/:id/prices', cache : true},
+    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId', cache : true},
     updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'}
   })
 });
@@ -56,27 +56,27 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     newName: '@newName'
 		   }, 
 		   {
-		     get: { method: 'GET', url: 'j/tournaments/show/:id' },
+		     get: { method: 'GET', url: 'j/tournaments/show/:id', cache : true},
 		     save: { method: 'POST', url: 'j/tournaments/new' },
 		     update: { method: 'POST', url: 'j/tournaments/update/:id' },
 		     delete: { method: 'POST', url: 'j/tournaments/destroy/:id' },
-		     search: { method: 'GET', url: 'j/tournaments/search?q=:q'},
-		     participants: { method: 'GET', url:'j/tournaments/:id/participants' },
+		     search: { method: 'GET', url: 'j/tournaments/search?q=:q', cache : true},
+		     participants: { method: 'GET', url:'j/tournaments/:id/participants', cache : true},
 		     join: {method: 'POST', url: 'j/tournaments/join/:id'},
 		     leave: {method: 'POST', url: 'j/tournaments/leave/:id'},
 		     joinAsTeam: {method: 'POST', url: 'j/tournaments/joinasteam/:id/:teamId'},
 		     leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId'},
-		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id'},
+		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id', cache : true},
 		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'},
-		     groups: {method: 'GET', url: 'j/tournaments/:id/groups'},
-		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'},
-		     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter'},
+		     groups: {method: 'GET', url: 'j/tournaments/:id/groups', cache : true},
+		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby', cache : true},
+		     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter', cache : true},
 		     updateMatchResult: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/update?result=:result'},
 		     simulatePhase: {method: 'POST', url: '/j/tournaments/:id/matches/simulate?phase=:phaseName'},
 		     reset: {method: 'POST', url: '/j/tournaments/:id/admin/reset'},
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
-		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit'},
-		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby'},
+		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit', cache : true},
+		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby', cache : true},
 		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'}
 
 		   })

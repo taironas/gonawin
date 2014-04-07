@@ -20,7 +20,6 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     $location.search('q', $scope.keywords).path('/tournaments/search');
   };
 
-  // experimental: sar
   // start world cup create action 
   $scope.createWorldCup = function(){
     console.log('Creating world cup');
