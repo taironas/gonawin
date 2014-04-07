@@ -2,13 +2,23 @@
 var dataServices = angular.module('dataServices', ['ngResource']);
 
 dataServices.factory('User', function($http, $resource, $cookieStore) {
-  $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-  
-  return $resource('j/users/:id', {id:'@id', including:'@including'}, {
-    get: { method: 'GET', params: {including: '@including'}, url: 'j/users/show/:id' },
-    update: { method: 'POST', url: 'j/users/update/:id' },
-    scores: {method: 'GET', url: 'j/users/:id/scores'},
-  })
+    $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
+    
+    var User = $resource('j/users/:id', {id:'@id', including:'@including'}, {
+	get: { method: 'GET', params: {including: '@including'}, url: 'j/users/show/:id' },
+	update: { method: 'POST', url: 'j/users/update/:id' },
+	scores: {method: 'GET', url: 'j/users/:id/scores'},
+    })
+    // define display name to handle alias or user name.
+    User.prototype.displayName = function() {
+	if(this.User == undefined) return;
+	if(this.User.Alias.length > 0){
+	    return this.User.Alias;
+	} else{
+	    return this.User.Username;
+	}
+    };
+    return User;
 });
 
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
