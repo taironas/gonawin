@@ -9,6 +9,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.twittersignin',
   'directive.formValidation',
   'directive.joinButton',
+  'directive.addButton',
   '$strap.directives',
   'filter.fromNow',
   'filter.reverse',

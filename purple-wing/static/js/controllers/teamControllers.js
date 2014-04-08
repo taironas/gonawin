@@ -91,121 +91,174 @@ teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$loc
 // TeamShowCtrl: fetch data of specific team.
 // // Handle also deletion of this same team and join/leave.
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', '$rootScope', function($scope, $routeParams, Team, $location, $q, $rootScope) {
-  console.log('Team show controller:');
-  $scope.teamData = Team.get({ id:$routeParams.id });
-  // get message info from redirects.
-  $scope.messageInfo = $rootScope.messageInfo;
-  // reset to nil var message info in root scope.
-  $rootScope.messageInfo = undefined;
+    console.log('Team show controller:');
+    $scope.teamData = Team.get({ id:$routeParams.id });
+    // get message info from redirects.
+    $scope.messageInfo = $rootScope.messageInfo;
+    // reset to nil var message info in root scope.
+    $rootScope.messageInfo = undefined;
+    
+    $scope.deleteTeam = function() {
+	if(confirm('Are you sure?')){
+	    Team.delete({ id:$routeParams.id },
+			function(response){
+			    $rootScope.messageInfo = response.MessageInfo;
+			    $location.path('/');
+			},
+			function(err) {
+			    $scope.messageDanger = err.data;
+			    console.log('delete failed: ', err.data);
+			});
+	}
+    };
 
-  $scope.deleteTeam = function() {
-      if(confirm('Are you sure?')){
-	  Team.delete({ id:$routeParams.id },
-		      function(response){
-			  $rootScope.messageInfo = response.MessageInfo;
-			  $location.path('/');
-		      },
-		      function(err) {
-			  $scope.messageDanger = err.data;
-			  console.log('delete failed: ', err.data);
-		      });
-      }
-  };
-
-  // set isTeamAdmin boolean:
-  // This variable defines if the current user is admin of the current team.
-  $scope.teamData.$promise.then(function(teamResult){
-    console.log('team is admin ready');
-    // as it depends of currentUser, make a promise
-    var deferred = $q.defer();
-    deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.User.Id));
-    return deferred.promise;
-  }).then(function(result){
-    console.log('is team admin:', result);
-    $scope.isTeamAdmin = result;
-  });
-
-  // set tournament ids with "values" so that angular understands:
-  // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
-  $scope.teamData.$promise.then(function(teamresp){
-    var len  = 0
-    if(teamresp.Team.TournamentIds){
-	len = teamresp.Team.TournamentIds.length;
-    }
-    var tournamentIds = new Array();
-    for(var i = 0; i < len; i++){
-      tournamentIds.push({value: teamresp.Team.TournamentIds[i]});
-    }
-    $scope.teamData.Team.TournamentIds = tournamentIds;
-    console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
-  });
-
-  // get prices for current team:
-  $scope.pricesData = Team.prices({ id:$routeParams.id });
-
-  $scope.requestInvitation = function(){
-    console.log('team request invitation');
-    Team.invite( {id:$routeParams.id}, function(){
-      console.log('team invite successful');
-    }, function(err){
-      $scope.messageDanger = err
-      console.log('invite failed ', err);
+    // set admin candidates and array of functions.
+    $scope.teamData.$promise.then(function(response){
+	$scope.adminCandidates = response.Players;
+	var len = 0;
+	if(response.Players){
+	    len = response.Players.length;
+	}
+	$scope.addAdminButtonName = new Array(len);
+	$scope.addAdminButtonMethod = new Array(len);
+	
+	for (var i=0 ; i<len; i++){
+	    // check if user is admin already here.
+	    $scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
+	    $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
+	}
     });
-  };
 
-  // This function makes a user join a team.
-  // It does so by caling Join on a Team.
-  // This will update members data and join button name.
-  $scope.joinTeam = function(){
-    Team.join({ id:$routeParams.id }).$promise.then(function(response){
-      $scope.joinButtonName = 'Leave';
-      $scope.joinButtonMethod = $scope.leaveTeam;
-      $scope.messageInfo = response.MessageInfo;
-      Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-        $scope.teamData.Members = membersResult.Members;
-      } );
+    // admin modal add buttons.
+    // add admin state.
+    $scope.addAdmin = function(userId){
+	Team.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+	    $scope.addAdminButtonName[userId] = 'Remove admin';
+	    $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
+	    $scope.messageInfo = response.MessageInfo;
+	});
+    };
+    // remove admin state.
+    $scope.removeAdmin = function(userId){
+	Team.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+	    $scope.addAdminButtonName[userId] = 'Add admin';
+	    $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
+	    $scope.messageInfo = response.MessageInfo;
+	});
+    };
 
+    // set isTeamAdmin boolean:
+    // This variable defines if the current user is admin of the current team.
+    $scope.teamData.$promise.then(function(teamResult){
+	console.log('team is admin ready');
+	// as it depends of currentUser, make a promise
+	var deferred = $q.defer();
+	deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.User.Id));
+	return deferred.promise;
+    }).then(function(result){
+	console.log('is team admin:', result);
+	$scope.isTeamAdmin = result;
     });
-  };
-  // This function makes a user leave a team.
-  // It does so by caling Leave on a Team.
-  // This will update members data and leave button name.
-  $scope.leaveTeam = function(){
-    Team.leave({ id:$routeParams.id }).$promise.then(function(response){
-      $scope.joinButtonName = 'Join';
-      $scope.joinButtonMethod = $scope.joinTeam;
-      $scope.messageInfo = response.MessageInfo;
-      Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-        $scope.teamData.Members = membersResult.Members;
-      });
+
+    // set tournament ids with "values" so that angular understands:
+    // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
+    $scope.teamData.$promise.then(function(teamresp){
+	var len  = 0
+	if(teamresp.Team.TournamentIds){
+	    len = teamresp.Team.TournamentIds.length;
+	}
+	var tournamentIds = new Array();
+	for(var i = 0; i < len; i++){
+	    tournamentIds.push({value: teamresp.Team.TournamentIds[i]});
+	}
+	$scope.teamData.Team.TournamentIds = tournamentIds;
+	console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
     });
-  };
 
-  $scope.teamData.$promise.then(function(teamResult){
-    var deferred = $q.defer();
-    if (teamResult.Joined) {
-      deferred.resolve('Leave');
-    }
-    else {
-      deferred.resolve('Join');
-    }
-    return deferred.promise;
-  }).then(function(result){
-    $scope.joinButtonName = result;
-  });
+    // get prices for current team:
+    $scope.pricesData = Team.prices({ id:$routeParams.id });
 
-  $scope.teamData.$promise.then(function(teamResult){
-    var deferred = $q.defer();
-    if (teamResult.Joined) {
-      deferred.resolve($scope.leaveTeam);
-    }
-    else {
-      deferred.resolve($scope.joinTeam);
-    }
-    return deferred.promise;
-  }).then(function(result){
-    $scope.joinButtonMethod = result;
-  });
+    $scope.requestInvitation = function(){
+	console.log('team request invitation');
+	Team.invite( {id:$routeParams.id}, function(){
+	    console.log('team invite successful');
+	}, function(err){
+	    $scope.messageDanger = err
+	    console.log('invite failed ', err);
+	});
+    };
+
+    // This function makes a user join a team.
+    // It does so by caling Join on a Team.
+    // This will update members data and join button name.
+    $scope.joinTeam = function(){
+	Team.join({ id:$routeParams.id }).$promise.then(function(response){
+	    $scope.joinButtonName = 'Leave';
+	    $scope.joinButtonMethod = $scope.leaveTeam;
+	    $scope.messageInfo = response.MessageInfo;
+	    Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+		$scope.teamData.Members = membersResult.Members;
+	    } );
+
+	});
+    };
+    // This function makes a user leave a team.
+    // It does so by caling Leave on a Team.
+    // This will update members data and leave button name.
+    $scope.leaveTeam = function(){
+	Team.leave({ id:$routeParams.id }).$promise.then(function(response){
+	    $scope.joinButtonName = 'Join';
+	    $scope.joinButtonMethod = $scope.joinTeam;
+	    $scope.messageInfo = response.MessageInfo;
+	    Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+		$scope.teamData.Members = membersResult.Members;
+	    });
+	});
+    };
+
+    $scope.teamData.$promise.then(function(teamResult){
+	var deferred = $q.defer();
+	if (teamResult.Joined) {
+	    deferred.resolve('Leave');
+	}
+	else {
+	    deferred.resolve('Join');
+	}
+	return deferred.promise;
+    }).then(function(result){
+	$scope.joinButtonName = result;
+    });
+
+    $scope.teamData.$promise.then(function(teamResult){
+	var deferred = $q.defer();
+	if (teamResult.Joined) {
+	    deferred.resolve($scope.leaveTeam);
+	}
+	else {
+	    deferred.resolve($scope.joinTeam);
+	}
+	return deferred.promise;
+    }).then(function(result){
+	$scope.joinButtonMethod = result;
+    });
+
+    // Action triggered when 'Add Admin button' is clicked, modal window will be hidden.
+    $scope.newTeam = function(){
+	$('#team-modal').modal('hide');
+    };
+    
+    // listen 'hidden.bs.modal' event to redirect to new team page
+    // Only redirect if flag 'redirectToNewTeam' is set.
+    $('#team-modal').on('hidden.bs.modal', function (e) {
+	// need to have scope for $location to work. So add 'apply' function
+	// inside js listener
+	// if($scope.redirectToNewTeam == true){
+	//     $scope.$apply(function(){
+	// 	$location.path('/teams/new/');
+	//     });
+	// }
+    })
+
 }]);
 
 // TeamEditCtrl: collects data to update an existing team.

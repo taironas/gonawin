@@ -23,27 +23,38 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 });
 
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
-  $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-
-  return $resource('j/teams/:id', {id:'@id', q:'@q', requestId: '@requestId', rankby: '@rankby', tournamentId: '@tournamentId', limit: '@limit'}, {
-    get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
-    save: { method: 'POST', url: 'j/teams/new' },
-    update: { method: 'POST', url: 'j/teams/update/:id' },
-    delete: { method: 'POST', url: 'j/teams/destroy/:id' },
-    search: { method: 'GET', url: 'j/teams/search?q=:q', cache : true},
-    members: { method: 'GET', url:'j/teams/:id/members', cache : true },
-    join: {method: 'POST', url: 'j/teams/join/:id'},
-    leave: {method: 'POST', url: 'j/teams/leave/:id'},
-    invite: {method: 'POST', url: 'j/teams/invite/:id'},
-    allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
-    denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
-    ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit', cache : true},
-    accuracies: {method: 'GET', url: 'j/teams/:id/accuracies', cache : true},
-    accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId', cache : true},
-    prices: {method: 'GET', url: 'j/teams/:id/prices', cache : true},
-    price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId', cache : true},
-    updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'}
-  })
+    $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
+    
+    return $resource('j/teams/:id', {
+	id:'@id', 
+	q:'@q', 
+	requestId: '@requestId', 
+	rankby: '@rankby', 
+	tournamentId: '@tournamentId', 
+	limit: '@limit',
+	userid: '@userid'
+    }, 
+    {
+	get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
+	save: { method: 'POST', url: 'j/teams/new' },
+	update: { method: 'POST', url: 'j/teams/update/:id' },
+	delete: { method: 'POST', url: 'j/teams/destroy/:id' },
+	search: { method: 'GET', url: 'j/teams/search?q=:q', cache : true},
+	members: { method: 'GET', url:'j/teams/:id/members', cache : true },
+	join: {method: 'POST', url: 'j/teams/join/:id'},
+	leave: {method: 'POST', url: 'j/teams/leave/:id'},
+	invite: {method: 'POST', url: 'j/teams/invite/:id'},
+	allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
+	denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
+	ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit', cache : true},
+	accuracies: {method: 'GET', url: 'j/teams/:id/accuracies', cache : true},
+	accuracy: {method: 'GET', url: 'j/teams/:id/accuracies/:tournamentId', cache : true},
+	prices: {method: 'GET', url: 'j/teams/:id/prices', cache : true},
+	price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId', cache : true},
+	updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'},
+	addAdmin: {method: 'POST', url: 'j/teams/:id/admin/add?userid=:userid'},
+	removeAdmin: {method: 'POST', url: 'j/teams/:id/admin/remove?userid=:userid'}	
+    })
 });
 
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
