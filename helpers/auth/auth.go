@@ -74,7 +74,7 @@ func IsAuthorized(ui *UserInfo) bool {
 // Ckeck if twitter user is admin.
 // #196: Should be removed when deployed in production.
 func IsAuthorizedWithTwitter(ui *TwitterUserInfo) bool {
-	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias")
+	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias" || ui.Screen_name == "gonawintest")
 }
 
 // unmarshal twitter response

@@ -116,12 +116,12 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 // Twitter Authentication Callback
 func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-
+	desc := "Twitter User handler:"
 	var err error
 	var user *mdl.User
 
-	log.Infof(c, "JsonTwitterUser, oauth_verifier = %s", r.FormValue("oauth_verifier"))
-	log.Infof(c, "JsonTwitterUser, oauth_token = %s", r.FormValue("oauth_token"))
+	log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
+	log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
 
 	// get the request token
 	requestToken := r.FormValue("oauth_token")
@@ -131,15 +131,17 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	if secret := memcache.Get(c, "secret"); secret != nil {
 		cred.Secret = string(secret.([]byte))
 	} else {
+		log.Errorf(c, "%s cannot get secret value.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
 	}
 
 	if err = memcache.Delete(c, "secret"); err != nil {
-		log.Errorf(c, "JsonTwitterAuth: Error when trying to delete memcached 'secret' key: %v", err)
+		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
 	}
 
 	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
 	if err != nil {
+		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
 	}
 
@@ -148,19 +150,23 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	urlValues.Set("user_id", values.Get("user_id"))
 	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
 	if err != nil {
+		log.Errorf(c, "%s Cannot get user info from twitter. %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
 	userInfo, err := authhlp.FetchTwitterUserInfo(resp)
 	if err != nil {
+		log.Errorf(c, "%s Cannot get user info by fetching twitter response. %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
 	if !authhlp.IsAuthorizedWithTwitter(userInfo) {
+		log.Errorf(c, "%s User is not authorized by twitter with the following user information. %v", desc, userInfo)
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
 
 	if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+		log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
