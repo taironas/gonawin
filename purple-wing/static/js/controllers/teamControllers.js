@@ -153,7 +153,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 	console.log('team is admin ready');
 	// as it depends of currentUser, make a promise
 	var deferred = $q.defer();
-	deferred.resolve((teamResult.Team.AdminId == $scope.currentUser.User.Id));
+	deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
 	return deferred.promise;
     }).then(function(result){
 	console.log('is team admin:', result);

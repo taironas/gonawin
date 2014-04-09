@@ -40,7 +40,7 @@ type Team struct {
 	Id               int64
 	KeyName          string
 	Name             string
-	AdminId          int64
+	AdminIds         []int64 // ids of User that are admins of the team
 	Private          bool
 	Created          time.Time
 	UserIds          []int64           // ids of Users <=> members of the team.
@@ -54,7 +54,7 @@ type TeamJson struct {
 	Id            *int64             `json:",omitempty"`
 	KeyName       *string            `json:",omitempty"`
 	Name          *string            `json:",omitempty"`
-	AdminId       *int64             `json:",omitempty"`
+	AdminIds      *[]int64           `json:",omitempty"`
 	Private       *bool              `json:",omitempty"`
 	Created       *time.Time         `json:",omitempty"`
 	UserIds       *[]int64           `json:",omitempty"`
@@ -73,9 +73,11 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	}
 
 	key := datastore.NewKey(c, "Team", "", teamId, nil)
+	admins := make([]int64, 1)
+	admins[0] = adminId
 	emptyArray := make([]int64, 0)
 	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
-	team := &Team{teamId, helpers.TrimLower(name), name, adminId, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray}
+	team := &Team{teamId, helpers.TrimLower(name), name, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -242,7 +244,12 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 
 	if team, err := TeamById(c, teamId); err == nil {
-		return team.AdminId == userId
+		for _, aid := range team.AdminIds {
+			if aid == userId {
+				return true
+			}
+		}
+		return false
 	} else {
 		log.Errorf(c, " Team.IsTeamAdmin, error occurred during ById call: %v", err)
 		return false
@@ -480,6 +487,35 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
 	return nil
 }
 
+// Adds user to admins of current team.
+// In order to be an admin of a team you should first be a member of the team.
+func (t *Team) AddAdmin(c appengine.Context, id int64) error {
+
+	if ismember, _ := t.ContainsUserId(id); ismember {
+		if isadmin, _ := t.ContainsAdminId(id); isadmin {
+			return errors.New(fmt.Sprintf("model/team: User with %s is already a admin of team.", id))
+		}
+		t.AdminIds = append(t.AdminIds, id)
+		if err := t.Update(c); err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New(fmt.Sprintf("model/team: User with %s is not a member of the team.", id))
+}
+
+// Checks if user is admin of team.
+func (t *Team) ContainsAdminId(id int64) (bool, int) {
+
+	for i, aId := range t.AdminIds {
+		if aId == id {
+			return true, i
+		}
+	}
+	return false, -1
+}
+
+// Checks if user is part of team.
 func (t *Team) ContainsUserId(id int64) (bool, int) {
 
 	for i, tId := range t.UserIds {

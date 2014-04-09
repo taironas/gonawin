@@ -57,7 +57,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// publish new activity
@@ -108,7 +108,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		var tJson mdl.TeamJson
 		helpers.CopyToPointerStructure(team, &tJson)
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		// publish new activity

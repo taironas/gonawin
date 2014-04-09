@@ -74,7 +74,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 		teamsJson := make([]mdl.TeamJson, len(teams))
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		return templateshlp.RenderJson(w, c, teamsJson)
 	} else {
@@ -129,7 +129,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 			// return the newly created team
 			var tJson mdl.TeamJson
-			fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+			fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 			msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
@@ -169,7 +169,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build team json
 		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private", "TournamentIds", "Accuracy"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "TournamentIds", "Accuracy"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// build players json
@@ -266,7 +266,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// keep only needed fields for json api
 		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
@@ -470,7 +470,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Name", "AdminId", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// we should not directly return an array. so we add an extra layer.

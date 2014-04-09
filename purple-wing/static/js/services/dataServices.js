@@ -32,7 +32,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	rankby: '@rankby', 
 	tournamentId: '@tournamentId', 
 	limit: '@limit',
-	userid: '@userid'
+	userId: '@userId'
     }, 
     {
 	get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
@@ -52,8 +52,8 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	prices: {method: 'GET', url: 'j/teams/:id/prices', cache : true},
 	price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId', cache : true},
 	updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'},
-	addAdmin: {method: 'POST', url: 'j/teams/:id/admin/add?userid=:userid'},
-	removeAdmin: {method: 'POST', url: 'j/teams/:id/admin/remove?userid=:userid'}	
+	addAdmin: {method: 'POST', url: 'j/teams/:id/admin/add/:userId'},
+	removeAdmin: {method: 'POST', url: 'j/teams/:id/admin/remove/:userId'}	
     })
 });
 

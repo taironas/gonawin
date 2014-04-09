@@ -74,8 +74,8 @@ func init() {
 	h.HandleFunc("/j/teams/[0-9]+/prices/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Prices)))
 	h.HandleFunc("/j/teams/[0-9]+/prices/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.PriceByTournament)))
 	h.HandleFunc("/j/teams/[0-9]+/prices/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.UpdatePrice)))
-	h.HandleFunc("/j/teams/[0-9]+/admin/add/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.AddAdmin)))
-	h.HandleFunc("/j/teams/[0-9]+/admin/remove/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RemoveAdmin)))
+	h.HandleFunc("/j/teams/[0-9]+/admin/add/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.AddAdmin)))
+	h.HandleFunc("/j/teams/[0-9]+/admin/remove/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RemoveAdmin)))
 
 	// tournament
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Index)))
