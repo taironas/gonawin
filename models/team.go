@@ -493,7 +493,7 @@ func (t *Team) AddAdmin(c appengine.Context, id int64) error {
 
 	if ismember, _ := t.ContainsUserId(id); ismember {
 		if isadmin, _ := t.ContainsAdminId(id); isadmin {
-			return errors.New(fmt.Sprintf("model/team: User with %s is already a admin of team.", id))
+			return errors.New(fmt.Sprintf("User with %v is already an admin of team.", id))
 		}
 		t.AdminIds = append(t.AdminIds, id)
 		if err := t.Update(c); err != nil {
@@ -501,7 +501,30 @@ func (t *Team) AddAdmin(c appengine.Context, id int64) error {
 		}
 		return nil
 	}
-	return errors.New(fmt.Sprintf("model/team: User with %s is not a member of the team.", id))
+	return errors.New(fmt.Sprintf("User with %v is not a member of the team.", id))
+}
+
+// Removes user of admins array in current team.
+// In order to remove an admin from a team, there should be at least an admin in the array.
+func (t *Team) RemoveAdmin(c appengine.Context, id int64) error {
+
+	if ismember, _ := t.ContainsUserId(id); ismember {
+		if isadmin, i := t.ContainsAdminId(id); isadmin {
+			if len(t.AdminIds) > 1 {
+				// as the order of index in adminIds is not important,
+				// replace elem at index i with last element and resize slice.
+				t.AdminIds[i] = t.AdminIds[len(t.AdminIds)-1]
+				t.AdminIds = t.AdminIds[0 : len(t.AdminIds)-1]
+				if err := t.Update(c); err != nil {
+					return err
+				}
+				return nil
+			}
+			return errors.New(fmt.Sprintf("Cannot remove admin %v as there are no admins left in team.", id))
+		}
+		return errors.New(fmt.Sprintf("User with %v is not admin of the team.", id))
+	}
+	return errors.New(fmt.Sprintf("User with %v is not a member of the team.", id))
 }
 
 // Checks if user is admin of team.

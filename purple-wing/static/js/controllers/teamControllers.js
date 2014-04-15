@@ -124,8 +124,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     	for (var i=0 ; i<len; i++){
   	    // check if user is admin already here.
-  	    $scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
-  	    $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
+	    if(response.Team.AdminIds.indexOf(response.Players[i].Id)>=0){
+  		$scope.addAdminButtonName[response.Players[i].Id] = 'Remove Admin';
+  		$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.removeAdmin;
+	    }else{
+		$scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
+  		$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
+	    }
+	    
     	}
     });
 
@@ -136,7 +142,10 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     	    $scope.addAdminButtonName[userId] = 'Remove admin';
     	    $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
     	    $scope.messageInfo = response.MessageInfo;
-    	});
+    	}, function(err) {
+	    $scope.messageDanger = err.data;
+	    console.log('save failed: ', err.data);
+	});
     };
     // remove admin state.
     $scope.removeAdmin = function(userId){
@@ -144,7 +153,10 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     	    $scope.addAdminButtonName[userId] = 'Add admin';
     	    $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
     	    $scope.messageInfo = response.MessageInfo;
-    	});
+    	},function(err){
+	    console.log('save failed: ', err.data);
+	    $scope.messageDanger = err.data;
+	});
     };
 
     // set isTeamAdmin boolean:

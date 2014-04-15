@@ -39,7 +39,6 @@ import (
 func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team add admin Handler:"
-	log.Infof(c, "%s start", desc)
 	if r.Method == "POST" {
 		// get team id and user id
 		teamId, err1 := handlers.PermalinkID(r, c, 3)
@@ -96,6 +95,50 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team remove admin Handler:"
-	log.Infof(c, "%s start", desc)
+
+	if r.Method == "POST" {
+		// get team id and user id
+		teamId, err1 := handlers.PermalinkID(r, c, 3)
+		userId, err2 := handlers.PermalinkID(r, c, 6)
+		if err1 != nil || err2 != nil {
+			log.Errorf(c, "%s string value could not be parsed: %v, %v.", desc, err1, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
+
+		var team *mdl.Team
+		if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
+			log.Errorf(c, "%s team not found: %v.", desc, err1)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var oldAdmin *mdl.User
+		oldAdmin, err := mdl.UserById(c, userId)
+		log.Infof(c, "%s User: %v.", desc, oldAdmin)
+		if err != nil {
+			log.Errorf(c, "%s user not found.", desc)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		if err = team.RemoveAdmin(c, oldAdmin.Id); err != nil {
+			log.Errorf(c, "%s error on RemoveAdmin to team: %v.", desc, err)
+			return &helpers.InternalServerError{Err: err}
+		}
+
+		var tJson mdl.TeamJson
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+		msg := fmt.Sprintf("You removed %s as admin of team %s.", oldAdmin.Name, team.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Team        mdl.TeamJson
+		}{
+			msg,
+			tJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+
+	}
 	return nil
 }
