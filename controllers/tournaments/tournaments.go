@@ -361,7 +361,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json team candidates for a specific tournament:
+// team candidates for a specific tournament.
 func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
@@ -378,7 +378,23 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		// query teams
-		teams := mdl.FindTeams(c, "AdminId", u.Id)
+		var teams []*mdl.Team
+		for _, teamId := range u.TeamIds {
+			log.Errorf(c, "unoooo %v", teamId)
+			if team, err1 := mdl.TeamById(c, teamId); err1 == nil {
+				log.Errorf(c, "unoooo %v", teamId)
+				for _, aId := range team.AdminIds {
+					if aId == u.Id {
+						teams = append(teams, team)
+					}
+				}
+			} else {
+				log.Errorf(c, "%v", err1)
+			}
+		}
+		log.Errorf(c, "all goooood")
+
+		//teams := mdl.FindTeams(c, "AdminId", u.Id)
 		type canditateType struct {
 			Team   mdl.TeamJson
 			Joined bool
