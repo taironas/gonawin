@@ -4,12 +4,12 @@
 // data from REST service (resource).
 // Handle also user subscription to a team (join/leave).
 var teamControllers = angular.module('teamControllers', []);
-// TeamListCtrl: fetch all teams data 
+// TeamListCtrl: fetch all teams data
 teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location',
   function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
     $scope.teams = Team.query();
-    
+
     $scope.teams.$promise.then(function(result){
     if(!$scope.teams || ($scope.teams && !$scope.teams.length))
       $scope.noTeamsMessage = 'No team has been created';
@@ -78,7 +78,7 @@ teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$loc
 	      function(response) {
 		// set message information in root scope to retreive it in team show controller.
 		// http://stackoverflow.com/questions/13740885/angularjs-location-scope
-		$rootScope.messageInfo = response.MessageInfo; 
+		$rootScope.messageInfo = response.MessageInfo;
 		$location.path('/teams/' + response.Team.Id);
 	      },
 	      function(err) {
@@ -97,67 +97,67 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.messageInfo = $rootScope.messageInfo;
     // reset to nil var message info in root scope.
     $rootScope.messageInfo = undefined;
-    
+
     $scope.deleteTeam = function() {
-	if(confirm('Are you sure?')){
-	    Team.delete({ id:$routeParams.id },
-			function(response){
-			    $rootScope.messageInfo = response.MessageInfo;
-			    $location.path('/');
-			},
-			function(err) {
-			    $scope.messageDanger = err.data;
-			    console.log('delete failed: ', err.data);
-			});
-	}
+    	if(confirm('Are you sure?')){
+    	    Team.delete({ id:$routeParams.id },
+    			function(response){
+    			    $rootScope.messageInfo = response.MessageInfo;
+    			    $location.path('/');
+    			},
+    			function(err) {
+    			    $scope.messageDanger = err.data;
+    			    console.log('delete failed: ', err.data);
+    			});
+    	}
     };
 
     // set admin candidates and array of functions.
     $scope.teamData.$promise.then(function(response){
-	$scope.adminCandidates = response.Players;
-	var len = 0;
-	if(response.Players){
-	    len = response.Players.length;
-	}
-	$scope.addAdminButtonName = new Array(len);
-	$scope.addAdminButtonMethod = new Array(len);
-	
-	for (var i=0 ; i<len; i++){
-	    // check if user is admin already here.
-	    $scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
-	    $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
-	}
+    	$scope.adminCandidates = response.Players;
+    	var len = 0;
+    	if(response.Players){
+  	    len = response.Players.length;
+    	}
+    	$scope.addAdminButtonName = new Array(len);
+    	$scope.addAdminButtonMethod = new Array(len);
+
+    	for (var i=0 ; i<len; i++){
+  	    // check if user is admin already here.
+  	    $scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
+  	    $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
+    	}
     });
 
     // admin modal add buttons.
     // add admin state.
     $scope.addAdmin = function(userId){
-	Team.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
-	    $scope.addAdminButtonName[userId] = 'Remove admin';
-	    $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
-	    $scope.messageInfo = response.MessageInfo;
-	});
+    	Team.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+    	    $scope.addAdminButtonName[userId] = 'Remove admin';
+    	    $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
+    	    $scope.messageInfo = response.MessageInfo;
+    	});
     };
     // remove admin state.
     $scope.removeAdmin = function(userId){
-	Team.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
-	    $scope.addAdminButtonName[userId] = 'Add admin';
-	    $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
-	    $scope.messageInfo = response.MessageInfo;
-	});
+    	Team.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+    	    $scope.addAdminButtonName[userId] = 'Add admin';
+    	    $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
+    	    $scope.messageInfo = response.MessageInfo;
+    	});
     };
 
     // set isTeamAdmin boolean:
     // This variable defines if the current user is admin of the current team.
     $scope.teamData.$promise.then(function(teamResult){
-	console.log('team is admin ready');
-	// as it depends of currentUser, make a promise
-	var deferred = $q.defer();
-	deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
-	return deferred.promise;
-    }).then(function(result){
-	console.log('is team admin:', result);
-	$scope.isTeamAdmin = result;
+    	console.log('team is admin ready');
+    	// as it depends of currentUser, make a promise
+    	var deferred = $q.defer();
+    	deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
+    	return deferred.promise;
+        }).then(function(result){
+    	console.log('is team admin:', result);
+    	$scope.isTeamAdmin = result;
     });
 
     // set tournament ids with "values" so that angular understands:
@@ -246,7 +246,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.newTeam = function(){
 	$('#team-modal').modal('hide');
     };
-    
+
     // listen 'hidden.bs.modal' event to redirect to new team page
     // Only redirect if flag 'redirectToNewTeam' is set.
     $('#team-modal').on('hidden.bs.modal', function (e) {
@@ -258,6 +258,36 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 	//     });
 	// }
     })
+
+    $scope.tabs = [{
+      title: 'Members',
+      url: 'templates/teams/players.html'
+    }, {
+      title: 'Ranking',
+      url: 'templates/teams/partials/rankingData.html'
+    }, {
+      title: 'Accuracies',
+      url: 'templates/teams/partials/accuraciesData.html'
+    }, {
+      title: 'Prices',
+      url: 'templates/teams/partials/pricesData.html'
+    }];
+
+    $scope.currentTab = 'templates/teams/Players.html';
+
+    $scope.onClickTab = function (tab) {
+        $scope.currentTab = tab.url;
+    }
+
+    $scope.isActiveTab = function(tabUrl) {
+        return tabUrl == $scope.currentTab;
+    }
+
+    $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+    // predicate is udate for ranking tables
+    $scope.predicate = 'Score';
+    $scope.accuracyData = Team.accuracies({id:$routeParams.id});
+    $scope.priceData = Team.prices({id:$routeParams.id});
 
 }]);
 
@@ -279,7 +309,7 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
 
     Team.update({ id:$routeParams.id }, $scope.teamData.Team,
 		function(response){
-		  $rootScope.messageInfo = response.MessageInfo; 
+		  $rootScope.messageInfo = response.MessageInfo;
 		  $location.path('/teams/' + $routeParams.id);
 		},
 		function(err) {
@@ -346,7 +376,7 @@ teamControllers.controller('TeamPriceEditByTournamentCtrl', ['$rootScope', '$sco
     console.log('update, ', $scope.priceData)
     Team.updatePrice({id:$routeParams.id, tournamentId:$routeParams.tournamentId}, $scope.priceData.Price,
 		function(response){
-		  $rootScope.messageInfo = response.MessageInfo; 
+		  $rootScope.messageInfo = response.MessageInfo;
 		  $location.path('/teams/' + $routeParams.id + '/prices/' + $routeParams.tournamentId);
 		},
 		function(err) {
@@ -355,4 +385,3 @@ teamControllers.controller('TeamPriceEditByTournamentCtrl', ['$rootScope', '$sco
 		});
   }
 }]);
-

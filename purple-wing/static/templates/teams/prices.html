@@ -8,27 +8,8 @@
   <div class="panel-body">
     <h1>Prices</h1>
 
-    <dl class="dl-horizontal">
-      <dt><strong>Id:</strong></dt>
-      <dd>{{teamData.Team.Id}}</dd>
-      <dt><strong>Name:</strong></dt>
-      <dd>{{teamData.Team.Name}}</dd>
-      <dt><strong>AdminIds:</strong></dt>
-      <dd>{{teamData.Team.AdminIds}}</dd>
-      <dt><strong>Private:</strong></dt>
-      <dd>{{teamData.Team.Private}}</dd>
-      <dt><strong>Joined:</strong></dt>
-      <dd>{{teamData.Joined}}</dd>
-      <dt><strong>Global accuracy:</strong></dt>
-      <dd>{{100*teamData.Team.Accuracy | number:2}}%</dd>
-    </dl>
-
-    <div class="row" ng-repeat="p in priceData.Prices">
-      <div class="col-md-1"></div>
-      <div class="col-md-3">
-        <h4>Tournament: {{p.TournamentId}}</h4>
-        <p>Price: {{p.Description}}</p>
-      </div>
-    </div>
+    <!-- start prices data -->
+    <div ng-include src="'templates/teams/partials/pricesData.html'"></div>
+    <!-- end prices data -->
   </div>
 </div>

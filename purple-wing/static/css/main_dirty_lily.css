@@ -172,7 +172,26 @@ body {
     a:hover { color:blue; }
 }
 
-/* Force inline for titles in order to be able to set icons before them without a break line in between*/ 
+/* Force inline for titles in order to be able to set icons before them without a break line in between*/
 .gw-h1 {
     display: inline;
+}
+
+.btn-transparent {
+  background-color: transparent;
+  border: none;
+  color: #a9a9a9;
+}
+
+.btn-transparent:hover {
+  color: #696969;
+}
+
+.btn-group-team {
+  margin-bottom: 20px;
+}
+
+.team-tab {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }

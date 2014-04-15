@@ -1,10 +1,8 @@
 <div class="players">
-  <table class="table table-striped">
-    <thead><tr><th>Players</th></tr></thead>
-    <tbody>
-      <tr ng-repeat="player in teamData.Players">
-	<td><a href="/ng#/users/{{player.Id}}">{{player.Username}}</a></td>
-      </tr>
-      </tbody>
-  </table>
+  <div class="row centered" ng-repeat="player in teamData.Players">
+    <div class="col-md-4"></div>
+    <div class="col-md-1"><img src="https://sigil.cupcake.io/{{player.Id}}.png?inverted=1" height="40" width="40" class="img-circle"></div>
+    <div class="col-md-3"><a href="/ng#/users/{{player.Id}}">{{player.Username}}</a></div>
+    <div class="col-md-2"></div>
+  </div>
 </div>

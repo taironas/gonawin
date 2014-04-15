@@ -1,10 +1,24 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li><a href="/ng#/teams">Teams</a></li>
+  <li class="active">{{teamData.Team.Name}}</li>
+</ol>
 <div class="panel panel-default">
-  <ol class="breadcrumb">
-    <li><a href="/ng#/teams">Teams</a></li>
-    <li class="active">{{teamData.Team.Name}}</li>
-  </ol>
   <div class="panel-body">
+    <div ng-if="isTeamAdmin">
+      <!-- team's settings button -->
+      <div class="btn-group pull-right">
+        <button type="button" class="btn btn-transparent dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog fa-lg"></i></button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="/ng#/teams/edit/{{teamData.Team.Id}}">Edit</a></li>
+          <li><a href="#">Invite</a></li>
+          <li><a data-toggle="modal" data-target="#team-modal">Add as admin</a></li>
+          <li class="divider"></li>
+          <li><a href="#" ng-click="deleteTeam()">Delete</a></li>
+        </ul>
+      </div>
+    </div>
+
     <a class="gw-chevron" href="/ng#/teams"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;">  </i></a><h1 class="gw-h1">  {{teamData.Team.Name}}</h1>
     <!-- uncomment this to debug -->
     <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>teamData.Joined: {{teamData.Joined}}<br>team.Private: {{teamData.Team.Private}}<br>team.RequestSent: {{teamData.RequestSent}}</p> -->
@@ -36,59 +50,33 @@
     <!-- end if !isTeamAdmin && team && teamData.Joined -->
 
     <dl class="dl-horizontal">
-      <dt><strong>Id:</strong></dt>
-      <dd>{{teamData.Team.Id}}</dd>
-      <dt><strong>Name:</strong></dt>
-      <dd>{{teamData.Team.Name}}</dd>
-      <dt><strong>AdminIds:</strong></dt>
-      <dd>{{teamData.Team.AdminIds}}</dd>
       <dt><strong>Private:</strong></dt>
       <dd>{{teamData.Team.Private}}</dd>
       <dt><strong>Joined:</strong></dt>
       <dd>{{teamData.Joined}}</dd>
     </dl>
-      <!-- modal -->
-      <div id="team-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="teamModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-	  <div class="modal-content">
-            <div class="modal-header">
-	      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	      <h3 id="tournamentModalLabel">Add Admin</h3>
-            </div>
-            <div class="modal-body">
-	      <div ng-include src="'templates/teams/adminCandidates.html'"></div>
-            </div>
-	  </div>
-	</div>
-      </div>
-      <!-- / modal -->
-
-    <div ng-if="isTeamAdmin">
-      <p>debug: team  admin</p>
-      <div>
-        <form class="form-horizontal">
-          <a href="/ng#/teams/edit/{{teamData.Team.Id}}" class="btn btn-default"><span>Edit</span></a>
-          <button class="btn btn-danger" name="delete" onclick="" ng-click="deleteTeam()">Delete</button>
-	  <button class="btn btn-default" data-toggle="modal" data-target="#team-modal">Add as admin</button>
-        </form>
-      </div>
+    <!-- modal -->
+    <div id="team-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="teamModalLabel" aria-hidden="true">
+    	<div class="modal-dialog">
+    	  <div class="modal-content">
+                <div class="modal-header">
+    	      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    	      <h3 id="tournamentModalLabel">Add Admin</h3>
+                </div>
+                <div class="modal-body">
+    	      <div ng-include src="'templates/teams/adminCandidates.html'"></div>
+                </div>
+    	  </div>
+    	</div>
     </div>
-    <div class="row">
-      <div class="col-md-1"></div>
-      <div class="links col-md-3">
-        <a href="/ng#/teams/{{teamData.Team.Id}}/ranking">Ranking</a><br>
-        <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies">Accuracies</a><br>
-        <div ng-repeat="tid in teamData.Team.TournamentIds">
-          <a href="/ng#/teams/{{teamData.Team.Id}}/accuracies/{{tid.value}}">Accuracy for tournament {{tid.value}}</a><br>
-        </div>
-        <div ng-repeat="p in pricesData.Prices">
-          <a href="/ng#/teams/{{teamData.Team.Id}}/prices/{{p.TournamentId}}">Price for tournament {{p.TournamentId}}</a><br>
-        </div>
-      </div>
-    </div>
-
-    <!-- start players -->
-    <div ng-include src="'templates/teams/Players.html'"></div>
-    <!-- end players -->
+    <!-- / modal -->
   </div>
+</div>
+<div class="row centered">
+  <div class="btn-group btn-group-team">
+    <button type="button" class="btn btn-default" ng-repeat="tab in tabs" ng-class="{active:isActiveTab(tab.url)}" ng-click="onClickTab(tab)">{{tab.title}}</button>
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="team-tab" ng-include="currentTab"></div>
 </div>
