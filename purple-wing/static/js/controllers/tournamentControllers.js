@@ -105,10 +105,10 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $rootScope.messageInfo = undefined;
     
     // get candidates data from tournament id
-    $scope.candidatesData = Tournament.candidates({id:$routeParams.id});
+    $scope.candidateTeamsData = Tournament.candidates({id:$routeParams.id});
     
     // do we really need theses lines?
-    $scope.candidatesData.$promise.then(function(result){
+    $scope.candidateTeamsData.$promise.then(function(result){
 	$scope.candidates = result.Candidates;
     });
     
@@ -245,8 +245,9 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     }).then(function(result){
 	$scope.joinButtonMethod = result;
     });
-    
-    $scope.candidatesData.$promise.then(function(candidatesResult){
+
+    // set up join as a team buttons.
+    $scope.candidateTeamsData.$promise.then(function(candidatesResult){
 	var candidatesLength = 0;
 	if(candidatesResult.Candidates){
 	    candidatesLength = candidatesResult.Candidates.length;
@@ -268,6 +269,53 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    }
 	});
     });
+
+    // set admin candidates and array of functions.
+    Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+    	$scope.adminCandidates = participantsResult.Participants;
+    	var len = 0;
+    	if(participantsResult.Participants){
+  	    len = participantsResult.Participants.length;
+    	}
+    	$scope.addAdminButtonName = new Array(len);
+    	$scope.addAdminButtonMethod = new Array(len);
+    	for (var i=0 ; i<len; i++){
+  	    // check if user is admin already here.
+	    // if(response.Team.AdminIds.indexOf(response.Players[i].Id)>=0){
+  	    // 	$scope.addAdminButtonName[response.Players[i].Id] = 'Remove Admin';
+  	    // 	$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.removeAdmin;
+	    // }else{
+	    $scope.addAdminButtonName[participantsResult.Participants[i].Id] = 'Add Admin';
+  	    $scope.addAdminButtonMethod[participantsResult.Participants[i].Id] = $scope.addAdmin;
+	    // }
+    	}
+    });
+
+    // admin modal add buttons.
+    // add admin state.
+    $scope.addAdmin = function(userId){
+	console.log('add admin');
+    	// Tournament.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+    	//     $scope.addAdminButtonName[userId] = 'Remove admin';
+    	//     $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
+    	//     $scope.messageInfo = response.MessageInfo;
+    	// }, function(err) {
+	//     $scope.messageDanger = err.data;
+	//     console.log('add admin failed: ', err.data);
+	// });
+    };
+    // remove admin state.
+    $scope.removeAdmin = function(userId){
+	console.log('remove admin');
+    	// Tournament.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+    	//     $scope.addAdminButtonName[userId] = 'Add admin';
+    	//     $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
+    	//     $scope.messageInfo = response.MessageInfo;
+    	// },function(err){
+	//     console.log('remove admin failed: ', err.data);
+	//     $scope.messageDanger = err.data;
+	// });
+    };
     
     var IsTeamJoined = function(teamId, teams) {
 	if(!teams) {

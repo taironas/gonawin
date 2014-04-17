@@ -75,7 +75,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     rankby: '@rankby',
 		     limit: '@limit',
 		     oldName: '@oldName',
-		     newName: '@newName'
+		     newName: '@newName',	
+		     userId: '@userId'
 		   }, 
 		   {
 		     get: { method: 'GET', url: 'j/tournaments/show/:id', cache : true},
@@ -99,8 +100,9 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     predict: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/predict?result1=:result1&result2=:result2'},
 		     ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit', cache : true},
 		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby', cache : true},
-		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'}
-
+		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'},
+		     addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
+		     removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'}	
 		   })
 });
 
