@@ -110,6 +110,8 @@ func init() {
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/reset/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Reset)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/simulate/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.SimulateMatches)))
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/updateteam/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateTeam)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/add/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.AddAdmin)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/remove/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.RemoveAdmin)))
 
 	// activities
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))

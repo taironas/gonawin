@@ -493,6 +493,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	tstart, _ := time.Parse(shortForm, "Jun/12/2014")
 	tend, _ := time.Parse(shortForm, "Jul/13/2014")
+	adminIds := make([]int64, 1)
+	adminIds[0] = adminId
 	tournament := &Tournament{
 		tournamentID,
 		helpers.TrimLower("world cup"),
@@ -500,7 +502,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 		"FIFA World Cup",
 		tstart,
 		tend,
-		adminId,
+		adminIds,
 		time.Now(),
 		groupIds,
 		matches1stStageIds,

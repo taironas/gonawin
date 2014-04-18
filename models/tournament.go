@@ -38,7 +38,7 @@ type Tournament struct {
 	Description          string
 	Start                time.Time
 	End                  time.Time
-	AdminId              int64
+	AdminIds             []int64 // ids of User that are admins of the team
 	Created              time.Time
 	GroupIds             []int64
 	Matches1stStage      []int64
@@ -55,7 +55,7 @@ type TournamentJson struct {
 	Description          *string    `json:",omitempty"`
 	Start                *time.Time `json:",omitempty"`
 	End                  *time.Time `json:",omitempty"`
-	AdminId              *int64     `json:",omitempty"`
+	AdminIds             *[]int64   `json:",omitempty"`
 	Created              *time.Time `json:",omitempty"`
 	GroupIds             *[]int64   `json:",omitempty"`
 	Matches1stStage      *[]int64   `json:",omitempty"`
@@ -77,8 +77,10 @@ func CreateTournament(c appengine.Context, name string, description string, star
 
 	// empty groups and tournaments for now
 	emptyArray := make([]int64, 0)
+	admins := make([]int64, 1)
+	admins[0] = adminId
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, adminId, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -211,9 +213,64 @@ func (t *Tournament) Leave(c appengine.Context, u *User) error {
 // Checks if user is admin of tournament with id 'tournamentId'.
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
 	if tournament, err := TournamentById(c, tournamentId); err == nil {
-		return tournament.AdminId == userId
+		for _, aid := range tournament.AdminIds {
+			if aid == userId {
+				return true
+			}
+		}
 	}
 	return false
+}
+
+// Adds user to admins of current tournament.
+// In order to be an admin of a tournament you should first be a member of the tournament.
+func (t *Tournament) AddAdmin(c appengine.Context, id int64) error {
+
+	if ismember, _ := t.ContainsUserId(id); ismember {
+		if isadmin, _ := t.ContainsAdminId(id); isadmin {
+			return errors.New(fmt.Sprintf("User with %v is already an admin of tournament.", id))
+		}
+		t.AdminIds = append(t.AdminIds, id)
+		if err := t.Update(c); err != nil {
+			return err
+		}
+		return nil
+	}
+	return errors.New(fmt.Sprintf("User with %v is not a member of the tournament.", id))
+}
+
+// Removes user of admins array in current tournament.
+// In order to remove an admin from a team, there should be at least an admin in the array.
+func (t *Tournament) RemoveAdmin(c appengine.Context, id int64) error {
+
+	if ismember, _ := t.ContainsUserId(id); ismember {
+		if isadmin, i := t.ContainsAdminId(id); isadmin {
+			if len(t.AdminIds) > 1 {
+				// as the order of index in adminIds is not important,
+				// replace elem at index i with last element and resize slice.
+				t.AdminIds[i] = t.AdminIds[len(t.AdminIds)-1]
+				t.AdminIds = t.AdminIds[0 : len(t.AdminIds)-1]
+				if err := t.Update(c); err != nil {
+					return err
+				}
+				return nil
+			}
+			return errors.New(fmt.Sprintf("Cannot remove admin %v as there are no admins left in tournament.", id))
+		}
+		return errors.New(fmt.Sprintf("User with %v is not admin of the tournament.", id))
+	}
+	return errors.New(fmt.Sprintf("User with %v is not a member of the tournament.", id))
+}
+
+// Checks if user is admin of team.
+func (t *Tournament) ContainsAdminId(id int64) (bool, int) {
+
+	for i, aId := range t.AdminIds {
+		if aId == id {
+			return true, i
+		}
+	}
+	return false, -1
 }
 
 // Check if a Team has joined the tournament.
@@ -419,6 +476,7 @@ func (t *Tournament) AddUserIds(c appengine.Context, uIds []int64) error {
 	return nil
 }
 
+// Checks if a team is part of a tournament.
 func (t *Tournament) ContainsTeamId(id int64) (bool, int) {
 
 	for i, tId := range t.TeamIds {
@@ -429,6 +487,7 @@ func (t *Tournament) ContainsTeamId(id int64) (bool, int) {
 	return false, -1
 }
 
+// Checks if user is part of the tournament.
 func (t *Tournament) ContainsUserId(id int64) (bool, int) {
 
 	for i, tId := range t.UserIds {

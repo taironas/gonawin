@@ -138,7 +138,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := tournament.Teams(c)
 
 		// tournament
-		fieldsToKeep := []string{"Id", "Name", "Description", "AdminId", "IsFirstStageComplete"}
+		fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
 		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
@@ -380,9 +380,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// query teams
 		var teams []*mdl.Team
 		for _, teamId := range u.TeamIds {
-			log.Errorf(c, "unoooo %v", teamId)
 			if team, err1 := mdl.TeamById(c, teamId); err1 == nil {
-				log.Errorf(c, "unoooo %v", teamId)
 				for _, aId := range team.AdminIds {
 					if aId == u.Id {
 						teams = append(teams, team)
@@ -392,9 +390,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "%v", err1)
 			}
 		}
-		log.Errorf(c, "all goooood")
 
-		//teams := mdl.FindTeams(c, "AdminId", u.Id)
 		type canditateType struct {
 			Team   mdl.TeamJson
 			Joined bool
