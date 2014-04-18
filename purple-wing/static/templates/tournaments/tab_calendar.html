@@ -2,8 +2,8 @@
   <div class="col-md-1"></div>
   <div class="col-md-9">
     <div class="btn-group pull-right">
-      <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="" ng-click="byPhaseOnClick()">Phase</a>
-      <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="" ng-click="byDateOnClick()">Date</a>
+      <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=phase">Phase</a></li>
+      <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=date">Date</a></li>
     </div>
   </div>
 </div>

@@ -391,43 +391,72 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     $scope.tournamentData = Tournament.get({ id:$routeParams.id });
     
     $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
-    
-    $scope.byPhaseOnClick = function(){
-	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+    console.log('routeparams!!!!!', $routeParams);
+
+    $scope.groupby = $routeParams.groupby;
+
+    $scope.updateMatchesView = function(){
+	if($scope.groupby != undefined){
+	    if($scope.groupby == 'phase'){
+ 		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+	    }
+	    else if($scope.groupby == 'date'){
+    		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+	    }
+	}else{
+	    $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+	}
     };
-
-    $scope.byDateOnClick = function(){
-	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+   $scope.updateMatchesView();
+    // $scope.byPhaseOnClick = function(){
+    // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+    // };
+    
+    // $scope.byDateOnClick = function(){
+    // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+    // };
+    
+    $scope.activatePredict = function(matchIdNumber, index, parentIndex){
+	console.log('Tournament calendar controller: activate predict:', matchIdNumber);
+	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
     };
     
-  $scope.activatePredict = function(matchIdNumber, index, parentIndex){
-    console.log('Tournament calendar controller: activate predict:', matchIdNumber);
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
-  };
-
-  $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
-    console.log('Tournament calendar controller: predict:', matchIdNumber);
-    console.log('Tournament calendar controller: predict: index:', index);
-    console.log('Tournament calendar controller: predict: parent parent index:', parentIndex);
-
-    $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
-    $scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
+    $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
+	console.log('Tournament calendar controller: predict:', matchIdNumber);
+	console.log('Tournament calendar controller: predict: index:', index);
+	console.log('Tournament calendar controller: predict: parent parent index:', parentIndex);
+	
+	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
+	$scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
+	
+	Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
+			   function(result){
+			       console.log('success in setting prediction!');
+			       $scope.matchesData.Days[parentIndex].Matches[index].Predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
+			       $scope.messageInfo = result.MessageInfo;
+			       console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
+			   },
+			   function(err) {
+			       console.log('failure setting prediction! ', err.data);
+			       $scope.messageDanger = err.data;
+			   });
+	console.log('match result: ', result1, ' ', result2);
+	
+    };
     
-    Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
-		       function(result){
-			 console.log('success in setting prediction!');
-			 $scope.matchesData.Days[parentIndex].Matches[index].Predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
-			 $scope.messageInfo = result.MessageInfo;
-			 console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
-		       },
-		       function(err) {
-			 console.log('failure setting prediction! ', err.data);
-			 $scope.messageDanger = err.data;
-		       });
-    console.log('match result: ', result1, ' ', result2);
-
-  };  
-
+    // $locationChangeSuccess event is triggered when url changes.
+    // note: this event is not triggered when page is refreshed.
+    $scope.$on('$locationChangeSuccess', function(event) {
+	console.log('tournament calendar!!!: location changed:');
+	console.log('tournament calendar!!!!!!: routeparams', $routeParams);
+	// set tab paramter to new tab parameter.
+	// use this to have to last state in order to display the proper view.
+	if($routeParams.tab != undefined){
+	    $scope.groupby = $routeParams.groupby;
+	    $scope.updateMatchesView();
+	}
+    });
+    
 }]);
 
 // TournamentSetResultsCtrl (admin): update results.
