@@ -131,7 +131,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 		$scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
   		$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
 	    }
-	    
+
     	}
     });
 
@@ -285,7 +285,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
       url: 'templates/teams/partials/pricesData.html'
     }];
 
-    $scope.currentTab = 'templates/teams/Players.html';
+    $scope.currentTab = 'templates/teams/players.html';
 
     $scope.onClickTab = function (tab) {
         $scope.currentTab = tab.url;
