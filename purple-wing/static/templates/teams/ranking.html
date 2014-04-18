@@ -1,0 +1,20 @@
+<div ng-include src="'templates/partials/notifications.html'"></div>
+<div class="panel panel-default">
+<ol class="breadcrumb">
+  <li><a href="/ng#/teams">Teams</a></li>
+  <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
+  <li class="active">Ranking</li>
+</ol>
+  <div class="panel-body">
+    <h1>Ranking</h1>
+
+    <div class="accuracy">
+      <h2>Accuracy:</h2>
+      <p>{{100*teamData.Team.Accuracy | number:2}}%</p>
+    </div>
+
+    <!-- start ranking data -->
+    <div ng-include src="'templates/teams/partials/rankingData.html'"></div>
+    <!-- end ranking data -->
+  </div>
+</div>
