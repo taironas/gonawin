@@ -33,6 +33,8 @@ import (
 // Team ranking handler:
 // Use this handler to get the ranking of a team.
 // The ranking is an array of users (members of the team),
+//	GET	/j/teams/[0-9]+/ranking/
+//
 func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Ranking Handler:"

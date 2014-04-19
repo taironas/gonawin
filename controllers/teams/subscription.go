@@ -79,30 +79,34 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// json destroy handler for team relations
+// leave handler for team relations.
+// Use this handler to leave a team.
+//	POST	/j/teams/leave/[0-9]+/?			Make a user leave a team with the given id.
+//
 func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	desc := "Team Leave Handler:"
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
 		// get team id
 		teamId, err := handlers.PermalinkID(r, c, 4)
 		if err != nil {
-			log.Errorf(c, "Team Leave Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if mdl.IsTeamAdmin(c, teamId, u.Id) {
-			log.Errorf(c, "Team Leave Handler: Team administrator cannot leave the team")
+			log.Errorf(c, "%s Team administrator cannot leave the team", desc)
 			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 		}
 
 		var team *mdl.Team
 		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "Team Leave Handler: team not found: %v", err)
+			log.Errorf(c, "%s team not found: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		if err := team.Leave(c, u); err != nil {
-			log.Errorf(c, "Team Leave Handler: error on Leave team: %v", err)
+			log.Errorf(c, "%s error on Leave team: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
