@@ -59,8 +59,11 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
   $scope.tournamentsData = Tournament.search( {q:$routeParams.q});
   
   $scope.tournamentsData.$promise.then(function(result){
-    $scope.tournaments = result.Tournaments;
-    $scope.messageInfo = result.MessageInfo;
+      $scope.tournaments = result.Tournaments;
+      $scope.messageInfo = result.MessageInfo;
+      if(result.Tournaments == undefined){
+	  $scope.noTournamentsMessage = 'No tournaments found.';
+      }
   });
   
   $scope.query = $routeParams.q;

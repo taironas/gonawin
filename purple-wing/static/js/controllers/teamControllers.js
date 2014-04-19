@@ -61,7 +61,7 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
       $scope.teams = result.Teams;
       $scope.messageInfo = result.MessageInfo;
       if(result.Teams == undefined){
-	  $scope.noTeamsMessage = 'No team found.';
+	  $scope.noTeamsMessage = 'No teams found.';
       }
   });
 
