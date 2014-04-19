@@ -136,9 +136,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			msg,
 			tJson,
 		}
-
 		return templateshlp.RenderJson(w, c, data)
-
 	}
 	return nil
 }

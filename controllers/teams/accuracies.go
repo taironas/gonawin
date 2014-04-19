@@ -113,9 +113,7 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		}{
 			acc,
 		}
-
 		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-
 }

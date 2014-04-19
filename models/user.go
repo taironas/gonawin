@@ -27,6 +27,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
+	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
@@ -91,6 +92,8 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 		log.Errorf(c, "User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
+	// udpate inverted index
+	AddToUserInvertedIndex(c, helpers.TrimLower(name), user.Id)
 
 	return user, nil
 }
