@@ -58,8 +58,11 @@ teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', 
   $scope.isSearching = true;
 
   $scope.teamsData.$promise.then(function(result){
-    $scope.teams = result.Teams;
-    $scope.messageInfo = result.MessageInfo;
+      $scope.teams = result.Teams;
+      $scope.messageInfo = result.MessageInfo;
+      if(result.Teams == undefined){
+	  $scope.noTeamsMessage = 'No team found.';
+      }
   });
 
   $scope.searchTeam = function(){

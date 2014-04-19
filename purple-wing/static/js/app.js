@@ -54,7 +54,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/users/:id/scores', {templateUrl: 'templates/users/scores.html', controller: 'UserScoresCtrl', requireLogin: true}).
       when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl', requireLogin: true }).
       when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
-      when('/teams/search', { templateUrl: 'templates/teams/index.html', controller: 'TeamSearchCtrl', requireLogin: true}).
+      when('/teams/search', { templateUrl: 'templates/teams/search.html', controller: 'TeamSearchCtrl', requireLogin: true}).
       when('/teams/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
       when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
       when('/teams/:id/ranking', { templateUrl: 'templates/teams/ranking.html', controller: 'TeamRankingCtrl', requireLogin: true }).
