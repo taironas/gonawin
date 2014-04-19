@@ -548,7 +548,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	}
 	// add new activity id in user activity table for each participant of the tournament
 	for _, p := range t.Participants(c) {
-		if err := activity.addNewActivityId(c, p.Id); err != nil {
+		if err := activity.addNewActivityId(c, p); err != nil {
 			log.Errorf(c, "model/tournament, Publish: error occurred during addNewActivityId call: %v", err)
 		}
 	}
