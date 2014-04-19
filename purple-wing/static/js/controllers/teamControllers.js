@@ -26,9 +26,9 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     });
 
     $scope.searchTeam = function(){
-      console.log('TeamListCtrl: searchTeam');
-      console.log('keywords: ', $scope.keywords);
-      $location.search('q', $scope.keywords).path('/teams/search');
+	console.log('TeamListCtrl: searchTeam');
+	console.log('keywords: ', $scope.keywords);
+	$location.search('q', $scope.keywords).path('/teams/search');
     };
 }]);
 
