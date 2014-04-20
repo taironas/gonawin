@@ -1,10 +1,10 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li><a href="/ng#/tournaments">Tournaments</a></li>
+  <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></li>
+  <li class="active">Edit</li>
+</ol>
 <div class="panel panel-default">
-  <ol class="breadcrumb">
-    <li><a href="/ng#/tournaments">Tournaments</a></li>
-    <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></li>
-    <li class="active">Edit</li>
-  </ol>
   <div class="panel-body">
     <form class="form-horizontal" role="form" name="editTournamentForm">
       <div class="form-group" ng-class="{error: editTournamentForm.name.$invalid}">

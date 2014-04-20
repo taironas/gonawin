@@ -1,29 +1,24 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li><a href="/ng#/tournaments">Tournaments</a></li>
+  <li class="active">{{tournamentData.Tournament.Name}}</li>
+</ol>
 <div class="panel panel-default">
-  <ol class="breadcrumb">
-    <li><a href="/ng#/tournaments">Tournaments</a></li>
-    <li class="active">{{tournamentData.Tournament.Name}}</li>
-  </ol>
   <div class="panel-body">
-    <div class="page-header">
-      <div ng-include src="'templates/tournaments/header.html'"></div>
-      <!-- actions -->
-      <div class="row">
-      	<div class="col-md-1"></div>
-      	<div class="col-md-10">
-      	  <form class="form-horizontal">
-            <div class="form-group">
-      	      <div class="btn-group pull-right">
-                <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-                <button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
-                <a ng-if="isTournamentAdmin" href="/ng#/tournaments/edit/{{tournamentData.Tournament.Id}}" class="btn btn-default"><i class="fa fa-edit fa-fw"></i> Edit</a>
-                <input ng-if="isTournamentAdmin" id="action" name="Action" type="hidden" value="delete" />
-                <button ng-if="isTournamentAdmin" class="btn btn-default" name="delete" onclick="" ng-click="deleteTournament()"><i class="fa fa-trash-o fa-fw"></i> Delete</button>
-	             </div>
-      	    </div>
-      	  </form>
-	       </div>
-      </div>
+    <div ng-include src="'templates/tournaments/header.html'"></div>
+    <!-- actions -->
+    <div class="row">
+    	<div class="col-md-1"></div>
+    	<div class="col-md-10">
+    	  <form class="form-horizontal">
+          <div class="form-group">
+    	      <div class="btn-group pull-right">
+              <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+              <button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+             </div>
+    	    </div>
+    	  </form>
+       </div>
       <!-- / admin actions -->
       <!-- modal -->
       <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
@@ -41,7 +36,7 @@
       </div>
       <!-- / modal -->
     </div>
-    <!-- / page header -->
+    <br/><br/>
     <div class="progress">
       <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournamentData.Progress | number:0}}%;">
 	       {{100 * tournamentData.Progress | number:0}}%
@@ -67,13 +62,12 @@
     <!-- admin buttons -->
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: tab == 'admin.setresults'}" data-toggle="dropdown">
-        Admin
+        Results
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
         <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
         <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
-        <li><a data-toggle="modal" data-target="#tournament-manage-admin-modal">Manage admins</a></li>
         <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
       </ul>
     </div>
@@ -82,23 +76,6 @@
 <div class="panel panel-default">
   <div class="panel-body">
     <!-- tournament views -->
-
-    <!-- modal manage admins -->
-    <div id="tournament-manage-admin-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentManageAdminModalLabel" aria-hidden="true">
-    	<div class="modal-dialog">
-    	  <div class="modal-content">
-                <div class="modal-header">
-    	      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-    	      <h3 id="tournamentManageAdminModalLabel">Manage admins</h3>
-                </div>
-                <div class="modal-body">
-    		  <div ng-include src="'templates/tournaments/adminCandidates.html'"></div>
-                </div>
-    	  </div>
-    	</div>
-    </div>
-    <!-- / modal manage admins -->
-
     <div ng-switch on="tab">
       <div ng-switch-when="calendar">
         <div ng-controller="TournamentCalendarCtrl">

@@ -1,10 +1,10 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="panel panel-default">
 <ol class="breadcrumb">
   <li><a href="/ng#/teams">Teams</a></li>
   <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
   <li class="active">Edit Price</li>
 </ol>
+<div class="panel panel-default">
   <div class="panel-body">
     <form class="form-horizontal" role="form" name="editPriceForm">
       <div class="form-group" ng-class="{error: editPriceForm.name.$invalid}">

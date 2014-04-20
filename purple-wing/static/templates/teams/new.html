@@ -1,9 +1,9 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li><a href="/ng#/teams">Teams</a></li>
+  <li class="active">New Team</li>
+</ol>
 <div class="panel panel-default">
-  <ol class="breadcrumb">
-    <li><a href="/ng#/teams">Teams</a></li>
-    <li class="active">New Team</li>
-  </ol>
   <div class="panel-body">
     <form class="form-horizontal" role="form" name="newTeamForm">
       <div class="form-group" ng-class="{error: newTeamForm.name.$invalid}">
