@@ -1,6 +1,6 @@
 <div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-9">
+  <div class="col-md-4"></div>
+  <div class="col-md-8">
     <div class="btn-group pull-right">
       <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()">Users rank</a>
       <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()">Teams rank</a>
@@ -10,8 +10,8 @@
 <!-- Teams -->
 <div ng-if="rankingData.Teams">
   <div class="row">
-    <div class="col-md-1"></div>
-    <div class="teams col-md-11">
+    <div class="col-md-3"></div>
+    <div class="teams col-md-6">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -27,14 +27,15 @@
         </tbody>
       </table>
     </div>
+    <div class="col-md-3"></div>
   </div>
 </div>
 <!-- / Teams -->
 <!-- participants -->
 <div ng-if="rankingData.Users">
   <div class="row">
-    <div class="col-md-1"></div>
-    <div class="participants col-md-11">
+    <div class="col-md-3"></div>
+    <div class="participants col-md-6">
       <table class="table table-striped">
         <thead>
           <tr>
@@ -50,6 +51,7 @@
         </tbody>
       </table>
     </div>
+    <div class="col-md-3"></div>
   </div>
 </div>
 <!-- / participants -->
