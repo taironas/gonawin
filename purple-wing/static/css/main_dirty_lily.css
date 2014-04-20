@@ -30,6 +30,12 @@ body {
 	text-align: left;
 }
 
+.table-centered
+{
+  margin: 0 auto !important;
+  float: none !important;
+}
+
 /* intro Wrap */
 
 .intro {

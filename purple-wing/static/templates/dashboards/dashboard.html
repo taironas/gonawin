@@ -3,55 +3,73 @@
   <div class="panel-body text-center">
       <!-- user -->
       <div class="dashboard-user" ng-show="dashboard.context == 'user'">
-	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
-	<h5>{{dashboard.user}}</h5>
-	<h5>Score: {{dashboard.score}}</h5>
-	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
-	<h5>Teams: {{dashboard.nteams}}</h5>
+      	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
+      	<h5>{{dashboard.user}}</h5>
+      	<h5>Score: {{dashboard.score}}</h5>
+      	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
+      	<h5>Teams: {{dashboard.nteams}}</h5>
       </div>
       <!-- team -->
       <div class="dashboard-team" ng-show="dashboard.context == 'team'">
-	<img src="https://sigil.cupcake.io/{{dashboard.teamid}}.png?inverted=1" height="80" width="80" class="img-circle">
-	<h5>{{dashboard.team}}</h5>
-	<h5>Accuracy: {{100 * dashboard.accuracy | number:2}}%</h5>
-	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
-	<h5>Members: {{dashboard.nmembers}}</h5>
-	<table class="table table-condensed table-hover text-left">
-	  <thead>
+      	<img src="https://sigil.cupcake.io/{{dashboard.teamid}}.png?inverted=1" height="80" width="80" class="img-circle">
+        <h5>{{dashboard.team}}</h5>
+        <table class="table-condensed table-centered">
+          <tr>
+            <td><h4>Accuracy</h4></td>
+            <td><h4>Tournaments</h4></td>
+            <td><h4>Members</h4></td>
+          </tr>
+          <tr>
+            <td><h2>{{100 * dashboard.accuracy | number:2}}%</h2></td>
+            <td><h2>{{dashboard.ntournaments}}</h2></td>
+            <td><h2>{{dashboard.nmembers}}</h2></td>
+          </tr>
+        </table>
+        <hr>
+      	<table class="table table-condensed table-hover text-left">
+      	  <thead>
             <tr>
               <th>Members</th>
               <th>Score</th>
             </tr>
-	  </thead>
-	  <tbody>
-	    <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
-	      <td ng-show="m.Id == dashboard.userid" class="info"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
-	      <td ng-show="m.Id != dashboard.userid"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
-	      <td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}}</td>
-	      <td ng-show="m.Id != dashboard.userid">{{m.Score}}</td>
-	    </tr>
-	  </tbody>
-	</table>
+      	  </thead>
+      	  <tbody>
+      	    <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
+      	      <td ng-show="m.Id == dashboard.userid" class="info"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
+      	      <td ng-show="m.Id != dashboard.userid"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
+      	      <td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}}</td>
+      	      <td ng-show="m.Id != dashboard.userid">{{m.Score}}</td>
+      	    </tr>
+      	  </tbody>
+      	</table>
       </div>
       <!-- tournament -->
       <div class="dashboard-tournament" ng-show="dashboard.context == 'tournament'">
-	<img src="https://sigil.cupcake.io/{{dashboard.tournamentid}}.png?inverted=1" height="80" width="80" class="img-circle">
-	<h5>{{dashboard.tournament}}</h5>
-	<h5>Teams: {{dashboard.nteams}}</h5>
-	<h5>Participants: {{dashboard.nparticipants}}</h5>
-	<hr>
-	<div class="btn-group">
-	  <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersOnClick()">Users</a>
-	  <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsOnClick()">Teams</a>
-	</div>
-	<div ng-switch on="rankBy">
-	  <div ng-switch-when="users">
+        <img src="https://sigil.cupcake.io/{{dashboard.tournamentid}}.png?inverted=1" height="80" width="80" class="img-circle">
+        <h5>{{dashboard.tournament}}</h5>
+        <table class="table-condensed table-centered">
+          <tr>
+            <td><h4>Teams</h4></td>
+            <td><h4>Participants</h4></td>
+          </tr>
+          <tr>
+            <td><h2>{{dashboard.nteams}}</h2></td>
+            <td><h2>{{dashboard.nparticipants}}</h2></td>
+          </tr>
+        </table>
+        <hr>
+        <div class="btn-group">
+          <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersOnClick()">Users</a>
+          <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsOnClick()">Teams</a>
+        </div>
+        <div ng-switch on="rankBy">
+          <div ng-switch-when="users">
     	    <div ng-include src="'templates/dashboards/dashboard_rankusers.html'"></div>
-	  </div>
-	  <div ng-switch-when="teams">
-    	    <div ng-include src="'templates/dashboards/dashboard_rankteams.html'"></div>
-	  </div>
-	</div>
+        </div>
+        <div ng-switch-when="teams">
+          <div ng-include src="'templates/dashboards/dashboard_rankteams.html'"></div>
+        </div>
       </div>
+    </div>
   </div>
 </div>
