@@ -4,7 +4,7 @@
 // data from REST service (resource).
 // Handle also user subscription to a tournament (join/leave and join as team/leave as team).
 var tournamentControllers = angular.module('tournamentControllers', []);
-// TournamentListCtrl: fetch all tournaments data 
+// TournamentListCtrl: fetch all tournaments data
 tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
   console.log('Tournament list controller:');
   $scope.tournaments = Tournament.query();
@@ -20,7 +20,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     $location.search('q', $scope.keywords).path('/tournaments/search');
   };
 
-  // start world cup create action 
+  // start world cup create action
   $scope.createWorldCup = function(){
     console.log('Creating world cup');
     Tournament.saveWorldCup($scope.tournament,
@@ -41,7 +41,7 @@ tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',f
     console.log('Tournament card controller:');
     console.log('tournament ID: ', $scope.$parent.tournament.Id);
     $scope.tournamentData = Tournament.get({ id:$scope.$parent.tournament.Id});
-    
+
     $scope.tournamentData.$promise.then(function(tournamentData){
 	$scope.tournament = tournamentData.Tournament;
 	console.log('tournament card controller, tournamentData = ', tournamentData);
@@ -57,7 +57,7 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
   console.log('routeParams: ', $routeParams);
   // get tournaments data result from search query
   $scope.tournamentsData = Tournament.search( {q:$routeParams.q});
-  
+
   $scope.tournamentsData.$promise.then(function(result){
       $scope.tournaments = result.Tournaments;
       $scope.messageInfo = result.MessageInfo;
@@ -65,7 +65,7 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
 	  $scope.noTournamentsMessage = 'No tournaments found.';
       }
   });
-  
+
   $scope.query = $routeParams.q;
   // use the isSearching mode to differientiate:
   // no tournaments in app AND no tournaments found using query search
@@ -80,11 +80,11 @@ tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParam
 // TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');
-  
+
   $scope.addTournament = function() {
     Tournament.save($scope.tournament,
 		    function(response) {
-		      $rootScope.messageInfo = response.MessageInfo; 
+		      $rootScope.messageInfo = response.MessageInfo;
 		      $location.path('/tournaments/' + response.Tournament.Id);
 		    },
 		    function(err) {
@@ -94,27 +94,27 @@ tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', '
   };
 }]);
 
-// TournamentShowCtrl: fetch data of specific tournament. 
+// TournamentShowCtrl: fetch data of specific tournament.
 // Handle also deletion of this same tournament and join/leave and join/leave as team.
 tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', '$route', function($rootScope, $scope, $routeParams, Tournament, $location, $q, $route) {
     console.log('Tournament Show controller: Start');
-    
+
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
     console.log('tournamentData', $scope.tournamentData);
-    
+
     // get message info from redirects.
     $scope.messageInfo = $rootScope.messageInfo;
     // reset to nil var message info in root scope.
     $rootScope.messageInfo = undefined;
-    
+
     // get candidates data from tournament id
     $scope.candidateTeamsData = Tournament.candidates({id:$routeParams.id});
-    
+
     // do we really need theses lines?
     $scope.candidateTeamsData.$promise.then(function(result){
 	$scope.candidates = result.Candidates;
     });
-    
+
     // list of tournament groups
     $scope.groupsData = Tournament.groups({id:$routeParams.id});
     // admin function: reset tournament
@@ -130,8 +130,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 			     $scope.messageDanger = err.data;
 			 });
     };
-    
-    
+
+
     $scope.deleteTournament = function() {
 	if(confirm('Are you sure?')){
 	    Tournament.delete({ id:$routeParams.id },
@@ -145,7 +145,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 			      });
 	}
     };
-    
+
     $scope.joinTournament = function(){
 	Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
 	    $scope.joinButtonName = 'Leave';
@@ -156,7 +156,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	});
     };
-    
+
     $scope.leaveTournament = function(){
 	Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
 	    $scope.joinButtonName = 'Join';
@@ -167,7 +167,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	});
     };
-    
+
     $scope.joinTournamentAsTeam = function(teamId){
 	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
 	    $scope.joinAsTeamButtonName[teamId] = 'Leave';
@@ -178,7 +178,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	});
     };
-    
+
     $scope.leaveTournamentAsTeam = function(teamId){
 	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
 	    $scope.joinAsTeamButtonName[teamId] = 'Join';
@@ -191,7 +191,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     };
 
     // tab at undefined means you are in tournament/:id url
-    if($routeParams.tab == undefined){ 
+    if($routeParams.tab == undefined){
 	$scope.tournamentData.$promise.then(function(result){
 	    if(result.Tournament.IsFirstStageComplete){
 		$scope.tab = 'secondstageh';
@@ -204,25 +204,25 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	$scope.tab = $routeParams.tab;
     }
 
-    // Is tournament admin flag identifies if current user is also the admin of the tournament.
-    // Use this flag to show specific information of tournament admin.
-    $scope.isTournamentAdmin = false;
-    $scope.tournamentData.$promise.then(function(result){
-	if(result.Tournament.AdminId == $rootScope.currentUser.User.Id){
-	    console.log('tournament is admin TRUE');
-	    $scope.isTournamentAdmin = true;
-	}else{
-	    console.log('tournament is admin FALSE');
-	    $scope.isTournamentAdmin = false;
-	}
+    // set isTournamentAdmin boolean:
+    // This variable defines if the current user is admin of the current tournament.
+    $scope.tournamentData.$promise.then(function(tournamentResult){
+      console.log('tournament is admin ready');
+      // as it depends of currentUser, make a promise
+      var deferred = $q.defer();
+      deferred.resolve((tournamentResult.Tournament.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
+      return deferred.promise;
+    }).then(function(result){
+      console.log('is tournament admin:', result);
+      $scope.isTournamentAdmin = result;
     });
-    
+
     // Checks if user has joined a tournament
     $scope.joined = $scope.tournamentData.$promise.then(function(result){
 	console.log('tournament joined ready!');
 	return result.Joined;
     });
-    
+
     $scope.tournamentData.$promise.then(function(tournamentResult){
 	var deferred = $q.defer();
 	if (tournamentResult.Joined) {
@@ -235,7 +235,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     }).then(function(result){
 	$scope.joinButtonName = result;
     });
-    
+
     $scope.tournamentData.$promise.then(function(tournamentResult){
 	var deferred = $q.defer();
 	if (tournamentResult.Joined) {
@@ -257,7 +257,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	}
 	$scope.joinAsTeamButtonName = new Array(candidatesLength);
 	$scope.joinAsTeamButtonMethod = new Array(candidatesLength);
-	
+
 	$scope.tournamentData.$promise.then(function(tournamentResult){
 	    for (var i=0 ; i<candidatesLength; i++)
 	    {
@@ -323,26 +323,26 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    $scope.messageDanger = err.data;
 	});
     };
-    
+
     var IsTeamJoined = function(teamId, teams) {
 	if(!teams) {
 	    return false;
 	}
-	
+
 	for (var i=0 ; i<teams.length; i++){
 	    if(teams[i].Id == teamId){
 		return true;
 	    }
 	}
     };
-    
+
     // Action triggered when 'Create new button' is clicked, modal window will be hidden.
     // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
     $scope.newTeam = function(){
 	$('#tournament-modal').modal('hide');
 	$scope.redirectToNewTeam = true;
     };
-    
+
     // listen 'hidden.bs.modal' event to redirect to new team page
     // Only redirect if flag 'redirectToNewTeam' is set.
     $('#tournament-modal').on('hidden.bs.modal', function (e) {
@@ -372,7 +372,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 // TournamentEditCtrl: collects data to update an existing tournament.
 tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location',function($rootScope, $scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-  
+
   $scope.updateTournament = function() {
     var tournamentData = Tournament.get({ id:$routeParams.id });
     Tournament.update({ id:$routeParams.id }, $scope.tournamentData.Tournament,
@@ -392,7 +392,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     console.log('Tournament calendar controller');
     console.log('route params', $routeParams)
     $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-    
+
     $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
     console.log('routeparams!!!!!', $routeParams);
 
@@ -404,7 +404,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
  		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
 	    }
 	    else if($scope.groupby == 'date'){
-    		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+    		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
 	    }
 	}else{
 	    $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
@@ -414,24 +414,24 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     // $scope.byPhaseOnClick = function(){
     // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
     // };
-    
+
     // $scope.byDateOnClick = function(){
-    // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});	
+    // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
     // };
-    
+
     $scope.activatePredict = function(matchIdNumber, index, parentIndex){
 	console.log('Tournament calendar controller: activate predict:', matchIdNumber);
 	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
     };
-    
+
     $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
 	console.log('Tournament calendar controller: predict:', matchIdNumber);
 	console.log('Tournament calendar controller: predict: index:', index);
 	console.log('Tournament calendar controller: predict: parent parent index:', parentIndex);
-	
+
 	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
 	$scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
-	
+
 	Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
 			   function(result){
 			       console.log('success in setting prediction!');
@@ -444,9 +444,9 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 			       $scope.messageDanger = err.data;
 			   });
 	console.log('match result: ', result1, ' ', result2);
-	
+
     };
-    
+
     // $locationChangeSuccess event is triggered when url changes.
     // note: this event is not triggered when page is refreshed.
     $scope.$on('$locationChangeSuccess', function(event) {
@@ -459,7 +459,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 	    $scope.updateMatchesView();
 	}
     });
-    
+
 }]);
 
 // TournamentSetResultsCtrl (admin): update results.
@@ -503,7 +503,7 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 			       $scope.messageDanger = err.data;
 			     });
   };
-    
+
 }]);
 
 // TournamentSetTeamsCtrl (admin): change teams.
@@ -512,9 +512,9 @@ tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routePar
     console.log('Tournament set teams controller:');
     console.log('route params', $routeParams)
     $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-    
+
     $scope.teamsData = Tournament.teams({id:$routeParams.id, groupby:"phase"});
-    
+
     $scope.edit = function(index, parentIndex){
 	console.log('edit team: ', index, ' ', parentIndex );
 	$scope.teamsData.Phases[parentIndex].Teams[index].wantToEdit = true;
@@ -581,7 +581,7 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
 
     $scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
     $scope.matchesData.Days[parentIndex].Matches[index].HasPredict = true;
-    
+
     Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
       function(result){
         console.log('success in setting prediction!');
@@ -593,7 +593,7 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
         console.log('failure setting prediction! ', err.data);
         $scope.messageDanger = err.data;
       });
-  };  
+  };
 }]);
 
 // TournamentRankingCtrl: fetch ranking data of a specific tournament.
@@ -606,7 +606,7 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
 
     // predicate is udate for ranking tables
     $scope.predicate = '';
-    
+
     $scope.byUsersRankOnClick = function(){
 	if($scope.rankBy == 'user'){
 	    return;

@@ -170,9 +170,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     	var deferred = $q.defer();
     	deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
     	return deferred.promise;
-        }).then(function(result){
-    	console.log('is team admin:', result);
-    	$scope.isTeamAdmin = result;
+    }).then(function(result){
+      console.log('is team admin:', result);
+      $scope.isTeamAdmin = result;
     });
 
     // set tournament ids with "values" so that angular understands:
