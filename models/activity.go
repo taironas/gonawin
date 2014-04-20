@@ -65,53 +65,28 @@ type Publisher interface {
 	Entity(name string) ActivityEntity
 }
 
-// UserActivities Entity
-type UserActivities struct {
-	Id          int64
-	UserId      int64
-	ActivityIds []int64
-}
-
 // Returns activities for a specific user.
 func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Activity {
 	var activities []*Activity
 
-	if userActivities := findUserActivities(c, u.Id); userActivities != nil {
-		// loop backward on all of these ids to fetch the activities
-		ids := userActivities.ActivityIds
-		log.Infof(c, "calculateStartAndEnd(%v, %v, %v)", int64(len(ids)), count, page)
-		start, end := calculateStartAndEnd(int64(len(ids)), count, page)
+	// loop backward on all of these ids to fetch the activities
+	ids := u.ActivityIds
+	log.Infof(c, "calculateStartAndEnd(%v, %v, %v)", int64(len(ids)), count, page)
+	start, end := calculateStartAndEnd(int64(len(ids)), count, page)
 
-		log.Infof(c, " Activity.FindActivities: start = %d, end = %d", start, end)
+	log.Infof(c, " Activity.FindActivities: start = %d, end = %d", start, end)
 
-		for i := start; i >= end; i-- {
-			key := datastore.NewKey(c, "Activity", "", ids[i], nil)
+	for i := start; i >= end; i-- {
+		key := datastore.NewKey(c, "Activity", "", ids[i], nil)
 
-			var activity Activity
-			if err := datastore.Get(c, key, &activity); err != nil {
-				log.Errorf(c, " Activity.FindActivities: error occurred during Get call: %v", err)
-			}
-			activities = append(activities, &activity)
+		var activity Activity
+		if err := datastore.Get(c, key, &activity); err != nil {
+			log.Errorf(c, " Activity.FindActivities: error occurred during Get call: %v", err)
 		}
+		activities = append(activities, &activity)
 	}
 
 	return activities
-}
-
-// returns activities for a specific user
-func findUserActivities(c appengine.Context, userId int64) *UserActivities {
-	// fetch user activities
-	q := datastore.NewQuery("UserActivities").Filter("UserId =", userId).Limit(1)
-
-	var userActivities []*UserActivities
-	if _, err := q.GetAll(c, &userActivities); err != nil {
-		log.Errorf(c, " Activity.findUserActivities: error occurred during GetAll call: %v", err)
-	}
-
-	if len(userActivities) > 0 {
-		return userActivities[0]
-	}
-	return nil
 }
 
 // save an activity entity in datastore
@@ -132,36 +107,12 @@ func (a *Activity) save(c appengine.Context) error {
 	return nil
 }
 
-// add new activity id for a specific user in UserActivities entity
-func (a *Activity) addNewActivityId(c appengine.Context, userId int64) error {
-	// find user activities
-	userActivities := findUserActivities(c, userId)
-	// intantiate new user activities entity
-	if userActivities == nil {
-		if id, _, err := datastore.AllocateIDs(c, "UserActivities", nil, 1); err != nil {
-			log.Errorf(c, " Activity.addNewActivityId: error occurred during AllocateIDs call: %v", err)
-			return errors.New("Activity.addNewActivityId: unable to allocate an identifier for Activity")
-		} else {
-			userActivities = &UserActivities{id, userId, make([]int64, 0)}
-		}
-	}
+// add new activity id for a specific user
+func (a *Activity) addNewActivityId(c appengine.Context, u *User) error {
 	// add new activity id to user activities
-	userActivities.ActivityIds = append(userActivities.ActivityIds, a.Id)
-	// put updated activity ids
-	key := userActivitiesKey(c, userActivities.Id)
-	if _, err := datastore.Put(c, key, userActivities); err != nil {
-		log.Errorf(c, " Activity.addNewActivityId: error occurred during Put call: %v", err)
-		return errors.New("Activity.addNewActivityId: unable to update activity ids for UserActivities")
-	}
-
-	return nil
-}
-
-// Get key pointer given a user activities id.
-func userActivitiesKey(c appengine.Context, id int64) *datastore.Key {
-
-	key := datastore.NewKey(c, "UserActivities", "", id, nil)
-	return key
+	u.ActivityIds = append(u.ActivityIds, a.Id)
+  // update user with new activity id
+  return u.Update(c)
 }
 
 // Calculates the start and the end position in the activities slice.

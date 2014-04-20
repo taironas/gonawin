@@ -52,6 +52,7 @@ type User struct {
 	TeamIds               []int64             // current team ids of user <=> teams user belongs to.
 	Score                 int64               // overall user score.
 	ScoreOfTournaments    []ScoreOfTournament // ids of Scores for each tournament the user is participating on.
+  ActivityIds           []int64             // ids of user's activities
 	Created               time.Time
 }
 
@@ -70,6 +71,7 @@ type UserJson struct {
 	TeamIds               *[]int64             `json:",omitempty"`
 	Score                 *int64               `json:",omitempty"`
 	ScoreOfTournaments    *[]ScoreOfTournament `json:",omitempty"`
+  ActivityIds           *[]int64             `json:",omitempty"`
 	Created               *time.Time           `json:",omitempty"`
 }
 
@@ -85,7 +87,7 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 
 	emptyArray := make([]int64, 0)
 	emptyScores := make([]ScoreOfTournament, 0)
-	user := &User{userId, email, username, name, alias, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, time.Now()}
+	user := &User{userId, email, username, name, alias, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, emptyArray, time.Now()}
 
 	_, err = datastore.Put(c, key, user)
 	if err != nil {
@@ -388,7 +390,7 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 		return err
 	}
 	// add new activity id in user activity table
-	return activity.addNewActivityId(c, u.Id)
+	return activity.addNewActivityId(c, u)
 }
 
 // Activity entity representation of an user
