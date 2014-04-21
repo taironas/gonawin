@@ -108,7 +108,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			case "teams":
 				// get count parameter, if not present count is set to 20
 				strcount := r.FormValue("count")
-				count := int64(12)
+				count := int64(25)
 				if len(strcount) > 0 {
 					if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
 						log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
@@ -267,7 +267,7 @@ func JoinedTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var teams []*mdl.Team
 		// get count parameter, if not present count is set to 20
 		strcount := r.FormValue("count")
-		count := int64(12)
+		count := int64(25)
 		if len(strcount) > 0 {
 			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
 				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)

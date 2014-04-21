@@ -8,8 +8,8 @@ var teamControllers = angular.module('teamControllers', []);
 teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
 
-    $scope.countTeams = 20;            // counter for the number of teams to display in view.
-    $scope.countJoinedTeams = 12;      // counter for the number of teams joined by user to display in view.
+    $scope.countTeams = 25;            // counter for the number of teams to display in view.
+    $scope.countJoinedTeams = 25;      // counter for the number of teams joined by user to display in view.
 
     $scope.pageTeams = 1;         // page counter for teams, to know which page to display next.
     $scope.pageJoinedTeams = 1;   // page counter for joined teams, to know which page to display next.
