@@ -34,7 +34,7 @@ const (
 	ErrorCodeSessionsCannotGetSecretValue     = "Error getting 'secret' value"
 	ErrorCodeSessionsCannotGetRequestToken    = "Error getting request token"
 	ErrorCodeSessionsCannotGetUserInfo        = "Error getting user info from Twitter"
-  ErrorCodeSessionsAuthHeaderRequired       = "Google OAuth Authorization header required"
+	ErrorCodeSessionsAuthHeaderRequired       = "Google OAuth Authorization header required"
 
 	// users
 	ErrorCodeUserNotFound             = "User not found"

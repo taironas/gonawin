@@ -63,12 +63,12 @@ func (e *Forbidden) Error() string {
 
 // Unauthorized is handled by setting the status code in the reply to StatusUnauthorized.
 type Unauthorized struct {
-  Err error
+	Err error
 }
 
 // Implementation of error, returns string error on Err structure.
 func (e *Unauthorized) Error() string {
-  return e.Err.Error()
+	return e.Err.Error()
 }
 
 // InternalServerError is handled by setting the status code in the reply to StatusInternalServerError.

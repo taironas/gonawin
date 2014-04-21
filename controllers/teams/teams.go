@@ -43,6 +43,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
@@ -65,12 +66,39 @@ type PriceData struct {
 
 // team Index handler.
 //      GET     /j/teams/?			List users not joined by user.
+// Parameters:
+//   'page' a int indicating the page number.
+//   'count' a int indicating the number of teams per page number.
 // Reponse: array of JSON formatted teams.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "teams index handler: "
 	if r.Method == "GET" {
-		teams := mdl.GetNotJoinedTeams(c, u)
+		// get count parameter, if not present count is set to 20
+		strcount := r.FormValue("count")
+		count := int64(5)
+		if len(strcount) > 0 {
+			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
+				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+				count = 5 // set count to default value
+			} else {
+				count = n
+			}
+		}
+
+		// get page parameter, if not present set page to the first one.
+		strpage := r.FormValue("page")
+		page := int64(1)
+		if len(strpage) > 0 {
+			if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
+				log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+				page = 1
+			} else {
+				page = p
+			}
+		}
+		// fetch teams
+		teams := mdl.GetNotJoinedTeams(c, u, count, page)
 
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)

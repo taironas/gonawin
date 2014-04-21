@@ -164,18 +164,29 @@ func FindAllTeams(c appengine.Context) []*Team {
 	return teams
 }
 
-// Get all teams which have not been joined by a specific user
-func GetNotJoinedTeams(c appengine.Context, u *User) []*Team {
+// Get all teams which have not been joined by a specific user with respect to the count and page.
+func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team {
+	desc := "Get not joined teams"
 	teams := FindAllTeams(c)
 
-	var notJoinedTeams []*Team
+	var notJoined []*Team
 	for _, team := range teams {
 		if !team.Joined(c, u) {
-			notJoinedTeams = append(notJoinedTeams, team)
+			notJoined = append(notJoined, team)
 		}
 	}
+	// loop backward on all of these ids to fetch the activities
+	log.Infof(c, "%s calculateStartAndEnd(%v, %v, %v)", desc, int64(len(notJoined)), count, page)
+	start, end := calculateStartAndEnd(int64(len(notJoined)), count, page)
 
-	return notJoinedTeams
+	log.Infof(c, "%s start = %d, end = %d", desc, start, end)
+
+	var paged []*Team
+	for i := start; i >= end; i-- {
+		paged = append(paged, notJoined[i])
+	}
+
+	return paged
 }
 
 // Get an array of pointers to Teams with respect to an array of ids.

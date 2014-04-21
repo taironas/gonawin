@@ -11,6 +11,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     $scope.teams = Team.query();
 
     $scope.teams.$promise.then(function(result){
+	console.log('teams!!!!', result);
     if(!$scope.teams || ($scope.teams && !$scope.teams.length))
       $scope.noTeamsMessage = 'No team has been created';
     });
