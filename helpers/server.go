@@ -61,6 +61,16 @@ func (e *Forbidden) Error() string {
 	return e.Err.Error()
 }
 
+// Unauthorized is handled by setting the status code in the reply to StatusUnauthorized.
+type Unauthorized struct {
+  Err error
+}
+
+// Implementation of error, returns string error on Err structure.
+func (e *Unauthorized) Error() string {
+  return e.Err.Error()
+}
+
 // InternalServerError is handled by setting the status code in the reply to StatusInternalServerError.
 type InternalServerError struct {
 	Err error

@@ -7,6 +7,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'ngCookies',
   'directive.g+signin',
   'directive.twittersignin',
+  'directive.googlesignin',
   'directive.formValidation',
   'directive.joinButton',
   'directive.addButton',
@@ -22,7 +23,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'teamControllers',
   'tournamentControllers',
   'inviteControllers',
-  
+
   'dataServices',
   'authServices'
 ]);
@@ -77,7 +78,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
       when('/404', { templateUrl: 'static/templates/404.html' }).
       otherwise( {redirectTo: '/'});
-    
+
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
@@ -97,7 +98,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
 
     sAuth.watchLoginChange();
   };
-  
+
   (function(d){
     // load the Facebook javascript SDK
     var js,
@@ -116,12 +117,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     ref.parentNode.insertBefore(js, ref);
 
   }(document));
-  
+
   $rootScope.$on("$routeChangeStart", function(event, next, current) {
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
-    
+
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
     if($location.$$path === '/auth/twitter/callback')
     {
@@ -146,12 +147,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     }
     console.log('end of routeChangeStart');
   });
-  
+
   $rootScope.$on('event:google-plus-signin-success', function (event, authResult) {
     // User successfully authorized the G+ App!
     console.log('event:google-plus-signin-success');
     Session.fetchUserInfo({ access_token: authResult.access_token }).$promise.then(function(userInfo) {
-      $rootScope.currentUser = Session.fetchUser({  
+      $rootScope.currentUser = Session.fetchUser({
         access_token: authResult.access_token,
         provider: 'google',
         id:userInfo.id,

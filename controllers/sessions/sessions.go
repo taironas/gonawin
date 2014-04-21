@@ -24,6 +24,7 @@ import (
 
 	"appengine"
 	"appengine/urlfetch"
+  "appengine/user"
 
 	oauth "github.com/garyburd/go-oauth/oauth"
 
@@ -178,4 +179,36 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return templateshlp.RenderJson(w, c, userData)
+}
+
+// JSON authentication for Google.
+func GoogleAuth(w http.ResponseWriter, r *http.Request) error {
+  c := appengine.NewContext(r)
+  desc := "Google Authentication handler:"
+
+  u, err := user.CurrentOAuth(c, "")
+  if err != nil {
+    log.Errorf(c, "%s OAuth Google Authorization header required", desc)
+    return &helpers.Unauthorized{Err: errors.New(helpers.ErrorCodeSessionsAuthHeaderRequired)}
+  }
+  log.Infof(c, "GoogleAuth: user = %v", u)
+  userInfo := authhlp.GetUserInfo(u)
+
+  if !authhlp.IsAuthorized(&userInfo) {
+    return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
+  }
+
+  var user *mdl.User
+  if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+    return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+  }
+
+  // return user
+  userData := struct {
+    User *mdl.User
+  }{
+    user,
+  }
+
+  return templateshlp.RenderJson(w, c, userData)
 }
