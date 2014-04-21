@@ -175,7 +175,7 @@ func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team 
 			notJoined = append(notJoined, team)
 		}
 	}
-	// loop backward on all of these ids to fetch the activities
+	// loop backward on all of these ids to fetch the teams
 	log.Infof(c, "%s calculateStartAndEnd(%v, %v, %v)", desc, int64(len(notJoined)), count, page)
 	start, end := calculateStartAndEnd(int64(len(notJoined)), count, page)
 

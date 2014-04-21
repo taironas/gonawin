@@ -76,11 +76,10 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
 		// get count parameter, if not present count is set to 20
 		strcount := r.FormValue("count")
-		count := int64(5)
+		count := int64(20)
 		if len(strcount) > 0 {
 			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
 				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-				count = 20 // set count to default value
 			} else {
 				count = n
 			}

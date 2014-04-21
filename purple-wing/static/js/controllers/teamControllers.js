@@ -8,28 +8,35 @@ var teamControllers = angular.module('teamControllers', []);
 teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
 
-    $scope.count = 20;            // counter for the number of teams to display in view.
+    $scope.countTeams = 20;            // counter for the number of teams to display in view.
+    $scope.countJoinedTeams = 12;      // counter for the number of teams joined by user to display in view.
+
     $scope.pageTeams = 1;         // page counter for teams, to know which page to display next.
     $scope.pageJoinedTeams = 1;   // page counter for joined teams, to know which page to display next.
 
     // main query to /j/teams to get not joined teams.
-    $scope.teams = Team.query({count:$scope.count, page:$scope.pageTeams});
+    $scope.teams = Team.query({count:$scope.countTeams, page:$scope.pageTeams});
 
     // initilize team message and button visibility.
     $scope.teams.$promise.then(function(response){
-	if(!$scope.teams || ($scope.teams && !$scope.teams.length))
+	if(!$scope.teams || ($scope.teams && !$scope.teams.length)){
 	    $scope.noTeamsMessage = 'No team has been created';
-	$scope.showMoreTeams = (response.length == $scope.count);
-	console.log('show more teams', $scope.showMoreTeams)
+	}else if($scope.teams != undefined){
+	    $scope.showMoreTeams = (response.length == $scope.countTeams);
+	    console.log('show more teams', $scope.showMoreJoinedTeams)
+	}
     });
     
     $rootScope.currentUser.$promise.then(function(currentUser){
-	var userData = User.get({ id:currentUser.User.Id, including: "Teams" });
+	var userData = User.get({ id:currentUser.User.Id, including: "Teams", count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams});
 	console.log('user data = ', userData);
 	userData.$promise.then(function(result){
             $scope.joinedTeams = result.Teams;
-            if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length))
+            if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length)){
 		$scope.noJoinedTeamsMessage = 'You didn\'t join a team';
+	    }else if($scope.joinedTeams != undefined){
+		$scope.showMoreJoinedTeams = (result.Teams.length == $scope.countJoinedTeams);
+	    }
 	});
     });
     
@@ -45,16 +52,25 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     $scope.moreTeams = function(){
 	console.log('more teams');
 	$scope.pageTeams = $scope.pageTeams + 1;
-	Team.query({count:$scope.count, page:$scope.pageTeams}).$promise.then(function(response){
+	Team.query({count:$scope.countTeams, page:$scope.pageTeams}).$promise.then(function(response){
 	    console.log('response: ', response);
 	    $scope.teams = $scope.teams.concat(response);
-	    $scope.showMoreTeams = (response.length == $scope.count);
-	    console.log('show more teams', $scope.showMoreTeams);
+	    $scope.showMoreTeams = (response.length == $scope.countTeams);
 	});
     };
 
     $scope.moreJoinedTeams = function(){
 	console.log('more joined teams');
+	$scope.pageJoinedTeams = $scope.pageJoinedTeams + 1;
+	User.joinedTeams({id:$rootScope.currentUser.User.Id, count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams}).$promise.then(function(response){
+	    console.log('response: ', response);
+	    $scope.joinedTeams = $scope.joinedTeams.concat(response.Teams);
+	    console.log('jjajajjd', (response.Teams.length));
+	    console.log('jjajajjd', ($scope.countJoinedTeams));
+	    console.log('jjajajjd', (response.Teams.length == $scope.countJoinedTeams));
+	    $scope.showMoreJoinedTeams = (response.Teams.length == $scope.countJoinedTeams);
+	});
+
     }
 }]);
 
