@@ -17,7 +17,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
   $scope.searchTournament = function(){
     console.log('TournamentListCtrl: searchTournament');
     console.log('keywords: ', $scope.keywords)
-    $location.search('q', $scope.keywords).path('/tournaments/search');
+    $location.search('q', $scope.keywords).path('/search');
   };
 
   // start world cup create action
@@ -49,32 +49,6 @@ tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',f
 	$scope.teamsCount = tournamentData.Teams.length;
 	$scope.progress = tournamentData.Progress;
     });
-}]);
-
-// TournamentSearchCtrl: returns an array of tournaments based on a search query.
-tournamentControllers.controller('TournamentSearchCtrl', ['$scope', '$routeParams', 'Tournament', '$location', function($scope, $routeParams, Tournament, $location) {
-  console.log('Tournament search controller');
-  console.log('routeParams: ', $routeParams);
-  // get tournaments data result from search query
-  $scope.tournamentsData = Tournament.search( {q:$routeParams.q});
-
-  $scope.tournamentsData.$promise.then(function(result){
-      $scope.tournaments = result.Tournaments;
-      $scope.messageInfo = result.MessageInfo;
-      if(result.Tournaments == undefined){
-	  $scope.noTournamentsMessage = 'No tournaments found.';
-      }
-  });
-
-  $scope.query = $routeParams.q;
-  // use the isSearching mode to differientiate:
-  // no tournaments in app AND no tournaments found using query search
-  $scope.isSearching = true;
-  $scope.searchTournament = function(){
-    console.log('TournamentSearchCtrl: searchTournament');
-    console.log('keywords: ', $scope.keywords)
-    $location.search('q', $scope.keywords).path('/tournaments/search');
-  };
 }]);
 
 // TournamentNewCtrl: use this controller to create a new tournament.

@@ -28,7 +28,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     $scope.searchTeam = function(){
 	console.log('TeamListCtrl: searchTeam');
 	console.log('keywords: ', $scope.keywords);
-	$location.search('q', $scope.keywords).path('/teams/search');
+	$location.search('q', $scope.keywords).path('/search');
     };
 }]);
 
@@ -43,33 +43,6 @@ teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
       $scope.team = teamData.Team;
       $scope.membersCount = teamData.Players.length;
     });
-}]);
-
-// TeamSearchCtrl: returns an array of teams based on a search query.
-teamControllers.controller('TeamSearchCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location) {
-  console.log('Team search controller:');
-  console.log('routeParams: ', $routeParams);
-  // get teams result from search query
-  $scope.teamsData = Team.search( {q:$routeParams.q});
-
-  $scope.query = $routeParams.q;
-  // use the isSearching mode to differientiate:
-  // no teams in app AND no teams found using query search
-  $scope.isSearching = true;
-
-  $scope.teamsData.$promise.then(function(result){
-      $scope.teams = result.Teams;
-      $scope.messageInfo = result.MessageInfo;
-      if(result.Teams == undefined){
-	  $scope.noTeamsMessage = 'No teams found.';
-      }
-  });
-
-  $scope.searchTeam = function(){
-    console.log('TeamSearchCtrl: searchTeam');
-    console.log('keywords: ', $scope.keywords);
-    $location.search('q', $scope.keywords).path('/teams/search');
-  };
 }]);
 
 // TeamNewCtrl: use this controller to create a team.
