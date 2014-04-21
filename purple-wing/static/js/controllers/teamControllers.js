@@ -5,32 +5,57 @@
 // Handle also user subscription to a team (join/leave).
 var teamControllers = angular.module('teamControllers', []);
 // TeamListCtrl: fetch all teams data
-teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location',
-  function($rootScope, $scope, Team, User, $location) {
+teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
-    $scope.teams = Team.query();
 
-    $scope.teams.$promise.then(function(result){
-	console.log('teams!!!!', result);
-    if(!$scope.teams || ($scope.teams && !$scope.teams.length))
-      $scope.noTeamsMessage = 'No team has been created';
+    $scope.count = 20;            // counter for the number of teams to display in view.
+    $scope.pageTeams = 1;         // page counter for teams, to know which page to display next.
+    $scope.pageJoinedTeams = 1;   // page counter for joined teams, to know which page to display next.
+
+    // main query to /j/teams to get not joined teams.
+    $scope.teams = Team.query({count:$scope.count, page:$scope.pageTeams});
+
+    // initilize team message and button visibility.
+    $scope.teams.$promise.then(function(response){
+	if(!$scope.teams || ($scope.teams && !$scope.teams.length))
+	    $scope.noTeamsMessage = 'No team has been created';
+	$scope.showMoreTeams = (response.length == $scope.count);
+	console.log('show more teams', $scope.showMoreTeams)
     });
-
+    
     $rootScope.currentUser.$promise.then(function(currentUser){
-      var userData = User.get({ id:currentUser.User.Id, including: "Teams" });
-      console.log('user data = ', userData);
-      userData.$promise.then(function(result){
-        $scope.joinedTeams = result.Teams;
-        if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length))
-          $scope.noJoinedTeamsMessage = 'You didn\'t join a team';
-      });
+	var userData = User.get({ id:currentUser.User.Id, including: "Teams" });
+	console.log('user data = ', userData);
+	userData.$promise.then(function(result){
+            $scope.joinedTeams = result.Teams;
+            if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length))
+		$scope.noJoinedTeamsMessage = 'You didn\'t join a team';
+	});
     });
-
+    
+    // Search function redirects to main search url /search.
     $scope.searchTeam = function(){
 	console.log('TeamListCtrl: searchTeam');
 	console.log('keywords: ', $scope.keywords);
 	$location.search('q', $scope.keywords).path('/search');
     };
+
+    // show more teams function:
+    // retreive teams by page and increment page.
+    $scope.moreTeams = function(){
+	console.log('more teams');
+	$scope.pageTeams = $scope.pageTeams + 1;
+	Team.query({count:$scope.count, page:$scope.pageTeams}).$promise.then(function(response){
+	    console.log('response: ', response);
+	    $scope.teams = $scope.teams.concat(response);
+	    $scope.showMoreTeams = (response.length == $scope.count);
+	    console.log('show more teams', $scope.showMoreTeams);
+	});
+    };
+
+    $scope.moreJoinedTeams = function(){
+	console.log('more joined teams');
+    }
 }]);
 
 // TeamCardCtrl: fetch data of a particular team.

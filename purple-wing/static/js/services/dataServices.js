@@ -33,7 +33,9 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	rankby: '@rankby',
 	tournamentId: '@tournamentId',
 	limit: '@limit',
-	userId: '@userId'
+	userId: '@userId',
+	count: '@count',
+	page: '@page'
     },
     {
 	get: { method: 'GET', url: 'j/teams/show/:id', cache : true },

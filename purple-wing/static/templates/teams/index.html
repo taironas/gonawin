@@ -41,14 +41,14 @@
         </div>
         <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
       </div>
-      </br><hr>
       <div class="row">
         <div class="col-md-5"></div>
         <div class="col-md-2">
-          <button type="button" class="btn btn-primary" ng-click="moreTeams()" ng-hide="showMoreTeams">More Teams</button>
+          <button type="button" class="btn btn-primary" ng-click="moreJoinedTeams()" ng-hide="showMoreTeams">More Teams</button>
         </div>
         <div class="col-md-5"></div>
       </div>
+      <hr>
       <h4>Teams you can join:</h4>
       </br>
       <div class="row center-block">
@@ -68,6 +68,14 @@
         </div>
         <h3 style="text-align: center">{{noTeamsMessage}}</h3>
       </div>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="moreTeams()" ng-show="showMoreTeams">More Teams</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+      <hr>
     </div>
   </div>
 </div>
