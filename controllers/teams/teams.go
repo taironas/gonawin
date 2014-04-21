@@ -103,9 +103,11 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 		teamsJson := make([]mdl.TeamJson, len(teams))
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "Accuracy", "MembersCount"}
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
+
 		return templateshlp.RenderJson(w, c, teamsJson)
+
 	} else {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
@@ -501,7 +503,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "Accuracy", "MembersCount"}
 		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// we should not directly return an array. so we add an extra layer.

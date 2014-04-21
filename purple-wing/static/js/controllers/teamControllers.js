@@ -64,9 +64,6 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 	User.joinedTeams({id:$rootScope.currentUser.User.Id, count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams}).$promise.then(function(response){
 	    console.log('response: ', response);
 	    $scope.joinedTeams = $scope.joinedTeams.concat(response.Teams);
-	    console.log('jjajajjd', (response.Teams.length));
-	    console.log('jjajajjd', ($scope.countJoinedTeams));
-	    console.log('jjajajjd', (response.Teams.length == $scope.countJoinedTeams));
 	    $scope.showMoreJoinedTeams = (response.Teams.length == $scope.countJoinedTeams);
 	});
 
@@ -78,12 +75,12 @@ teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
   function($scope, Team) {
     console.log('Team card controller:');
     console.log('team ID: ', $scope.$parent.team.Id);
-    $scope.teamData = Team.get({ id:$scope.$parent.team.Id});
+    // $scope.teamData = Team.get({ id:$scope.$parent.team.Id});
 
-    $scope.teamData.$promise.then(function(teamData){
-      $scope.team = teamData.Team;
-      $scope.membersCount = teamData.Players.length;
-    });
+    // $scope.teamData.$promise.then(function(teamData){
+    //   $scope.team = teamData.Team;
+    //   $scope.membersCount = teamData.Players.length;
+    // });
 }]);
 
 // TeamNewCtrl: use this controller to create a team.

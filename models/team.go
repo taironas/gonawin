@@ -48,6 +48,7 @@ type Team struct {
 	Accuracy         float64           // Overall Team accuracy.
 	AccOfTournaments []AccOfTournament // ids of Accuracies for each tournament the team is participating on .
 	PriceIds         []int64           // ids of Prices <=> prices defined for each tournament the team participates.
+	MembersCount     int64             // number of members in team
 }
 
 type TeamJson struct {
@@ -62,6 +63,7 @@ type TeamJson struct {
 	Accuracy      *float64           `json:",omitempty"`
 	AccuracyIds   *[]AccOfTournament `json:",omitempty"`
 	PriceIds      *[]int64           `json:",omitempty"`
+	MembersCount  *int64             `json:",omitempty"`
 }
 
 // Create a team given a name, an admin id and a private mode.
@@ -77,7 +79,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	admins[0] = adminId
 	emptyArray := make([]int64, 0)
 	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
-	team := &Team{teamId, helpers.TrimLower(name), name, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray}
+	team := &Team{teamId, helpers.TrimLower(name), name, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
@@ -449,6 +451,7 @@ func (t *Team) RemoveUserId(c appengine.Context, uId int64) error {
 		// replace elem at index i with last element and resize slice.
 		t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
 		t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
+		t.MembersCount = int64(len(t.UserIds))
 	}
 	if err := t.Update(c); err != nil {
 		return err
@@ -464,6 +467,7 @@ func (t *Team) AddUserId(c appengine.Context, uId int64) error {
 	}
 
 	t.UserIds = append(t.UserIds, uId)
+	t.MembersCount = int64(len(t.UserIds))
 	if err := t.Update(c); err != nil {
 		return err
 	}
