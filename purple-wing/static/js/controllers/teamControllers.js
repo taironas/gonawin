@@ -75,12 +75,6 @@ teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
   function($scope, Team) {
     console.log('Team card controller:');
     console.log('team ID: ', $scope.$parent.team.Id);
-    // $scope.teamData = Team.get({ id:$scope.$parent.team.Id});
-
-    // $scope.teamData.$promise.then(function(teamData){
-    //   $scope.team = teamData.Team;
-    //   $scope.membersCount = teamData.Players.length;
-    // });
 }]);
 
 // TeamNewCtrl: use this controller to create a team.
