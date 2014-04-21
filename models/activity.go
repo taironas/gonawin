@@ -111,8 +111,8 @@ func (a *Activity) save(c appengine.Context) error {
 func (a *Activity) addNewActivityId(c appengine.Context, u *User) error {
 	// add new activity id to user activities
 	u.ActivityIds = append(u.ActivityIds, a.Id)
-  // update user with new activity id
-  return u.Update(c)
+	// update user with new activity id
+	return u.Update(c)
 }
 
 // Calculates the start and the end position in the activities slice.

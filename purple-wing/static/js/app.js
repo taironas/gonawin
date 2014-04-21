@@ -22,6 +22,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'teamControllers',
   'tournamentControllers',
   'inviteControllers',
+  'searchControllers',
   
   'dataServices',
   'authServices'
@@ -49,6 +50,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
+      when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
       when('/users/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl', requireLogin: true }).
       when('/users/:id/scores', {templateUrl: 'templates/users/scores.html', controller: 'UserScoresCtrl', requireLogin: true}).

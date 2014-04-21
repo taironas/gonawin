@@ -133,6 +133,59 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	return getKeysFrompairList(sortedScore)
 }
 
+// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
+func UserScore(c appengine.Context, query string, ids []int64) []int64 {
+
+	words := strings.Split(query, " ")
+	setOfWords := helpers.SetOfStrings(query)
+	nbUserWords, _ := UserInvertedIndexGetWordCount(c)
+
+	// query vector
+	q := make([]float64, len(setOfWords))
+	for i, w := range setOfWords {
+		dft := 0
+		if invId, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
+			log.Errorf(c, "search.UserScore, unable to find KeyName=%s: %v", w, err)
+		} else if invId != nil {
+			dft = len(strings.Split(string(invId.UserIds), " "))
+		}
+		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbUserWords+1)/float64(dft+1))
+	}
+	log.Infof(c, "query vector: %v", q)
+
+	// d vector
+	vec_d := make([][]float64, len(ids))
+	for i, id := range ids {
+		d := make([]float64, len(setOfWords))
+		for j, wi := range setOfWords {
+			// get word frequency by user (id, wi)
+			wordFreqByUser := GetWordFrequencyForUser(c, id, wi)
+			// get number of users with word (wi)
+			userFreqForWord, err := GetUserFrequencyForWord(c, wi)
+			if err != nil {
+				log.Errorf(c, " search.UserScore, error occurred when getting user frequency for word=%s: %v", wi, err)
+			}
+
+			d[j] = math.Log10(float64(1+wordFreqByUser)) * math.Log10(float64(nbUserWords+1)/float64(userFreqForWord+1))
+		}
+		vec_d[i] = make([]float64, len(setOfWords))
+		vec_d[i] = d
+	}
+	log.Infof(c, "d vector: %v", vec_d)
+
+	// compute score vector
+	var score map[int64]float64
+	score = make(map[int64]float64)
+	for i, vec_di := range vec_d {
+		score[ids[i]] = dotProduct(vec_di, q)
+	}
+	log.Infof(c, "score vector :%v", score)
+	sortedScore := sortMapByValueDesc(score)
+	log.Infof(c, "sorted score: %v", sortedScore)
+
+	return getKeysFrompairList(sortedScore)
+}
+
 // A data structure to hold a key/value pair.
 type pair struct {
 	Key   int64

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"appengine"
@@ -52,7 +53,7 @@ type User struct {
 	TeamIds               []int64             // current team ids of user <=> teams user belongs to.
 	Score                 int64               // overall user score.
 	ScoreOfTournaments    []ScoreOfTournament // ids of Scores for each tournament the user is participating on.
-  ActivityIds           []int64             // ids of user's activities
+	ActivityIds           []int64             // ids of user's activities
 	Created               time.Time
 }
 
@@ -71,7 +72,7 @@ type UserJson struct {
 	TeamIds               *[]int64             `json:",omitempty"`
 	Score                 *int64               `json:",omitempty"`
 	ScoreOfTournaments    *[]ScoreOfTournament `json:",omitempty"`
-  ActivityIds           *[]int64             `json:",omitempty"`
+	ActivityIds           *[]int64             `json:",omitempty"`
 	Created               *time.Time           `json:",omitempty"`
 }
 
@@ -501,4 +502,40 @@ func (u *User) TournamentsScores(c appengine.Context) []*ScoreOverall {
 		}
 	}
 	return scores
+}
+
+// Find all entity users with respect of a filter and value.
+func FindUsers(c appengine.Context, filter string, value interface{}) []*User {
+
+	q := datastore.NewQuery("User").Filter(filter+" =", value)
+	var users []*User
+	if _, err := q.GetAll(c, &users); err == nil {
+		return users
+	} else {
+		log.Errorf(c, "FindUsers, error occurred during GetAll: %v", err)
+		return nil
+	}
+}
+
+// Get the frequency of given word with respect to user id.
+func GetWordFrequencyForUser(c appengine.Context, id int64, word string) int64 {
+
+	if users := FindUsers(c, "Id", id); users != nil {
+		return helpers.CountTerm(strings.Split(users[0].Name, " "), word)
+	}
+	return 0
+}
+
+// Get an array of pointers to Users with respect to an array of ids.
+func UsersByIds(c appengine.Context, ids []int64) []*User {
+
+	var users []*User
+	for _, id := range ids {
+		if user, err := UserById(c, id); err == nil {
+			users = append(users, user)
+		} else {
+			log.Errorf(c, " Users.ByIds, error occurred during ByIds call: %v", err)
+		}
+	}
+	return users
 }

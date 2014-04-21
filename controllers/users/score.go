@@ -17,7 +17,6 @@
 package users
 
 import (
-	//"encoding/json"
 	"errors"
 	"net/http"
 
