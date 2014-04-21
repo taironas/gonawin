@@ -23,6 +23,7 @@ import (
 
 	"appengine"
 	"appengine/urlfetch"
+  "appengine/user"
 
 	"github.com/santiaago/purple-wing/helpers/log"
 
@@ -106,4 +107,8 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	} else {
 		return nil
 	}
+}
+
+func GetUserInfo(u *user.User) UserInfo {
+  return UserInfo{Id: u.ID, Email: u.Email, Name: u.String() }
 }

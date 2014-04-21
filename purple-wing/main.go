@@ -50,6 +50,7 @@ func init() {
 	h.HandleFunc("/j/auth/twitter/?", handlers.ErrorHandler(sessionsctrl.TwitterAuth))
 	h.HandleFunc("/j/auth/twitter/callback/?", handlers.ErrorHandler(sessionsctrl.TwitterAuthCallback))
 	h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.TwitterUser))
+  h.HandleFunc("/j/auth/google/?", handlers.ErrorHandler(sessionsctrl.GoogleAuth))
 
 	// user
 	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Index)))

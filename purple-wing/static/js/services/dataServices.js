@@ -3,7 +3,7 @@ var dataServices = angular.module('dataServices', ['ngResource']);
 
 dataServices.factory('User', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-    
+
     var User = $resource('j/users/:id', {id:'@id', including:'@including'}, {
 	get: { method: 'GET', params: {including: '@including'}, url: 'j/users/show/:id' },
 	update: { method: 'POST', url: 'j/users/update/:id' },
@@ -25,16 +25,16 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 
 dataServices.factory('Team', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-    
+
     return $resource('j/teams/:id', {
-	id:'@id', 
-	q:'@q', 
-	requestId: '@requestId', 
-	rankby: '@rankby', 
-	tournamentId: '@tournamentId', 
+	id:'@id',
+	q:'@q',
+	requestId: '@requestId',
+	rankby: '@rankby',
+	tournamentId: '@tournamentId',
 	limit: '@limit',
 	userId: '@userId'
-    }, 
+    },
     {
 	get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
 	save: { method: 'POST', url: 'j/teams/new' },
@@ -54,31 +54,31 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	price: {method: 'GET', url: 'j/teams/:id/prices/:tournamentId', cache : true},
 	updatePrice: {method: 'POST', url: 'j/teams/:id/prices/update/:tournamentId'},
 	addAdmin: {method: 'POST', url: 'j/teams/:id/admin/add/:userId'},
-	removeAdmin: {method: 'POST', url: 'j/teams/:id/admin/remove/:userId'}	
+	removeAdmin: {method: 'POST', url: 'j/teams/:id/admin/remove/:userId'}
     })
 });
 
 dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-  
-  return $resource('j/tournaments/:id', 
+
+  return $resource('j/tournaments/:id',
 		   {
-		     id:'@id', 
-		     q:'@q', 
-		     teamId:'@teamId', 
-		     groupby: '@groupby', 
-		     filter: '@filter', 
-		     matchId: '@matchId', 
-		     result: '@result', 
+		     id:'@id',
+		     q:'@q',
+		     teamId:'@teamId',
+		     groupby: '@groupby',
+		     filter: '@filter',
+		     matchId: '@matchId',
+		     result: '@result',
 		     result1: '@result1',
 		     result2: '@result2',
 		     phaseName: '@phaseName',
 		     rankby: '@rankby',
 		     limit: '@limit',
 		     oldName: '@oldName',
-		     newName: '@newName',	
+		     newName: '@newName',
 		     userId: '@userId'
-		   }, 
+		   },
 		   {
 		     get: { method: 'GET', url: 'j/tournaments/show/:id', cache : true},
 		     save: { method: 'POST', url: 'j/tournaments/new' },
@@ -103,13 +103,13 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby', cache : true},
 		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'},
 		     addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
-		     removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'}	
+		     removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'}
 		   })
 });
 
 dataServices.factory('Invite', function($http, $cookieStore, $resource){
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-  
+
   return $resource('j/invite', {emails: '@emails'}, {
     send: {method: 'POST', params: {emails: '@emails'}, url: 'j/invite'}
   })
@@ -117,28 +117,29 @@ dataServices.factory('Invite', function($http, $cookieStore, $resource){
 
 dataServices.factory('Activity', function($http, $cookieStore, $resource){
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
-  
+
   return $resource('j/activities', {count: '@count', page: '@page'})
 });
 
 dataServices.factory('Session', function($cookieStore, $resource) {
-  
-    var Session = $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
-	fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },
-	fetchUser: { method:'GET', params: {access_token:'@access_token', provider:'@provider', id:'@id', name:'@name', email:'@email'}, url: '/j/auth' },
-	logout: { method:'JSONP', params: {token:'@token', callback: 'JSON_CALLBACK'}, url: 'https://accounts.google.com/o/oauth2/revoke' },
-	authenticateWithTwitter: { method:'GET', url: '/j/auth/twitter' },
-	fetchTwitterUser: { method:'GET', params: { oauth_token: '@oauth_token', oauth_verifier: '@oauth_verifier' }, url: '/j/auth/twitter/user/' }
-    });
 
-    // Need to define displayname function here again as User can be either returned by the server or the session.
-    Session.prototype.displayName = function() {
-	if(this.User == undefined) return;
-	if(this.User.Alias.length > 0){
-	    return this.User.Alias;
-	} else{
-	    return this.User.Username;
-	}
-    };
-    return Session;
+  var Session = $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
+    fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },
+    fetchUser: { method:'GET', params: {access_token:'@access_token', provider:'@provider', id:'@id', name:'@name', email:'@email'}, url: '/j/auth' },
+    logout: { method:'JSONP', params: {token:'@token', callback: 'JSON_CALLBACK'}, url: 'https://accounts.google.com/o/oauth2/revoke' },
+    authenticateWithTwitter: { method:'GET', url: '/j/auth/twitter' },
+    fetchTwitterUser: { method:'GET', params: { oauth_token: '@oauth_token', oauth_verifier: '@oauth_verifier' }, url: '/j/auth/twitter/user/' },
+    authenticateWithGoogle: { method:'GET', url: '/j/auth/google' }
+  });
+
+  // Need to define displayname function here again as User can be either returned by the server or the session.
+  Session.prototype.displayName = function() {
+    if(this.User == undefined) return;
+    if(this.User.Alias.length > 0){
+      return this.User.Alias;
+    } else{
+      return this.User.Username;
+    }
+  };
+  return Session;
 });
