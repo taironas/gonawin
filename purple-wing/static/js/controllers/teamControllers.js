@@ -23,7 +23,6 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 	    $scope.noTeamsMessage = 'No team has been created';
 	}else if($scope.teams != undefined){
 	    $scope.showMoreTeams = (response.length == $scope.countTeams);
-	    console.log('show more teams', $scope.showMoreJoinedTeams)
 	}
     });
     

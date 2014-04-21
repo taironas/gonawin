@@ -44,9 +44,31 @@ type TournamentData struct {
 // index tournaments handler.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
-
+	desc := "tournament index handler:"
 	if r.Method == "GET" {
-		tournaments := mdl.FindAllTournaments(c)
+		// get count parameter, if not present count is set to 25
+		strcount := r.FormValue("count")
+		count := int64(25)
+		if len(strcount) > 0 {
+			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
+				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+			} else {
+				count = n
+			}
+		}
+
+		// get page parameter, if not present set page to the first one.
+		strpage := r.FormValue("page")
+		page := int64(1)
+		if len(strpage) > 0 {
+			if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
+				log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+				page = 1
+			} else {
+				page = p
+			}
+		}
+		tournaments := mdl.FindAllTournaments(c, count, page)
 		if len(tournaments) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}

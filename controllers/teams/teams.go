@@ -68,7 +68,7 @@ type PriceData struct {
 //      GET     /j/teams/?			List users not joined by user.
 // Parameters:
 //   'page' a int indicating the page number.
-//   'count' a int indicating the number of teams per page number.
+//   'count' a int indicating the number of teams per page number. default value is 25
 // Reponse: array of JSON formatted teams.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
@@ -76,7 +76,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
 		// get count parameter, if not present count is set to 20
 		strcount := r.FormValue("count")
-		count := int64(20)
+		count := int64(25)
 		if len(strcount) > 0 {
 			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
 				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)

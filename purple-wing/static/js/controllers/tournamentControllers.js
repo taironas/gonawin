@@ -7,33 +7,53 @@ var tournamentControllers = angular.module('tournamentControllers', []);
 // TournamentListCtrl: fetch all tournaments data
 tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
   console.log('Tournament list controller:');
-  $scope.tournaments = Tournament.query();
 
-  $scope.tournaments.$promise.then(function(result){
-    if(!$scope.tournaments || ($scope.tournaments && !$scope.tournaments.length))
-      $scope.noTournamentsMessage = 'You have no tournaments';
-  });
+    $scope.count = 25;  // counter for the number of tournaments to display in view.
+    $scope.page = 1;    // page counter for tournaments, to know which page to display next.
 
-  $scope.searchTournament = function(){
-    console.log('TournamentListCtrl: searchTournament');
-    console.log('keywords: ', $scope.keywords)
-    $location.search('q', $scope.keywords).path('/search');
-  };
+    // main query to /j/tournaments to get all tournaments.
+    $scope.tournaments = Tournament.query({count:$scope.countTeams, page:$scope.pageTeams});
 
-  // start world cup create action
-  $scope.createWorldCup = function(){
-    console.log('Creating world cup');
-    Tournament.saveWorldCup($scope.tournament,
-		    function(tournament) {
-		      console.log('World Cup Tournament: ', tournament);
-		      $location.path('/tournaments/' + tournament.Id);
-		    },
-		    function(err) {
-		      console.log('save failed: ', err.data);
-		      $scope.messageDanger = err.data;
-		    });
-  };
-  // end world cup create action
+    $scope.tournaments.$promise.then(function(response){
+	if(!$scope.tournaments || ($scope.tournaments && !$scope.tournaments.length)){
+	    $scope.noTournamentsMessage = 'You have no tournaments';
+	}else if($scope.tournaments != undefined){
+	    $scope.showMoreTournaments = (response.length == $scope.count);
+	}
+    });
+    
+    // show more tournaments function:
+    // retreive tournaments by page and increment page.
+    $scope.moreTournaments = function(){
+	console.log('more tournaments');
+	$scope.page = $scope.page + 1;
+	Tournament.query({count:$scope.count, page:$scope.page}).$promise.then(function(response){
+	    console.log('response: ', response);
+	    $scope.tournaments = $scope.tournaments.concat(response);
+	    $scope.showMoreTournaments = (response.length == $scope.count);
+	});
+    };
+
+    $scope.searchTournament = function(){
+	console.log('TournamentListCtrl: searchTournament');
+	console.log('keywords: ', $scope.keywords)
+	$location.search('q', $scope.keywords).path('/search');
+    };
+    
+    // start world cup create action
+    $scope.createWorldCup = function(){
+	console.log('Creating world cup');
+	Tournament.saveWorldCup($scope.tournament,
+				function(tournament) {
+				    console.log('World Cup Tournament: ', tournament);
+				    $location.path('/tournaments/' + tournament.Id);
+				},
+				function(err) {
+				    console.log('save failed: ', err.data);
+				    $scope.messageDanger = err.data;
+				});
+    };
+    // end world cup create action
 }]);
 
 // TournamentCardCtrl: fetch data of a particular tournament.

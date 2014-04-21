@@ -152,14 +152,25 @@ func (t *Tournament) Update(c appengine.Context) error {
 }
 
 // Find all tournaments in the datastore.
-func FindAllTournaments(c appengine.Context) []*Tournament {
-
+func FindAllTournaments(c appengine.Context, count, page int64) []*Tournament {
+	desc := "tournament.FindAllTournaments"
 	q := datastore.NewQuery("Tournament")
 	var tournaments []*Tournament
 	if _, err := q.GetAll(c, &tournaments); err != nil {
-		log.Errorf(c, "FindAllTournaments, error occurred during GetAll call: %v", err)
+		log.Errorf(c, "%s error occurred during GetAll call: %v", desc, err)
 	}
-	return tournaments
+
+	// loop backward on all of these ids to fetch the teams
+	log.Infof(c, "%s calculateStartAndEnd(%v, %v, %v)", desc, int64(len(tournaments)), count, page)
+	start, end := calculateStartAndEnd(int64(len(tournaments)), count, page)
+
+	log.Infof(c, "%s start = %d, end = %d", desc, start, end)
+
+	var paged []*Tournament
+	for i := start; i >= end; i-- {
+		paged = append(paged, tournaments[i])
+	}
+	return paged
 }
 
 // Find all tournaments with respect to array of ids.
