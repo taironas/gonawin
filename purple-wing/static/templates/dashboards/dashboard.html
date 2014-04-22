@@ -5,9 +5,18 @@
       <div class="dashboard-user" ng-show="dashboard.context == 'user'">
       	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
       	<h5>{{dashboard.user}}</h5>
-      	<h5>Score: {{dashboard.score}}</h5>
-      	<h5>Tournaments: {{dashboard.ntournaments}}</h5>
-      	<h5>Teams: {{dashboard.nteams}}</h5>
+        <table class="table-condensed table-centered">
+          <tr>
+            <td><h5><strong>Score</strong></h5></td>
+            <td><h5><strong>Tournaments</strong></h5></td>
+            <td><h5><strong>Teams</strong></h5></td>
+          </tr>
+          <tr>
+            <td><h2><strong>{{dashboard.score}}</strong></h2></td>
+            <td><h2><strong>{{dashboard.ntournaments}}</strong></h2></td>
+            <td><h2><strong>{{dashboard.nteams}}</strong></h2></td>
+          </tr>
+        </table>
       </div>
       <!-- team -->
       <div class="dashboard-team" ng-show="dashboard.context == 'team'">
@@ -15,14 +24,14 @@
         <h5>{{dashboard.team}}</h5>
         <table class="table-condensed table-centered">
           <tr>
-            <td><h4>Accuracy</h4></td>
-            <td><h4>Tournaments</h4></td>
-            <td><h4>Members</h4></td>
+            <td><h5><strong>Accuracy</strong></h5></td>
+            <td><h5><strong>Tournaments</strong></h5></td>
+            <td><h5><strong>Members</strong></h5></td>
           </tr>
           <tr>
-            <td><h2>{{100 * dashboard.accuracy | number:2}}%</h2></td>
-            <td><h2>{{dashboard.ntournaments}}</h2></td>
-            <td><h2>{{dashboard.nmembers}}</h2></td>
+            <td><h2><strong>{{100 * dashboard.accuracy | number:2}}%</strong></h2></td>
+            <td><h2><strong>{{dashboard.ntournaments}}</strong></h2></td>
+            <td><h2><strong>{{dashboard.nmembers}}</strong></h2></td>
           </tr>
         </table>
         <hr>
@@ -49,12 +58,12 @@
         <h5>{{dashboard.tournament}}</h5>
         <table class="table-condensed table-centered">
           <tr>
-            <td><h4>Teams</h4></td>
-            <td><h4>Participants</h4></td>
+            <td><h5><strong>Teams</strong></h5></td>
+            <td><h5><strong>Participants</strong></h5></td>
           </tr>
           <tr>
-            <td><h2>{{dashboard.nteams}}</h2></td>
-            <td><h2>{{dashboard.nparticipants}}</h2></td>
+            <td><h2><strong>{{dashboard.nteams}}</strong></h2></td>
+            <td><h2><strong>{{dashboard.nparticipants}}</strong></h2></td>
           </tr>
         </table>
         <hr>
