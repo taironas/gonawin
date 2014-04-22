@@ -2,7 +2,7 @@
   <div class="panel-heading text-center"><h4>dashboard {{dashboard.location}}</h4></div>
   <div class="panel-body text-center">
       <!-- user -->
-      <div class="dashboard-user" ng-show="dashboard.context == 'user'">
+      <div class="dashboard-user" ng-show="(dashboard.context == 'user') || (dashboard.context == 'tournaments index')">
       	<img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
       	<h5>{{dashboard.user}}</h5>
         <table class="table-condensed table-centered">
