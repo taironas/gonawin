@@ -30,9 +30,3 @@ activitiesControllers.controller('ActivitiesCtrl', ['$scope', '$location', 'Acti
   $scope.more = true;
   $scope.loadActivities();
 }]);
-
-activitiesControllers.directive('gwActivities', function() {
-  return {
-    templateUrl: 'templates/directives/activities.html'
-  };
-});
