@@ -209,12 +209,43 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 		$scope.dashboard.members = rankResult.Users;
 	    });
 	} else if(url.match('^/teams/?$') != null){
-
+	    // if same state as before just exit.
+	    if($scope.state == 'teamsindex'){
+		console.log('same!');
+		return;
+	    }
 	    // reset dashboard before getting data
 	    $scope.dashboard = {};
 
+	    $scope.state = 'teamsindex';
 	    $scope.dashboard.location = 'teams index';
 	    $scope.dashboard.context = 'teams index';
+
+	    $rootScope.currentUser.$promise.then(function(currentUser){
+		console.log('current user!!!!!!', currentUser);
+		$scope.dashboard.user = currentUser.User.Name;
+		$scope.dashboard.name = currentUser.User.Name;
+		$scope.dashboard.userid = currentUser.User.Id;
+		if (currentUser.User.TournamentIds){
+		    $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
+		} else {
+		    $scope.dashboard.ntournaments = 0;
+		}
+		
+		if (currentUser.User.TeamIds){
+		    $scope.dashboard.nteams = currentUser.User.TeamIds.length;
+		}else{
+		    $scope.dashboard.nteams = 0;
+		}
+		// get user score information:
+		$scope.dashboard.score = currentUser.User.Score;
+
+		// get user teams.
+		User.joinedTeams({id:$rootScope.currentUser.User.Id}).$promise.then(function(response){
+		    $scope.dashboard.teams = response.Teams;
+		});
+
+	    });
 
 	} else {
 	    $scope.dashboard.location = 'default';
