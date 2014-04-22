@@ -1,0 +1,27 @@
+<div class="dashboard-tournament" ng-show="dashboard.context == 'tournament'">
+  <img src="https://sigil.cupcake.io/{{dashboard.tournamentid}}.png?inverted=1" height="80" width="80" class="img-circle">
+  <h5>{{dashboard.tournament}}</h5>
+  <table class="table-condensed table-centered">
+    <tr>
+      <td><h5><strong>Teams</strong></h5></td>
+      <td><h5><strong>Participants</strong></h5></td>
+    </tr>
+    <tr>
+      <td><h2><strong>{{dashboard.nteams}}</strong></h2></td>
+      <td><h2><strong>{{dashboard.nparticipants}}</strong></h2></td>
+    </tr>
+  </table>
+  <hr>
+  <div class="btn-group">
+    <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersOnClick()">Users</a>
+    <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsOnClick()">Teams</a>
+  </div>
+  <div ng-switch on="rankBy">
+    <div ng-switch-when="users">
+      <div ng-include src="'templates/dashboards/dashboard_rankusers.html'"></div>
+    </div>
+    <div ng-switch-when="teams">
+      <div ng-include src="'templates/dashboards/dashboard_rankteams.html'"></div>
+    </div>
+  </div>
+</div>

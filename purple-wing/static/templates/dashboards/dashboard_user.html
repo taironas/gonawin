@@ -1,0 +1,16 @@
+<div class="dashboard-user" ng-show="(dashboard.context == 'user') || (dashboard.context == 'tournaments index')">
+  <img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle">
+  <h5>{{dashboard.user}}</h5>
+  <table class="table-condensed table-centered">
+    <tr>
+      <td><h5><strong>Score</strong></h5></td>
+      <td><h5><strong>Tournaments</strong></h5></td>
+      <td><h5><strong>Teams</strong></h5></td>
+    </tr>
+    <tr>
+      <td><h2><strong>{{dashboard.score}}</strong></h2></td>
+      <td><h2><strong>{{dashboard.ntournaments}}</strong></h2></td>
+      <td><h2><strong>{{dashboard.nteams}}</strong></h2></td>
+    </tr>
+  </table>
+</div>
