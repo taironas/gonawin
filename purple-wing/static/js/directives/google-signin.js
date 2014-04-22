@@ -11,7 +11,10 @@ angular.module('directive.googlesignin', []).
           console.log("Sign in with Google has started...");
           Session.authenticateWithGoogle().$promise.then(function(data){
             console.log('authenticateWithGoogle: data = ', data);
-            $rootScope.$broadcast('event:googl-signin-success',data);
+            $rootScope.$broadcast('event:google-signin-success', data);
+          }).then(function(error) {
+            console.log('authenticateWithGoogle: error = ', error);
+            $rootScope.$broadcast('event:google-signin-failure', error);
           });
         })
       }

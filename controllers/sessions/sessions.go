@@ -181,10 +181,10 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// JSON authentication for Google.
-func GoogleAuth(w http.ResponseWriter, r *http.Request) error {
+// JSON authentication for Google Accounts.
+func GoogleAccountsAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-	desc := "Google Authentication handler:"
+	desc := "Google Accounts Authentication handler:"
 
 	u, err := user.CurrentOAuth(c, "")
 	if err != nil {
@@ -192,11 +192,18 @@ func GoogleAuth(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.Unauthorized{Err: errors.New(helpers.ErrorCodeSessionsAuthHeaderRequired)}
 	}
 	log.Infof(c, "GoogleAuth: user = %v", u)
-	userInfo := authhlp.GetUserInfo(u)
+	userInfo := authhlp.GetUserGoogleInfo(u)
 
 	if !authhlp.IsAuthorized(&userInfo) {
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
+  
+  // get OAuthConsumerKey as access token
+  var accessToken string
+  if accessToken, err = user.OAuthConsumerKey(c); err != nil {
+    log.Errorf(c, "%s Cannot get OAuth consumer key: %v", desc, err)
+    return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsOAuthConsumerKey)}
+  }
 
 	var user *mdl.User
 	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
@@ -205,8 +212,10 @@ func GoogleAuth(w http.ResponseWriter, r *http.Request) error {
 
 	// return user
 	userData := struct {
+    AccessToken string
 		User *mdl.User
 	}{
+    accessToken,
 		user,
 	}
 

@@ -10,7 +10,7 @@ navigationControllers.controller('NavigationCtrl', ['$scope', '$rootScope', '$lo
     
     $scope.disconnect = function(){
       console.log('NavigationCtrl module:: disconnect');
-      // logout from Google+/Twittwer
+      // logout from Google+/Twitter
       Session.logout({ token: $cookieStore.get('access_token') });
       // logout from Facebook
       sAuth.FBlogout();

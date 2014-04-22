@@ -18,7 +18,9 @@ package auth
 
 import (
 	"encoding/json"
+  "fmt"
 	"io/ioutil"
+  "math/rand"
 	"net/http"
 
 	"appengine"
@@ -69,7 +71,7 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 // Ckeck if user is admin.
 // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest)
+  return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || (appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith"))
 }
 
 // Ckeck if twitter user is admin.
@@ -109,6 +111,12 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	}
 }
 
-func GetUserInfo(u *user.User) UserInfo {
+// returns user information from Google Accounts user
+// if on development server only email (example@example.com) will be present.
+// So Id and Name will be added.
+func GetUserGoogleInfo(u *user.User) UserInfo {
+  if appengine.IsDevAppServer() {
+    return UserInfo{Id: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
+  }
 	return UserInfo{Id: u.ID, Email: u.Email, Name: u.String()}
 }
