@@ -156,6 +156,11 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 		}
 		// get user score information:
 		$scope.dashboard.score = currentUser.User.Score;
+		// get user tournaments.
+		User.tournaments({id:$rootScope.currentUser.User.Id}).$promise.then(function(response){
+		    $scope.dashboard.tournaments = response.Tournaments;
+		});
+
 	    });
 
 	} else if(url.match('^/teams/[0-9]+.*') != null){
@@ -241,7 +246,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 		$scope.dashboard.score = currentUser.User.Score;
 
 		// get user teams.
-		User.joinedTeams({id:$rootScope.currentUser.User.Id}).$promise.then(function(response){
+		User.teams({id:$rootScope.currentUser.User.Id}).$promise.then(function(response){
 		    $scope.dashboard.teams = response.Teams;
 		});
 

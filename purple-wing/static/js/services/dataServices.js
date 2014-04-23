@@ -9,7 +9,8 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
 	update: { method: 'POST', url: 'j/users/update/:id' },
 	scores: {method: 'GET', url: 'j/users/:id/scores'},
 	search: { method: 'GET', url: 'j/users/search?q=:q', cache : true},
-	joinedTeams: {method : 'GET', url: 'j/users/:id/joinedteams'},
+	teams: {method : 'GET', url: 'j/users/:id/teams'},
+	tournaments: {method : 'GET', url: 'j/users/:id/tournaments'},
     })
     // define display name to handle alias or user name.
     // Note: There is another displayName function definition in the Session ressource as we handle users via User and Session.

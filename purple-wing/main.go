@@ -58,7 +58,8 @@ func init() {
 	h.HandleFunc("/j/users/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Update)))
 	h.HandleFunc("/j/users/[0-9]+/scores/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Score)))
 	h.HandleFunc("/j/users/search/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Search)))
-	h.HandleFunc("/j/users/[0-9]+/joinedteams/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.JoinedTeams)))
+	h.HandleFunc("/j/users/[0-9]+/teams/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Teams)))
+	h.HandleFunc("/j/users/[0-9]+/tournaments/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Tournaments)))
 
 	// team
 	h.HandleFunc("/j/teams/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Index)))

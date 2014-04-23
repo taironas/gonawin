@@ -1,5 +1,12 @@
 <div class="dashboard-tournament-index" ng-show="dashboard.context == 'tournaments index'">
   <hr>
-  user tournaments here.
+  <h3>Tournaments</h3>
+  <table class="table table-condensed table-hover">
+    <tbody>
+    <tr ng-repeat="t in dashboard.tournaments">
+      <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+    </tr>
+    </tbody>
+  </table>
 </div>
 

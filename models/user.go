@@ -215,7 +215,7 @@ func (u *User) Teams(c appengine.Context) []*Team {
 	return teams
 }
 
-// From a user id returns an array of teams the user iq involved participates.
+// From a user id returns an array of teams the user is involved participates.
 func (u *User) TeamsByPage(c appengine.Context, count, page int64) []*Team {
 	desc := "User.TeamsByPage"
 	teams := u.Teams(c)
@@ -229,6 +229,22 @@ func (u *User) TeamsByPage(c appengine.Context, count, page int64) []*Team {
 	}
 	return paged
 }
+
+// From a user id returns an array of tournaments the user is involved participates.
+func (u *User) TournamentsByPage(c appengine.Context, count, page int64) []*Tournament {
+	desc := "User.TournamentsByPage"
+	tournaments := u.Tournaments(c)
+	// loop backward on all of these ids to fetch the teams
+	log.Infof(c, "%s calculateStartAndEnd(%v, %v, %v)", desc, int64(len(tournaments)), count, page)
+	start, end := calculateStartAndEnd(int64(len(tournaments)), count, page)
+	log.Infof(c, "%s start = %d, end = %d", desc, start, end)
+	var paged []*Tournament
+	for i := start; i >= end; i-- {
+		paged = append(paged, tournaments[i])
+	}
+	return paged
+}
+
 
 // Adds a predict Id in the PredictId array.
 func (u *User) AddPredictId(c appengine.Context, pId int64) error {

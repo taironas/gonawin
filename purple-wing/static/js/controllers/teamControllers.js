@@ -61,7 +61,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     $scope.moreJoinedTeams = function(){
 	console.log('more joined teams');
 	$scope.pageJoinedTeams = $scope.pageJoinedTeams + 1;
-	User.joinedTeams({id:$rootScope.currentUser.User.Id, count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams}).$promise.then(function(response){
+	User.teams({id:$rootScope.currentUser.User.Id, count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams}).$promise.then(function(response){
 	    console.log('response: ', response);
 	    $scope.joinedTeams = $scope.joinedTeams.concat(response.Teams);
 	    $scope.showMoreJoinedTeams = (response.Teams.length == $scope.countJoinedTeams);
