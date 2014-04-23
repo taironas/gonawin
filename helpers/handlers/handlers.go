@@ -86,7 +86,7 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 	}
 }
 
-// Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error hanlder if authentication fails.
+// Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error handler if authentication fails.
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		if auth.KOfflineMode {

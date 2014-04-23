@@ -9,11 +9,10 @@ angular.module('directive.googlesignin', []).
       link: function (scope, element, attrs) {
         element.bind("click", function(){
           console.log("Sign in with Google has started...");
-          Session.authenticateWithGoogle().$promise.then(function(data){
-            console.log('authenticateWithGoogle: data = ', data);
-            $rootScope.$broadcast('event:google-signin-success', data);
+          Session.fetchGoogleLoginUrl().$promise.then(function(data){
+            window.location.replace(data.Url);
           }).then(function(error) {
-            console.log('authenticateWithGoogle: error = ', error);
+            console.log('fetchGoogleLoginUrl: error = ', error);
             $rootScope.$broadcast('event:google-signin-failure', error);
           });
         })

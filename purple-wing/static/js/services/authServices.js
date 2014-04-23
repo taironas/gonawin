@@ -78,6 +78,22 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         $rootScope.isLoggedIn = true;
         $location.path('/');
       });
+    },
+    /* Complete signin with Google.
+     * Fetch Google user info then set the current user
+     * and store the cookies */
+    signinWithGoogle: function(oauthToken, oauthVerifier) {
+      var _self = this;
+      $rootScope.currentUser = Session.fetchGoogleUser({ oauth_token: oauthToken });
+      $rootScope.currentUser.$promise.then(function(currentUser){
+        console.log('signinWithGoogle: current user = ', currentUser);
+        _self.storeCookies(oauthToken, currentUser.User.Auth, currentUser.User.Id);
+        $rootScope.isLoggedIn = true;
+        $location.path('/');
+      }, function(error){
+        $rootScope.currentUser = undefined;
+        $location.path('/welcome');
+      });
     }
   }
 });
