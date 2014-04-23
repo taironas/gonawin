@@ -133,7 +133,9 @@ dataServices.factory('Session', function($cookieStore, $resource) {
     logout: { method:'JSONP', params: {token:'@token', callback: 'JSON_CALLBACK'}, url: 'https://accounts.google.com/o/oauth2/revoke' },
     authenticateWithTwitter: { method:'GET', url: '/j/auth/twitter' },
     fetchTwitterUser: { method:'GET', params: { oauth_token: '@oauth_token', oauth_verifier: '@oauth_verifier' }, url: '/j/auth/twitter/user/' },
-    authenticateWithGoogle: { method:'GET', url: '/j/auth/google' }
+    fetchGoogleLoginUrl: { method:'GET', url: '/j/auth/googleloginurl' },
+    authenticateWithGoogle: { method:'GET', url: '/j/auth/google' },
+    fetchGoogleUser: { method:'GET', params: { oauth_token: '@oauth_token' }, url: '/j/auth/google/user/' },
   });
 
   // Need to define displayname function here again as User can be either returned by the server or the session.

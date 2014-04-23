@@ -109,8 +109,11 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 
 // Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
-
-	http.Redirect(w, r, "http://localhost:8080/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
+  var host string = "gonawin.com"
+  if appengine.IsDevAppServer() {
+    host = "localhost:8080"
+  }
+	http.Redirect(w, r, "http://"+host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 	return nil
 }
 
@@ -181,41 +184,84 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// JSON authentication for Google Accounts.
-func GoogleAccountsAuth(w http.ResponseWriter, r *http.Request) error {
+// JSON handler to get Google accounts login URL.
+func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-	desc := "Google Accounts Authentication handler:"
+  desc := "Google Accounts Login URL Handler:"
+  
+  u := user.Current(c)
+  var url string
+  if u == nil {
+    var err error
+    url, err = user.LoginURL(c, "/j/auth/google/callback/")
+    if err != nil {
+      log.Errorf(c, "%s error when getting Google accounts login URL", desc)
+      return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
+    }
+  }
 
-	u, err := user.CurrentOAuth(c, "")
-	if err != nil {
-		log.Errorf(c, "%s OAuth Google Authorization header required", desc)
-		return &helpers.Unauthorized{Err: errors.New(helpers.ErrorCodeSessionsAuthHeaderRequired)}
+	// return user
+	loginData := struct {
+    Url string
+	}{
+    url,
 	}
-	log.Infof(c, "GoogleAuth: user = %v", u)
+
+	return templateshlp.RenderJson(w, c, loginData)
+}
+
+// Google Authentication Callback
+func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
+  c := appengine.NewContext(r)
+  u := user.Current(c)
+  var oauthToken string
+  if u != nil {
+    oauthToken, _ = user.OAuthConsumerKey(c)
+    log.Infof(c, "GoogleAuthCallback: oauthToken = %s", oauthToken)
+  }
+  
+  var host string = "gonawin.com"
+  if appengine.IsDevAppServer() {
+    host = "localhost:8080"
+  }
+  
+	http.Redirect(w, r, "http://"+host+"/ng#/auth/google/callback?oauth_token="+oauthToken, http.StatusFound)
+	return nil
+}
+
+// JSON handler to get Google accounts user.
+func GoogleUser(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+	desc := "Google Accounts User Handler:"
+  
+  u := user.Current(c)
+  if u == nil {
+    log.Errorf(c, "%s user cannot be nil", desc)
+    return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
+  }
+  
+  oauthToken, _ := user.OAuthConsumerKey(c)
+  if oauthToken != r.FormValue("oauth_token") {
+		log.Errorf(c, "%s OAuth token doesn't match user's OAuth token", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+	}
+  
 	userInfo := authhlp.GetUserGoogleInfo(u)
 
 	if !authhlp.IsAuthorized(&userInfo) {
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
 	}
   
-  // get OAuthConsumerKey as access token
-  var accessToken string
-  if accessToken, err = user.OAuthConsumerKey(c); err != nil {
-    log.Errorf(c, "%s Cannot get OAuth consumer key: %v", desc, err)
-    return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsOAuthConsumerKey)}
-  }
-
-	var user *mdl.User
+  var user *mdl.User
+  var err error
 	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
 	// return user
 	userData := struct {
-    AccessToken string
 		User *mdl.User
 	}{
-    accessToken,
 		user,
 	}
 

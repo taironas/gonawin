@@ -123,12 +123,16 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
-
+    
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
     if($location.$$path === '/auth/twitter/callback')
     {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
-    } else {
+    } else if($location.$$path === '/auth/google/callback')
+    {
+      sAuth.signinWithGoogle(($location.search()).oauth_token);
+    } 
+    else {
       // Everytime the route in our app changes check authentication status.
       // Get current user only if we are logged in.
       if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
