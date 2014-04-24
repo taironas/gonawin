@@ -92,7 +92,6 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         $location.path('/');
       }, function(error){
         $rootScope.currentUser = undefined;
-        $location.path('/welcome');
       });
     }
   }

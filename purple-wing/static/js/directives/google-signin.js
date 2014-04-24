@@ -13,7 +13,6 @@ angular.module('directive.googlesignin', []).
             window.location.replace(data.Url);
           }).then(function(error) {
             console.log('fetchGoogleLoginUrl: error = ', error);
-            $rootScope.$broadcast('event:google-signin-failure', error);
           });
         })
       }

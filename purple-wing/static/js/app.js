@@ -125,14 +125,12 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
     
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
-    if($location.$$path === '/auth/twitter/callback')
-    {
+    
+    if($location.$$path === '/auth/twitter/callback') {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
-    } else if($location.$$path === '/auth/google/callback')
-    {
+    } else if($location.$$path === '/auth/google/callback') {
       sAuth.signinWithGoogle(($location.search()).oauth_token);
-    } 
-    else {
+    } else {
       // Everytime the route in our app changes check authentication status.
       // Get current user only if we are logged in.
       if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
@@ -145,7 +143,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
         $location.path('/');
       }
       // Redidrect to welcome if route requires to be logged in and user is not logged in.
-      if ( next.requireLogin && (undefined == $rootScope.currentUser) ) {
+      if ( next.requireLogin && ((undefined == $rootScope.currentUser) || !$rootScope.isLoggedIn) ) {
         console.log('routeChangeStart, redirect to welcome');
         $location.path('/welcome');
       }
@@ -173,18 +171,5 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
   });
   $rootScope.$on('event:google-plus-signin-failure', function (event, authResult) {
     // User has not authorized the G+ App!
-  });
-  $rootScope.$on('event:google-signin-success', function (event, authResult) {
-    // User successfully authorized via Google Accounts!
-    console.log('event:google-signin-success, authResult = ', authResult);
-    authResult.$promise.then(function(result){
-      $rootScope.currentUser = result;
-      sAuth.storeCookies(result.AccessToken, result.User.Auth, result.User.Id);
-      $rootScope.isLoggedIn = true;
-      $location.path('/');
-    });
-  });
-  $rootScope.$on('event:google-signin-failure', function (event, authResult) {
-    // User has not been authorized via Google Accounts!
   });
 }]);
