@@ -8,8 +8,13 @@
   <div class="panel-body">
     <h1>Prices</h1>
 
-    <!-- start prices data -->
-    <div ng-include src="'templates/teams/partials/pricesData.html'"></div>
-    <!-- end prices data -->
+    <h4 ng-show="priceData.Prices.length == 0">No prices has been won</h4>
+    <div class="row" ng-repeat="p in priceData.Prices">
+      <div class="col-md-1"></div>
+      <div class="col-md-3">
+        <h4>Tournament: {{p.TournamentId}}</h4>
+        <p>Price: {{p.Description}}</p>
+      </div>
+    </div>
   </div>
 </div>

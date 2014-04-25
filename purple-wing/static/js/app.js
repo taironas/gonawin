@@ -53,16 +53,15 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
+      
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
       when('/users/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl', requireLogin: true }).
       when('/users/:id/scores', {templateUrl: 'templates/users/scores.html', controller: 'UserScoresCtrl', requireLogin: true}).
+      
       when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl', requireLogin: true }).
       when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
       when('/teams/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
       when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
-      when('/teams/:id/ranking', { templateUrl: 'templates/teams/ranking.html', controller: 'TeamRankingCtrl', requireLogin: true }).
-      when('/teams/:id/accuracies', {templateUrl: 'templates/teams/accuracies.html', controller: 'TeamAccuraciesCtrl', requireLogin: true}).
-      when('/teams/:id/accuracies/:tournamentId', {templateUrl: 'templates/teams/accuracy.html', controller: 'TeamAccuracyByTournamentCtrl', requireLogin: true}).
       when('/teams/:id/prices', {templateUrl: 'templates/teams/prices.html', controller: 'TeamPricesCtrl', requireLogin: true}).
       when('/teams/:id/prices/:tournamentId', {templateUrl: 'templates/teams/price.html', controller: 'TeamPriceByTournamentCtrl', requireLogin: true}).
       when('/teams/:id/prices/edit/:tournamentId', {templateUrl: 'templates/teams/priceedit.html', controller: 'TeamPriceEditByTournamentCtrl', requireLogin: true}).
