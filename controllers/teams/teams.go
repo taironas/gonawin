@@ -206,7 +206,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build players json
 		players := team.Players(c)
-		fieldsToKeepForPlayer := []string{"Id", "Username"}
+		fieldsToKeepForPlayer := []string{"Id", "Username", "Score"}
 		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
 
@@ -537,7 +537,7 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build members json
 		members := team.Players(c)
-		fieldsToKeepForMember := []string{"Id", "Username"}
+		fieldsToKeepForMember := []string{"Id", "Username", "Score"}
 		membersJson := make([]mdl.UserJson, len(members))
 		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
 

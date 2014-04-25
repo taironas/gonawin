@@ -2,7 +2,7 @@
   <div class="container">
     <div class="navbar-header">
       <a class="navbar-brand" href="#" ng-if="currentUser.User.IsAdmin">gonawin - admin</a>
-      <a class="navbar-brand" href="#" ng-if="!currentUser.User.IsAdmin">gonawin</a>
+      <a class="navbar-brand" href="#" ng-if="!currentUser.User.IsAdmin">gonawin <small>alpha</small></a>
     </div>
     <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav" ng-if="isLoggedIn">
@@ -13,8 +13,6 @@
           </a>
           <ul class="dropdown-menu fa-ul" role="menu" aria-labelledby="dLabel">
             <li><a href=""><i class="fa-li fa fa-user fa-fw fa-inverse"></i> Users</a></li>
-            <li><a href=""><i class="fa-li fa fa-users fa-fw fa-inverse"></i> Teams</a></li>
-            <li><a href=""><i class="fa-li fa fa-trophy fa-fw fa-inverse"></i> Tournaments</a></li>
           </ul>
         </li>
         <li data-match-route="/teams.*"><a href="/ng#/teams"><i class="fa fa-users fa-lg fa-inverse"></i> Teams</a></li>

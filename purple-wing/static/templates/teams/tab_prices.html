@@ -1,17 +1,21 @@
-<h4 ng-show="pricesData.Prices.length == 0">No prices has been won</h4>
-<div class="row" ng-repeat="p in pricesData.Prices">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <h4>Tournament: {{p.TournamentId}}</h4>
-    <p>Price:{{p.Description}}</p>
-    <form class="form-inline" role="form" name="editPriceForm">
-      <a class="btn btn-default" ng-click="visible=true" ng-hide="visible"><span>Edit</span></a>
-      <div class="form-group" ng-class="{error: editPriceForm.name.$invalid}" ng-show="visible">
-        <input class="text-field form-control" name="description" size="30" type="text" ng-model="p.Description" required/>
-        <span ng-show="editPriceForm.name.$error.required" class="text-danger"> Required</span>
-        <button class="btn btn-default" ng-click="visible=false">Cancel</button>
-        <button class="btn btn-primary" ng-click="updatePrice($index); visible=false" ng-disabled="editPriceForm.$invalid">Update Price</button>
+<div class="panel panel-default">
+  <div class="tab-panel">
+    <h4 ng-show="pricesData.Prices.length == 0">No prices has been won</h4>
+    <div class="row" ng-repeat="p in pricesData.Prices">
+      <div class="col-md-1"></div>
+      <div class="col-md-11">
+        <h4>Tournament: {{p.TournamentId}}</h4>
+        <p>Price:{{p.Description}}</p>
+        <form class="form-inline" role="form" name="editPriceForm">
+          <a class="btn btn-default" ng-click="visible=true" ng-hide="visible"><span>Edit</span></a>
+          <div class="form-group" ng-class="{error: editPriceForm.name.$invalid}" ng-show="visible">
+            <input class="text-field form-control" name="description" size="30" type="text" ng-model="p.Description" required/>
+            <span ng-show="editPriceForm.name.$error.required" class="text-danger"> Required</span>
+            <button class="btn btn-default" ng-click="visible=false">Cancel</button>
+            <button class="btn btn-primary" ng-click="updatePrice($index); visible=false" ng-disabled="editPriceForm.$invalid">Update Price</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </div>

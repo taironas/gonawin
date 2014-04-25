@@ -1,8 +1,18 @@
 <div class="players">
-  <div class="row centered" ng-repeat="player in teamData.Players">
-    <div class="col-md-4"></div>
-    <div class="col-md-1"><img src="https://sigil.cupcake.io/{{player.Id}}.png?inverted=1" height="40" width="40" class="img-circle"></div>
-    <div class="col-md-3"><a href="/ng#/users/{{player.Id}}">{{player.Username}}</a></div>
-    <div class="col-md-2"></div>
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-repeat="player in teamData.Players">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{player.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/ng#/users/{{player.Id}}">{{player.Username}}</a></h4>
+              </p>
+              <h5>Score: {{player.Score}}</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

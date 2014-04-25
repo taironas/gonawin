@@ -15,13 +15,13 @@
 <div id="tournament-manage-admin-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentManageAdminModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-            <div class="modal-header">
+      <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="tournamentManageAdminModalLabel">Manage admins</h3>
-            </div>
-            <div class="modal-body">
-      <div ng-include src="'templates/tournaments/partials/adminCandidates.html'"></div>
-            </div>
+      </div>
+      <div class="modal-body">
+        <div ng-include src="'templates/tournaments/partials/adminCandidates.html'"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -33,3 +33,34 @@
   {{tournamentData.Tournament.Name}}
   <small>{{tournamentData.Tournament.Description}}</small>
 </h1>
+
+<div class="row">
+  <div class="col-md-1"></div>
+  <!-- actions -->
+  <div class="col-md-10">
+    <form class="form-horizontal">
+      <div class="form-group">
+        <div class="btn-group pull-right">
+          <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+          <button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- / actions -->
+  <!-- modal -->
+  <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+          <h3 id="tournamentModalLabel">Add Team</h3>
+        </div>
+        <div class="modal-body">
+          <div ng-include src="'templates/tournaments/partials/teamCandidates.html'"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- / modal -->
+</div>
