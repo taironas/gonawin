@@ -18,9 +18,9 @@ package auth
 
 import (
 	"encoding/json"
-  "fmt"
+	"fmt"
 	"io/ioutil"
-  "math/rand"
+	"math/rand"
 	"net/http"
 
 	"appengine"
@@ -68,10 +68,15 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-// Ckeck if user is admin.
-// #196: Should be removed when deployed in production.
+// // Ckeck if user is admin.
+// // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
-  return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || (appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith"))
+	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || (appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith"))
+}
+
+// Check if user is gonawin admin.
+func IsGonawinAdmin(u *mdl.User) bool {
+	return u != nil && (u.Email == kEmailRjourde || u.Email == kEmailSarias)
 }
 
 // Ckeck if twitter user is admin.
@@ -100,10 +105,10 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 // returns pointer to current user, from authentication cookie.
 func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	if KOfflineMode {
-		currentUser := mdl.FindUser(c, "Username", "purple")
+		currentUser := mdl.FindUser(c, "Username", "gonawin")
 
 		if currentUser == nil {
-			currentUser, _ = mdl.CreateUser(c, "purple@wing.com", "purple", "wing", "", true, mdl.GenerateAuthKey())
+			currentUser, _ = mdl.CreateUser(c, "gona@win.com", "gona", "win", "", true, mdl.GenerateAuthKey())
 		}
 		return currentUser
 	} else {
@@ -115,8 +120,8 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 // if on development server only email (example@example.com) will be present.
 // So Id and Name will be added.
 func GetUserGoogleInfo(u *user.User) UserInfo {
-  if appengine.IsDevAppServer() {
-    return UserInfo{Id: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
-  }
+	if appengine.IsDevAppServer() {
+		return UserInfo{Id: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
+	}
 	return UserInfo{Id: u.ID, Email: u.Email, Name: u.String()}
 }

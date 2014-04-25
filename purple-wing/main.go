@@ -55,7 +55,7 @@ func init() {
 	h.HandleFunc("/j/auth/google/user?", handlers.ErrorHandler(sessionsctrl.GoogleUser))
 
 	// user
-	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Index)))
+	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.AdminAuthorized(usersctrl.Index)))
 	h.HandleFunc("/j/users/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Show)))
 	h.HandleFunc("/j/users/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Update)))
 	h.HandleFunc("/j/users/[0-9]+/scores/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Score)))
@@ -85,10 +85,10 @@ func init() {
 
 	// tournament
 	h.HandleFunc("/j/tournaments/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Index)))
-	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.New)))
+	h.HandleFunc("/j/tournaments/new/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.New)))
 	h.HandleFunc("/j/tournaments/show/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Show)))
-	h.HandleFunc("/j/tournaments/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Update)))
-	h.HandleFunc("/j/tournaments/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Destroy)))
+	h.HandleFunc("/j/tournaments/update/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.Update)))
+	h.HandleFunc("/j/tournaments/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.Destroy)))
 	h.HandleFunc("/j/tournaments/search/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Search)))
 	h.HandleFunc("/j/tournaments/candidates/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CandidateTeams)))
 	h.HandleFunc("/j/tournaments/[0-9]+/participants/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Participants)))
@@ -105,19 +105,19 @@ func init() {
 	h.HandleFunc("/j/invite/?", handlers.ErrorHandler(handlers.Authorized(invitectrl.Invite)))
 
 	// tournament world cup
-	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.NewWorldCup)))
+	h.HandleFunc("/j/tournaments/newwc/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.NewWorldCup)))
 	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Groups)))
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Calendar)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Matches)))
-	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/update/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateMatchResult)))
+	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/update/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.UpdateMatchResult)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/predict/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Predict)))
 	h.HandleFunc("/j/tournaments/[0-9]+/ranking/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Ranking)))
 	h.HandleFunc("/j/tournaments/[0-9]+/teams?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Teams)))
-	h.HandleFunc("/j/tournaments/[0-9]+/admin/reset/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Reset)))
-	h.HandleFunc("/j/tournaments/[0-9]+/matches/simulate/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.SimulateMatches)))
-	h.HandleFunc("/j/tournaments/[0-9]+/admin/updateteam/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.UpdateTeam)))
-	h.HandleFunc("/j/tournaments/[0-9]+/admin/add/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.AddAdmin)))
-	h.HandleFunc("/j/tournaments/[0-9]+/admin/remove/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.RemoveAdmin)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/reset/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.Reset)))
+	h.HandleFunc("/j/tournaments/[0-9]+/matches/simulate/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.SimulateMatches)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/updateteam/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.UpdateTeam)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/add/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.AddAdmin)))
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/remove/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.RemoveAdmin)))
 
 	// activities
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))

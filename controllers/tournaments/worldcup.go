@@ -35,6 +35,7 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "World Cup Handler:"
 
 	if r.Method == "POST" {
+
 		tournament, err := mdl.CreateWorldCup(c, u.Id)
 		if err != nil {
 			log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)

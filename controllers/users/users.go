@@ -49,7 +49,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		if !u.IsAdmin {
-			log.Errorf(c, "Tournament Index Handler: user is not admin, User list can only be shown for admin users.")
+			log.Errorf(c, "User Index Handler: user is not admin, User list can only be shown for admin users.")
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotFound)}
 		}
 

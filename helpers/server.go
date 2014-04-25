@@ -19,7 +19,6 @@ package helpers
 import (
 	"io"
 	"net/http"
-	//"fmt"
 )
 
 // writes a 404 not found in ResponseWriter

@@ -28,7 +28,6 @@ import (
 	"github.com/santiaago/purple-wing/helpers/auth"
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	//mdl "github.com/santiaago/purple-wing/models/user"
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
@@ -86,18 +85,41 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 	}
 }
 
-// Authorized runs the function pass by parameter and checks authentication data prior to any call. Will rise a bad request error handler if authentication fails.
+// Authorized runs the function pass by parameter and checks authentication data prior to any call.
+// Will rise a bad request error handler if authentication fails.
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
+		var user *mdl.User
 		if auth.KOfflineMode {
-			return f(w, r, auth.CurrentOfflineUser(r, appengine.NewContext(r)))
+			user = auth.CurrentOfflineUser(r, appengine.NewContext(r))
+		} else {
+			user = auth.CheckAuthenticationData(r)
 		}
 
-		user := auth.CheckAuthenticationData(r)
 		if user == nil {
 			return &helpers.BadRequest{Err: errors.New("Bad Authentication data")}
 		} else {
 			return f(w, r, user)
 		}
+	}
+}
+
+// Admin Authorized runs the function pass by parameter and checks authentication data prior to any call.
+// Will rise a bad request error handler if authentication fails. User should be a gonawin admin .
+func AdminAuthorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) error {
+		var user *mdl.User
+		if auth.KOfflineMode {
+			user = auth.CurrentOfflineUser(r, appengine.NewContext(r))
+		} else {
+			user = auth.CheckAuthenticationData(r)
+			if user == nil {
+				return &helpers.BadRequest{Err: errors.New("Bad Authentication data")}
+			}
+		}
+		if !auth.IsGonawinAdmin(user) {
+			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
+		}
+		return f(w, r, user)
 	}
 }

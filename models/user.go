@@ -245,7 +245,6 @@ func (u *User) TournamentsByPage(c appengine.Context, count, page int64) []*Tour
 	return paged
 }
 
-
 // Adds a predict Id in the PredictId array.
 func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 
