@@ -184,19 +184,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	});
     };
 
-    // tab at undefined means you are in tournament/:id url
-    if($routeParams.tab == undefined){
-	$scope.tournamentData.$promise.then(function(result){
-	    if(result.Tournament.IsFirstStageComplete){
-		$scope.tab = 'secondstageh';
-	    }else{
-		$scope.tab = 'firststage';
-	    }
-	});
-    } else {
-	// Initialize tab variable to handle views:
-	$scope.tab = $routeParams.tab;
-    }
+  // tab at undefined means you are in tournament/:id url.
+  // So calendar should be active by default
+  if($routeParams.tab == undefined){
+    $scope.tab = 'calendar';
+  } else {
+    // Initialize tab variable to handle views:
+    $scope.tab = $routeParams.tab;
+  }
 
     // set isTournamentAdmin boolean:
     // This variable defines if the current user is admin of the current tournament.
@@ -348,19 +343,39 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	}
     })
+    
+  $scope.tabs = {
+    "calendar":         { title: 'Calendar',                url: 'templates/tournaments/tab_calendar.html' },
+    "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' }, 
+    "secondstageh":     { title: 'Second Stage Horizontal', url: 'templates/tournaments/tab_bracketH.html' },
+    "secondstagev":     { title: 'Second Stage Vertical',   url: 'templates/tournaments/tab_bracketV.html' },
+    "ranking":          { title: 'Ranking',                 url: 'templates/tournaments/tab_ranking.html' },
+    "admin.setresults": { title: 'Set Results',             url: 'templates/tournaments/tab_setresults.html' },
+    "admin.setteams":   { title: 'Set Teams',               url: 'templates/tournaments/tab_setteams.html' }
+  };
+  
+  // set the current tab based on the 'tab' parameter
+  if($scope.tab == undefined) {
+    $scope.currentTab = $scope.tabs["calendar"].url;
+  } else {
+    $scope.currentTab = $scope.tabs[$scope.tab].url;
+  }
 
-    // $locationChangeSuccess event is triggered when url changes.
-    // note: this event is not triggered when page is refreshed.
-    $scope.$on('$locationChangeSuccess', function(event) {
-	console.log('tournament show: location changed:');
-	console.log('tournament show: routeparams', $routeParams);
-	// set tab paramter to new tab parameter.
-	// use this to have to last state in order to display the proper view.
-	if($routeParams.tab != undefined){
-	    $scope.tab = $routeParams.tab;
-	}
-    });
+  $scope.onClickTab = function (tab) {
+    $scope.currentTab = tab.url;
+  }
 
+  // $locationChangeSuccess event is triggered when url changes.
+  // note: this event is not triggered when page is refreshed.
+  $scope.$on('$locationChangeSuccess', function(event) {
+    console.log('tournament show: location changed:');
+    console.log('tournament show: routeparams', $routeParams);
+    // set tab parameter to new tab parameter.
+    // use this to have to last state in order to display the proper view.
+    if($routeParams.tab != undefined){
+      $scope.tab = $routeParams.tab;
+    }
+  });
 }]);
 
 // TournamentEditCtrl: collects data to update an existing tournament.
@@ -392,19 +407,18 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
     $scope.groupby = $routeParams.groupby;
 
-    $scope.updateMatchesView = function(){
-	if($scope.groupby != undefined){
-	    if($scope.groupby == 'phase'){
- 		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
-	    }
-	    else if($scope.groupby == 'date'){
-    		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
-	    }
-	}else{
-	    $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
-	}
-    };
-   $scope.updateMatchesView();
+  $scope.updateMatchesView = function(){
+    if($scope.groupby != undefined){
+      if($scope.groupby == 'phase'){
+        $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+      } else if($scope.groupby == 'date'){
+        $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
+      }
+    } else{
+      $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
+    }
+  };
+  $scope.updateMatchesView();
     // $scope.byPhaseOnClick = function(){
     // 	$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
     // };
@@ -441,19 +455,18 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
     };
 
-    // $locationChangeSuccess event is triggered when url changes.
-    // note: this event is not triggered when page is refreshed.
-    $scope.$on('$locationChangeSuccess', function(event) {
-	console.log('tournament calendar!!!: location changed:');
-	console.log('tournament calendar!!!!!!: routeparams', $routeParams);
-	// set tab paramter to new tab parameter.
-	// use this to have to last state in order to display the proper view.
-	if($routeParams.tab != undefined){
-	    $scope.groupby = $routeParams.groupby;
-	    $scope.updateMatchesView();
-	}
-    });
-
+  // $locationChangeSuccess event is triggered when url changes.
+  // note: this event is not triggered when page is refreshed.
+  $scope.$on('$locationChangeSuccess', function(event) {
+    console.log('tournament calendar!!!: location changed:');
+    console.log('tournament calendar!!!!!!: routeparams', $routeParams);
+    // set tab parameter to new tab parameter.
+    // use this to have to last state in order to display the proper view.
+    if($routeParams.tab != undefined){
+      $scope.groupby = $routeParams.groupby;
+      $scope.updateMatchesView();
+    }
+  });
 }]);
 
 // TournamentSetResultsCtrl (admin): update results.

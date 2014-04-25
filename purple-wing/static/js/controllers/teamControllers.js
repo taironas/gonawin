@@ -19,7 +19,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 
     // initilize team message and button visibility.
     $scope.teams.$promise.then(function(response){
-	if(!$scope.teams || ($scope.teams && !$scope.teams.length)){
+  if(!$scope.teams || ($scope.teams && !$scope.teams.length)){
 	    $scope.noTeamsMessage = 'No team has been created';
 	}else if($scope.teams != undefined){
 	    $scope.showMoreTeams = (response.length == $scope.countTeams);

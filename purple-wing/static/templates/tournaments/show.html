@@ -46,19 +46,19 @@
 </div>
 <div class="row centered">
   <div class="btn-group btn-group-gn">
-    <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" ng-click="onClickTab(tabs['calendar'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" ng-click="onClickTab(tabs['firststage'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: (tab == 'secondstageh') || (tab == 'secondstagev')}" data-toggle="dropdown">
         Second Stage
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstageh">Horizontal</a></li>
-        <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstagev">Vertical</a></li>
+        <li><a ng-click="onClickTab(tabs['secondstageh'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstageh">Horizontal</a></li>
+        <li><a ng-click="onClickTab(tabs['secondstagev'])"href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstagev">Vertical</a></li>
       </ul>
     </div>
-    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
     <!-- admin buttons -->
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: tab == 'admin.setresults'}" data-toggle="dropdown">
@@ -66,57 +66,13 @@
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
-        <li><a href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
+        <li><a ng-click="onClickTab(tabs['admin.setresults'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
+        <li><a ng-click="onClickTab(tabs['admin.setteams'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
         <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
       </ul>
     </div>
   </div>
 </div>
 <div class="panel panel-default">
-  <div class="panel-body">
-    <!-- tournament views -->
-    <div ng-switch on="tab">
-      <div ng-switch-when="calendar">
-        <div ng-controller="TournamentCalendarCtrl">
-          <div ng-include src="'templates/tournaments/tab_calendar.html'"></div>
-	       </div>
-      </div>
-      <div ng-switch-when="firststage">
-        <div ng-controller="TournamentFirstStageCtrl">
-          <div ng-include src="'templates/tournaments/tab_firststage.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-when="secondstageh">
-        <div ng-controller="TournamentSecondStageCtrl">
-    	     <div ng-include src="'templates/tournaments/tab_bracketH.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-when="secondstagev">
-        <div ng-controller="TournamentSecondStageCtrl">
-          <div ng-include src="'templates/tournaments/tab_bracketV.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-when="ranking">
-        <div ng-controller="TournamentRankingCtrl">
-          <div ng-include src="'templates/tournaments/tab_ranking.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-when="admin.setresults">
-        <div ng-controller="TournamentSetResultsCtrl">
-          <div ng-include src="'templates/tournaments/tab_setresults.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-when="admin.setteams">
-        <div ng-controller="TournamentSetTeamsCtrl">
-          <div ng-include src="'templates/tournaments/tab_setteams.html'"></div>
-        </div>
-      </div>
-      <div ng-switch-default>
-        <div ng-controller="TournamentFirstStageCtrl">
-          <div ng-include src="'templates/tournaments/tab_firststage.html'"></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="tab-panel" ng-include="currentTab"></div>
 </div>

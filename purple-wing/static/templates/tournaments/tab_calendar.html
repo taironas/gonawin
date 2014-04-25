@@ -1,51 +1,53 @@
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-9">
-    <div class="btn-group pull-right">
-      <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=phase">Phase</a></li>
-      <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=date">Date</a></li>
+<div ng-controller="TournamentCalendarCtrl">
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-9">
+      <div class="btn-group pull-right">
+        <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=date">Date</a></li>
+        <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=phase">Phase</a></li>
+      </div>
     </div>
   </div>
-</div>
-<!-- Calendar by days -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <div ng-repeat="d in matchesData.Days">
+  <!-- Calendar by days -->
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <div ng-repeat="d in matchesData.Days">
+        <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
+        <div class="calendar">
+    <div ng-repeat="m in d.Matches" class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-9">
+              <!-- show use another include that has full match information: location, ... -->
+              <div ng-include src="'templates/tournaments/match.html'"> </div>
+            </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- / Calendar by days-->
+  <!-- Calendar by phases -->
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <div ng-repeat="phase in matchesData.Phases">
+        <h2>{{phase.Name}}</h2>
+        <div class="calendar">
+    <div ng-repeat="d in phase.Days">
       <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
       <div class="calendar">
-	<div ng-repeat="m in d.Matches" class="row">
-          <div class="col-md-1"></div>
-          <div class="col-md-9">
-            <!-- show use another include that has full match information: location, ... -->
-            <div ng-include src="'templates/tournaments/match.html'"> </div>
-          </div>
-	</div>
+        <div ng-repeat="m in d.Matches" class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-9">
+      <div ng-include src="'templates/tournaments/match.html'"> </div>
+                </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<!-- / Calendar by days-->
-<!-- Calendar by phases -->
-<div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
-    <div ng-repeat="phase in matchesData.Phases">
-      <h2>{{phase.Name}}</h2>
-      <div class="calendar">
-	<div ng-repeat="d in phase.Days">
-	  <h3>{{d.Date | date:'EEE dd MMM'}}</h3>
-	  <div class="calendar">
-	    <div ng-repeat="m in d.Matches" class="row">
-              <div class="col-md-1"></div>
-              <div class="col-md-9">
-		<div ng-include src="'templates/tournaments/match.html'"> </div>
-              </div>
-	    </div>
-	  </div>
-	</div>
+        </div>
+        <!-- Calendar by phases -->
       </div>
-      <!-- Calendar by phases -->
     </div>
   </div>
 </div>
