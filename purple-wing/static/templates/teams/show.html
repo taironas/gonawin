@@ -74,7 +74,10 @@
 </div>
 <div class="row centered">
   <div class="btn-group btn-group-gn">
-    <button type="button" class="btn btn-default" ng-repeat="tab in tabs" ng-class="{active:isActiveTab(tab.url)}" ng-click="onClickTab(tab)">{{tab.title}}</button>
+    <a class="btn btn-default" ng-class="{active: tab == 'members'}" ng-click="onClickTab(tabs['members'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=members">Members</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=ranking">Ranking</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'accuracies'}" ng-click="onClickTab(tabs['accuracies'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=accuracies">Accuracies</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'prices'}" ng-click="onClickTab(tabs['prices'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=prices">Prices</a>
   </div>
 </div>
 <div class="panel panel-default">

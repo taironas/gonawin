@@ -279,35 +279,39 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 	// }
     })
 
-    $scope.tabs = [{
-      title: 'Members',
-      url: 'templates/teams/players.html'
-    }, {
-      title: 'Ranking',
-      url: 'templates/teams/partials/rankingData.html'
-    }, {
-      title: 'Accuracies',
-      url: 'templates/teams/partials/accuraciesData.html'
-    }, {
-      title: 'Prices',
-      url: 'templates/teams/partials/pricesData.html'
-    }];
+  // tab at undefined means you are in tournament/:id url.
+  // So calendar should be active by default
+  if($routeParams.tab == undefined){
+    $scope.tab = 'members';
+  } else {
+    // Initialize tab variable to handle views:
+    $scope.tab = $routeParams.tab;
+  }
+  
+  $scope.tabs = {
+    "members":    { title: 'Members',     url: 'templates/teams/players.html' },
+    "ranking":    { title: 'Ranking',     url: 'templates/teams/partials/rankingData.html' },
+    "accuracies": { title: 'Accuracies',  url: 'templates/teams/partials/accuraciesData.html' },
+    "prices":     { title: 'Prices',      url: 'templates/teams/partials/pricesData.html' }
+  };
 
-    $scope.currentTab = 'templates/teams/players.html';
+  // set the current tab based on the 'tab' parameter
+  if($scope.tab == undefined) {
+    $scope.currentTab = $scope.tabs["members"].url;
+  } else {
+    $scope.currentTab = $scope.tabs[$scope.tab].url;
+  }
 
-    $scope.onClickTab = function (tab) {
-        $scope.currentTab = tab.url;
-    }
+  $scope.onClickTab = function (tab) {
+    console.log('teamControllers: onClickTab, tab = ', tab);
+    $scope.currentTab = tab.url;
+  }
 
-    $scope.isActiveTab = function(tabUrl) {
-        return tabUrl == $scope.currentTab;
-    }
-
-    $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
-    // predicate is udate for ranking tables
-    $scope.predicate = 'Score';
-    $scope.accuracyData = Team.accuracies({id:$routeParams.id});
-    $scope.priceData = Team.prices({id:$routeParams.id});
+  $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
+  // predicate is udate for ranking tables
+  $scope.predicate = 'Score';
+  $scope.accuracyData = Team.accuracies({id:$routeParams.id});
+  $scope.priceData = Team.prices({id:$routeParams.id});
 
 }]);
 
