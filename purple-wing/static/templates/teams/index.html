@@ -25,12 +25,12 @@
       <h4>Teams you've joined:</h4>
       </br>
       <div class="row center-block">
-        <div ng-repeat="team in joinedTeams" ng-controller="TeamCardCtrl">
+        <div ng-repeat="team in joinedTeams">
           <div class="panel panel-default card">
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i>
                 <small>members: {{team.MembersCount}}</small>
               </p>
             </div>
@@ -52,12 +52,12 @@
       <h4>Teams you can join:</h4>
       </br>
       <div class="row center-block">
-        <div ng-repeat="team in teams" ng-controller="TeamCardCtrl">
+        <div ng-repeat="team in teams">
           <div class="panel panel-default card">
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg  gn-grey" ng-if="team.Private"></i>
                 <small>members: {{team.MembersCount}}</small>
               </p>
             </div>

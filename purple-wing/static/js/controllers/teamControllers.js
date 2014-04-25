@@ -70,13 +70,6 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     }
 }]);
 
-// TeamCardCtrl: fetch data of a particular team.
-teamControllers.controller('TeamCardCtrl', ['$scope', 'Team',
-  function($scope, Team) {
-    //console.log('Team card controller:');
-    //console.log('team ID: ', $scope.$parent.team.Id);
-}]);
-
 // TeamNewCtrl: use this controller to create a team.
 teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$location', function($rootScope, $scope, Team, $location) {
   console.log('Team new controller:');
