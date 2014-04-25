@@ -99,104 +99,100 @@ teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$loc
 // TeamShowCtrl: fetch data of specific team.
 // // Handle also deletion of this same team and join/leave.
 teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$location', '$q', '$rootScope', function($scope, $routeParams, Team, $location, $q, $rootScope) {
-    console.log('Team show controller:');
-    $scope.teamData = Team.get({ id:$routeParams.id });
-    // get message info from redirects.
-    $scope.messageInfo = $rootScope.messageInfo;
-    // reset to nil var message info in root scope.
-    $rootScope.messageInfo = undefined;
+  console.log('Team show controller:');
+  $scope.teamData = Team.get({ id:$routeParams.id });
+  // get message info from redirects.
+  $scope.messageInfo = $rootScope.messageInfo;
+  // reset to nil var message info in root scope.
+  $rootScope.messageInfo = undefined;
 
-    $scope.deleteTeam = function() {
-    	if(confirm('Are you sure?')){
-    	    Team.delete({ id:$routeParams.id },
-    			function(response){
-    			    $rootScope.messageInfo = response.MessageInfo;
-    			    $location.path('/');
-    			},
-    			function(err) {
-    			    $scope.messageDanger = err.data;
-    			    console.log('delete failed: ', err.data);
-    			});
-    	}
-    };
+  $scope.deleteTeam = function() {
+    if(confirm('Are you sure?')){
+        Team.delete({ id:$routeParams.id },
+        function(response){
+            $rootScope.messageInfo = response.MessageInfo;
+            $location.path('/');
+        },
+        function(err) {
+            $scope.messageDanger = err.data;
+            console.log('delete failed: ', err.data);
+        });
+    }
+  };
 
-    // set admin candidates and array of functions.
-    $scope.teamData.$promise.then(function(response){
-    	$scope.adminCandidates = response.Players;
-    	var len = 0;
-    	if(response.Players){
-  	    len = response.Players.length;
-    	}
-    	$scope.addAdminButtonName = new Array(len);
-    	$scope.addAdminButtonMethod = new Array(len);
+  // set admin candidates and array of functions.
+  $scope.teamData.$promise.then(function(response){
+    $scope.adminCandidates = response.Players;
+    var len = 0;
+    if(response.Players){
+      len = response.Players.length;
+    }
+    $scope.addAdminButtonName = new Array(len);
+    $scope.addAdminButtonMethod = new Array(len);
 
-    	for (var i=0 ; i<len; i++){
-  	    // check if user is admin already here.
-	    if(response.Team.AdminIds.indexOf(response.Players[i].Id)>=0){
-  		$scope.addAdminButtonName[response.Players[i].Id] = 'Remove Admin';
-  		$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.removeAdmin;
-	    }else{
-		$scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
-  		$scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
-	    }
+    for (var i=0 ; i<len; i++){
+      // check if user is admin already here.
+      if(response.Team.AdminIds.indexOf(response.Players[i].Id)>=0){
+        $scope.addAdminButtonName[response.Players[i].Id] = 'Remove Admin';
+        $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.removeAdmin;
+      } else{
+        $scope.addAdminButtonName[response.Players[i].Id] = 'Add Admin';
+        $scope.addAdminButtonMethod[response.Players[i].Id] = $scope.addAdmin;
+      }
+    }
+  });
 
-    	}
+  // admin modal add buttons.
+  // add admin state.
+  $scope.addAdmin = function(userId){
+    Team.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+      $scope.addAdminButtonName[userId] = 'Remove admin';
+      $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
+      $scope.messageInfo = response.MessageInfo;
+    }, function(err) {
+      $scope.messageDanger = err.data;
+      console.log('save failed: ', err.data);
     });
-
-    // admin modal add buttons.
-    // add admin state.
-    $scope.addAdmin = function(userId){
-    	Team.addAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
-    	    $scope.addAdminButtonName[userId] = 'Remove admin';
-    	    $scope.addAdminButtonMethod[userId] = $scope.removeAdmin;
-    	    $scope.messageInfo = response.MessageInfo;
-    	}, function(err) {
-	    $scope.messageDanger = err.data;
-	    console.log('save failed: ', err.data);
-	});
-    };
-    // remove admin state.
-    $scope.removeAdmin = function(userId){
-    	Team.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
-    	    $scope.addAdminButtonName[userId] = 'Add admin';
-    	    $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
-    	    $scope.messageInfo = response.MessageInfo;
-    	},function(err){
-	    console.log('save failed: ', err.data);
-	    $scope.messageDanger = err.data;
-	});
-    };
-
-    // set isTeamAdmin boolean:
-    // This variable defines if the current user is admin of the current team.
-    $scope.teamData.$promise.then(function(teamResult){
-    	console.log('team is admin ready');
-    	// as it depends of currentUser, make a promise
-    	var deferred = $q.defer();
-    	deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
-    	return deferred.promise;
-    }).then(function(result){
-      console.log('is team admin:', result);
-      $scope.isTeamAdmin = result;
+  };
+  // remove admin state.
+  $scope.removeAdmin = function(userId){
+    Team.removeAdmin({id:$routeParams.id, userId:userId}).$promise.then(function(response){
+      $scope.addAdminButtonName[userId] = 'Add admin';
+      $scope.addAdminButtonMethod[userId] = $scope.addAdmin;
+      $scope.messageInfo = response.MessageInfo;
+    }, function(err){
+      console.log('save failed: ', err.data);
+      $scope.messageDanger = err.data;
     });
+  };
 
-    // set tournament ids with "values" so that angular understands:
-    // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
-    $scope.teamData.$promise.then(function(teamresp){
-	var len  = 0
-	if(teamresp.Team.TournamentIds){
-	    len = teamresp.Team.TournamentIds.length;
-	}
-	var tournamentIds = new Array();
-	for(var i = 0; i < len; i++){
-	    tournamentIds.push({value: teamresp.Team.TournamentIds[i]});
-	}
-	$scope.teamData.Team.TournamentIds = tournamentIds;
-	console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
-    });
+  // set isTeamAdmin boolean:
+  // This variable defines if the current user is admin of the current team.
+  $scope.teamData.$promise.then(function(teamResult){
+    console.log('team is admin ready');
+    // as it depends of currentUser, make a promise
+    var deferred = $q.defer();
+    deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
+    return deferred.promise;
+  }).then(function(result){
+    console.log('is team admin:', result);
+    $scope.isTeamAdmin = result;
+  });
 
-    // get prices for current team:
-    $scope.pricesData = Team.prices({ id:$routeParams.id });
+  // set tournament ids with "values" so that angular understands:
+  // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
+  $scope.teamData.$promise.then(function(teamresp){
+    var len  = 0
+    if(teamresp.Team.TournamentIds){
+      len = teamresp.Team.TournamentIds.length;
+    }
+    var tournamentIds = new Array();
+    for(var i = 0; i < len; i++){
+      tournamentIds.push({value: teamresp.Team.TournamentIds[i]});
+    }
+    $scope.teamData.Team.TournamentIds = tournamentIds;
+    console.log('new tournament ids:', $scope.teamData.Team.TournamentIds);
+  });
 
     $scope.requestInvitation = function(){
 	console.log('team request invitation');
@@ -308,11 +304,25 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   }
 
   $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
-  // predicate is udate for ranking tables
+  // predicate is updated for ranking tables
   $scope.predicate = 'Score';
   $scope.accuracyData = Team.accuracies({id:$routeParams.id});
-  $scope.priceData = Team.prices({id:$routeParams.id});
+  
+  $scope.pricesData = Team.prices({id:$routeParams.id});
 
+  $scope.updatePrice = function(index) {
+    var price = $scope.pricesData.Prices[index];
+    console.log('update, price = ', price)
+    Team.updatePrice({id:price.TeamId, tournamentId:price.TournamentId}, price,
+		function(response){
+		  $rootScope.messageInfo = response.MessageInfo;
+		  $location.path('/teams/' + price.TeamId);
+		},
+		function(err) {
+		  $scope.messageDanger = err.data;
+		  console.log('update failed: ', err.data);
+		});
+  }
 }]);
 
 // TeamEditCtrl: collects data to update an existing team.
@@ -335,73 +345,6 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
 		function(response){
 		  $rootScope.messageInfo = response.MessageInfo;
 		  $location.path('/teams/' + $routeParams.id);
-		},
-		function(err) {
-		  $scope.messageDanger = err.data;
-		  console.log('update failed: ', err.data);
-		});
-  }
-}]);
-
-// TeamRankingCtrl: fetch ranking data of a specific team.
-teamControllers.controller('TeamRankingCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
-  console.log('Team ranking controller:');
-  console.log('route params', $routeParams);
-  $scope.teamData = Team.get({ id:$routeParams.id });
-
-  $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
-  // predicate is udate for ranking tables
-  $scope.predicate = 'Score';
-
-}]);
-
-// TeamAccuraciesCtrl: fetch accuracies data of a specific team.
-teamControllers.controller('TeamAccuraciesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
-  console.log('Team accuracies controller:');
-  console.log('route params', $routeParams);
-  $scope.teamData = Team.get({ id:$routeParams.id });
-
-  $scope.accuracyData = Team.accuracies({id:$routeParams.id});
-}]);
-
-// TeamAccuracyByTournamentCtrl: fetch accuracy data by tournament of a specific team.
-teamControllers.controller('TeamAccuracyByTournamentCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location){
-  console.log('Team accuracy by tournament controller:');
-  console.log('route params', $routeParams);
-  $scope.teamData = Team.get({ id:$routeParams.id });
-  $scope.accuracyData = Team.accuracy({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
-}]);
-
-
-// TeamPricesCtrl: fetch prices data for a specific team.
-teamControllers.controller('TeamPricesCtrl', ['$scope', '$routeParams', 'Team', '$location',function($scope, $routeParams, Team, $location) {
-  console.log('Team prices controller:');
-  console.log('route params', $routeParams);
-  $scope.teamData = Team.get({ id:$routeParams.id });
-
-  $scope.priceData = Team.prices({id:$routeParams.id});
-}]);
-
-// TeamPriceByTournamentCtrl: fetch accuracy data by tournament of a specific team.
-teamControllers.controller('TeamPriceByTournamentCtrl', ['$scope', '$routeParams', 'Team', '$location', function($scope, $routeParams, Team, $location){
-  console.log('Team price by tournament controller:');
-  console.log('route params', $routeParams);
-  $scope.teamData = Team.get({ id:$routeParams.id });
-  $scope.priceData = Team.price({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
-}]);
-
-// TeamPriceEditByTournamentCtrl: collects data to update an existing price.
-teamControllers.controller('TeamPriceEditByTournamentCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', '$location', function($rootScope, $scope, $routeParams, Team, $location) {
-  console.log('Team price edit controller:');
-  $scope.teamData = Team.get({ id:$routeParams.id });
-  $scope.priceData = Team.price({id:$routeParams.id, tournamentId:$routeParams.tournamentId});
-
-  $scope.updatePrice = function() {
-    console.log('update, ', $scope.priceData)
-    Team.updatePrice({id:$routeParams.id, tournamentId:$routeParams.tournamentId}, $scope.priceData.Price,
-		function(response){
-		  $rootScope.messageInfo = response.MessageInfo;
-		  $location.path('/teams/' + $routeParams.id + '/prices/' + $routeParams.tournamentId);
 		},
 		function(err) {
 		  $scope.messageDanger = err.data;

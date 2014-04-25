@@ -62,9 +62,6 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
       when('/teams/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
       when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
-      when('/teams/:id/prices', {templateUrl: 'templates/teams/prices.html', controller: 'TeamPricesCtrl', requireLogin: true}).
-      when('/teams/:id/prices/:tournamentId', {templateUrl: 'templates/teams/price.html', controller: 'TeamPriceByTournamentCtrl', requireLogin: true}).
-      when('/teams/:id/prices/edit/:tournamentId', {templateUrl: 'templates/teams/priceedit.html', controller: 'TeamPriceEditByTournamentCtrl', requireLogin: true}).
 
       when('/tournaments', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentListCtrl', requireLogin: true }).
       when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl', requireLogin: true }).
