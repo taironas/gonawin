@@ -39,7 +39,28 @@ We want to create a platform that people can use to bet/play with there friends 
 
 #### Run App
 
-    go_appengine\dev_appserver.py purple-wing
+    > cd $GOPATH/src/github.com/santiaago/purple-wing/purple-wing
+    > goapp serve
+
+#### Access app from smartphone
+
+Get your ip in this case `192.168.1.X`
+
+    > ifconfig
+    ...
+    inet 192.168.1.X netmask 0xffffff00 broadcast 192.168.1.255
+    ...
+    
+Run the app with the `-host` parameter
+
+    > goapp serve -host=0.0.0.0
+    INFO     2014-04-26 10:25:33,296 devappserver2.py:764] Skipping SDK update check.
+    WARNING  2014-04-26 10:25:33,299 api_server.py:374] Could not initialize images API; you are likely missing the Python "PIL" module.
+    INFO     2014-04-26 10:25:33,302 api_server.py:171] Starting API server at: http://localhost:53542
+    INFO     2014-04-26 10:25:33,305 dispatcher.py:182] Starting module "default" running at: http://0.0.0.0:8080
+    INFO     2014-04-26 10:25:33,307 admin_server.py:117] Starting admin server at: http://localhost:8000
+
+access from your smartphone on `http://192.168.1.X:8080/ng`
     
 #### Formatting
 
