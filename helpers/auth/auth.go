@@ -72,10 +72,10 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 // // Ckeck if user is authorized.
 // // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
-	return ui != nil && 
-		(ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) ||            // gonawin authorized from config.
-		(appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) ||    // gonawin authorized from dev server.
-		(KOfflineMode && ui.Email == kEmailOffline)                                                            // gonawin authorized from offline mode.
+	return ui != nil &&
+		(ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || // gonawin authorized from config.
+		(appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) || // gonawin authorized from dev server.
+		(KOfflineMode && ui.Email == kEmailOffline) // gonawin authorized from offline mode.
 }
 
 // Check if user is gonawin admin.
@@ -110,9 +110,9 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	var u *mdl.User
 	if KOfflineMode {
-		if currentUser := mdl.FindUser(c, "Username", "gonawin"); currentUser == nil{
+		if currentUser := mdl.FindUser(c, "Username", "gonawin"); currentUser == nil {
 			u, _ = mdl.CreateUser(c, kEmailOffline, "gonawin", "gonawin", "", true, mdl.GenerateAuthKey())
-		} else{
+		} else {
 			u = currentUser
 		}
 	}

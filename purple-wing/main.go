@@ -14,11 +14,12 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package pw
+package gonawin
 
 import (
 	"fmt"
 	"net/http"
+	"log"
 
 	"github.com/santiaago/purple-wing/helpers/handlers"
 
@@ -36,8 +37,21 @@ func tempHome(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello, gonawin!")
 }
 
+var (
+	config *GwConfig
+)
+
 // entry point of application
 func init() {
+
+	// read config file.
+	var err error
+	if err, config = ReadConfig(""); err != nil{
+		log.Printf("Error: Main: unable to read config file; %v", err)
+	}else{
+		log.Printf("Info: Main: read config file successfully; %v", config)
+	}
+
 	h := new(handlers.RegexpHandler)
 
 	// temporal home page
