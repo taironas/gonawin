@@ -84,18 +84,57 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
+func isEmailAuthorizedGmail(email string)bool{
+	for _, e := range config.AuthorizedGmail{
+		if e == email{
+			return true
+		}
+	}
+	return false
+}
+
+func isEmailDevUser(email string)bool{
+	if !appengine.IsDevAppServer(){
+		return false
+	}
+	for _, u := range config.DevUsers{
+		if u.Email == email{
+			return true
+		}
+	}
+	return false
+}
+
+func isEmailOfflineUser(email string)bool{
+	if !config.OfflineMode{
+		return false
+	}
+	for _, u := range config.OfflineUsers{
+		if u.Email == email{
+			return true
+		}
+	}
+	return false
+}
+
 // // Ckeck if user is authorized.
 // // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
+	
 	return ui != nil &&
-		(ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || // gonawin authorized from config.
-		(appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) || // gonawin authorized from dev server.
-		(KOfflineMode && ui.Email == kEmailOffline) // gonawin authorized from offline mode.
+		(isEmailAuthorizedGmail(ui.Email) || 
+		isEmailDevUser(ui.Email) || 
+		isEmailOfflineUser(ui.Email))
+
+		// (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || // gonawin authorized from config.
+		// (appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) || // gonawin authorized from dev server.
+		// (KOfflineMode && ui.Email == kEmailOffline) // gonawin authorized from offline mode.
 }
 
 // Check if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
-	return u != nil && (u.Email == kEmailRjourde || u.Email == kEmailSarias || (KOfflineMode && u.Email == kEmailOffline))
+	return u != nil && 
+		(u.Email == kEmailRjourde || u.Email == kEmailSarias || (KOfflineMode && u.Email == kEmailOffline))
 }
 
 // Ckeck if twitter user is admin.
