@@ -32,11 +32,12 @@ import (
 	mdl "github.com/santiaago/purple-wing/models"
 )
 
-const KOfflineMode bool = false
+const KOfflineMode bool = true
 
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 const kEmailGonawinTest = "gonawin.test@gmail.com"
+const kEmailOffline = "offline@gonawin.com"
 
 type UserInfo struct {
 	Id    string
@@ -71,12 +72,15 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 // // Ckeck if user is admin.
 // // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
-	return ui != nil && (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || (appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith"))
+	return ui != nil && 
+		(ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) ||            // gonawin authorized from config.
+		(appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith")) ||    // gonawin authorized from dev server.
+		(KOfflineMode && ui.Email == kEmailOffline)                                                            // gonawin authorized from offline mode.
 }
 
 // Check if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
-	return u != nil && (u.Email == kEmailRjourde || u.Email == kEmailSarias)
+	return u != nil && (u.Email == kEmailRjourde || u.Email == kEmailSarias || (KOfflineMode && u.Email == kEmailOffline))
 }
 
 // Ckeck if twitter user is admin.
@@ -104,16 +108,15 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 
 // returns pointer to current user, from authentication cookie.
 func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
+	var u *mdl.User
 	if KOfflineMode {
-		currentUser := mdl.FindUser(c, "Username", "gonawin")
-
-		if currentUser == nil {
-			currentUser, _ = mdl.CreateUser(c, "gona@win.com", "gona", "win", "", true, mdl.GenerateAuthKey())
+		if currentUser := mdl.FindUser(c, "Username", "gonawin"); currentUser == nil{
+			u, _ = mdl.CreateUser(c, kEmailOffline, "gonawin", "gonawin", "", true, mdl.GenerateAuthKey())
+		} else{
+			u = currentUser
 		}
-		return currentUser
-	} else {
-		return nil
 	}
+	return u
 }
 
 // returns user information from Google Accounts user
