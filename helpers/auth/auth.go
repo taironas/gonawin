@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	golog "log"
 
 	"appengine"
 	"appengine/urlfetch"
@@ -30,10 +31,24 @@ import (
 	"github.com/santiaago/purple-wing/helpers/log"
 
 	mdl "github.com/santiaago/purple-wing/models"
+	gwconfig "github.com/santiaago/purple-wing/config"
+)
+var (
+	config *gwconfig.GwConfig
+	KOfflineMode bool
+
 )
 
-const KOfflineMode bool = true
-
+func init(){
+	// read config file.
+	var err error
+	if config, err = gwconfig.ReadConfig(""); err != nil{
+		golog.Printf("Error: unable to read config file; %v", err)
+	}else{
+		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
+	}
+	KOfflineMode = config.OfflineMode
+}
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 const kEmailGonawinTest = "gonawin.test@gmail.com"

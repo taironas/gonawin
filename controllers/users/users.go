@@ -177,7 +177,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
 		if userId != u.Id {
-			log.Errorf(c, "%s error user ids do not match.", desc)
+			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 		}
 
