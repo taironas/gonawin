@@ -1,4 +1,4 @@
-package gonawin
+package config
 
 import (
 	"encoding/json"
@@ -40,7 +40,7 @@ type GooglePlus struct {
 }
 
 // Read configuration file and return it.
-func ReadConfig(filename string) (error, *GwConfig) {
+func ReadConfig(filename string) (*GwConfig, error) {
 
 	c := &GwConfig{}
 	var f *os.File
@@ -49,6 +49,8 @@ func ReadConfig(filename string) (error, *GwConfig) {
 		log.Printf("gw: gwConfig.load: reading file %s", filename)
 		f, err = os.Open(filename)
 	} else {
+		env, _ := os.Getwd()
+		log.Printf("gw: gwConfig %v", env)
 		log.Printf("gw: gwConfig.load: reading file ./config.json")
 		f, err = os.Open("./config.json")
 	}
@@ -57,8 +59,8 @@ func ReadConfig(filename string) (error, *GwConfig) {
 		decoder := json.NewDecoder(f)
 		err = decoder.Decode(&c)
 		if err == nil{
-			return nil, c
+			return c, nil
 		}
 	}
-	return err, nil
+	return nil, err
 }

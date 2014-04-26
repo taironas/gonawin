@@ -21,6 +21,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	golog "log"
 
 	"appengine"
 	"appengine/urlfetch"
@@ -35,8 +36,22 @@ import (
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
 	mdl "github.com/santiaago/purple-wing/models"
+	gwconfig "github.com/santiaago/purple-wing/config"
 )
 
+var (
+	config *gwconfig.GwConfig
+)
+
+func init(){
+	// read config file.
+	var err error
+	if config, err = gwconfig.ReadConfig(""); err != nil{
+		golog.Printf("Error: unable to read config file; %v", err)
+	}else{
+		golog.Printf("Info: read config file successfully; %v", config)
+	}
+}
 // Set up a configuration for twitter.
 var twitterConfig = oauth.Client{
 	Credentials:                   oauth.Credentials{Token: "A8vvQmN473iMZONHW8p6Ng", Secret: "P0Z8cGoulSmsI1nSzWXBq2RA8s0rb7GwVfOJeF8gKL0"},
