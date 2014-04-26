@@ -69,12 +69,12 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-// // Ckeck if user is admin.
+// // Ckeck if user is authorized.
 // // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
 	return ui != nil && 
 		(ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) ||            // gonawin authorized from config.
-		(appengine.IsDevAppServer() && (ui.Email == "example@example.com") && (ui.Name == "John Smith")) ||    // gonawin authorized from dev server.
+		(appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) ||    // gonawin authorized from dev server.
 		(KOfflineMode && ui.Email == kEmailOffline)                                                            // gonawin authorized from offline mode.
 }
 

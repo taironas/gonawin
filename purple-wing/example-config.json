@@ -1,0 +1,29 @@
+{
+    "apiVersion": "0.1",
+    "offlineMode": false,
+    "offlineUsers": [
+        {
+	    "email": "offline@gonawin.com",
+	    "username": "gonawin",
+	    "name": "gonawin"
+	}],
+    "devUsers": [
+	{
+	    "email": "test@example.com",
+	    "username": "John Smith",
+	    "name": "John Smith"
+	}],
+    "admins": ["test@example.com", "offline@gonawin.com"],
+    "twitter": {
+	"token": "YOURTWITTERTOKEN",
+	"secret": "KEEPITSECRETKEEPITSAFE"
+    },
+    "facebook":{
+	"appId": "YOURFACEBOOKAPPID"
+    },
+    "googlePlus":{
+	"clientId": "YOURGPLUSCLIENTID"
+    },
+    "authorizedGmail": ["account0001@gmail.com", "account0002@gmail.com"],
+    "authorizedTwitter": ["twitterAccount0001", "twitterAccount0002", "twitterAccount0003"]
+}
