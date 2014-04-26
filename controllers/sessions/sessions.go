@@ -41,6 +41,10 @@ import (
 
 var (
 	config *gwconfig.GwConfig
+	twitterConfig oauth.Client
+	twitterCallbackURL string
+	googleVerifyTokenURL string
+	facebookVerifyTokenURL string
 )
 
 func init(){
@@ -49,20 +53,19 @@ func init(){
 	if config, err = gwconfig.ReadConfig(""); err != nil{
 		golog.Printf("Error: unable to read config file; %v", err)
 	}else{
-		golog.Printf("Info: read config file successfully; %v", config)
+		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
 	}
+	// Set up a configuration for twitter.
+	twitterConfig = oauth.Client{
+		Credentials:                   oauth.Credentials{Token: config.Twitter.Token, Secret: config.Twitter.Secret},
+		TemporaryCredentialRequestURI: "https://api.twitter.com/oauth/request_token",
+		ResourceOwnerAuthorizationURI: "https://api.twitter.com/oauth/authorize",
+		TokenRequestURI:               "https://api.twitter.com/oauth/access_token",
+	}
+	twitterCallbackURL = "/j/auth/twitter/callback"	
+	googleVerifyTokenURL = "https://www.google.com/accounts/AuthSubTokenInfo?bearer_token"
+	facebookVerifyTokenURL  = "https://graph.facebook.com/me?access_token"
 }
-// Set up a configuration for twitter.
-var twitterConfig = oauth.Client{
-	Credentials:                   oauth.Credentials{Token: "A8vvQmN473iMZONHW8p6Ng", Secret: "P0Z8cGoulSmsI1nSzWXBq2RA8s0rb7GwVfOJeF8gKL0"},
-	TemporaryCredentialRequestURI: "https://api.twitter.com/oauth/request_token",
-	ResourceOwnerAuthorizationURI: "https://api.twitter.com/oauth/authorize",
-	TokenRequestURI:               "https://api.twitter.com/oauth/access_token",
-}
-var twitterCallbackURL string = "/j/auth/twitter/callback"
-
-var googleVerifyTokenURL string = "https://www.google.com/accounts/AuthSubTokenInfo?bearer_token"
-var facebookVerifyTokenURL string = "https://graph.facebook.com/me?access_token"
 
 // JSON authentication handler
 func Authenticate(w http.ResponseWriter, r *http.Request) error {
