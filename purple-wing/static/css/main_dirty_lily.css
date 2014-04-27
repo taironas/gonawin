@@ -23,6 +23,14 @@ body {
   font-size: 10px;
 }
 
+.navbar-toggle-navy {
+  border: 2px solid #67c2ef;
+}
+
+.icon-bar-navy {
+    background-color: #67c2ef;
+}
+
 .header {
   background-color: #465E8F;
 	padding-top: 60px;
