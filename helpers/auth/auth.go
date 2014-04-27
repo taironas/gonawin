@@ -135,9 +135,7 @@ func IsAuthorized(ui *UserInfo) bool {
 
 // Check if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
-	return u != nil &&
-		(isEmailAdmin(u.Email) ||
-			isEmailOfflineUser(u.Email))
+	return u != nil && (isEmailAdmin(u.Email) || isEmailOfflineUser(u.Email))
 }
 
 // Ckeck if twitter user is admin.

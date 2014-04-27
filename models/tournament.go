@@ -46,6 +46,7 @@ type Tournament struct {
 	UserIds              []int64
 	TeamIds              []int64
 	IsFirstStageComplete bool
+	Official             bool
 }
 
 type TournamentJson struct {
@@ -63,6 +64,7 @@ type TournamentJson struct {
 	UserIds              *[]int64   `json:",omitempty"`
 	TeamIds              *[]int64   `json:",omitempty"`
 	IsFirstStageComplete *bool      `json:",omitempty"`
+	Official             *bool      `json:",omitempty"`
 }
 
 // Create tournament entity given a name and description.
@@ -79,8 +81,9 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	emptyArray := make([]int64, 0)
 	admins := make([]int64, 1)
 	admins[0] = adminId
+	official := false
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false, official}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {

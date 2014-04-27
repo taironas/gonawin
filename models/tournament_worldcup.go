@@ -24,7 +24,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers"
 	"github.com/santiaago/purple-wing/helpers/log"
 )
 
@@ -280,12 +279,12 @@ func MapOfPhaseIntervals() map[string][]int64 {
 // Create world cup tournament entity 2014.
 func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	// create new tournament
-	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
-	if err != nil {
-		return nil, err
-	}
+	// tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
+	// key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
 	log.Infof(c, "World Cup: start")
 
@@ -352,7 +351,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			team := &Tteam{teamID, teamName, mapCountryCodes[teamName]}
 			log.Infof(c, "World Cup: team: %v instance of team ok", teamName)
 
-			_, err = datastore.Put(c, teamkey, team)
+			_, err := datastore.Put(c, teamkey, team)
 			if err != nil {
 				return nil, err
 			}
@@ -398,7 +397,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
-			_, err = datastore.Put(c, matchkey, match)
+			_, err := datastore.Put(c, matchkey, match)
 			if err != nil {
 				return nil, err
 			}
@@ -421,7 +420,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 		group.Id = groupID
 		groups[groupIndex] = group
-		_, err = datastore.Put(c, groupkey, &group)
+		_, err := datastore.Put(c, groupkey, &group)
 		if err != nil {
 			return nil, err
 		}
@@ -481,7 +480,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")
 
-			_, err = datastore.Put(c, matchkey, match)
+			_, err := datastore.Put(c, matchkey, match)
 			if err != nil {
 				return nil, err
 			}
@@ -495,31 +494,25 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	tend, _ := time.Parse(shortForm, "Jul/13/2014")
 	adminIds := make([]int64, 1)
 	adminIds[0] = adminId
-	tournament := &Tournament{
-		tournamentID,
-		helpers.TrimLower("world cup"),
-		"World Cup",
-		"FIFA World Cup",
-		tstart,
-		tend,
-		adminIds,
-		time.Now(),
-		groupIds,
-		matches1stStageIds,
-		matches2ndStageIds,
-		userIds,
-		teamIds,
-		false,
+	name := "World Cup"
+	description := "FIFA World Cup"
+	var tournament *Tournament
+	var err error
+	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {
+		log.Infof(c, "World Cup: something went wrong when creating tournament.")
+	} else {
+		tournament.GroupIds = groupIds
+		tournament.Matches1stStage = matches1stStageIds
+		tournament.Matches2ndStage = matches2ndStageIds
+		tournament.UserIds = userIds
+		tournament.TeamIds = teamIds
+		tournament.IsFirstStageComplete = false
+		if err1 := tournament.Update(c); err1 != nil {
+			log.Infof(c, "World Cup: unable to udpate tournament.")
+		}
 	}
+
 	log.Infof(c, "World Cup: instance of tournament ready")
-
-	_, err = datastore.Put(c, key, tournament)
-	if err != nil {
-		return nil, err
-	}
-	log.Infof(c, "World Cup:  tournament put in datastore ok")
-
-	AddToTournamentInvertedIndex(c, helpers.TrimLower("world cup"), tournamentID)
 
 	return tournament, nil
 }
