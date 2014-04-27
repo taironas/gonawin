@@ -127,9 +127,10 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 
 // Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
+
 	var host string = "gonawin.com"
 	if appengine.IsDevAppServer() {
-		host = "localhost:8080"
+		host = r.Host
 	}
 	http.Redirect(w, r, "http://"+host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 	return nil
@@ -240,7 +241,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 
 	var host string = "gonawin.com"
 	if appengine.IsDevAppServer() {
-		host = "localhost:8080"
+		host =  r.Host
 	}
 
 	http.Redirect(w, r, "http://"+host+"/ng#/auth/google/callback?oauth_token="+oauthToken, http.StatusFound)
