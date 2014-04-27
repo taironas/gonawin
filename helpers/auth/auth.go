@@ -44,16 +44,9 @@ func init() {
 	var err error
 	if config, err = gwconfig.ReadConfig(""); err != nil {
 		golog.Printf("Error: unable to read config file; %v", err)
-	} else {
-		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
 	}
 	KOfflineMode = config.OfflineMode
 }
-
-const kEmailRjourde = "remy.jourde@gmail.com"
-const kEmailSarias = "santiago.ariassar@gmail.com"
-const kEmailGonawinTest = "gonawin.test@gmail.com"
-const kEmailOffline = "offline@gonawin.com"
 
 type UserInfo struct {
 	Id    string
@@ -94,6 +87,15 @@ func isEmailAuthorizedGmail(email string) bool {
 	return false
 }
 
+func isEmailAuthorizedTwitter(name string) bool {
+	for _, n := range config.AuthorizedTwitter {
+		if n == name {
+			return true
+		}
+	}
+	return false
+}
+
 func isEmailDevUser(email string) bool {
 	if !appengine.IsDevAppServer() {
 		return false
@@ -110,8 +112,13 @@ func isEmailOfflineUser(email string) bool {
 	if !config.OfflineMode {
 		return false
 	}
-	for _, u := range config.OfflineUsers {
-		if u.Email == email {
+	return config.OfflineUser.Email == email
+}
+
+
+func isEmailAdmin(email string) bool {
+	for _, u := range config.Admins {
+		if u == email {
 			return true
 		}
 	}
@@ -130,13 +137,14 @@ func IsAuthorized(ui *UserInfo) bool {
 // Check if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
 	return u != nil &&
-		(u.Email == kEmailRjourde || u.Email == kEmailSarias || (KOfflineMode && u.Email == kEmailOffline))
+		(isEmailAdmin(u.Email) ||
+		isEmailOfflineUser(u.Email))
 }
 
 // Ckeck if twitter user is admin.
 // #196: Should be removed when deployed in production.
 func IsAuthorizedWithTwitter(ui *TwitterUserInfo) bool {
-	return ui != nil && (ui.Screen_name == "rjourde" || ui.Screen_name == "santiago_arias" || ui.Screen_name == "gonawintest")
+	return ui != nil && isEmailAuthorizedTwitter(ui.Screen_name)
 }
 
 // unmarshal twitter response
@@ -152,16 +160,15 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 			return ui, err
 		}
 	}
-
 	return nil, err
 }
 
 // returns pointer to current user, from authentication cookie.
 func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	var u *mdl.User
-	if KOfflineMode {
-		if currentUser := mdl.FindUser(c, "Username", "gonawin"); currentUser == nil {
-			u, _ = mdl.CreateUser(c, kEmailOffline, "gonawin", "gonawin", "", true, mdl.GenerateAuthKey())
+	if config.OfflineMode {
+		if currentUser := mdl.FindUser(c, "Username", config.OfflineUser.Name); currentUser == nil {
+			u, _ = mdl.CreateUser(c, config.OfflineUser.Email, config.OfflineUser.Name, config.OfflineUser.Username, "", true, mdl.GenerateAuthKey())
 		} else {
 			u = currentUser
 		}

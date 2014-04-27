@@ -52,8 +52,6 @@ func init() {
 	var err error
 	if config, err = gwconfig.ReadConfig(""); err != nil {
 		golog.Printf("Error: unable to read config file; %v", err)
-	} else {
-		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
 	}
 	// Set up a configuration for twitter.
 	twitterConfig = oauth.Client{

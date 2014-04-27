@@ -1,12 +1,12 @@
 {
     "apiVersion": "0.1",
     "offlineMode": false,
-    "offlineUsers": [
-        {
-	    "email": "offline@gonawin.com",
-	    "username": "gonawin",
-	    "name": "gonawin"
-	}],
+    "offlineUser":
+    {
+	"email": "offline@gonawin.com",
+	"username": "gonawin",
+	"name": "gonawin"
+    },
     "devUsers": [
 	{
 	    "email": "test@example.com",
