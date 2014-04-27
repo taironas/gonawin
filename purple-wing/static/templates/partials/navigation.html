@@ -1,24 +1,18 @@
 <nav  class="navbar navbar-navy" role="navigation" ng-controller="NavigationCtrl" bs-navbar>
   <div class="container">
     <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-content">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
       <a class="navbar-brand" href="#" ng-if="currentUser.User.IsAdmin">gonawin - admin</a>
       <a class="navbar-brand" href="#" ng-if="!currentUser.User.IsAdmin">gonawin <small>alpha</small></a>
     </div>
-    <div class="collapse navbar-collapse pull-right" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav" ng-if="isLoggedIn">
-        <li class="dropdown" ng-show="currentUser.User.IsAdmin">
-          <a class="dropdown-toggle" data-toggle="dropdown" href="">
-            Manage
-            <b class="caret"></b>	
-          </a>
-          <ul class="dropdown-menu fa-ul" role="menu" aria-labelledby="dLabel">
-            <li><a href=""><i class="fa-li fa fa-user fa-fw fa-inverse"></i> Users</a></li>
-          </ul>
-        </li>
-        <li data-match-route="/teams.*"><a href="/ng#/teams"><i class="fa fa-users fa-lg fa-inverse"></i> Teams</a></li>
-        <li data-match-route="/tournaments.*"><a href="/ng#/tournaments"><i class="fa fa-trophy fa-lg fa-inverse"></i> Tournaments</a></li>
-      </ul>
-      <ul class="nav navbar-nav" ng-if="isLoggedIn">
+
+    <div class="collapse navbar-collapse" id="navbar-collapse-content">
+      <ul class="nav navbar-nav navbar-right" ng-if="isLoggedIn">
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">
             <i class="fa fa-user fa-lg fa-inverse"></i>
@@ -33,6 +27,19 @@
           </ul>
         </li>
       </ul>
+      <ul class="nav navbar-nav navbar-right" ng-if="isLoggedIn">
+        <li class="dropdown" ng-show="currentUser.User.IsAdmin">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="">
+            Manage
+            <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu fa-ul" role="menu" aria-labelledby="dLabel">
+            <li><a href=""><i class="fa-li fa fa-user fa-fw fa-inverse"></i> Users</a></li>
+          </ul>
+        </li>
+        <li data-match-route="/teams.*"><a href="/ng#/teams"><i class="fa fa-users fa-lg fa-inverse"></i> Teams</a></li>
+        <li data-match-route="/tournaments.*"><a href="/ng#/tournaments"><i class="fa fa-trophy fa-lg fa-inverse"></i> Tournaments</a></li>
+      </ul>
     </div>
   </div>
-</nav >
+</nav>
