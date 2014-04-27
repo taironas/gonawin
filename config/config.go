@@ -2,8 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"os"
 	"log"
+	"os"
 )
 
 // configuration structure to hold the JSON unmarshalled data.
@@ -46,19 +46,19 @@ func ReadConfig(filename string) (*GwConfig, error) {
 	var f *os.File
 	var err error
 	if len(filename) > 0 {
-		log.Printf("gw: gwConfig.load: reading file %s", filename)
+		log.Printf("gonawin: gwConfig.load: reading file %s", filename)
 		f, err = os.Open(filename)
 	} else {
 		env, _ := os.Getwd()
-		log.Printf("gw: gwConfig %v", env)
-		log.Printf("gw: gwConfig.load: reading file ./config.json")
+		log.Printf("gonawin: gwConfig %v", env)
+		log.Printf("gonawin: gwConfig.load: reading file ./config.json")
 		f, err = os.Open("./config.json")
 	}
 	if nil == err {
-		log.Printf("gw: gwConfig.load: decoding file.")
+		log.Printf("gonawin: gwConfig.load: decoding file.")
 		decoder := json.NewDecoder(f)
 		err = decoder.Decode(&c)
-		if err == nil{
+		if err == nil {
 			return c, nil
 		}
 	}

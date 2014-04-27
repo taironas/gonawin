@@ -80,21 +80,25 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
 }]);
 
 purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, sAuth, Session, User) {
-  $rootScope.currentUser = undefined;
-  $rootScope.isLoggedIn = false;
+    $rootScope.currentUser = undefined;
+    $rootScope.isLoggedIn = false;
+    $rootScope.serviceIds = Session.serviceIds();
 
-  $window.fbAsyncInit = function() {
-    // Executed when the SDK is loaded
-    FB.init({
-      appId: '232160743609875',
-      channelUrl: 'static/templates/channel.html',
-      status: true, /*Set if you want to check the authentication status at the start up of the app */
-      cookie: true,
-      xfbml: true
-    });
-
-    sAuth.watchLoginChange();
-  };
+    $window.fbAsyncInit = function() {
+	// Executed when the SDK is loaded
+	$rootScope.serviceIds.$promise.then(function(response){
+	    console.log('responssaaaaaaa', response);
+	    FB.init({
+		appId: response.FacebookAppId,//'232160743609875',
+		channelUrl: 'static/templates/channel.html',
+		status: true, /*Set if you want to check the authentication status at the start up of the app */
+		cookie: true,
+		xfbml: true
+	    });
+	    
+	    sAuth.watchLoginChange();
+	});
+    };
 
   (function(d){
     // load the Facebook javascript SDK

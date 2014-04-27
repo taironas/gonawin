@@ -53,7 +53,8 @@ func init() {
 	h.HandleFunc("/j/auth/twitter/user/?", handlers.ErrorHandler(sessionsctrl.TwitterUser))
 	h.HandleFunc("/j/auth/googleloginurl/?", handlers.ErrorHandler(sessionsctrl.GoogleAccountsLoginURL))
 	h.HandleFunc("/j/auth/google/callback/?", handlers.ErrorHandler(sessionsctrl.GoogleAuthCallback))
-	h.HandleFunc("/j/auth/google/user?", handlers.ErrorHandler(sessionsctrl.GoogleUser))
+	h.HandleFunc("/j/auth/google/user/?", handlers.ErrorHandler(sessionsctrl.GoogleUser))
+	h.HandleFunc("/j/auth/serviceids/?", handlers.ErrorHandler(sessionsctrl.AuthServiceIds))
 
 	// user
 	h.HandleFunc("/j/users/?", handlers.ErrorHandler(handlers.AdminAuthorized(usersctrl.Index)))

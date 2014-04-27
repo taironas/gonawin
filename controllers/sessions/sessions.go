@@ -19,9 +19,9 @@ package sessions
 
 import (
 	"errors"
+	golog "log"
 	"net/http"
 	"net/url"
-	golog "log"
 
 	"appengine"
 	"appengine/urlfetch"
@@ -35,24 +35,24 @@ import (
 	"github.com/santiaago/purple-wing/helpers/memcache"
 	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
 
-	mdl "github.com/santiaago/purple-wing/models"
 	gwconfig "github.com/santiaago/purple-wing/config"
+	mdl "github.com/santiaago/purple-wing/models"
 )
 
 var (
-	config *gwconfig.GwConfig
-	twitterConfig oauth.Client
-	twitterCallbackURL string
-	googleVerifyTokenURL string
+	config                 *gwconfig.GwConfig
+	twitterConfig          oauth.Client
+	twitterCallbackURL     string
+	googleVerifyTokenURL   string
 	facebookVerifyTokenURL string
 )
 
-func init(){
+func init() {
 	// read config file.
 	var err error
-	if config, err = gwconfig.ReadConfig(""); err != nil{
+	if config, err = gwconfig.ReadConfig(""); err != nil {
 		golog.Printf("Error: unable to read config file; %v", err)
-	}else{
+	} else {
 		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
 	}
 	// Set up a configuration for twitter.
@@ -62,9 +62,9 @@ func init(){
 		ResourceOwnerAuthorizationURI: "https://api.twitter.com/oauth/authorize",
 		TokenRequestURI:               "https://api.twitter.com/oauth/access_token",
 	}
-	twitterCallbackURL = "/j/auth/twitter/callback"	
+	twitterCallbackURL = "/j/auth/twitter/callback"
 	googleVerifyTokenURL = "https://www.google.com/accounts/AuthSubTokenInfo?bearer_token"
-	facebookVerifyTokenURL  = "https://graph.facebook.com/me?access_token"
+	facebookVerifyTokenURL = "https://graph.facebook.com/me?access_token"
 }
 
 // JSON authentication handler
@@ -286,4 +286,20 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return templateshlp.RenderJson(w, c, userData)
+}
+
+func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+
+	if r.Method == "GET" {
+		data := struct {
+			GooglePlusClientId string
+			FacebookAppId      string
+		}{
+			config.GooglePlus.ClientId,
+			config.Facebook.AppId,
+		}
+		return templateshlp.RenderJson(w, c, data)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

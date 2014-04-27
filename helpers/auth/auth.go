@@ -20,9 +20,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	golog "log"
 	"math/rand"
 	"net/http"
-	golog "log"
 
 	"appengine"
 	"appengine/urlfetch"
@@ -30,25 +30,26 @@ import (
 
 	"github.com/santiaago/purple-wing/helpers/log"
 
-	mdl "github.com/santiaago/purple-wing/models"
 	gwconfig "github.com/santiaago/purple-wing/config"
+	mdl "github.com/santiaago/purple-wing/models"
 )
+
 var (
-	config *gwconfig.GwConfig
+	config       *gwconfig.GwConfig
 	KOfflineMode bool
-
 )
 
-func init(){
+func init() {
 	// read config file.
 	var err error
-	if config, err = gwconfig.ReadConfig(""); err != nil{
+	if config, err = gwconfig.ReadConfig(""); err != nil {
 		golog.Printf("Error: unable to read config file; %v", err)
-	}else{
+	} else {
 		golog.Printf("Info: read config file successfully; config version: %v", config.ApiVersion)
 	}
 	KOfflineMode = config.OfflineMode
 }
+
 const kEmailRjourde = "remy.jourde@gmail.com"
 const kEmailSarias = "santiago.ariassar@gmail.com"
 const kEmailGonawinTest = "gonawin.test@gmail.com"
@@ -84,33 +85,33 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-func isEmailAuthorizedGmail(email string)bool{
-	for _, e := range config.AuthorizedGmail{
-		if e == email{
+func isEmailAuthorizedGmail(email string) bool {
+	for _, e := range config.AuthorizedGmail {
+		if e == email {
 			return true
 		}
 	}
 	return false
 }
 
-func isEmailDevUser(email string)bool{
-	if !appengine.IsDevAppServer(){
+func isEmailDevUser(email string) bool {
+	if !appengine.IsDevAppServer() {
 		return false
 	}
-	for _, u := range config.DevUsers{
-		if u.Email == email{
+	for _, u := range config.DevUsers {
+		if u.Email == email {
 			return true
 		}
 	}
 	return false
 }
 
-func isEmailOfflineUser(email string)bool{
-	if !config.OfflineMode{
+func isEmailOfflineUser(email string) bool {
+	if !config.OfflineMode {
 		return false
 	}
-	for _, u := range config.OfflineUsers{
-		if u.Email == email{
+	for _, u := range config.OfflineUsers {
+		if u.Email == email {
 			return true
 		}
 	}
@@ -120,20 +121,15 @@ func isEmailOfflineUser(email string)bool{
 // // Ckeck if user is authorized.
 // // #196: Should be removed when deployed in production.
 func IsAuthorized(ui *UserInfo) bool {
-	
 	return ui != nil &&
-		(isEmailAuthorizedGmail(ui.Email) || 
-		isEmailDevUser(ui.Email) || 
-		isEmailOfflineUser(ui.Email))
-
-		// (ui.Email == kEmailRjourde || ui.Email == kEmailSarias || ui.Email == kEmailGonawinTest) || // gonawin authorized from config.
-		// (appengine.IsDevAppServer() && (ui.Email == "test@example.com") && (ui.Name == "John Smith")) || // gonawin authorized from dev server.
-		// (KOfflineMode && ui.Email == kEmailOffline) // gonawin authorized from offline mode.
+		(isEmailAuthorizedGmail(ui.Email) ||
+			isEmailDevUser(ui.Email) ||
+			isEmailOfflineUser(ui.Email))
 }
 
 // Check if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
-	return u != nil && 
+	return u != nil &&
 		(u.Email == kEmailRjourde || u.Email == kEmailSarias || (KOfflineMode && u.Email == kEmailOffline))
 }
 
