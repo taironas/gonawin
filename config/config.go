@@ -9,7 +9,7 @@ import (
 type GwConfig struct {
 	ApiVersion        string     `json:"apiVersion"`
 	OfflineMode       bool       `json:"offlineMode"`
-	OfflineUser       User     `json:"offlineUser"`
+	OfflineUser       User       `json:"offlineUser"`
 	DevUsers          []User     `json:"devUsers"`
 	Admins            []string   `json:"admins"`
 	Twitter           Twitter    `json:"twitter"`

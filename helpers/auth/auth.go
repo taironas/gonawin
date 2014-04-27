@@ -115,7 +115,6 @@ func isEmailOfflineUser(email string) bool {
 	return config.OfflineUser.Email == email
 }
 
-
 func isEmailAdmin(email string) bool {
 	for _, u := range config.Admins {
 		if u == email {
@@ -138,7 +137,7 @@ func IsAuthorized(ui *UserInfo) bool {
 func IsGonawinAdmin(u *mdl.User) bool {
 	return u != nil &&
 		(isEmailAdmin(u.Email) ||
-		isEmailOfflineUser(u.Email))
+			isEmailOfflineUser(u.Email))
 }
 
 // Ckeck if twitter user is admin.

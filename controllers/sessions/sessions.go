@@ -68,239 +68,239 @@ func init() {
 // JSON authentication handler
 func Authenticate(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-  if r.Method == "GET" {
-  	userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
+	if r.Method == "GET" {
+		userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
 
-  	var verifyURL string
-  	if r.FormValue("provider") == "google" {
-  		verifyURL = googleVerifyTokenURL
-  	} else if r.FormValue("provider") == "facebook" {
-  		verifyURL = facebookVerifyTokenURL
-  	}
+		var verifyURL string
+		if r.FormValue("provider") == "google" {
+			verifyURL = googleVerifyTokenURL
+		} else if r.FormValue("provider") == "facebook" {
+			verifyURL = facebookVerifyTokenURL
+		}
 
-  	if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
-  	}
+		if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+		}
 
-  	// to be removed when in production.
-  	if !authhlp.IsAuthorized(&userInfo) {
-  		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-  	}
+		// to be removed when in production.
+		if !authhlp.IsAuthorized(&userInfo) {
+			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
+		}
 
-  	var user *mdl.User
-  	var err error
-  	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-  	}
+		var user *mdl.User
+		var err error
+		if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+		}
 
-  	// return user
-  	userData := struct {
-  		User *mdl.User
-  	}{
-  		user,
-  	}
+		// return user
+		userData := struct {
+			User *mdl.User
+		}{
+			user,
+		}
 
-  	return templateshlp.RenderJson(w, c, userData)
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, userData)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // JSON authentication for Twitter.
 func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-  if r.Method == "GET" {
-  	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
-  	if err != nil {
-  		c.Errorf("JsonTwitterAuth, error = %v", err)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
-  	}
+	if r.Method == "GET" {
+		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
+		if err != nil {
+			c.Errorf("JsonTwitterAuth, error = %v", err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
+		}
 
-  	memcache.Set(c, "secret", credentials.Secret)
+		memcache.Set(c, "secret", credentials.Secret)
 
-  	// return OAuth token
-  	oAuthToken := struct {
-  		OAuthToken string
-  	}{
-  		credentials.Token,
-  	}
+		// return OAuth token
+		oAuthToken := struct {
+			OAuthToken string
+		}{
+			credentials.Token,
+		}
 
-  	return templateshlp.RenderJson(w, c, oAuthToken)
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, oAuthToken)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-    var host string = "gonawin.com"
-  	if appengine.IsDevAppServer() {
-		host =  r.Host
-  	}
-  	http.Redirect(w, r, "http://"+host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
-  	return nil
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		var host string = "gonawin.com"
+		if appengine.IsDevAppServer() {
+			host = r.Host
+		}
+		http.Redirect(w, r, "http://"+host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
+		return nil
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Twitter Authentication Callback
 func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Twitter User handler:"
-  if r.Method == "GET" {
-  	var err error
-  	var user *mdl.User
+	if r.Method == "GET" {
+		var err error
+		var user *mdl.User
 
-  	log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
-  	log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
+		log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
+		log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
 
-  	// get the request token
-  	requestToken := r.FormValue("oauth_token")
-  	// update credentials with request token and 'secret cookie value'
-  	var cred oauth.Credentials
-  	cred.Token = requestToken
-  	if secret := memcache.Get(c, "secret"); secret != nil {
-  		cred.Secret = string(secret.([]byte))
-  	} else {
-  		log.Errorf(c, "%s cannot get secret value.", desc)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
-  	}
+		// get the request token
+		requestToken := r.FormValue("oauth_token")
+		// update credentials with request token and 'secret cookie value'
+		var cred oauth.Credentials
+		cred.Token = requestToken
+		if secret := memcache.Get(c, "secret"); secret != nil {
+			cred.Secret = string(secret.([]byte))
+		} else {
+			log.Errorf(c, "%s cannot get secret value.", desc)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+		}
 
-  	if err = memcache.Delete(c, "secret"); err != nil {
-  		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
-  	}
+		if err = memcache.Delete(c, "secret"); err != nil {
+			log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
+		}
 
-  	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
-  	if err != nil {
-  		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
-  	}
+		token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
+		if err != nil {
+			log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
+		}
 
-  	// get user info
-  	urlValues := url.Values{}
-  	urlValues.Set("user_id", values.Get("user_id"))
-  	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
-  	if err != nil {
-  		log.Errorf(c, "%s Cannot get user info from twitter. %v", desc, err)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
-  	}
+		// get user info
+		urlValues := url.Values{}
+		urlValues.Set("user_id", values.Get("user_id"))
+		resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
+		if err != nil {
+			log.Errorf(c, "%s Cannot get user info from twitter. %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+		}
 
-  	userInfo, err := authhlp.FetchTwitterUserInfo(resp)
-  	if err != nil {
-  		log.Errorf(c, "%s Cannot get user info by fetching twitter response. %v", desc, err)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
-  	}
+		userInfo, err := authhlp.FetchTwitterUserInfo(resp)
+		if err != nil {
+			log.Errorf(c, "%s Cannot get user info by fetching twitter response. %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+		}
 
-  	if !authhlp.IsAuthorizedWithTwitter(userInfo) {
-  		log.Errorf(c, "%s User is not authorized by twitter with the following user information. %v", desc, userInfo)
-  		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-  	}
+		if !authhlp.IsAuthorizedWithTwitter(userInfo) {
+			log.Errorf(c, "%s User is not authorized by twitter with the following user information. %v", desc, userInfo)
+			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
+		}
 
-  	if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
-  		log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-  	}
+		if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+			log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+		}
 
-  	// return user
-  	userData := struct {
-  		User *mdl.User
-  	}{
-  		user,
-  	}
+		// return user
+		userData := struct {
+			User *mdl.User
+		}{
+			user,
+		}
 
-  	return templateshlp.RenderJson(w, c, userData)
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, userData)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // JSON handler to get Google accounts login URL.
 func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Google Accounts Login URL Handler:"
-  if r.Method == "GET" {
-  	u := user.Current(c)
-  	var url string
-  	if u == nil {
-  		var err error
-  		url, err = user.LoginURL(c, "/j/auth/google/callback/")
-  		if err != nil {
-  			log.Errorf(c, "%s error when getting Google accounts login URL", desc)
-  			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
-  		}
-  	}
+	if r.Method == "GET" {
+		u := user.Current(c)
+		var url string
+		if u == nil {
+			var err error
+			url, err = user.LoginURL(c, "/j/auth/google/callback/")
+			if err != nil {
+				log.Errorf(c, "%s error when getting Google accounts login URL", desc)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
+			}
+		}
 
-  	// return user
-  	loginData := struct {
-  		Url string
-  	}{
-  		url,
-  	}
+		// return user
+		loginData := struct {
+			Url string
+		}{
+			url,
+		}
 
-  	return templateshlp.RenderJson(w, c, loginData)
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, loginData)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Google Authentication Callback
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-  if r.Method == "GET" {
-  	u := user.Current(c)
-  	var oauthToken string
-  	if u != nil {
-  		oauthToken, _ = user.OAuthConsumerKey(c)
-  		log.Infof(c, "GoogleAuthCallback: oauthToken = %s", oauthToken)
-  	}
+	if r.Method == "GET" {
+		u := user.Current(c)
+		var oauthToken string
+		if u != nil {
+			oauthToken, _ = user.OAuthConsumerKey(c)
+			log.Infof(c, "GoogleAuthCallback: oauthToken = %s", oauthToken)
+		}
 
-  	var host string = "gonawin.com"
-  	if appengine.IsDevAppServer() {
-		host =  r.Host
-  	}
+		var host string = "gonawin.com"
+		if appengine.IsDevAppServer() {
+			host = r.Host
+		}
 
-  	http.Redirect(w, r, "http://"+host+"/ng#/auth/google/callback?oauth_token="+oauthToken, http.StatusFound)
-  	return nil
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		http.Redirect(w, r, "http://"+host+"/ng#/auth/google/callback?oauth_token="+oauthToken, http.StatusFound)
+		return nil
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // JSON handler to get Google accounts user.
 func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Google Accounts User Handler:"
-  if r.Method == "GET" {
-  	u := user.Current(c)
-  	if u == nil {
-  		log.Errorf(c, "%s user cannot be nil", desc)
-  		return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
-  	}
+	if r.Method == "GET" {
+		u := user.Current(c)
+		if u == nil {
+			log.Errorf(c, "%s user cannot be nil", desc)
+			return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
+		}
 
-  	oauthToken, _ := user.OAuthConsumerKey(c)
-  	if oauthToken != r.FormValue("oauth_token") {
-  		log.Errorf(c, "%s OAuth token doesn't match user's OAuth token", desc)
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
-  	}
+		oauthToken, _ := user.OAuthConsumerKey(c)
+		if oauthToken != r.FormValue("oauth_token") {
+			log.Errorf(c, "%s OAuth token doesn't match user's OAuth token", desc)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+		}
 
-  	userInfo := authhlp.GetUserGoogleInfo(u)
+		userInfo := authhlp.GetUserGoogleInfo(u)
 
-  	if !authhlp.IsAuthorized(&userInfo) {
-  		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-  	}
+		if !authhlp.IsAuthorized(&userInfo) {
+			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
+		}
 
-  	var user *mdl.User
-  	var err error
-  	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-  		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-  	}
+		var user *mdl.User
+		var err error
+		if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+		}
 
-  	// return user
-  	userData := struct {
-  		User *mdl.User
-  	}{
-  		user,
-  	}
+		// return user
+		userData := struct {
+			User *mdl.User
+		}{
+			user,
+		}
 
-  	return templateshlp.RenderJson(w, c, userData)
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, userData)
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {

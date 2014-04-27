@@ -54,14 +54,19 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
     },
     /* logout the user who was logged in via Facebook */
     FBlogout: function() {
-      var _self = this;
-      FB.getLoginStatus(function(response) {
-        if (response.status === 'connected') {
-          FB.logout(function(response) {
-            console.log('Facebook logout = ', response);
-          });
-        }
-      });
+	var _self = this;
+	try {
+	    FB.getLoginStatus(function(response) {
+		if (response.status === 'connected') {
+		    FB.logout(function(response) {
+			console.log('Facebook logout = ', response);
+		    });
+		}
+	    });
+	    
+	} catch (e) {
+	    console.log('something went wrong when calling FB.getLoginStatus.');
+	}
     },
     /* Complete signin with Twitter.
      * Fetch Twitter user info then set the current user
