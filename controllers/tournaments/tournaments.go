@@ -118,9 +118,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			var tJson mdl.TournamentJson
 			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
-			object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-			target := mdl.ActivityEntity{}
-			u.Publish(c, "tournament", "created a tournament", object, target)
+			u.Publish(c, "tournament", "created a tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 			msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
 			data := struct {
@@ -246,9 +244,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournament.Destroy(c)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "tournament", "deleted tournament", object, target)
+		u.Publish(c, "tournament", "deleted tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("The tournament %s has been destroyed!", tournament.Name)
 		data := struct {
@@ -598,8 +594,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// publish activity
 		verb := fmt.Sprintf("predicted %d-%d for match", p.Result1, p.Result2)
 		object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
-		target := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		u.Publish(c, "predict", verb, object, target)
+		u.Publish(c, "predict", verb, object, tournament.Entity())
 
 		return templateshlp.RenderJson(w, c, data)
 	}

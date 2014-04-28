@@ -155,9 +155,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
-			object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
-			target := mdl.ActivityEntity{}
-			u.Publish(c, "team", "created a new team", object, target)
+			u.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
 
 			// return the newly created team
 			var tJson mdl.TeamJson
@@ -293,9 +291,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "team", "updated team", object, target)
+		u.Publish(c, "team", "updated team", team.Entity(), mdl.ActivityEntity{})
 
 		// keep only needed fields for json api
 		var tJson mdl.TeamJson
@@ -356,9 +352,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		team.Destroy(c)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "team", "deleted team", object, target)
+		u.Publish(c, "team", "deleted team", team.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
 		data := struct {

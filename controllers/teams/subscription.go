@@ -61,9 +61,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "team", "joined team", object, target)
+		u.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("You joined team %s.", team.Name)
 		data := struct {
@@ -116,9 +114,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.KeepFields(&tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: team.Id, Type: "team", DisplayName: team.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "team", "left team", object, target)
+		u.Publish(c, "team", "left team", team.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("You left team %s.", team.Name)
 		data := struct {

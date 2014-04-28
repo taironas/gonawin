@@ -407,11 +407,7 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	displayName := "You"
-	if activity.Type == "score" {
-		displayName = "Your"
-	}
-	activity.Actor = u.Entity(displayName)
+  activity.Actor = u.Entity()
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
@@ -425,12 +421,8 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 }
 
 // Activity entity representation of an user
-func (u *User) Entity(name string) ActivityEntity {
-	displayName := u.Username
-	if name != "" {
-		displayName = name
-	}
-	return ActivityEntity{Id: u.Id, Type: "user", DisplayName: displayName}
+func (u *User) Entity() ActivityEntity {
+	return ActivityEntity{Id: u.Id, Type: "user", DisplayName: u.Username}
 }
 
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {

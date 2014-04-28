@@ -551,7 +551,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = t.Entity("")
+	activity.Actor = t.Entity()
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
@@ -571,12 +571,8 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 }
 
 // Activity entity representation of a tournament
-func (t *Tournament) Entity(name string) ActivityEntity {
-	displayName := t.Name
-	if name != "" {
-		displayName = name
-	}
-	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: displayName}
+func (t *Tournament) Entity() ActivityEntity {
+	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: t.Name}
 }
 
 // The progression is a number between 0 and 1 with the progression of the tournament

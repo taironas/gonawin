@@ -683,7 +683,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
-	activity.Actor = t.Entity("")
+	activity.Actor = t.Entity()
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
@@ -703,12 +703,8 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 }
 
 // Activity entity representation of a team
-func (t *Team) Entity(name string) ActivityEntity {
-	displayName := t.Name
-	if name != "" {
-		displayName = name
-	}
-	return ActivityEntity{Id: t.Id, Type: "team", DisplayName: displayName}
+func (t *Team) Entity() ActivityEntity {
+	return ActivityEntity{Id: t.Id, Type: "team", DisplayName: t.Name}
 }
 
 // Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.

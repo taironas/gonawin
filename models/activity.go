@@ -62,7 +62,7 @@ type ActivityJson struct {
 // Publisher interface
 type Publisher interface {
 	Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error
-	Entity(name string) ActivityEntity
+	Entity() ActivityEntity
 }
 
 // Returns activities for a specific user.

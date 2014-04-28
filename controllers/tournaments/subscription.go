@@ -59,9 +59,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "tournament", "joined tournament", object, target)
+		u.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
 		data := struct {
@@ -107,9 +105,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "tournament", "left tournament", object, target)
+		u.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
 		data := struct {
@@ -160,9 +156,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := mdl.ActivityEntity{}
-		team.Publish(c, "tournament", "joined tournament", object, target)
+		team.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("Team %s joined tournament %s.", team.Name, tournament.Name)
 		data := struct {
@@ -214,9 +208,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 		// publish new activity
-		object := mdl.ActivityEntity{Id: tournament.Id, Type: "tournament", DisplayName: tournament.Name}
-		target := mdl.ActivityEntity{}
-		u.Publish(c, "tournament", "left tournament", object, target)
+		u.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
 		data := struct {
