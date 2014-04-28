@@ -20,7 +20,7 @@ package users
 import (
 	"encoding/json"
 	"errors"
-  "fmt"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -246,11 +246,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
 		}
-    if userId != u.Id {
+		if userId != u.Id {
 			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
 		}
-    // user
+		// user
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)
 		if err != nil {
@@ -260,39 +260,39 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// delete all team-user relationships
 		for _, teamId := range user.TeamIds {
-      if mdl.IsTeamAdmin(c, teamId, u.Id) {
-        var team *mdl.Team
-        if team, err = mdl.TeamById(c, teamId); err != nil {
-          log.Errorf(c, "%s team %d not found", desc, teamId)
-          return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-        }
-        if err = team.RemoveAdmin(c, userId); err != nil {
-          log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-          return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
-        }
-      } else {
-        if err := user.RemoveTeamId(c, teamId); err != nil {
-          log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-        }
-      }
+			if mdl.IsTeamAdmin(c, teamId, u.Id) {
+				var team *mdl.Team
+				if team, err = mdl.TeamById(c, teamId); err != nil {
+					log.Errorf(c, "%s team %d not found", desc, teamId)
+					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+				}
+				if err = team.RemoveAdmin(c, userId); err != nil {
+					log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
+				}
+			} else {
+				if err := user.RemoveTeamId(c, teamId); err != nil {
+					log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+				}
+			}
 		}
 		// delete all tournament-user relationships
 		for _, tournamentId := range user.TournamentIds {
-      if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
-        var tournament *mdl.Tournament
-        if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-          log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
-          return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-        }
-        if err = tournament.RemoveAdmin(c, userId); err != nil {
-          log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-          return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
-        } 
-      } else {
-        if err := user.RemoveTournamentId(c, tournamentId); err != nil {
-          log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
-        }
-      }
+			if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+				var tournament *mdl.Tournament
+				if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+					log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
+					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+				}
+				if err = tournament.RemoveAdmin(c, userId); err != nil {
+					log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
+				}
+			} else {
+				if err := user.RemoveTournamentId(c, tournamentId); err != nil {
+					log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
+				}
+			}
 		}
 		// delete the user
 		user.Destroy(c)

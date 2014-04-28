@@ -60,7 +60,7 @@ type TwitterUserInfo struct {
 	Screen_name string
 }
 
-// from an accessToken string, verify if google user account is valid
+// Check user validity from an accessToken string. verify if google user account is valid.
 func CheckUserValidity(r *http.Request, url string, accessToken string) bool {
 	c := appengine.NewContext(r)
 	client := urlfetch.Client(c)
@@ -78,24 +78,7 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-func isEmailAuthorizedGmail(email string) bool {
-	for _, e := range config.AuthorizedGmail {
-		if e == email {
-			return true
-		}
-	}
-	return false
-}
-
-func isEmailAuthorizedTwitter(name string) bool {
-	for _, n := range config.AuthorizedTwitter {
-		if n == name {
-			return true
-		}
-	}
-	return false
-}
-
+// Is email part of the gonawin developpers defined in config.json
 func isEmailDevUser(email string) bool {
 	if !appengine.IsDevAppServer() {
 		return false
@@ -108,6 +91,7 @@ func isEmailDevUser(email string) bool {
 	return false
 }
 
+// Is app in offline mode and email an offline user.
 func isEmailOfflineUser(email string) bool {
 	if !config.OfflineMode {
 		return false
@@ -115,6 +99,7 @@ func isEmailOfflineUser(email string) bool {
 	return config.OfflineUser.Email == email
 }
 
+// Is email a gonawin admin defined in config.json
 func isEmailAdmin(email string) bool {
 	for _, u := range config.Admins {
 		if u == email {
@@ -124,24 +109,9 @@ func isEmailAdmin(email string) bool {
 	return false
 }
 
-// // Ckeck if user is authorized.
-// // #196: Should be removed when deployed in production.
-func IsAuthorized(ui *UserInfo) bool {
-	return ui != nil &&
-		(isEmailAuthorizedGmail(ui.Email) ||
-			isEmailDevUser(ui.Email) ||
-			isEmailOfflineUser(ui.Email))
-}
-
-// Check if user is gonawin admin.
+// Is gonnawin admin checks if user is gonawin admin.
 func IsGonawinAdmin(u *mdl.User) bool {
 	return u != nil && (isEmailAdmin(u.Email) || isEmailOfflineUser(u.Email))
-}
-
-// Ckeck if twitter user is admin.
-// #196: Should be removed when deployed in production.
-func IsAuthorizedWithTwitter(ui *TwitterUserInfo) bool {
-	return ui != nil && isEmailAuthorizedTwitter(ui.Screen_name)
 }
 
 // unmarshal twitter response
