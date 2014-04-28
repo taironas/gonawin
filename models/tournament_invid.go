@@ -144,7 +144,7 @@ func UpdateTournamentInvertedIndex(c appengine.Context, oldname string, newname 
 				inold = true
 			}
 		}
-		if !inold {
+		if !inold && (len(wn) > 0) {
 			// add it
 			log.Infof(c, " add: %v", wn)
 			err = tournamentInvertedIndexAddWord(c, wn, id)

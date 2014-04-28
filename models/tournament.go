@@ -101,7 +101,12 @@ func (t *Tournament) Destroy(c appengine.Context) error {
 		return errors.New(fmt.Sprintf("Cannot find tournament with Id=%d", t.Id))
 	} else {
 		key := datastore.NewKey(c, "Tournament", "", t.Id, nil)
-		return datastore.Delete(c, key)
+		if errd := datastore.Delete(c, key); errd != nil {
+			return errd
+		} else {
+			// remove key name.
+			return UpdateTournamentInvertedIndex(c, t.KeyName, "", t.Id)
+		}
 	}
 }
 

@@ -143,7 +143,7 @@ func UpdateTeamInvertedIndex(c appengine.Context, oldname string, newname string
 				inold = true
 			}
 		}
-		if !inold {
+		if !inold && (len(wn) > 0) {
 			log.Infof(c, " add: %v", wn)
 			err = teamInvertedIndexAddWord(c, wn, id)
 		}
