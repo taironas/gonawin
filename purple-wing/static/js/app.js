@@ -89,7 +89,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
 	$rootScope.serviceIds.$promise.then(function(response){
 	    console.log('responssaaaaaaa', response);
 	    FB.init({
-		appId: response.FacebookAppId,//'232160743609875',
+		appId: response.FacebookAppId,
 		channelUrl: 'static/templates/channel.html',
 		status: true, /*Set if you want to check the authentication status at the start up of the app */
 		cookie: true,

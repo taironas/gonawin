@@ -7,6 +7,7 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
     var User = $resource('j/users/:id', {id:'@id', including:'@including'}, {
 	get: { method: 'GET', params: {including: '@including'}, url: 'j/users/show/:id' },
 	update: { method: 'POST', url: 'j/users/update/:id' },
+  delete: { method: 'POST', url: 'j/users/destroy/:id' },
 	scores: {method: 'GET', url: 'j/users/:id/scores'},
 	search: { method: 'GET', url: 'j/users/search?q=:q', cache : true},
 	teams: {method : 'GET', url: 'j/users/:id/teams'},

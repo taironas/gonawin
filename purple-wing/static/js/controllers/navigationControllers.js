@@ -18,12 +18,7 @@ navigationControllers.controller('NavigationCtrl', ['$scope', '$rootScope', '$lo
       $rootScope.currentUser = undefined;
       $rootScope.isLoggedIn = false;
       
-      $cookieStore.remove('auth');
-      $cookieStore.remove('access_token');
-      $cookieStore.remove('user_id');
-      $cookieStore.remove('logged_in');
-      $cookieStore.remove('dev_appserver_login'); // Google account cookie created only on development server 
-      $cookieStore.remove('ACSID');               // Google account cookie created only on production server
+      sAuth.clearCookies();
       
       $location.path('/welcome');
     };

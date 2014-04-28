@@ -37,18 +37,32 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
 }]);
 
 // User edit controller. Use this controller to edit the current user data.
-userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', 'User', '$location', function($scope, $rootScope, User, $location) {
-    
+userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', '$location', 'User', 'sAuth', 
+  function($scope, $rootScope, $location, User, sAuth) {
     $scope.updateUser = function() {
-	User.update({ id:$rootScope.currentUser.User.Id}, $scope.currentUser,
-		    function(response){
-			$rootScope.messageInfo = response.MessageInfo;
-		    },
-		    function(err) { 
-			console.log('update failed: ', err.data);
-			$scope.messageDanger = err.data;
-		    });
-    }
+      User.update({ id:$rootScope.currentUser.User.Id}, $scope.currentUser,
+        function(response){
+          $rootScope.messageInfo = response.MessageInfo;
+        },
+        function(err) { 
+        console.log('update failed: ', err.data);
+        $scope.messageDanger = err.data;
+      });
+    };
+    
+    $scope.deleteUser = function() {
+      if(confirm('Are you sure?')){
+        User.delete({ id:$rootScope.currentUser.User.Id},
+        function(response){
+          sAuth.clearCookies();
+          $location.path('/');
+        },
+        function(err) {
+          $scope.messageDanger = err.data;
+          console.log('delete failed: ', err.data);
+        });
+      }
+    };
 }]);
 
 userControllers.controller('UserScoresCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {

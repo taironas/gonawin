@@ -52,6 +52,15 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
       $cookieStore.put('user_id', userId);
       $cookieStore.put('logged_in', true);
     },
+    /* delete all the stored cookies*/
+    clearCookies: function() {
+      $cookieStore.remove('auth');
+      $cookieStore.remove('access_token');
+      $cookieStore.remove('user_id');
+      $cookieStore.remove('logged_in');
+      $cookieStore.remove('dev_appserver_login'); // Google account cookie created only on development server 
+      $cookieStore.remove('ACSID');               // Google account cookie created only on production server
+    },
     /* logout the user who was logged in via Facebook */
     FBlogout: function() {
 	var _self = this;

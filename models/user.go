@@ -101,6 +101,18 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 	return user, nil
 }
 
+// Destroy a user given a user id.
+func (u *User) Destroy(c appengine.Context) error {
+
+	if _, err := UserById(c, u.Id); err != nil {
+		return errors.New(fmt.Sprintf("Cannot find user with Id=%d", u.Id))
+	} else {
+		key := datastore.NewKey(c, "User", "", u.Id, nil)
+
+		return datastore.Delete(c, key)
+	}
+}
+
 // Search for a user entity given a filter and value.
 func FindUser(c appengine.Context, filter string, value interface{}) *User {
 
@@ -271,7 +283,7 @@ func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
 	return nil
 }
 
-// Adds a tournament Id in the TournamentId array.
+// Removes a tournament Id in the TournamentId array.
 func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 
 	if hasTournament, i := u.ContainsTournamentId(tId); !hasTournament {
@@ -329,7 +341,7 @@ func (u *User) AddTeamId(c appengine.Context, tId int64) error {
 	return nil
 }
 
-// Adds a team Id in the TeamId array.
+// Removes a team Id in the TeamId array.
 func (u *User) RemoveTeamId(c appengine.Context, tId int64) error {
 
 	if hasTeam, i := u.ContainsTeamId(tId); !hasTeam {
