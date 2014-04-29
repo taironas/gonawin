@@ -54,8 +54,12 @@ userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', '$location',
       if(confirm('Are you sure?')){
         User.delete({ id:$rootScope.currentUser.User.Id},
         function(response){
+          // reset rootScope variables
+          $rootScope.currentUser = undefined;
+          $rootScope.isLoggedIn = false;
+        
           sAuth.clearCookies();
-          $location.path('/');
+          $location.path('/welcome');
         },
         function(err) {
           $scope.messageDanger = err.data;

@@ -37,14 +37,14 @@ const (
 	ErrorCodeSessionsCannotGetGoogleLoginUrl  = "Error getting Google accounts login URL"
 
 	// users
-	ErrorCodeUserNotFound                       = "User not found"
-	ErrorCodeUserNotFoundCannotUpdate           = "User not found, unable to update"
-  ErrorCodeUserNotFoundCannotDelete           = "User not found, unable to delete"
-	ErrorCodeUserCannotUpdate                   = "Could not update user"
-	ErrorCodeUsersCannotUpdate                  = "Could not update users"
-	ErrorCodeUsersCannotPublishScore            = "Could not pusblish score activities"
-  ErrorCodeUserIsTeamAdminCannotDelete        = "User cannot be deleted because he is team admin"
-  ErrorCodeUserIsTournamentAdminCannotDelete  = "User cannot be deleted because he is tournament admin"
+	ErrorCodeUserNotFound                      = "User not found"
+	ErrorCodeUserNotFoundCannotUpdate          = "User not found, unable to update"
+	ErrorCodeUserNotFoundCannotDelete          = "User not found, unable to delete"
+	ErrorCodeUserCannotUpdate                  = "Could not update user"
+	ErrorCodeUsersCannotUpdate                 = "Could not update users"
+	ErrorCodeUsersCannotPublishScore           = "Could not pusblish score activities"
+	ErrorCodeUserIsTeamAdminCannotDelete       = "User cannot be deleted because he is team admin"
+	ErrorCodeUserIsTournamentAdminCannotDelete = "User cannot be deleted because he is tournament admin"
 	// teams
 	ErrorCodeTeamAlreadyExists        = "Sorry, that team already exists"
 	ErrorCodeTeamCannotCreate         = "Could not create the team"

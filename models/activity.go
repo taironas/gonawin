@@ -89,6 +89,16 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 	return activities
 }
 
+// Deletes activities for a specific user.
+func DestroyActivities(c appengine.Context, activityIds []int64) error {
+	var keys []*datastore.Key
+	for _, id := range activityIds {
+		keys = append(keys, datastore.NewKey(c, "Activity", "", id, nil))
+	}
+
+	return datastore.DeleteMulti(c, keys)
+}
+
 // save an activity entity in datastore
 // returns the id of the newly saved activity
 func (a *Activity) save(c appengine.Context) error {

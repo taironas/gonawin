@@ -129,6 +129,7 @@ func init() {
 	h.HandleFunc("/a/update/scores/", handlers.ErrorHandler(tasksctrl.UpdateScores))
 	h.HandleFunc("/a/update/users/scores/", handlers.ErrorHandler(tasksctrl.UpdateUsersScores))
 	h.HandleFunc("/a/publish/users/scoreactivities/", handlers.ErrorHandler(tasksctrl.PublishUsersScoreActivities))
+	h.HandleFunc("/a/publish/users/deleteactivities/", handlers.ErrorHandler(tasksctrl.DeleteUserActivities))
 	h.HandleFunc("/a/create/scoreentities/", handlers.ErrorHandler(tasksctrl.CreateScoreEntities))
 	h.HandleFunc("/a/add/scoreentities/score/", handlers.ErrorHandler(tasksctrl.AddScoreToScoreEntities))
 	h.HandleFunc("/a/invite/", handlers.ErrorHandler(tasksctrl.Invite))
