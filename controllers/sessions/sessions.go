@@ -82,11 +82,6 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 		}
 
-		// to be removed when in production.
-		if !authhlp.IsAuthorized(&userInfo) {
-			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-		}
-
 		var user *mdl.User
 		var err error
 		if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
@@ -190,11 +185,6 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 		}
 
-		if !authhlp.IsAuthorizedWithTwitter(userInfo) {
-			log.Errorf(c, "%s User is not authorized by twitter with the following user information. %v", desc, userInfo)
-			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-		}
-
 		if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
 			log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
@@ -280,10 +270,6 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		userInfo := authhlp.GetUserGoogleInfo(u)
-
-		if !authhlp.IsAuthorized(&userInfo) {
-			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
-		}
 
 		var user *mdl.User
 		var err error

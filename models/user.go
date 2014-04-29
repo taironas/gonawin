@@ -109,7 +109,13 @@ func (u *User) Destroy(c appengine.Context) error {
 	} else {
 		key := datastore.NewKey(c, "User", "", u.Id, nil)
 
-		return datastore.Delete(c, key)
+		if errd := datastore.Delete(c, key); errd != nil {
+			return errd
+		} else {
+			// remove key name.
+			return UpdateUserInvertedIndex(c, helpers.TrimLower(u.Name), "", u.Id)
+		}
+
 	}
 }
 

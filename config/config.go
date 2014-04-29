@@ -7,16 +7,14 @@ import (
 
 // configuration structure to hold the JSON unmarshalled data.
 type GwConfig struct {
-	ApiVersion        string     `json:"apiVersion"`
-	OfflineMode       bool       `json:"offlineMode"`
-	OfflineUser       User       `json:"offlineUser"`
-	DevUsers          []User     `json:"devUsers"`
-	Admins            []string   `json:"admins"`
-	Twitter           Twitter    `json:"twitter"`
-	Facebook          Facebook   `json:"facebook"`
-	GooglePlus        GooglePlus `json:"googlePlus"`
-	AuthorizedGmail   []string   `json:"authorizedGmail"`
-	AuthorizedTwitter []string   `json:"authorizedTwitter"`
+	ApiVersion  string     `json:"apiVersion"`
+	OfflineMode bool       `json:"offlineMode"`
+	OfflineUser User       `json:"offlineUser"`
+	DevUsers    []User     `json:"devUsers"`
+	Admins      []string   `json:"admins"`
+	Twitter     Twitter    `json:"twitter"`
+	Facebook    Facebook   `json:"facebook"`
+	GooglePlus  GooglePlus `json:"googlePlus"`
 }
 
 type User struct {
