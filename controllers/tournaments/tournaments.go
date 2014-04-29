@@ -73,11 +73,23 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
 
-		fieldsToKeep := []string{"Id", "Name"}
-		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
-		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
+		type tournament struct {
+			Id                int64  `json:",omitempty"`
+			Name              string `json:",omitempty"`
+			ParticipantsCount int
+			TeamsCount        int
+			Progress          float64
+		}
+		ts := make([]tournament, len(tournaments))
+		for i, t := range tournaments {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].ParticipantsCount = len(t.UserIds)
+			ts[i].TeamsCount = len(t.TeamIds)
+			ts[i].Progress = t.Progress(c)
+		}
 
-		return templateshlp.RenderJson(w, c, tournamentsJson)
+		return templateshlp.RenderJson(w, c, ts) //tournamentsJson)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -365,14 +377,27 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 
-		fieldsToKeep := []string{"Id", "Name"}
-		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
-		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeep)
+		type tournament struct {
+			Id                int64  `json:",omitempty"`
+			Name              string `json:",omitempty"`
+			ParticipantsCount int
+			TeamsCount        int
+			Progress          float64
+		}
+		ts := make([]tournament, len(tournaments))
+		for i, t := range tournaments {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].ParticipantsCount = len(t.UserIds)
+			ts[i].TeamsCount = len(t.TeamIds)
+			ts[i].Progress = t.Progress(c)
+		}
+
 		// we should not directly return an array. so we add an extra layer.
 		data := struct {
-			Tournaments []mdl.TournamentJson `json:",omitempty"`
+			Tournaments []tournament `json:",omitempty"`
 		}{
-			tournamentsJson,
+			ts,
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}

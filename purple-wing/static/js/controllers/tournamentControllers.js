@@ -56,21 +56,6 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     // end world cup create action
 }]);
 
-// TournamentCardCtrl: fetch data of a particular tournament.
-tournamentControllers.controller('TournamentCardCtrl', ['$scope', 'Tournament',function($scope, Tournament) {
-    console.log('Tournament card controller:');
-    console.log('tournament ID: ', $scope.$parent.tournament.Id);
-    $scope.tournamentData = Tournament.get({ id:$scope.$parent.tournament.Id});
-
-    $scope.tournamentData.$promise.then(function(tournamentData){
-	$scope.tournament = tournamentData.Tournament;
-	console.log('tournament card controller, tournamentData = ', tournamentData);
-	$scope.participantsCount = tournamentData.Participants.length;
-	$scope.teamsCount = tournamentData.Teams.length;
-	$scope.progress = tournamentData.Progress;
-    });
-}]);
-
 // TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');

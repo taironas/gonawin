@@ -247,7 +247,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
 		}
-    
+
 		// send task to delete activities of the user.
 		log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
 
