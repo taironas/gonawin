@@ -51,11 +51,6 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		if !u.IsAdmin {
-			log.Errorf(c, "User Index Handler: user is not admin, User list can only be shown for admin users.")
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotFound)}
-		}
-
 		users := mdl.FindAllUsers(c)
 
 		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
