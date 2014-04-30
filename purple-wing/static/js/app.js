@@ -5,7 +5,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'ngRoute',
   'ngResource',
   'ngCookies',
-  'directive.g+signin',
+  'directive.googleplussignin',
   'directive.twittersignin',
   'directive.googlesignin',
   'directive.formValidation',
