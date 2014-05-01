@@ -6,14 +6,39 @@
 </ol>
 <div class="panel panel-default">
   <div class="panel-body">
-    <form class="form-horizontal" role="form" name="inviteTeamForm">
-      <div class="form-group" ng-class="{error: inviteTeamForm.name.$invalid}">
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          <a href="/ng#/teams/{{team.Id}}" class="btn btn-default">Cancel</a>
-          <button class="btn btn-primary" ng-click="sendInvitations()" ng-disabled="editTeamForm.$invalid">Send Invitations</button>
+    <div class="row">
+      <div class="col-md-6"></div>
+      <div class="col-md-4">
+        <!-- search box -->
+        <div class="input-group">
+          <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+          <form ng-submit="searchTeam()">
+            <input type="text" class="form-control" name="TeamInputSearch" id="inputIcon" ng-model="keywords" placeholder="search users to join your team">
+          </form>
+        </div>
+        <!-- / search box -->
+      </div>
+    </div> <!-- / row -->
+    <hr>
+    <div class="row center-block">
+      <div ng-repeat="user in users">
+        <div class="panel panel-default card">
+          <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
+          <div class="card-body">
+            <p>
+              <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
+            </p>
+	    <button type="button" class="btn btn-primary btn-xs" ng-click="invite(user.Id, $index)" ng-hide="user.invitationSent">
+	      <span class="glyphicon glyphicon-plus"></span> Invite
+	    </button>
+	    <button type="button" class="btn btn-default btn-xs" disabled="disabled" ng-show="user.invitationSent">
+	      <span class="glyphicon glyphicon-time"></span> Invitation sent
+	    </button>
+
+          </div>
         </div>
       </div>
-    </form>
-  </div>
-</div>
+      <small><h3 style="text-align: center">{{noUsersMessage}}</h3></small>
+    </div> <!-- / users row -->
+  </div> <!-- / body -->
+</div> <!-- / panel -->
