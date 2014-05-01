@@ -1,0 +1,19 @@
+<div ng-include src="'templates/partials/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li><a href="/ng#/teams">Teams</a></li>
+  <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
+  <li class="active">Invite</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form class="form-horizontal" role="form" name="inviteTeamForm">
+      <div class="form-group" ng-class="{error: inviteTeamForm.name.$invalid}">
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <a href="/ng#/teams/{{team.Id}}" class="btn btn-default">Cancel</a>
+          <button class="btn btn-primary" ng-click="sendInvitations()" ng-disabled="editTeamForm.$invalid">Send Invitations</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

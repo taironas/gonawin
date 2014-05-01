@@ -345,3 +345,15 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
 		});
   }
 }]);
+
+// TeamInviteCtrl: 
+teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', '$location', function($rootScope, $scope, $routeParams, Team, $location) {
+  console.log('Team invite controller:');
+  $scope.teamData = Team.get({ id:$routeParams.id });
+  console.log('$scope.teamData = ', $scope.teamData);
+
+  $scope.sendInvitations = function() {
+      console.log('sending invitation to join team');
+  };
+
+}]);
