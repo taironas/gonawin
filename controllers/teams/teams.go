@@ -368,11 +368,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 }
 
-// Invite handler.
+// Request Invite handler.
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
-func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	desc := "Team Invite Handler:"
+func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	desc := "Team Request Invite Handler:"
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
@@ -389,6 +389,52 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// return destroyed status
 		return templateshlp.RenderJson(w, c, "team request was created")
 	}
+	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Send Invite handler.
+// sent a user request with tuple (user, team)
+func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	// desc := "Team Send Invitation Handler:"
+	// c := appengine.NewContext(r)
+
+	// if r.Method == "POST" {
+	// 	intID, err := handlers.PermalinkID(r, c, 4)
+	// 	if err != nil {
+	// 		log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+	// 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	// 	}
+
+	// 	if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
+	// 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
+	// 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
+	// 	}
+	// 	// return destroyed status
+	// 	return templateshlp.RenderJson(w, c, "team request was created")
+	// }
+	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Invited handler.
+// List all sent invitations of team.
+func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	// desc := "Team Invited Handler:"
+	// c := appengine.NewContext(r)
+
+	// if r.Method == "POST" {
+	// 	intID, err := handlers.PermalinkID(r, c, 4)
+	// 	if err != nil {
+	// 		log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+	// 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	// 	}
+
+	// 	if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
+	// 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
+	// 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
+	// 	}
+	// 	// return destroyed status
+	// 	return templateshlp.RenderJson(w, c, "team request was created")
+	// }
 	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 

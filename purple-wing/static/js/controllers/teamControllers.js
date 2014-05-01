@@ -189,7 +189,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
     $scope.requestInvitation = function(){
 	console.log('team request invitation');
-	Team.invite( {id:$routeParams.id}, function(){
+	Team.requestInvite( {id:$routeParams.id}, function(){
 	    console.log('team invite successful');
 	}, function(err){
 	    $scope.messageDanger = err
@@ -350,27 +350,47 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
 teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', 'User', '$location', function($rootScope, $scope, $routeParams, Team, User, $location) {
     console.log('Team invite controller:');
     $scope.teamData = Team.get({ id:$routeParams.id });
+    // $scope.inviteData = Team.invited({id:$routeParams.id });
     console.log('$scope.teamData = ', $scope.teamData);
-
+    console.log('$rootScope.invited', $rootScope.invited);
+    if($rootScope.invited == undefined){
+	$rootScope.invited = new Array();
+	$scope.noInvitationsMessage = 'No invitations sent.';
+    }
+    
     if($routeParams.q != undefined){
-	// get teams result from search query
-	$scope.keywords = $routeParams.q;
-	console.log('seems like you are looking for something..', $routeParams.q);
-	$scope.usersData = User.search( {q:$routeParams.q});
-	// users
-	$scope.usersData.$promise.then(function(result){
-	    $scope.users = result.Users;
-	    var len  = 0;
-	    if($scope.users){
-		len = $scope.users.length;
-	    }
-	    for(var i = 0; i < len; i++){
-		$scope.users[i].invitationSent = false;
-	    }
-	    $scope.messageInfo = result.MessageInfo;
-	    if(result.Users == undefined){
-		$scope.noUsersMessage = 'No users found.';
-	    }
+
+	$scope.teamData.$promise.then(function(teamResponse){
+	    // get teams result from search query
+	    $scope.keywords = $routeParams.q;
+	    $scope.usersData = User.search( {q:$routeParams.q});
+
+	    // users
+	    $scope.usersData.$promise.then(function(usersResult){
+		$scope.users = usersResult.Users;
+		var len  = 0;
+		if($scope.users){
+		    len = $scope.users.length;
+		}
+		for(var i = 0; i < len; i++){
+		    $scope.users[i].invitationSent = false;
+		    var lenPlayers = 0;
+		    if(teamResponse.Players){
+			lenPlayers = teamResponse.Players.length;
+		    }
+		    for(var j = 0; j < lenPlayers; j++){
+			if($scope.users[i].Id == teamResponse.Players[j].Id){
+			    $scope.users[i].isMember = true;
+			}else{
+			    $scope.users[i].isMember = false;
+			}
+		    }
+		}
+		$scope.messageInfo = usersResult.MessageInfo;
+		if(usersResult.Users == undefined){
+		    $scope.noUsersMessage = 'No users found.';
+		}
+	    });
 	});
     }
 
@@ -384,6 +404,11 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
     $scope.invite = function(userId, index){
 	console.log('invite user id: ', userId);
 	console.log('invite index: ', index);
+	console.log('user: ', $scope.users[index]);
 	$scope.users[index].invitationSent = true;
-    }
+	//Team.sendInvite({ id:$routeParams.id });
+	$rootScope.invited.push($scope.users[index]);
+	$scope.noInvitationsMessage = '';
+    };
+
 }]);

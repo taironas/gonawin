@@ -28,7 +28,10 @@
             <p>
               <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
             </p>
-	    <button type="button" class="btn btn-primary btn-xs" ng-click="invite(user.Id, $index)" ng-hide="user.invitationSent">
+	    <button type="button" class="btn btn-success btn-xs" disabled="disabled" ng-show="user.isMember">
+	      <span class="glyphicon glyphicon-ok"></span> Member
+	    </button>
+	    <button type="button" class="btn btn-primary btn-xs" ng-click="invite(user.Id, $index)" ng-hide="user.isMember || user.invitationSent">
 	      <span class="glyphicon glyphicon-plus"></span> Invite
 	    </button>
 	    <button type="button" class="btn btn-default btn-xs" disabled="disabled" ng-show="user.invitationSent">
@@ -40,5 +43,24 @@
       </div>
       <small><h3 style="text-align: center">{{noUsersMessage}}</h3></small>
     </div> <!-- / users row -->
+    <hr>
+    <!-- invitations sent row -->
+    <div class="row center-block">
+      <div ng-repeat="user in invited">
+        <div class="panel panel-default card">
+          <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
+          <div class="card-body">
+            <p>
+              <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
+            </p>
+	    <button type="button" class="btn btn-default btn-xs" disabled="disabled" ng-show="user.invitationSent">
+	      <span class="glyphicon glyphicon-time"></span> Invitation sent
+	    </button>
+
+          </div>
+        </div>
+      </div>
+      <small><h3 style="text-align: center">{{noInvitationsMessage}}</h3></small>
+    </div> <!-- / invitations sent row -->
   </div> <!-- / body -->
 </div> <!-- / panel -->
