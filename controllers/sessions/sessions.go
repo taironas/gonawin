@@ -29,14 +29,14 @@ import (
 
 	oauth "github.com/garyburd/go-oauth/oauth"
 
-	"github.com/santiaago/purple-wing/helpers"
-	authhlp "github.com/santiaago/purple-wing/helpers/auth"
-	"github.com/santiaago/purple-wing/helpers/log"
-	"github.com/santiaago/purple-wing/helpers/memcache"
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	"github.com/santiaago/gonawin/helpers"
+	authhlp "github.com/santiaago/gonawin/helpers/auth"
+	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/santiaago/gonawin/helpers/memcache"
+	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
-	gwconfig "github.com/santiaago/purple-wing/config"
-	mdl "github.com/santiaago/purple-wing/models"
+	gwconfig "github.com/santiaago/gonawin/config"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 var (

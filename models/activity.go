@@ -23,7 +23,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 // Activity is an update that shows the activity of the user on gonawin.

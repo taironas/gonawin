@@ -24,8 +24,8 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 // Update the score of the participants to the tournament.

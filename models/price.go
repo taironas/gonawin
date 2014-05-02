@@ -24,7 +24,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 // A Price entity is defined by a description of the price that the winner gets for a specific tournament.

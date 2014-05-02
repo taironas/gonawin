@@ -20,7 +20,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 // Score entity is a placeholder for progression of the score of a user in a tournament.

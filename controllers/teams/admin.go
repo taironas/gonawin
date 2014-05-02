@@ -23,12 +23,12 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/handlers"
-	"github.com/santiaago/purple-wing/helpers/log"
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/handlers"
+	"github.com/santiaago/gonawin/helpers/log"
+	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
-	mdl "github.com/santiaago/purple-wing/models"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // Team add admin handler:

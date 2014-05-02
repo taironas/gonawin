@@ -24,11 +24,11 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/auth"
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/auth"
+	"github.com/santiaago/gonawin/helpers/log"
 
-	mdl "github.com/santiaago/purple-wing/models"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // parse permalink id from URL  and return it

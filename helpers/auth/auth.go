@@ -28,10 +28,10 @@ import (
 	"appengine/urlfetch"
 	"appengine/user"
 
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers/log"
 
-	gwconfig "github.com/santiaago/purple-wing/config"
-	mdl "github.com/santiaago/purple-wing/models"
+	gwconfig "github.com/santiaago/gonawin/config"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 var (

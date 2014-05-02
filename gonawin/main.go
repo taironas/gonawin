@@ -20,15 +20,15 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/santiaago/purple-wing/helpers/handlers"
+	"github.com/santiaago/gonawin/helpers/handlers"
 
-	activitiesctrl "github.com/santiaago/purple-wing/controllers/activities"
-	invitectrl "github.com/santiaago/purple-wing/controllers/invite"
-	sessionsctrl "github.com/santiaago/purple-wing/controllers/sessions"
-	tasksctrl "github.com/santiaago/purple-wing/controllers/tasks"
-	teamsctrl "github.com/santiaago/purple-wing/controllers/teams"
-	tournamentsctrl "github.com/santiaago/purple-wing/controllers/tournaments"
-	usersctrl "github.com/santiaago/purple-wing/controllers/users"
+	activitiesctrl "github.com/santiaago/gonawin/controllers/activities"
+	invitectrl "github.com/santiaago/gonawin/controllers/invite"
+	sessionsctrl "github.com/santiaago/gonawin/controllers/sessions"
+	tasksctrl "github.com/santiaago/gonawin/controllers/tasks"
+	teamsctrl "github.com/santiaago/gonawin/controllers/teams"
+	tournamentsctrl "github.com/santiaago/gonawin/controllers/tournaments"
+	usersctrl "github.com/santiaago/gonawin/controllers/users"
 )
 
 // temporary main handler: for landing page

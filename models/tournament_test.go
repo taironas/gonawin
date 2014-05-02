@@ -7,8 +7,8 @@ import (
 	"appengine/aetest"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 func TestCreateTournament(t *testing.T) {

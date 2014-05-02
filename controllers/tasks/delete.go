@@ -24,9 +24,9 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/log"
-	mdl "github.com/santiaago/purple-wing/models"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/log"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // Invite task.

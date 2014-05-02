@@ -21,7 +21,7 @@ import (
 	"appengine/memcache"
 	"fmt"
 
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers/log"
 )
 
 // set a key value pair to memcache

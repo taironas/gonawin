@@ -24,11 +24,11 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/purple-wing/helpers"
-	templateshlp "github.com/santiaago/purple-wing/helpers/templates"
+	"github.com/santiaago/gonawin/helpers"
+	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
-	"github.com/santiaago/purple-wing/helpers/log"
-	mdl "github.com/santiaago/purple-wing/models"
+	"github.com/santiaago/gonawin/helpers/log"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // Index activity handler.

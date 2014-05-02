@@ -27,10 +27,10 @@ import (
 	"appengine/datastore"
 	"appengine/taskqueue"
 
-	"github.com/santiaago/purple-wing/helpers"
-	"github.com/santiaago/purple-wing/helpers/log"
+	"github.com/santiaago/gonawin/helpers"
+	"github.com/santiaago/gonawin/helpers/log"
 
-	mdl "github.com/santiaago/purple-wing/models"
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // update score  handler:
