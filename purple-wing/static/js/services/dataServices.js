@@ -51,7 +51,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
 	leave: {method: 'POST', url: 'j/teams/leave/:id'},
 	requestInvite: {method: 'POST', url: 'j/teams/requestinvite/:id'},
 	sendInvite: {method: 'POST', url: 'j/teams/sendinvite/:id/:userId'},
-	invited: {method: 'POST', url: 'j/teams/invited/:id'},
+	invited: {method: 'GET', url: 'j/teams/invited/:id'},
 	allowRequest : {method: 'POST', url: 'j/teams/allow/:requestId'},
 	denyRequest : {method: 'POST', url: 'j/teams/deny/:requestId'},
 	ranking: {method: 'GET', url: 'j/teams/:id/ranking?rankby=:rankby&limit=:limit', cache : true},

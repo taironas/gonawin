@@ -73,7 +73,7 @@ func init() {
 	h.HandleFunc("/j/teams/update/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Update)))
 	h.HandleFunc("/j/teams/destroy/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Destroy)))
 	h.HandleFunc("/j/teams/requestinvite/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.RequestInvite)))
-	h.HandleFunc("/j/teams/sendinvite/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SendInvite)))
+	h.HandleFunc("/j/teams/sendinvite/[0-9]+/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.SendInvite)))
 	h.HandleFunc("/j/teams/invited/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Invited)))
 	h.HandleFunc("/j/teams/allow/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.AllowRequest)))
 	h.HandleFunc("/j/teams/deny/[0-9]+/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.DenyRequest)))

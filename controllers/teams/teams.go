@@ -369,6 +369,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // Request Invite handler.
+// A user sends a team a request to join a team if team is private.
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
 func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -381,6 +382,7 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
+		// check if team id exist.
 
 		if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
 			log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
@@ -393,48 +395,83 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 // Send Invite handler.
-// sent a user request with tuple (user, team)
+// A team sends a user an invitation with tuple (user, team) to join a team.
 func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	// desc := "Team Send Invitation Handler:"
-	// c := appengine.NewContext(r)
+	desc := "Team Send User Invitation Handler:"
+	c := appengine.NewContext(r)
 
-	// if r.Method == "POST" {
-	// 	intID, err := handlers.PermalinkID(r, c, 4)
-	// 	if err != nil {
-	// 		log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-	// 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-	// 	}
+	if r.Method == "POST" {
 
-	// 	if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
-	// 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
-	// 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-	// 	}
-	// 	// return destroyed status
-	// 	return templateshlp.RenderJson(w, c, "team request was created")
-	// }
+		teamId, err1 := handlers.PermalinkID(r, c, 4)
+		if err1 != nil {
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err1)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+		userId, err2 := handlers.PermalinkID(r, c, 5)
+		if err2 != nil {
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err2)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+
+		// check that ids exist in datastore.
+		var err error
+		_, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+		}
+
+		_, err = mdl.UserById(c, userId)
+		if err != nil {
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+		}
+
+		if _, err := mdl.CreateUserRequest(c, teamId, userId); err != nil {
+			log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
+		}
+
+		return templateshlp.RenderJson(w, c, "user request was created")
+	}
 	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Invited handler.
 // List all sent invitations of team.
 func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	// desc := "Team Invited Handler:"
-	// c := appengine.NewContext(r)
+	desc := "Team Invited Handler:"
+	c := appengine.NewContext(r)
 
-	// if r.Method == "POST" {
-	// 	intID, err := handlers.PermalinkID(r, c, 4)
-	// 	if err != nil {
-	// 		log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-	// 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-	// 	}
+	if r.Method == "GET" {
 
-	// 	if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
-	// 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
-	// 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-	// 	}
-	// 	// return destroyed status
-	// 	return templateshlp.RenderJson(w, c, "team request was created")
-	// }
+		teamId, err := handlers.PermalinkID(r, c, 4)
+		if err != nil {
+			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+
+		urs := mdl.FindUserRequests(c, "TeamId", teamId)
+		var ids []int64
+		for _, ur := range urs {
+			ids = append(ids, ur.UserId)
+		}
+
+		users := mdl.UsersByIds(c, ids)
+
+		// filter team information to return in json api
+		fieldsToKeep := []string{"Id", "Name"}
+		usersJson := make([]mdl.UserJson, len(users))
+		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+
+		data := struct {
+			Users []mdl.UserJson
+		}{
+			usersJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
 	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 

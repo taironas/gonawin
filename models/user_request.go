@@ -66,7 +66,7 @@ func (ur *UserRequest) Destroy(c appengine.Context) error {
 }
 
 // Search for all TeamRequest entities with respect of a filter and a value.
-func FindUserRequest(c appengine.Context, filter string, value interface{}) []*UserRequest {
+func FindUserRequests(c appengine.Context, filter string, value interface{}) []*UserRequest {
 
 	q := datastore.NewQuery("UserRequest").Filter(filter+" =", value)
 

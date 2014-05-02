@@ -46,14 +46,15 @@
     <hr>
     <!-- invitations sent row -->
     <div class="row center-block">
-      <div ng-repeat="user in invited">
+      <h3>Invitations sent:</h3>
+      <div ng-repeat="user in invitedUsers">
         <div class="panel panel-default card">
           <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
           <div class="card-body">
             <p>
               <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
             </p>
-	    <button type="button" class="btn btn-default btn-xs" disabled="disabled" ng-show="user.invitationSent">
+	    <button type="button" class="btn btn-default btn-xs" disabled="disabled">
 	      <span class="glyphicon glyphicon-time"></span> Invitation sent
 	    </button>
 
