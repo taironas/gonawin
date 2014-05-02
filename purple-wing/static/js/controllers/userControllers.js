@@ -7,33 +7,75 @@ userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, U
 }]);
 
 userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {
-  $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments" },
+  $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
 			     function(data){},
 			     function(err){
 			       console.log('get user failed: ', err.data);
 			       $scope.messageDanger = err.data;
 			     });
-
-  $scope.acceptTeamRequest = function(request){
-    console.log('User show controller:: accept team Request');
-    console.log('req: ', request);
-    Team.allowRequest({requestId:request.Id},
-		      function(data){},
-		      function(err){
-			console.log('allow request failed: ', err.data);
-			$scope.messageDanger = err.data;
-		      });
-  };
-  $scope.denyTeamRequest = function(request){
-    console.log('User show controller:: deny team Request');
-    console.log('req: ', request);
-    Team.denyRequest({requestId:request.Id},
-		     function(data){},
-		     function(err){
-		       console.log('deny request failed: ', err.data);
-		       $scope.messageDanger = err.data;
-		     });
-  };
+    $scope.userData.$promise.then(function(response){
+	var lenInvite = 0;
+	if($scope.userData.Invitations != undefined){
+	    lenInvite = $scope.userData.Invitations.length;
+	}
+	for(var i = 0; i < lenInvite; i++){
+	    $scope.userData.Invitations[i].handled = true;
+	}
+    });
+    
+    $scope.acceptTeamRequest = function(request){
+	console.log('User show controller:: accept team Request');
+	console.log('req: ', request);
+	Team.allowRequest({requestId:request.Id},
+			  function(data){},
+			  function(err){
+			      console.log('allow request failed: ', err.data);
+			      $scope.messageDanger = err.data;
+			  });
+    };
+    $scope.denyTeamRequest = function(request){
+	console.log('User show controller:: deny team Request');
+	console.log('req: ', request);
+	Team.denyRequest({requestId:request.Id},
+			 function(data){},
+			 function(err){
+			     console.log('deny request failed: ', err.data);
+			     $scope.messageDanger = err.data;
+			 });
+    };
+    
+    $scope.acceptInvitation = function(invitation, index){
+	if(!$scope.userData.Invitations[index].handled){
+	    return;
+	}
+	User.allowInvitation({ id:$routeParams.Id, teamId:invitation.Id},
+			     function(data){
+				 console.log('user allow invitation');
+				 $scope.messageInfo = data.MessageInfo;
+				 $scope.userData.Invitations[index].handled = false;
+			     },
+			     function(err){
+				 console.log('allow invitation failed: ', err.data);
+				 $scope.messageDanger = err.data;
+			     });
+    };
+    
+    $scope.denyInvitation = function(invitation, index){
+	if(!$scope.userData.Invitations[index].show){
+	    return;
+	}
+	User.denyInvitation({ id:$routeParams.Id, teamId:invitation.Id},
+			    function(data){
+				console.log('user deny invitation');
+				$scope.messageInfo = data.MessageInfo;
+				$scope.userData.Invitations[index].handled = false;
+			    },
+			    function(err){
+				console.log('deny invitation failed: ', err.data);
+				$scope.messageDanger = err.data;
+			    });
+    };
+    
 }]);
 
 // User edit controller. Use this controller to edit the current user data.

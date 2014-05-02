@@ -1,0 +1,16 @@
+<div class="invitations">
+  <table class="table table-striped">
+    <thead><tr><th>Invitations</th></tr></thead>
+    <tbody>
+      <tr ng-repeat="invitation in userData.Invitations">
+	<form accept-charset="UTF-8" class="form-horizontal" method="post">
+	  <div class="form-group">
+	    <td>Team: <a href="/ng#/teams/{{invitation.Id}}">{{invitation.Name}}</a> wants you to join them.</td>
+	    <td><button class="btn btn-success" ng-click="acceptInvitation(invitation, $index)" name="SubmitButton" type="submit" value="Accept"><i class="glyphicon glyphicon-ok glyphicon-white"></td>
+	    <td><button class="btn btn-danger" ng-click="denyInvitation(invitation, $index)" name="SubmitButton" type="submit" value="Deny"><i class="glyphicon glyphicon-remove glyphicon-white"></td>
+	  </div>
+	</form>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -544,6 +544,17 @@ func (u *User) TournamentsScores(c appengine.Context) []*ScoreOverall {
 	return scores
 }
 
+// Get the invitations of a user.
+func (u *User) Invitations(c appengine.Context) []*Team {
+	urs := FindUserRequests(c, "UserId", u.Id)
+	var ids []int64
+	for _, ur := range urs {
+		ids = append(ids, ur.TeamId)
+	}
+
+	return TeamsByIds(c, ids)
+}
+
 // Find all entity users with respect of a filter and value.
 func FindUsers(c appengine.Context, filter string, value interface{}) []*User {
 

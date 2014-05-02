@@ -79,7 +79,7 @@ func FindUserRequests(c appengine.Context, filter string, value interface{}) []*
 }
 
 // search a request by team id and user id pair
-func findUserRequestByTeamAndUser(c appengine.Context, teamId int64, userId int64) *UserRequest {
+func FindUserRequestByTeamAndUser(c appengine.Context, teamId int64, userId int64) *UserRequest {
 
 	q := datastore.NewQuery("UserRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
 

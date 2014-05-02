@@ -65,6 +65,8 @@ func init() {
 	h.HandleFunc("/j/users/search/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Search)))
 	h.HandleFunc("/j/users/[0-9]+/teams/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Teams)))
 	h.HandleFunc("/j/users/[0-9]+/tournaments/?", handlers.ErrorHandler(handlers.Authorized(usersctrl.Tournaments)))
+	h.HandleFunc("/j/users/allow/[0-9]+?", handlers.ErrorHandler(handlers.Authorized(usersctrl.AllowInvitation)))
+	h.HandleFunc("/j/users/deny/[0-9]+?", handlers.ErrorHandler(handlers.Authorized(usersctrl.DenyInvitation)))
 
 	// team
 	h.HandleFunc("/j/teams/?", handlers.ErrorHandler(handlers.Authorized(teamsctrl.Index)))
