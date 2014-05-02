@@ -4,7 +4,7 @@ angular.module('directive.twittersignin', []).
   directive('twitterSignin', function (Session, $location) {
     return {
       restrict: 'E',
-      template: '<button class="btn btn-primary">Sign in with Twitter</button>',
+      template: '<button class="btn btn-info">Sign in with Twitter</button>',
       replace: true,
       link: function (scope, element, attrs) {
         element.bind("click", function(){
@@ -17,4 +17,3 @@ angular.module('directive.twittersignin', []).
       }
     };
   });
-
