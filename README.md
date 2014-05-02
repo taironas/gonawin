@@ -33,13 +33,13 @@ We want to create a platform that people can use to bet/play with there friends 
 * install the [go appengine sdk](https://developers.google.com/appengine/downloads)
 * set up the appengine [environement](https://developers.google.com/appengine/docs/go/gettingstarted/devenvironment)
 *   `go get github.com/garyburd/go-oauth/oauth`
-*   `go get github.com/santiaago/purple-wing`
-*   `cd $GOPATH/src/github.com/santiaago/purple-wing/purple-wing`
+*   `go get github.com/santiaago/gonawin`
+*   `cd $GOPATH/src/github.com/santiaago/gonawin/gonawin`
 *   `goapp serve`
 
 #### Run App
 
-    > cd $GOPATH/src/github.com/santiaago/purple-wing/purple-wing
+    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
     > goapp serve
 
 #### Access app from smartphone
@@ -64,11 +64,11 @@ access from your smartphone on `http://192.168.1.X:8080/ng`
     
 #### Formatting
 
-    go fmt ..\purple-wing\...
+    go fmt ..\gonawin\...
 
 #### Deployment
 
-    go_appengine\appcfg.py update purple-wing
+    go_appengine\appcfg.py update gonawin
     
 #### Documentation
 
