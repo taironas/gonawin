@@ -128,14 +128,3 @@ userControllers.controller('UserScoresCtrl', ['$scope', '$routeParams', 'User', 
 				   console.log('user scores failed', err.data)
 				 });
 }]);
-
-// UserCardCtrl: fetch data of a particular user.
-userControllers.controller('UserCardCtrl', ['$scope', 'User', function($scope, User) {
-    console.log('User card controller:');
-    console.log('user ID: ', $scope.$parent.user.Id);
-    $scope.userData = User.get({ id:$scope.$parent.user.Id});
-
-    $scope.userData.$promise.then(function(userData){
-      $scope.user = userData.User;
-    });
-}]);
