@@ -8,6 +8,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.googleplussignin',
   'directive.twittersignin',
   'directive.googlesignin',
+  'directive.facebooksignin',
   'directive.formValidation',
   'directive.joinButton',
   'directive.addButton',
@@ -53,11 +54,11 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
-      
+
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
       when('/users/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl', requireLogin: true }).
       when('/users/:id/scores', {templateUrl: 'templates/users/scores.html', controller: 'UserScoresCtrl', requireLogin: true}).
-      
+
       when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl', requireLogin: true }).
       when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
       when('/teams/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
@@ -96,7 +97,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
 		cookie: true,
 		xfbml: true
 	    });
-	    
+
 	    sAuth.watchLoginChange();
 	});
     };
@@ -124,9 +125,9 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
-    
+
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
-    
+
     if($location.$$path === '/auth/twitter/callback') {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else if($location.$$path === '/auth/google/callback') {
