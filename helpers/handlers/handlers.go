@@ -117,7 +117,7 @@ func AdminAuthorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User)
 				return &helpers.BadRequest{Err: errors.New("Bad Authentication data")}
 			}
 		}
-		if !auth.IsGonawinAdmin(user) {
+		if !auth.IsGonawinAdmin(appengine.NewContext(r)){//user) {
 			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeSessionsForbiden)}
 		}
 		return f(w, r, user)

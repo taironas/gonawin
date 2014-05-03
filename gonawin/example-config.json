@@ -13,7 +13,6 @@
 	    "username": "John Smith",
 	    "name": "John Smith"
 	}],
-    "admins": ["test@example.com", "offline@gonawin.com"],
     "twitter": {
 	"token": "YOURTWITTERTOKEN",
 	"secret": "KEEPITSECRETKEEPITSAFE"

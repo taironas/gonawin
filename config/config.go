@@ -11,7 +11,6 @@ type GwConfig struct {
 	OfflineMode bool       `json:"offlineMode"`
 	OfflineUser User       `json:"offlineUser"`
 	DevUsers    []User     `json:"devUsers"`
-	Admins      []string   `json:"admins"`
 	Twitter     Twitter    `json:"twitter"`
 	Facebook    Facebook   `json:"facebook"`
 	GooglePlus  GooglePlus `json:"googlePlus"`

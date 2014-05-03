@@ -78,19 +78,6 @@ func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
 
-// Is email part of the gonawin developpers defined in config.json
-func isEmailDevUser(email string) bool {
-	if !appengine.IsDevAppServer() {
-		return false
-	}
-	for _, u := range config.DevUsers {
-		if u.Email == email {
-			return true
-		}
-	}
-	return false
-}
-
 // Is app in offline mode and email an offline user.
 func isEmailOfflineUser(email string) bool {
 	if !config.OfflineMode {
@@ -99,19 +86,9 @@ func isEmailOfflineUser(email string) bool {
 	return config.OfflineUser.Email == email
 }
 
-// Is email a gonawin admin defined in config.json
-func isEmailAdmin(email string) bool {
-	for _, u := range config.Admins {
-		if u == email {
-			return true
-		}
-	}
-	return false
-}
-
 // Is gonnawin admin checks if user is gonawin admin.
-func IsGonawinAdmin(u *mdl.User) bool {
-	return u != nil && (isEmailAdmin(u.Email) || isEmailOfflineUser(u.Email))
+func IsGonawinAdmin(c appengine.Context) bool{
+	return user.IsAdmin(c)
 }
 
 // unmarshal twitter response
