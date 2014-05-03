@@ -1,4 +1,4 @@
-application: gonawin
+application: gonawin-project
 version: 1
 runtime: go
 api_version: go1
