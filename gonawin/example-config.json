@@ -23,7 +23,5 @@
     },
     "googlePlus":{
 	"clientId": "YOURGPLUSCLIENTID"
-    },
-    "authorizedGmail": ["account0001@gmail.com", "account0002@gmail.com"],
-    "authorizedTwitter": ["twitterAccount0001", "twitterAccount0002", "twitterAccount0003"]
+    }
 }
