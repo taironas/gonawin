@@ -7,9 +7,9 @@ We want to create a platform that people can use to bet/play with there friends 
 
 
 #### Contributors :
-* Santiago (sar)
-* Remy (rej)
-* Cabernal (cab)
+* Santiago
+* Remy
+* Cabernal
 
 #### Third Parties Installation
 
