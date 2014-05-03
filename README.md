@@ -35,6 +35,8 @@ We want to create a platform that people can use to bet/play with there friends 
 *   `go get github.com/garyburd/go-oauth/oauth`
 *   `go get github.com/santiaago/gonawin`
 *   `cd $GOPATH/src/github.com/santiaago/gonawin/gonawin`
+*   `cp example-config.json config.json`
+*   add your email to the `config.json` in the `admins` section
 *   `goapp serve`
 
 #### Run App
