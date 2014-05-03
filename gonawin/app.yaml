@@ -4,6 +4,9 @@ runtime: go
 api_version: go1
 
 handlers:
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
 
 - url: /ng
   static_files: static/index.html
