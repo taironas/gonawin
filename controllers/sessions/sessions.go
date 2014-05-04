@@ -127,7 +127,7 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 // Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		var host string = "gonawin.com"
+		var host string = "www.gonawin.com"
 		if appengine.IsDevAppServer() {
 			host = r.Host
 		}
