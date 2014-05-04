@@ -71,7 +71,7 @@ access from your smartphone on `http://192.168.1.X:8080/ng`
 
 #### Deployment
 
-    go_appengine\appcfg.py update gonawin
+    goapp deploy
     
 #### Documentation
 
