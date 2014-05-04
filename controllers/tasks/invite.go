@@ -75,7 +75,7 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 			}
 
 			if err := mail.Send(c, msg); err != nil {
-				log.Errorf(c, "%s: couldn't send email: %v", err)
+				log.Errorf(c, "%s: couldn't send email: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
 			}
 

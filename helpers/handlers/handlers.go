@@ -33,8 +33,8 @@ import (
 
 // parse permalink id from URL  and return it
 func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, error) {
-
-	path := strings.Split(r.URL.String(), "/")
+	url := strings.Replace(r.URL.String(), "http://", "", 1)
+	path := strings.Split(url, "/")
 	// if url has params extract id until the ? character
 	var strID string
 
