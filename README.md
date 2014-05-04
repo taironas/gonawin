@@ -22,6 +22,7 @@ We want to create a platform that people can use to bet/play with there friends 
 * [go-oauth](github.com/garyburd/go-oauth/oauth)
 * [flags](https://github.com/lipis/flag-icon-css)
 * [avatars](https://github.com/cupcake/sigil)
+* [Social Buttons for Bootstrap](http://lipis.github.io/bootstrap-social/)
 * icons
   * [font-awesome](http://fortawesome.github.io/Font-Awesome/icons/)
   * [glyphicons](http://glyphicons.com/)
