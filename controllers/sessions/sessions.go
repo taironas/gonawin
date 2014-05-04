@@ -128,12 +128,7 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
   if r.Method == "GET" {
-		var host string = "www.gonawin.com"
-		if appengine.IsDevAppServer() {
-			host = r.Host
-		}
-    log.Infof(c, "TwitterAuthCallback, host = %s", r.Host)
-		http.Redirect(w, r, "http://"+host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
+		http.Redirect(w, r, "http://"+r.Host+"/ng#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 		return nil
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
