@@ -5,6 +5,10 @@ A social web application for betting with your friends.
 We believe that todays betting platforms are just full of adds that polute the game itself.
 We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between.
 
+##### Notes:
+
+As we are in early stages data might flight away from here :-) .
+
 
 #### Contributors :
 * Santiago
