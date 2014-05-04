@@ -4,7 +4,7 @@ angular.module('directive.facebooksignin', []).
   directive('facebookSignin', function (Session, $location) {
     return {
       restrict: 'E',
-      template: '<button class="btn btn-primary">Sign in with Facebook</button>',
+      template: '<button class="btn btn-block btn-social btn-facebook btn-lg"><i class="fa fa-facebook"></i> Sign in with Facebook</button>',
       replace: true,
       link: function (scope, element, attrs) {
         element.bind("click", function(){

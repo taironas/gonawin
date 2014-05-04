@@ -51,6 +51,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $routeProvider.
       when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
       when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
+      when('/signin', { templateUrl: 'templates/signin.html', requireLogin: false }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
@@ -89,7 +90,6 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
     $window.fbAsyncInit = function() {
 	// Executed when the SDK is loaded
 	$rootScope.serviceIds.$promise.then(function(response){
-	    console.log('responssaaaaaaa', response);
 	    FB.init({
 		appId: response.FacebookAppId,
 		channelUrl: 'static/templates/channel.html',
@@ -139,8 +139,8 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
         $rootScope.currentUser = User.get({ id:sAuth.getUserID() });
         console.log('routeChangeStart, current user = ', $rootScope.currentUser);
       }
-      // Redirect user to root if he tries to go on welcome page and he is logged in.
-      if( $location.path() === '/welcome' && $rootScope.isLoggedIn ) {
+      // Redirect user to root if he tries to go on welcome page or signin page and he is logged in.
+      if( ($location.path() === '/welcome' || $location.path() === '/signin') && $rootScope.isLoggedIn ) {
         console.log('routeChangeStart, redirect to root');
         $location.path('/');
       }
