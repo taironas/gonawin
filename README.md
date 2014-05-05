@@ -1,9 +1,10 @@
 # gonawin
 
-A social web application for betting with your friends.
+A social web application to make "friendly bets" on sport games with your friends.
 
-We believe that todays betting platforms are just full of adds that polute the game itself.
-We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between.
+A social web application to make "friendly bets" on sport game with your friends.
+We believe that todays betting platforms are full of adds that polute the game itself. We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between. There is no money involved.
+
 
 ##### Notes:
 
