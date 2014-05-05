@@ -41,7 +41,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
 	console.log(ctx, 'route:--->', $route);
 
-	if(url.match('^/$') != null){
+	if(url.match('^/$') != null || url.match('^/users/[0-9]+.*') != null){
 	    $scope.state = 'root';
 
 	    // reset dashboard before getting data
@@ -51,7 +51,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	    $scope.dashboard.context = 'user';
 	    $rootScope.currentUser.$promise.then(function(currentUser){
 		$scope.dashboard.user = currentUser.User.Name;
-		$scope.dashboard.name = currentUser.User.Name;
+		$scope.dashboard.name = currentUser.User.Username;
 		$scope.dashboard.userid = currentUser.User.Id;
 		if (currentUser.User.TournamentIds){
 		    $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
@@ -96,6 +96,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       		console.log(ctx, 'get tournament ', tournamentResult);
 		$scope.dashboard.tournament = tournamentResult.Tournament.Name;
 		$scope.dashboard.tournamentid = tournamentResult.Tournament.Id;
+    $scope.dashboard.name = tournamentResult.Tournament.Name;
 
 		if(tournamentResult.Participants){
 		    $scope.dashboard.nparticipants = tournamentResult.Participants.length;
@@ -193,6 +194,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       		console.log(ctx, 'get team ', teamResult);
 		$scope.dashboard.team = teamResult.Team.Name;
 		$scope.dashboard.teamid = teamResult.Team.Id;
+    $scope.dashboard.name = teamResult.Team.Name;
 
 		if(teamResult.Team.TournamentIds){
 		    $scope.dashboard.ntournaments = teamResult.Team.TournamentIds.length;
