@@ -36,12 +36,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 	console.log(ctx, 'location - path: ', $location.path());
 
 	var url = $location.url();
-	console.log(ctx, 'match root? ', url.match('^/$') != null);
+	console.log(ctx, 'match root? ', url.match('^/$') != null || url.match('^/users/[0-9]+.*') || url.match('^/about$') || url.match('^/search$') != null);
 	console.log(ctx, 'match tournaments? ', url.match('^/tournaments/[0-9]+.*') != null);
 	console.log(ctx, 'match teams? ', url.match('^/teams/[0-9]+.*') != null);
 	console.log(ctx, 'route:--->', $route);
 
-	if(url.match('^/$') != null || url.match('^/users/[0-9]+.*') != null){
+	if(url.match('^/$') != null || url.match('^/users/[0-9]+.*') || url.match('^/about$') || url.match('^/search$') != null){
 	    $scope.state = 'root';
 
 	    // reset dashboard before getting data
