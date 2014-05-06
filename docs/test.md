@@ -5,7 +5,6 @@ Issue #200 Testing
 -------|:----------------------------------|:-------------------------------------|:-----|:----------------------------
 | 1     |    /                             | /ng#                                 | &#x2713;   | login & logout ok
 | 2     |    /m/about                      | /ng#/about                           | &#x2713;   |
-| 3     |    /m/contact                    | /ng#/contact                         | &#x2713;   |
 | 4     |    /m/auth                       | none                                 | N.A. | done at root
 | 5     |    /m/auth/facebook              | none                                 | N.A. | handled by javascript
 | 6     |    /m/auth/facebook/callback     | none                                 | N.A. | handled by javascript

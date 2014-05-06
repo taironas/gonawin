@@ -53,7 +53,6 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
       when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
       when('/signin', { templateUrl: 'templates/signin.html', requireLogin: false }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
-      when('/contact', { templateUrl: 'templates/contact.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
 
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
