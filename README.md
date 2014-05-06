@@ -2,7 +2,6 @@
 
 A social web application to make "friendly bets" on sport games with your friends.
 
-A social web application to make "friendly bets" on sport game with your friends.
 We believe that todays betting platforms are full of adds that polute the game itself. We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between. There is no money involved.
 
 
@@ -10,11 +9,15 @@ We believe that todays betting platforms are full of adds that polute the game i
 
 As we are in early stages data might flight away from here :-) .
 
+[![baby-gopher](https://raw2.github.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
+
+This is a baby-gophers project because `The young are born blind and helpless` - [Wikipedia](http://en.wikipedia.org/wiki/Gopher_(animal)#Pocket_gopher) and [babygopher.org](http://www.babygopher.org/) ^^
+
 
 #### Contributors :
-* Santiago
-* Remy
-* Cabernal
+* [Santiago](https://github.com/santiaago)
+* [Remy](https://github.com/rjourde)
+* [Cabernal4](https://github.com/cabernal4)
 
 #### Third Parties Installation
 
