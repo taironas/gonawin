@@ -5,7 +5,7 @@
       <tr ng-repeat="c in adminCandidates">
         <form accept-charset="UTF-8" class="form-horizontal">
           <div class="form-group">
-            <td><a href="/ng#/users/{{c.Id}}">{{c.Username}}</a></td>
+            <td><a href="/#/users/{{c.Id}}">{{c.Username}}</a></td>
             <td>
               <addbutton action="addAdminButtonMethod[c.Id](c.Id)" name="addAdminButtonName[c.Id]" />
             </td>

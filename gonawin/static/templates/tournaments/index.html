@@ -8,7 +8,7 @@
       <div class="row">
         <div class="col-md-6"></div>
         <div class="col-md-2">
-          <a class="btn btn-primary" ng-show="currentUser.User.IsAdmin" href="/ng#/tournaments/new">New Tournament</a>
+          <a class="btn btn-primary" ng-show="currentUser.User.IsAdmin" href="/#/tournaments/new">New Tournament</a>
           <!-- temporary button -->
           <button class="btn btn-primary" ng-show="currentUser.User.IsAdmin" ng-click="createWorldCup()">wc</button>
           <!-- / temporary button -->
@@ -31,7 +31,7 @@
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
                 <small>participants: {{tournament.ParticipantsCount}}</small>
                 <small>teams: {{tournament.TeamsCount}}</small>
 		<small>

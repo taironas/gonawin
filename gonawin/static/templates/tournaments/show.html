@@ -1,6 +1,6 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <ol class="breadcrumb">
-  <li><a href="/ng#/tournaments">Tournaments</a></li>
+  <li><a href="/#/tournaments">Tournaments</a></li>
   <li class="active">{{tournamentData.Tournament.Name}}</li>
 </ol>
 <div class="panel panel-default">
@@ -16,19 +16,19 @@
 </div>
 <div class="row centered">
   <div class="btn-group btn-group-gn">
-    <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" ng-click="onClickTab(tabs['calendar'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" ng-click="onClickTab(tabs['firststage'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" ng-click="onClickTab(tabs['calendar'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" ng-click="onClickTab(tabs['firststage'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
     <div class="btn-group">
       <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: (tab == 'secondstageh') || (tab == 'secondstagev')}" data-toggle="dropdown">
         Second Stage
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li><a ng-click="onClickTab(tabs['secondstageh'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstageh">Horizontal</a></li>
-        <li><a ng-click="onClickTab(tabs['secondstagev'])"href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstagev">Vertical</a></li>
+        <li><a ng-click="onClickTab(tabs['secondstageh'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstageh">Horizontal</a></li>
+        <li><a ng-click="onClickTab(tabs['secondstagev'])"href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstagev">Vertical</a></li>
       </ul>
     </div>
-    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
     <!-- admin buttons -->
     <div class="btn-group" ng-if="isTournamentAdmin">
       <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: tab == 'admin.setresults'}" data-toggle="dropdown">
@@ -36,8 +36,8 @@
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li><a ng-click="onClickTab(tabs['admin.setresults'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
-        <li><a ng-click="onClickTab(tabs['admin.setteams'])" href="/ng#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
+        <li><a ng-click="onClickTab(tabs['admin.setresults'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
+        <li><a ng-click="onClickTab(tabs['admin.setteams'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
         <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
       </ul>
     </div>

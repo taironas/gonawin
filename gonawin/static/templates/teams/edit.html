@@ -1,7 +1,7 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <ol class="breadcrumb">
-  <li><a href="/ng#/teams">Teams</a></li>
-  <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
+  <li><a href="/#/teams">Teams</a></li>
+  <li><a href="/#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
   <li class="active">Edit</li>
 </ol>
 <div class="panel panel-default">
@@ -30,7 +30,7 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <a href="/ng#/teams/{{teamData.Team.Id}}" class="btn btn-default">Cancel</a>
+          <a href="/#/teams/{{teamData.Team.Id}}" class="btn btn-default">Cancel</a>
           <button class="btn btn-primary" ng-click="updateTeam()" ng-disabled="editTeamForm.$invalid">Update Team</button>
         </div>
       </div>

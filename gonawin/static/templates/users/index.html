@@ -1,5 +1,5 @@
 <div class="page-header">
-  <h1><a href="/ng#/users">Users</a></h1>
+  <h1><a href="/#/users">Users</a></h1>
 </div>
 <div class="page-content">
   <table class="table table-striped">
@@ -15,7 +15,7 @@
     <tbody>
       <tr ng-repeat="user in users | filter:query">
 	<td>{{user.Id}}</td>
-	<td><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></td>
+	<td><a href="/#/users/{{user.Id}}">{{user.Name}}</a></td>
 	<td>{{user.Username}}</td>
 	<td>{{user.Email}}</td>
 	<td>{{user.Created}}</td>

@@ -27,7 +27,7 @@
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
                 <small>participants: {{tournament.ParticipantsCount}}</small>
                 <small>teams: {{tournament.TeamsCount}}</small>
 		<small>
@@ -52,7 +52,7 @@
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
                 <small>members: {{team.MembersCount}}</small>
               </p>
             </div>
@@ -72,7 +72,7 @@
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
+                <h4><a href="/#/users/{{user.Id}}">{{user.Name}}</a></h4>
               </p>
             </div>
           </div>

@@ -14,7 +14,7 @@
                </thead>
                <tbody>
                  <tr ng-repeat="u in rankingData.Users | orderBy:predicate:!reverse">
-                   <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
+                   <td><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
                    <td>{{u.Score}}</td>
                   </tr>
               </tbody>

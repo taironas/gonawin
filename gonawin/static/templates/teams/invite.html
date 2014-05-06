@@ -1,7 +1,7 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <ol class="breadcrumb">
-  <li><a href="/ng#/teams">Teams</a></li>
-  <li><a href="/ng#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
+  <li><a href="/#/teams">Teams</a></li>
+  <li><a href="/#/teams/{{teamData.Team.Id}}">{{teamData.Team.Name}}</a></li>
   <li class="active">Invite</li>
 </ol>
 <div class="panel panel-default">
@@ -26,7 +26,7 @@
           <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
           <div class="card-body">
             <p>
-              <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
+              <h4><a href="/#/users/{{user.Id}}">{{user.Name}}</a></h4>
             </p>
 	    <button type="button" class="btn btn-success btn-xs" disabled="disabled" ng-show="user.isMember">
 	      <span class="glyphicon glyphicon-ok"></span> Member
@@ -52,7 +52,7 @@
           <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
           <div class="card-body">
             <p>
-              <h4><a href="/ng#/users/{{user.Id}}">{{user.Name}}</a></h4>
+              <h4><a href="/#/users/{{user.Id}}">{{user.Name}}</a></h4>
             </p>
 	    <button type="button" class="btn btn-default btn-xs" disabled="disabled">
 	      <span class="glyphicon glyphicon-time"></span> Invitation sent

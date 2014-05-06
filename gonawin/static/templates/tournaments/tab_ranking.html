@@ -23,7 +23,7 @@
           </thead>
           <tbody>
             <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
-              <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+              <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
               <td>{{100*t.Accuracy | number:2}}%</td>
             </tr>
           </tbody>
@@ -47,7 +47,7 @@
           </thead>
           <tbody>
             <tr ng-repeat="u in rankingData.Users |  orderBy:predicate:reverse">
-              <td><a href="/ng#/users/{{u.Id}}">{{u.Name}}</a></td>
+              <td><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
               <td>{{u.Score}}</td>
             </tr>
           </tbody>
