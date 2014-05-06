@@ -1,0 +1,253 @@
+/*main.css*/
+
+body {
+  background-color: #f5f5f5;
+}
+
+.container-fluid {
+  background-color: #f5f5f5;
+}
+
+.centered {
+  text-align: center;
+}
+
+.navbar-navy {
+  background-color: #00b9Ab;
+  border-bottom: 2px solid #ffb347;
+  border-radius: 0px;
+  margin-bottom: 0px;
+}
+
+.navbar-navy a {
+  color: white;
+}
+
+.navbar-navy small {
+  font-size: 10px;
+}
+
+.navbar-toggle-navy {
+  border: 2px solid #00FFEC;
+}
+
+.icon-bar-navy {
+    background-color: #00FFEC;
+}
+
+.header {
+  background-color: #f5f5f5;
+	padding-top: 60px;
+  color: #00b9Ab;
+}
+
+.header .container-fluid {
+  background-color: #f5f5f5;
+}
+
+.header h5 {
+	font-weight: 700;
+	text-align: left;
+}
+
+.table-centered
+{
+  margin: 0 auto !important;
+  float: none !important;
+}
+
+/* intro Wrap */
+
+.intro {
+  background-color: #f5f5f5;
+	padding-top: 100px;
+  color: #00b9Ab;
+}
+
+.intro .container-fluid {
+  background-color: #f5f5f5;
+}
+
+.intro p {
+  color: #ffb347;
+  font-size: 16px;
+}
+
+.intro img {
+  border: 3px solid #ffb347;
+}
+
+.footer {
+  height: 60px;
+  z-index: 9999;
+}
+
+.footer_content {
+  text-align: center;
+  color: #595959;
+  font-size: 12px;
+}
+
+/* Links */
+/* Sar: modified css so that link style is only aplicable to footer. */
+.footer_content a {
+  color: #4b4b4b;
+  word-wrap: break-word;
+
+  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+  transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+.footer_content a:hover {
+
+  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
+  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
+  transition: color 0.1s ease-in, background 0.1s ease-in;
+}
+
+.footer_welcome {
+  margin-top: 20px;
+}
+
+.footer_welcome  .footer_content {
+  color: #00b9Ab;
+}
+
+.footer_welcome  .footer_content a {
+  color: #00b9Ab;
+}
+
+.main-container {
+  padding-top: 20px;
+}
+
+.activity-icon {
+  border: 2px solid #ffb347;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  background: #00B9AB;
+  height: 35px;
+  width: 35px;
+  line-height: 30px;
+  text-align: center;
+  z-index: 2;
+  position: absolute;
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.activities-line {
+  position: absolute;
+  content: '';
+  height: 100%;
+  width: 3px;
+  background: #e4e6eb;
+  margin-left: 21px;
+  margin-top: 20px;
+}
+
+.activity-panel {
+  margin-left: 100px;
+  margin-right: 20px;
+}
+
+.activity-panel a {
+  color: #ffb347;
+}
+
+.activity-panel h5 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.user-dashboard h3 {
+	text-align: center;
+}
+
+/* teams */
+.card {
+  width: 260px;
+  height: 81px;
+  float: left;
+  margin-left: 25px;
+}
+
+.card-avatar {
+  margin-right: 10px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.card-body {
+  height: 49px;
+}
+
+.card-body h4 {
+  margin-bottom: 0px;
+}
+
+.card-footer {
+  background-color: #F5F5F5;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  color: #67c2ef;
+}
+
+/* tournaments */
+.panel-match h4 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.circle-avatar {
+  border: 2px solid #67c2ef;
+}
+
+/* style for chevron icon*/
+.gw-chevron {
+    color: silver;
+    text-decoration: none; /* no underline */
+    a:hover { color:blue; }
+}
+
+/* Force inline for titles in order to be able to set icons before them without a break line in between*/
+.gw-h1 {
+    display: inline;
+}
+
+.btn-transparent {
+  background-color: transparent;
+  border: none;
+  color: #a9a9a9;
+}
+
+.btn-transparent:hover {
+  color: #696969;
+}
+
+.btn-group-gn {
+  margin-bottom: 20px;
+}
+
+.tab-panel {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.gn-grey {
+  color: #a9a9a9;
+}
+
+.col-main-content {
+  background-color: #f5f5f5;
+}
+
+.col-dashboard {
+  background-color: #f5f5f5;
+}
