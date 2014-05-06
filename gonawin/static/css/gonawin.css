@@ -120,18 +120,31 @@ fieldset[disabled] .btn-warning.active {
   color: white;
 }
 
-.navbar-default .navbar-nav>li>a:hover,
+.navbar-default .navbar-nav>li>a:hover {
+  color: white;
+  background-color: #ff8447;
+}
+
 .navbar-default .navbar-brand:hover {
   color: #ff8447;
 }
 
 .dropdown-menu>li>a:hover {
-  color: #ff8447;
-  background-color: transparent;
+  color: white;
+  background-color: #ff8447;
 }
 
 .navbar-nav>li>.dropdown-menu {
   background-color: #00b9Ab;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu>li>a {
+  color: white;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
+  color: white;
+  background-color: #FF8447;
 }
 
 .navbar-default .navbar-nav>.active>a {
@@ -155,11 +168,11 @@ color: white;
   font-size: 10px;
 }
 
-.navbar-toggle {
+.navbar-default .navbar-toggle {
   border: 2px solid #FF8447;
 }
 
-.icon-bar {
+.navbar-default .navbar-toggle  .icon-bar {
   background-color: #FF8447;
 }
 
