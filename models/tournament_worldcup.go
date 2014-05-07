@@ -66,7 +66,7 @@ func MapOfCountryCodes() map[string]string {
 	codes["Spain"] = "es"
 	codes["Netherlands"] = "nl"
 	codes["Chile"] = "cl"
-	codes["Australia"] = "at"
+	codes["Australia"] = "au"
 	codes["Colombia"] = "co"
 	codes["Greece"] = "gr"
 	codes["Côte d'Ivoire"] = "ci"
