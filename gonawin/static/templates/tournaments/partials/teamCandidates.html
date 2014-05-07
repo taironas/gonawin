@@ -5,7 +5,7 @@
       <tr ng-repeat="c in candidates">
         <form accept-charset="UTF-8" class="form-horizontal">
           <div class="form-group">
-            <td><a href="/ng#/teams/{{c.Team.Id}}">{{c.Team.Name}}</a></td>
+            <td><a href="/#/teams/{{c.Team.Id}}">{{c.Team.Name}}</a></td>
             <td>
               <joinbutton action="joinAsTeamButtonMethod[c.Team.Id](c.Team.Id)" name="joinAsTeamButtonName[c.Team.Id]" />
             </td>

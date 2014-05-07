@@ -1,6 +1,6 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <ol class="breadcrumb">
-  <li><a href="/ng#/teams">Teams</a></li>
+  <li><a href="/#/teams">Teams</a></li>
   <li class="active">{{teamData.Team.Name}}</li>
 </ol>
 <div class="panel panel-default">
@@ -11,10 +11,10 @@
 </div>
 <div class="row centered">
   <div class="btn-group btn-group-gn">
-    <a class="btn btn-default" ng-class="{active: tab == 'members'}" ng-click="onClickTab(tabs['members'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=members">Members</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=ranking">Ranking</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'accuracies'}" ng-click="onClickTab(tabs['accuracies'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=accuracies">Accuracies</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'prices'}" ng-click="onClickTab(tabs['prices'])" href="/ng#/teams/{{teamData.Team.Id}}?tab=prices">Prices</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'members'}" ng-click="onClickTab(tabs['members'])" href="/#/teams/{{teamData.Team.Id}}?tab=members">Members</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/#/teams/{{teamData.Team.Id}}?tab=ranking">Ranking</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'accuracies'}" ng-click="onClickTab(tabs['accuracies'])" href="/#/teams/{{teamData.Team.Id}}?tab=accuracies">Accuracies</a>
+    <a class="btn btn-default" ng-class="{active: tab == 'prices'}" ng-click="onClickTab(tabs['prices'])" href="/#/teams/{{teamData.Team.Id}}?tab=prices">Prices</a>
   </div>
 </div>
 <div ng-include="currentTab"></div>

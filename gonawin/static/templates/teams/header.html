@@ -3,8 +3,8 @@
 <div class="btn-group pull-right">
   <button type="button" class="btn btn-transparent dropdown-toggle" data-toggle="dropdown"><i class="fa fa-cog fa-lg"></i></button>
   <ul class="dropdown-menu" role="menu">
-    <li><a href="/ng#/teams/edit/{{teamData.Team.Id}}">Edit</a></li>
-    <li><a href="/ng#/teams/invite/{{teamData.Team.Id}}">Invite</a></li>
+    <li><a href="/#/teams/edit/{{teamData.Team.Id}}">Edit</a></li>
+    <li><a href="/#/teams/invite/{{teamData.Team.Id}}">Invite</a></li>
     <li><a data-toggle="modal" data-target="#team-modal">Manage admins</a></li>
     <li class="divider"></li>
     <li><a href="#" ng-click="deleteTeam()">Delete</a></li>
@@ -12,7 +12,7 @@
 </div>
 </div>
 
-<a class="gw-chevron" href="/ng#/teams"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;">  </i></a>
+<a class="gw-chevron" href="/#/teams"><i class="fa fa-chevron-left fa-lg" style="vertical-align: 50%;">  </i></a>
 <h1 class="gw-h1">
   <i class="fa fa-users fa-lg"></i>
   {{teamData.Team.Name}}

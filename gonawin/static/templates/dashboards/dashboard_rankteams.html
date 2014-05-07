@@ -8,7 +8,7 @@
   </thead>
   <tbody>
     <tr ng-repeat="t in dashboard.rank.teams | orderBy:'Accuracy':!reverse">
-      <td><a href="/ng#/teams/{{t.Id}}">{{t.Name}}</a></td>
+      <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
       <td>{{100*t.Accuracy | number:2}}%</td>
     </tr>
   </tbody>

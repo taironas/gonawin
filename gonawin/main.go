@@ -17,7 +17,6 @@
 package gonawin
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/santiaago/gonawin/helpers/handlers"
@@ -31,18 +30,10 @@ import (
 	usersctrl "github.com/santiaago/gonawin/controllers/users"
 )
 
-// temporary main handler: for landing page
-func tempHome(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, gonawin!")
-}
-
 // entry point of application
 func init() {
 
 	h := new(handlers.RegexpHandler)
-
-	// temporal home page
-	h.HandleFunc("/", tempHome)
 
 	// ------------- Json Server -----------------
 

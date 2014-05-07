@@ -8,7 +8,7 @@ handlers:
   static_files: robots.txt
   upload: robots.txt
 
-- url: /ng
+- url: /
   static_files: static/index.html
   upload: static/index.html
 

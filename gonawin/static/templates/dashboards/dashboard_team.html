@@ -22,8 +22,8 @@
     </thead>
     <tbody>
       <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
-      	<td ng-show="m.Id == dashboard.userid" class="info"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
-      	<td ng-show="m.Id != dashboard.userid"><a href="/ng#/users/{{m.Id}}">{{m.Name}}</a></td>
+      	<td ng-show="m.Id == dashboard.userid" class="info"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
+      	<td ng-show="m.Id != dashboard.userid"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
       	<td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}}</td>
       	<td ng-show="m.Id != dashboard.userid">{{m.Score}}</td>
       </tr>
