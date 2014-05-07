@@ -73,7 +73,7 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
 		}
 
-		currenturl := fmt.Sprintf("http://%s/ng#", r.Host)
+		currenturl := fmt.Sprintf("http://%s/#", r.Host)
 		body := fmt.Sprintf(inviteMessage, currenturl)
 
 		bname, errname := json.Marshal(u.Name)
