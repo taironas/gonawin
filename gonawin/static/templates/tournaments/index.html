@@ -2,25 +2,27 @@
 <ol class="breadcrumb">
   <li class="active">Tournaments</li>
 </ol>
-<div class="panel panel-default">
+<div class="panel panel-transparent">
   <div class="panel-body">
     <div class="page-content">
       <div class="row">
-        <div class="col-md-6"></div>
+        <div class="col-md-4"></div>
+        <div class="col-md-2">
+          <!-- temporary button -->
+          <button class="btn btn-primary" ng-show="currentUser.User.IsAdmin" ng-click="createWorldCup()">World Cup 2014</button>
+          <!-- / temporary button -->
+        </div>
         <div class="col-md-2">
           <a class="btn btn-primary" ng-show="currentUser.User.IsAdmin" href="/ng#/tournaments/new">New Tournament</a>
-          <!-- temporary button -->
-          <button class="btn btn-primary" ng-show="currentUser.User.IsAdmin" ng-click="createWorldCup()">wc</button>
-          <!-- / temporary button -->
         </div>
         <div class="col-md-4">
           <!-- search box -->
-          <div class="input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-            <form ng-submit="searchTournament()">
+          <form ng-submit="searchTournament()">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
               <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
-            </form>
-          </div>
+            </div>
+          </form>
           <!-- / search box -->
         </div>
       </div>
@@ -34,13 +36,13 @@
                 <h4><a href="/ng#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
                 <small>participants: {{tournament.ParticipantsCount}}</small>
                 <small>teams: {{tournament.TeamsCount}}</small>
-		<small>
-		  <div class="progress">
-		    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
-		      {{100 * tournament.Progress | number:0}}%
-		    </div>
-		  </div>
-		</small>
+                <small>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
+                      {{100 * tournament.Progress | number:0}}%
+                    </div>
+                  </div>
+                </small>
               </p>
             </div>
           </div>
@@ -54,7 +56,6 @@
         </div>
         <div class="col-md-5"></div>
       </div>
-      <hr>
     </div>
   </div>
 </div>

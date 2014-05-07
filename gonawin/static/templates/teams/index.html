@@ -2,7 +2,7 @@
 <ol class="breadcrumb">
   <li class="active">Teams</li>
 </ol>
-<div class="panel panel-default">
+<div class="panel panel-transparent">
   <div class="panel-body">
     <div class="page-content">
       <div class="row">
@@ -12,12 +12,12 @@
         </div>
         <div class="col-md-4">
           <!-- search box -->
-          <div class="input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-            <form ng-submit="searchTeam()">
+          <form ng-submit="searchTeam()">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
               <input type="text" class="form-control" name="TeamInputSearch" id="inputIcon" ng-model="keywords">
-            </form>
-          </div>
+            </div>
+          </form>
           <!-- / search box -->
         </div>
       </div>
@@ -48,9 +48,8 @@
         </div>
         <div class="col-md-5"></div>
       </div>
-      <hr>
-      <h4>Teams you can join:</h4>
       </br>
+      <h4>Teams you can join:</h4>
       <div class="row center-block">
         <div ng-repeat="team in teams">
           <div class="panel panel-default card">
@@ -75,7 +74,6 @@
         </div>
         <div class="col-md-5"></div>
       </div>
-      <hr>
     </div>
   </div>
 </div>
