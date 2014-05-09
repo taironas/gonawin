@@ -24,6 +24,7 @@ import (
 	"net/url"
 
 	"appengine"
+  "appengine/datastore"
 	"appengine/urlfetch"
 	"appengine/user"
 
@@ -103,6 +104,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 // JSON authentication for Twitter.
 func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
+  desc := "Twitter Auth handler:"
 	if r.Method == "GET" {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
 		if err != nil {
@@ -110,7 +112,21 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
 		}
 
-		memcache.Set(c, "secret", credentials.Secret)
+		if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
+      // store secret in datastore
+      secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
+      if err != nil {
+        log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
+      }
+
+      key := datastore.NewKey(c, "Secret", "", secretId, nil)
+
+      _, err = datastore.Put(c, key, credentials.Secret)
+      if err != nil {
+        log.Errorf(c, "%s Cannot put secret in Datastore. %v", desc, err)
+        return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotSetSecretValue)}
+      }
+    }
 
 		// return OAuth token
 		oAuthToken := struct {
@@ -138,7 +154,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Twitter User handler:"
 	if r.Method == "GET" {
-		var err error
+
 		var user *mdl.User
 
 		log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
@@ -149,14 +165,28 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		// update credentials with request token and 'secret cookie value'
 		var cred oauth.Credentials
 		cred.Token = requestToken
-		if secret := memcache.Get(c, "secret"); secret != nil {
+		if secret, err := memcache.Get(c, "secret"); secret != nil {
 			cred.Secret = string(secret.([]byte))
 		} else {
-			log.Errorf(c, "%s cannot get secret value.", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+			log.Errorf(c, "%s cannot get secret value from memcache: %v", desc, err)
+      // try to get secret from datastore
+      q := datastore.NewQuery("Secret")
+      var secrets []string
+      if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
+        secret = secrets[0]
+
+        // delete secret from datastore
+        if err = datastore.Delete(c, keys[0]); err != nil {
+          log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
+        }
+
+      } else if err != nil || len(secrets) == 0 {
+        log.Errorf(c, "%s cannot get secret value from Datastore: %v", desc, err)
+        return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+      }
 		}
 
-		if err = memcache.Delete(c, "secret"); err != nil {
+		if err := memcache.Delete(c, "secret"); err != nil {
 			log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
 		}
 
