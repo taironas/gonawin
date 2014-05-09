@@ -87,7 +87,7 @@ func isEmailOfflineUser(email string) bool {
 }
 
 // Is gonnawin admin checks if user is gonawin admin.
-func IsGonawinAdmin(c appengine.Context) bool{
+func IsGonawinAdmin(c appengine.Context) bool {
 	return user.IsAdmin(c)
 }
 

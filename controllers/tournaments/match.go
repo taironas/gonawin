@@ -48,6 +48,7 @@ type MatchJson struct {
 	HasPredict bool
 	Predict    string
 	Finished   bool
+	Ready      bool
 }
 
 // Json tournament Matches handler
@@ -219,6 +220,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		matchesJson[i].Result1 = m.Result1
 		matchesJson[i].Result2 = m.Result2
 		matchesJson[i].Finished = m.Finished
+		matchesJson[i].Ready = m.Ready
 		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
 			matchesJson[i].HasPredict = true
 			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
@@ -254,7 +256,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		matchJson2ndPhase.Result1 = m.Result1
 		matchJson2ndPhase.Result2 = m.Result2
 		matchJson2ndPhase.Finished = m.Finished
-
+		matchJson2ndPhase.Ready = m.Ready
 		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
 			matchJson2ndPhase.HasPredict = true
 			matchJson2ndPhase.Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)

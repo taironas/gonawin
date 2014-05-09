@@ -126,7 +126,7 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 
 // Twitter Authentication Callback
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
-  if r.Method == "GET" {
+	if r.Method == "GET" {
 		http.Redirect(w, r, "http://"+r.Host+"/#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 		return nil
 	}

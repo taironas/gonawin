@@ -39,6 +39,7 @@ type Tmatch struct {
 	Result1  int64     // result of 1st team
 	Result2  int64     // result of 2nd team
 	Finished bool      // is match finished
+	Ready    bool      // is match ready for predictions.
 }
 
 // Get a Tmatch entity by id.

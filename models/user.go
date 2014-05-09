@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"appengine"
-	gaeuser "appengine/user"
 	"appengine/datastore"
+	gaeuser "appengine/user"
 
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
@@ -191,7 +191,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	// find user
 	if user = FindUser(c, queryName, queryValue); user == nil {
 		// create user if it does not exist
-		
+
 		isAdmin := gaeuser.IsAdmin(c)
 
 		// start with an empty alias.

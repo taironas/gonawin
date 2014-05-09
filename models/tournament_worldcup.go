@@ -279,13 +279,6 @@ func MapOfPhaseIntervals() map[string][]int64 {
 // Create world cup tournament entity 2014.
 func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	// create new tournament
-	// tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
-
 	log.Infof(c, "World Cup: start")
 
 	// build map of groups
@@ -394,6 +387,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				emptyresult,
 				emptyresult,
 				false,
+				true,
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -476,6 +470,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				rule,
 				emptyresult,
 				emptyresult,
+				false,
 				false,
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")

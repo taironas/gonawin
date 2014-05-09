@@ -162,6 +162,7 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
 			}
 			matches[i].Rule = ""
+			matches[i].Ready = true
 		}
 		if err := UpdateMatches(c, matches); err != nil {
 			log.Errorf(c, "Set Results: unable to set results on matches: %v", err)
