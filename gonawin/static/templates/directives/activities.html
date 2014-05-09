@@ -1,7 +1,7 @@
 <div class="activities" ng-controller="ActivitiesCtrl" ng-show="activities.length">
   <div class="activities-line"></div>
   <div class="row activity" ng-repeat="activity in activities">
-    <span class="activity-icon">
+    <span class="activity-icon {{activity.Type}}">
       <div ng-switch on="activity.Type">
         <i class="fa fa-check fa-lg fa-inverse" ng-switch-when="welcome"/>
         <i class="fa fa-users fa-lg fa-inverse" ng-switch-when="team"/>
@@ -16,17 +16,17 @@
       <div class="panel-body">
         <div ng-switch on="activity.Type">
           <span ng-switch-when="predict">
-            <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>: 
-            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>:
+            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
             <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
           </span>
           <span ng-switch-when="match">
-            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong>: 
-            <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong>:
+            <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}}
             <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>
           </span>
           <span ng-switch-default>
-            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}} 
+            <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
             <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
           </span>
         </div>
