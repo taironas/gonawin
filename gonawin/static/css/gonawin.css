@@ -157,8 +157,8 @@ fieldset[disabled] .btn-warning.active {
   background-color: #FF8447;
 }
 
-.navbar-default .navbar-nav>.open>a, 
-.navbar-default .navbar-nav>.open>a:hover, 
+.navbar-default .navbar-nav>.open>a,
+.navbar-default .navbar-nav>.open>a:hover,
 .navbar-default .navbar-nav>.open>a:focus {
 background-color: #FF8447;
 color: white;
@@ -264,7 +264,6 @@ color: white;
 }
 
 .activity-icon {
-  border: 2px solid #FF8447;
   -webkit-border-radius: 50%;
   -moz-border-radius: 50%;
   border-radius: 50%;
@@ -276,6 +275,34 @@ color: white;
   z-index: 2;
   position: absolute;
   margin-left: 20px;
+  margin-top: 10px;
+}
+
+.team {
+  background: #3498db;
+}
+
+.tournament {
+  background: #2ecc71;
+}
+
+.match {
+  background: #f1c40f;
+}
+
+.score {
+  background: #9b59b6;
+}
+
+.predict {
+  background: #f39c12;
+}
+
+.accuracy {
+  background: #e74c3c;
+}
+
+.activity-icon i {
   margin-top: 10px;
 }
 
