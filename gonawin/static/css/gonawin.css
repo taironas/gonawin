@@ -268,13 +268,13 @@ color: white;
   -moz-border-radius: 50%;
   border-radius: 50%;
   background: #00B9AB;
-  height: 35px;
-  width: 35px;
+  height: 45px;
+  width: 45px;
   line-height: 30px;
   text-align: center;
   z-index: 2;
   position: absolute;
-  margin-left: 20px;
+  margin-left: 15px;
   margin-top: 10px;
 }
 
