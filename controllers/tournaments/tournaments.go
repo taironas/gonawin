@@ -573,11 +573,11 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var r1, r2 int
 		if r1, err = strconv.Atoi(result1); err != nil {
 			log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		if r2, err = strconv.Atoi(result2); err != nil {
 			log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		msg := ""
 		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
@@ -586,12 +586,12 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
 			if predict, err1 := mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
 				log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
-				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 			} else {
 				// add p.Id to User predict table.
 				if err = u.AddPredictId(c, predict.Id); err != nil {
 					log.Errorf(c, "%s unable to add predict id in user entity: error: %v", desc, err)
-					return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 				}
 				p = predict
 			}
@@ -603,7 +603,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			p.Result2 = int64(r2)
 			if err := p.Update(c); err != nil {
 				log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
-				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 			}
 			msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
 		}

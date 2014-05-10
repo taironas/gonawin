@@ -1,7 +1,6 @@
 <!-- Calendar by days -->
 <div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
+  <div class="col-md-12">
     <div ng-repeat="d in matchesData.Days">
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -23,8 +22,7 @@
 <!-- / Calendar by days-->
 <!-- Calendar by phases -->
 <div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-11">
+  <div class="col-md-12">
     <div ng-repeat="phase in matchesData.Phases">
       <h2>{{phase.Name}}</h3>
         <div ng-repeat="d in phase.Days">
