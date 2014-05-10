@@ -1,11 +1,10 @@
 <!-- Groups -->
 <!-- teams by group -->
 <div class="row" ng-repeat="g in groupsData.Groups">
-  <div class="col-md-1"></div>
-  <div class="col-md-3">
+  <div class="col-md-2">
     <h4>Group {{g.Name}}</h4>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-6">
     <table class="table table-striped table-condensed">
       <thead>
         <th><a href="" ng-click="predicate = 'Name'; reverse=false">Team</a></th>
@@ -15,10 +14,10 @@
       </thead>
       <tbody>
         <tr ng-repeat="t in g.Teams | orderBy:predicate:reverse">
-          <td class="col-md-8"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</td>
-          <td class="col-md-4">{{t.Points}}</td>
-          <td class="col-md-4">{{t.GoalsF}}</td>
-          <td class="col-md-4">{{t.GoalsA}}</td>
+          <td class="col-md-3"><p class="lead"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</p></td>
+          <td class="col-md-1"><p class="lead">{{t.Points}}</p></td>
+          <td class="col-md-1"><p class="lead">{{t.GoalsF}}</p></td>
+          <td class="col-md-1"><p class="lead">{{t.GoalsA}}</p></td>
         </tr>
       </tbody>
     </table>
