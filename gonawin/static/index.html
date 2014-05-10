@@ -11,15 +11,18 @@
     <link href="/static/css/flag-icon.css" rel="stylesheet">
   </head>
   <body>
-    <div ng-include src="'templates/partials/navigation.html'"></div>
-     <div ng-switch on="isLoggedIn">
+    <div id="wrap">
+      <div ng-include src="'templates/partials/navigation.html'"></div>
+      <div ng-switch on="isLoggedIn">
         <div ng-switch-when="true">
           <ng-include src="'templates/main.html'"></ng-include>
         </div>
         <div ng-switch-default>
           <ng-view><ng-view>
         </div>
+      </div>
     </div>
+    <div ng-include src="'templates/partials/footer.html'"></div>
     <div id="fb-root"></div>
     <!-- le analytics -->
     <script>

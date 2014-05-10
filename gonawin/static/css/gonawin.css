@@ -222,42 +222,57 @@ color: white;
   margin-top: 20px;
 }
 
-.footer {
+/* Sticky footer styles
+-------------------------------------------------- */
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 85px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
   height: 60px;
-  z-index: 9999;
+  background-color: #00b9Ab;
+  border-top: 2px solid #FF8447;
 }
 
-.footer_content {
-  text-align: center;
-  color: #00958B;
-  font-size: 12px;
+.footer-brand{
+    float: left;
+    padding: 15px;
+    font-size: 18px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
 }
 
-/* Links */
-/* Sar: modified css so that link style is only aplicable to footer. */
-.footer_content a {
-  color: #00958B;
-  word-wrap: break-word;
-
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
+.footer-content{
+    float: left;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
 }
 
-.footer_content a:hover {
-
-  -webkit-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -moz-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -ms-transition: color 0.1s ease-in, background 0.1s ease-in;
-  -o-transition: color 0.1s ease-in, background 0.1s ease-in;
-  transition: color 0.1s ease-in, background 0.1s ease-in;
+.footer-link{
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
 }
-
-.footer_welcome {
-  margin-top: 20px;
-}
+/* End Sticky footer styles
+-------------------------------------------------- */
 
 .main-container {
   padding-top: 20px;
