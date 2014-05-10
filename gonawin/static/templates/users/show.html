@@ -1,25 +1,35 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div>
-  <div class="page-header">
-    <h4>User</h4>
-  </div>
-  <!-- User: -->
-  <dl class="dl-horizontal">
-    <dt><strong>Id:</strong></dt>
-    <dd>{{userData.User.Id}}</dd>
-    <dt><strong>Username:</strong></dt>
-    <dd>{{userData.User.Username}}</dd>
-    <dt><strong>Name:</strong></dt>
-    <dd>{{userData.User.Name}}</dd>
-    <dt><strong>Email:</strong></dt>
-    <dd>{{userData.User.Email}}</dd>
-    <dt><strong>Created at:</strong></dt>
-    <dd>{{userData.User.Created}}</dd>
-  </dl>
-
-  <a href="/#/users/{{userData.User.Id}}/scores"> User scores </a>
-  <div ng-include src="'templates/users/teams.html'"></div>
-  <div ng-include src="'templates/users/tournaments.html'"></div>
-  <div ng-include src="'templates/users/teamRequests.html'"></div>
-  <div ng-include src="'templates/users/userInvitations.html'"></div>
-</div>
+<ol class="breadcrumb">
+  <li>Users</li>
+  <li class="active">{{userData.User.Username}}</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <h1 class="gw-h1">
+      <i class="fa fa-user fa-lg"></i>
+      User
+    </h1>
+    <!-- <div class="row"> -->
+      
+      <!-- User: -->
+      <dl class="dl-horizontal">
+	<dt><strong>Id:</strong></dt>
+	<dd>{{userData.User.Id}}</dd>
+	<dt><strong>Username:</strong></dt>
+	<dd>{{userData.User.Username}}</dd>
+	<dt><strong>Name:</strong></dt>
+	<dd>{{userData.User.Name}}</dd>
+	<dt><strong>Email:</strong></dt>
+	<dd>{{userData.User.Email}}</dd>
+	<dt><strong>Created at:</strong></dt>
+	<dd>{{userData.User.Created}}</dd>
+      </dl>
+      
+      <a href="/#/users/{{userData.User.Id}}/scores"> User scores </a>
+      <div ng-include src="'templates/users/teams.html'"></div>
+      <div ng-include src="'templates/users/tournaments.html'"></div>
+      <div ng-include src="'templates/users/teamRequests.html'"></div>
+      <div ng-include src="'templates/users/userInvitations.html'"></div>
+      <!-- </div> <\!-- / row -\-> -->
+    </div>
+</div> <!-- / panel -->
