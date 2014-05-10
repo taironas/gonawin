@@ -1,43 +1,49 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
-<div class="container">
-  <div class="row">
-    <div class="col-md-12">
-      <div class="page-header">
-	<h1>Email Invitation</h1>
-      </div>
-      
-      <h3>Invite people you know to join gonawin</h3>
-      <p>We'll be sending them a message that looks like this. Enter their email address below (separated by commas, please).</p>
-      <br />
-      
-      <div ng-dirty>
-	<form name="inviteForm" role="form">
-	  <div class="form-group">
-	    <div id="email">
-	      <p>
-		From: {{currentUser.User.Name}}<br />
-		Subject: <strong>{{currentUser.User.Name}} wants you to join gonawin!</strong>
-	      </p>
-	      <p class="email-body">
-		Hi there -<br />
-		Join us on gonawin.<br /><br />
-		You will be able to bet on tournament and win some rewards!<br /><br />
-		Sign in here: http://gonawin.com<br /><br />
-		Have fun,<br />
-		Your friends @ gonawin
-	      </p>
-	    </div>
-	  </div>
-	  <div class="form-group">
-	    <div id="invite">
-	      <div class="form-group" ng-class="{error: inviteForm.emails.$invalid}">
-		<textarea rows="4" name="emails" cols="50" ng-model="invite.emails"></textarea>
-		<span ng-show="inviteForm.emails.$error.emails" class="help-inline"> List is not well formatted</span>
+<ol class="breadcrumb">
+  <li class="active">invite</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <h1 class="gw-h1">
+      <i class="fa fa-bullhorn fa-lg"></i>
+      Email Invitation
+    </h1>
+    <hr>
+    <div class="row">
+      <div class="col-md-12">
+	<h3>Invite people you know to join gonawin</h3>
+	<p>We'll be sending them a message that looks like this. Enter their email address below (separated by commas, please).</p>
+	<br />
+	
+	<div ng-dirty>
+	  <form name="inviteForm" role="form">
+	    <div class="form-group">
+	      <div id="email">
+		<p>
+		  From: {{currentUser.User.Name}}<br />
+		  Subject: <strong>{{currentUser.User.Name}} wants you to join gonawin!</strong>
+		</p>
+		<p class="email-body">
+		  Hi there -<br />
+		  Join us on gonawin.<br /><br />
+		  You will be able to bet on tournament and win some rewards!<br /><br />
+		  Sign in here: http://gonawin.com<br /><br />
+		  Have fun,<br />
+		  Your friends @ gonawin
+		</p>
 	      </div>
 	    </div>
-	  </div>
-	  <button class="btn btn-default" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
-	</form>
+	    <div class="form-group">
+	      <div id="invite">
+		<div class="form-group" ng-class="{error: inviteForm.emails.$invalid}">
+		  <textarea rows="4" name="emails" cols="50" ng-model="invite.emails"></textarea>
+		  <span ng-show="inviteForm.emails.$error.emails" class="help-inline"> List is not well formatted</span>
+		</div>
+	      </div>
+	    </div>
+	    <button class="btn btn-default" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
+	  </form>
+	</div>
       </div>
     </div>
   </div>
