@@ -1,7 +1,7 @@
 'use strict'
 var authServices = angular.module('authServices', ['ngResource']);
 
-authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, $timeout, User, Session) {
+authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $location, $q, $timeout, User, Session) {
   return {
     /* returns true when user is logged in based on cookies */
     isLoggedIn: function() {
@@ -30,7 +30,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
       var _self = this;
       FB.api('/me', function(userInfo) {
         console.log('/me = ', userInfo);
-        $rootScope.currentUser = Session.fetchUser({ 
+        $rootScope.currentUser = Session.fetchUser({
           access_token: accessToken,
           provider: 'facebook',
           id:userInfo.id,
@@ -44,7 +44,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
         });
       });
     },
-    /* store cookies which will be used to dertermine if a user is logged 
+    /* store cookies which will be used to dertermine if a user is logged
      * and to add authentication data in API requests */
     storeCookies: function(accessToken, auth, userId) {
       $cookieStore.put('access_token', accessToken);
@@ -58,8 +58,6 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
       $cookieStore.remove('access_token');
       $cookieStore.remove('user_id');
       $cookieStore.remove('logged_in');
-      $cookieStore.remove('dev_appserver_login'); // Google account cookie created only on development server 
-      $cookieStore.remove('ACSID');               // Google account cookie created only on production server
     },
     /* logout the user who was logged in via Facebook */
     FBlogout: function() {
@@ -72,7 +70,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
 		    });
 		}
 	    });
-	    
+
 	} catch (e) {
 	    console.log('something went wrong when calling FB.getLoginStatus.');
 	}
@@ -96,12 +94,12 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $location, $q, 
     /* Complete signin with Google.
      * Fetch Google user info then set the current user
      * and store the cookies */
-    signinWithGoogle: function(oauthToken, oauthVerifier) {
+    signinWithGoogle: function(authToken) {
       var _self = this;
-      $rootScope.currentUser = Session.fetchGoogleUser({ oauth_token: oauthToken });
+      $rootScope.currentUser = Session.fetchGoogleUser({ auth_token: authToken });
       $rootScope.currentUser.$promise.then(function(currentUser){
         console.log('signinWithGoogle: current user = ', currentUser);
-        _self.storeCookies(oauthToken, currentUser.User.Auth, currentUser.User.Id);
+        _self.storeCookies(authToken, currentUser.User.Auth, currentUser.User.Id);
         $rootScope.isLoggedIn = true;
         $location.path('/');
       }, function(error){

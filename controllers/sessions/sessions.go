@@ -259,15 +259,15 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 // Google Authentication Callback
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
+  desc := "Google Accounts Auth Callback Handler:"
 	if r.Method == "GET" {
 		u := user.Current(c)
-		var oauthToken string
-		if u != nil {
-			oauthToken, _ = user.OAuthConsumerKey(c)
-			log.Infof(c, "GoogleAuthCallback: oauthToken = %s", oauthToken)
+		if u == nil {
+      log.Errorf(c, "%s user cannot be nil", desc)
+      return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 		}
 
-		http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?oauth_token="+oauthToken, http.StatusFound)
+		http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
 		return nil
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -284,9 +284,8 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 		}
 
-		oauthToken, _ := user.OAuthConsumerKey(c)
-		if oauthToken != r.FormValue("oauth_token") {
-			log.Errorf(c, "%s OAuth token doesn't match user's OAuth token", desc)
+		if u.ID != r.FormValue("auth_token") {
+			log.Errorf(c, "%s Auth token doesn't match user ID", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 		}
 
@@ -308,6 +307,22 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		return templateshlp.RenderJson(w, c, userData)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// JSON handler to delete cookie created by Google account
+func GoogleDeleteCookie(w http.ResponseWriter, r *http.Request) error {
+  c := appengine.NewContext(r)
+  if r.Method == "GET" {
+    cookieName := "ACSID"
+    if appengine.IsDevAppServer() {
+      cookieName = "dev_appserver_login"
+    }
+    cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
+    http.SetCookie(w, &cookie)
+
+    return templateshlp.RenderJson(w, c, "Google user has been logged out")
+  }
+  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {

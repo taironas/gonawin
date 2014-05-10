@@ -45,6 +45,7 @@ func init() {
 	h.HandleFunc("/j/auth/googleloginurl/?", handlers.ErrorHandler(sessionsctrl.GoogleAccountsLoginURL))
 	h.HandleFunc("/j/auth/google/callback/?", handlers.ErrorHandler(sessionsctrl.GoogleAuthCallback))
 	h.HandleFunc("/j/auth/google/user/?", handlers.ErrorHandler(sessionsctrl.GoogleUser))
+  h.HandleFunc("/j/auth/google/deletecookie/?", handlers.ErrorHandler(sessionsctrl.GoogleDeleteCookie))
 	h.HandleFunc("/j/auth/serviceids/?", handlers.ErrorHandler(sessionsctrl.AuthServiceIds))
 
 	// user
