@@ -433,3 +433,66 @@ body {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+
+/* Bracket
+-------------------------------------------------- */
+.gw-row-phase-even{
+    /*background-color: green;*/
+    display: table;
+    padding-bottom: 10px;
+}
+
+.gw-row-phase-odd{
+    background-color: #F5F5F5;
+    display: table;
+    padding-bottom: 10px;
+}
+
+.gw-row-phase-header-odd{
+    background-color: #F5F5F5;
+}
+
+.gw-row-phase-header-even{
+    /*right now transparent.*/
+}
+
+.gw-row-phase-odd [class*="col-"] {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.gw-row-phase-even [class*="col-"] {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.gw-match-number{
+    font-weight: bold;
+    float:left;
+    position:absolute;
+    clear:right;
+}
+
+.gw-match{
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.gw-cell-match{
+    background-color: #fff;
+    border-color: #00b9Ab;
+    border-radius: 4px;
+    border-style:solid;
+    border-width:2px;
+    padding-left: 1px;
+    padding-right: 1px;
+    font-size: 12px;
+    margin: 0 0 0px;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* End Bracket
+-------------------------------------------------- */
