@@ -12,28 +12,23 @@
 	       {{100 * tournamentData.Progress | number:0}}%
       </div>
     </div>
-  </div>
-</div>
-<div class="row centered">
-  <div class="btn-group btn-group-gn">
-    <a class="btn btn-default" ng-class="{active: tab == 'calendar'}" ng-click="onClickTab(tabs['calendar'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar">Calendar</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'firststage'}" ng-click="onClickTab(tabs['firststage'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage">First Stage</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'secondstage'}" ng-click="onClickTab(tabs['secondstage'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstage">Second Stage</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking">Ranking</a>
-    <!-- admin buttons -->
-    <div class="btn-group" ng-if="isTournamentAdmin">
-      <button type="button" class="btn btn-default dropdown-toggle" ng-class="{active: tab == 'admin.setresults'}" data-toggle="dropdown">
-        Results
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a ng-click="onClickTab(tabs['admin.setresults'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
-        <li><a ng-click="onClickTab(tabs['admin.setteams'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
-        <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
-      </ul>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+      <li ng-class="{active: tab == 'calendar'}"><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=calendar" ng-click="onClickTab(tabs['calendar'])" data-toggle="tab">Calendar</a></li>
+      <li ng-class="{active: tab == 'firststage'}"><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage" ng-click="onClickTab(tabs['firststage'])" data-toggle="tab">First Stage</a></li>
+      <li ng-class="{active: tab == 'secondstage'}" ><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstage" ng-click="onClickTab(tabs['secondstage'])" data-toggle="tab">Second Stage</a></li>
+      <li ng-class="{active: tab == 'ranking'}" ><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking" ng-click="onClickTab(tabs['ranking'])" data-toggle="tab">Ranking</a></li>
+      <li class="dropdown" ng-class="{active: (tab == 'admin.setresults') || (tab == 'admin.setteams')}" ng-if="isTournamentAdmin">
+	<a href="" data-toggle="dropdown">Results <b class="caret"></b></a>
+	<ul class="dropdown-menu">
+          <li><a ng-click="onClickTab(tabs['admin.setresults'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setresults">set results</a></li>
+          <li><a ng-click="onClickTab(tabs['admin.setteams'])" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=admin.setteams">set teams</a></li>
+          <li><a href="" ng-click="resetTournament()"><span class="glyphicon glyphicon glyphicon-refresh"> reset</span></a></li>
+	</ul>
+      </li>
+    </ul> <!-- / Nav tabs -->
+    <div class="panel panel-transparent">
+      <div class="tab-panel" ng-include="currentTab"></div>
     </div>
-  </div>
-</div>
-<div class="panel panel-transparent">
-  <div class="tab-panel" ng-include="currentTab"></div>
-</div>
+  </div> <!-- panel body -->
+</div> <!-- / panel -->

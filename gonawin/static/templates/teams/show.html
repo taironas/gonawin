@@ -7,14 +7,15 @@
   <div class="panel-body">
     <div ng-include src="'templates/teams/header.html'"></div>
     <br/><br/>
+        <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+       <li ng-class="{active: tab == 'members'}"><a ng-click="onClickTab(tabs['members'])" href="/#/teams/{{teamData.Team.Id}}?tab=members">Members</a></li>
+       <li ng-class="{active: tab == 'ranking'}"><a  ng-click="onClickTab(tabs['ranking'])" href="/#/teams/{{teamData.Team.Id}}?tab=ranking">Ranking</a></li>
+       <li ng-class="{active: tab == 'accuracies'}"><a ng-click="onClickTab(tabs['accuracies'])" href="/#/teams/{{teamData.Team.Id}}?tab=accuracies">Accuracies</a></li>
+       <li ng-class="{active: tab == 'prices'}" ><a ng-click="onClickTab(tabs['prices'])" href="/#/teams/{{teamData.Team.Id}}?tab=prices">Prices</a></li>
+    </ul> <!-- / Nav tabs -->
+    <div class="panel panel-transparent">
+      <div class="tab-panel" ng-include="currentTab"></div>
+    </div>
   </div>
 </div>
-<div class="row centered">
-  <div class="btn-group btn-group-gn">
-    <a class="btn btn-default" ng-class="{active: tab == 'members'}" ng-click="onClickTab(tabs['members'])" href="/#/teams/{{teamData.Team.Id}}?tab=members">Members</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'ranking'}" ng-click="onClickTab(tabs['ranking'])" href="/#/teams/{{teamData.Team.Id}}?tab=ranking">Ranking</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'accuracies'}" ng-click="onClickTab(tabs['accuracies'])" href="/#/teams/{{teamData.Team.Id}}?tab=accuracies">Accuracies</a>
-    <a class="btn btn-default" ng-class="{active: tab == 'prices'}" ng-click="onClickTab(tabs['prices'])" href="/#/teams/{{teamData.Team.Id}}?tab=prices">Prices</a>
-  </div>
-</div>
-<div ng-include="currentTab"></div>
