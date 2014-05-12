@@ -81,7 +81,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, sAuth, Session, User) {
+purpleWingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
     $rootScope.currentUser = undefined;
     $rootScope.isLoggedIn = false;
     $rootScope.serviceIds = Session.serviceIds();
@@ -165,6 +165,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', 'sAuth', 'Session', 'Us
       $rootScope.currentUser.$promise.then(function(currentUser){
         console.log('event:google-plus-signin-success: current user = ', currentUser);
         sAuth.storeCookies(authResult.access_token, currentUser.User.Auth, currentUser.User.Id);
+        $cookieStore.put('provider', 'google_plus');
         $rootScope.isLoggedIn = true;
         $location.path('/');
       });

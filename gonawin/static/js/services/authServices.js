@@ -39,6 +39,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $loca
         $rootScope.currentUser.$promise.then(function(currentUser){
           console.log('authServices.getFBUserInfo: current user = ', currentUser);
           _self.storeCookies(accessToken, currentUser.User.Auth, currentUser.User.Id);
+          $cookieStore.put('provider', 'facebook');
           $rootScope.isLoggedIn = true;
           $location.path('/');
         });
@@ -58,6 +59,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $loca
       $cookieStore.remove('access_token');
       $cookieStore.remove('user_id');
       $cookieStore.remove('logged_in');
+      $cookieStore.remove('provider');
     },
     /* logout the user who was logged in via Facebook */
     FBlogout: function() {
@@ -87,6 +89,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $loca
       $rootScope.currentUser.$promise.then(function(currentUser){
         console.log('signinWithTwitter: current user = ', currentUser);
         _self.storeCookies(oauthToken, currentUser.User.Auth, currentUser.User.Id);
+        $cookieStore.put('provider', 'twitter');
         $rootScope.isLoggedIn = true;
         $location.path('/');
       });
@@ -100,6 +103,7 @@ authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $loca
       $rootScope.currentUser.$promise.then(function(currentUser){
         console.log('signinWithGoogle: current user = ', currentUser);
         _self.storeCookies(authToken, currentUser.User.Auth, currentUser.User.Id);
+        $cookieStore.put('provider', 'google');
         $rootScope.isLoggedIn = true;
         $location.path('/');
       }, function(error){

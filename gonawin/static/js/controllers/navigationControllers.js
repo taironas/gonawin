@@ -10,12 +10,20 @@ navigationControllers.controller('NavigationCtrl', ['$scope', '$rootScope', '$lo
 
     $scope.disconnect = function(){
       console.log('NavigationCtrl module:: disconnect');
-      // logout from Google+/Twitter
-      Session.logout({ token: $cookieStore.get('access_token') });
+      
+      var providerCookie = $cookieStore.get('provider')
+      // logout from Google+
+      if(providerCookie == 'google_plus') {
+        Session.logout({ token: $cookieStore.get('access_token') });
+      }
       // logout from Facebook
-      sAuth.FBlogout();
+      if(providerCookie == 'facebook') {
+        sAuth.FBlogout();
+      }
       // delete cookie created by Google account
-      Session.DeleteGoogleCookie();
+      if(providerCookie == 'google') {
+        Session.DeleteGoogleCookie();
+      }
       // reset rootScope variables
       $rootScope.currentUser = undefined;
       $rootScope.isLoggedIn = false;
