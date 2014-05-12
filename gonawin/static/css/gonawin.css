@@ -250,7 +250,7 @@ body {
 .footer-brand{
     float: left;
     padding: 15px;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 20px;
     height: 20px;
     color: white;
@@ -496,3 +496,7 @@ body {
 
 /* End Bracket
 -------------------------------------------------- */
+
+.gw-border {
+  border: 2px solid #FF8447;
+}
