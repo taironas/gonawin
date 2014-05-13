@@ -1,16 +1,13 @@
 <div class="requests">
   <table class="table table-striped">
-    <thead><tr><th>Requests</th></tr></thead>
-    <tbody>
-      <tr ng-repeat="request in userData.TeamRequests">
-	<form accept-charset="UTF-8" class="form-horizontal" method="post">
-	  <div class="form-group">
-	    <td><a href="/#/users/{{request.UserId}}">User {{request.UserId}}</a> wants to join <a href="/#/teams/{{request.TeamId}}">Team {{request.TeamId}}</a></td>
-	    <td><button class="btn btn-success" ng-click="acceptTeamRequest(request)" name="SubmitButton" type="submit" value="Accept"><i class="glyphicon glyphicon-ok glyphicon-white"></td>
-	    <td><button class="btn btn-danger" ng-click="denyTeamRequest(request)" name="SubmitButton" type="submit" value="Deny"><i class="glyphicon glyphicon-remove glyphicon-white"></td>
-	  </div>
-	</form>
-      </tr>
-    </tbody>
+    <tr ng-repeat="request in userData.TeamRequests">
+      <form accept-charset="UTF-8" class="form-horizontal" method="post">
+        <div class="form-group">
+          <td><a href="/#/users/{{request.UserId}}">User {{request.UserId}}</a> wants to join <a href="/#/teams/{{request.TeamId}}">Team {{request.TeamId}}</a></td>
+          <td><button class="btn btn-success" ng-click="acceptTeamRequest(request)" name="SubmitButton" type="submit" value="Accept"><i class="glyphicon glyphicon-ok glyphicon-white"></td>
+          <td><button class="btn btn-danger" ng-click="denyTeamRequest(request)" name="SubmitButton" type="submit" value="Deny"><i class="glyphicon glyphicon-remove glyphicon-white"></td>
+        </div>
+      </form>
+    </tr>
   </table>
 </div>

@@ -24,7 +24,7 @@ import (
 	"net/url"
 
 	"appengine"
-  "appengine/datastore"
+	"appengine/datastore"
 	"appengine/urlfetch"
 	"appengine/user"
 
@@ -104,7 +104,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 // JSON authentication for Twitter.
 func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-  desc := "Twitter Auth handler:"
+	desc := "Twitter Auth handler:"
 	if r.Method == "GET" {
 		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
 		if err != nil {
@@ -113,20 +113,20 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
-      // store secret in datastore
-      secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
-      if err != nil {
-        log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
-      }
+			// store secret in datastore
+			secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
+			if err != nil {
+				log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
+			}
 
-      key := datastore.NewKey(c, "Secret", "", secretId, nil)
+			key := datastore.NewKey(c, "Secret", "", secretId, nil)
 
-      _, err = datastore.Put(c, key, credentials.Secret)
-      if err != nil {
-        log.Errorf(c, "%s Cannot put secret in Datastore. %v", desc, err)
-        return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotSetSecretValue)}
-      }
-    }
+			_, err = datastore.Put(c, key, credentials.Secret)
+			if err != nil {
+				log.Errorf(c, "%s Cannot put secret in Datastore. %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotSetSecretValue)}
+			}
+		}
 
 		// return OAuth token
 		oAuthToken := struct {
@@ -169,21 +169,21 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 			cred.Secret = string(secret.([]byte))
 		} else {
 			log.Errorf(c, "%s cannot get secret value from memcache: %v", desc, err)
-      // try to get secret from datastore
-      q := datastore.NewQuery("Secret")
-      var secrets []string
-      if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
-        secret = secrets[0]
+			// try to get secret from datastore
+			q := datastore.NewQuery("Secret")
+			var secrets []string
+			if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
+				secret = secrets[0]
 
-        // delete secret from datastore
-        if err = datastore.Delete(c, keys[0]); err != nil {
-          log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
-        }
+				// delete secret from datastore
+				if err = datastore.Delete(c, keys[0]); err != nil {
+					log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
+				}
 
-      } else if err != nil || len(secrets) == 0 {
-        log.Errorf(c, "%s cannot get secret value from Datastore: %v", desc, err)
-        return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
-      }
+			} else if err != nil || len(secrets) == 0 {
+				log.Errorf(c, "%s cannot get secret value from Datastore: %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+			}
 		}
 
 		if err := memcache.Delete(c, "secret"); err != nil {
@@ -259,12 +259,12 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 // Google Authentication Callback
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
-  desc := "Google Accounts Auth Callback Handler:"
+	desc := "Google Accounts Auth Callback Handler:"
 	if r.Method == "GET" {
 		u := user.Current(c)
 		if u == nil {
-      log.Errorf(c, "%s user cannot be nil", desc)
-      return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
+			log.Errorf(c, "%s user cannot be nil", desc)
+			return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 		}
 
 		http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
@@ -311,18 +311,18 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 
 // JSON handler to delete cookie created by Google account
 func GoogleDeleteCookie(w http.ResponseWriter, r *http.Request) error {
-  c := appengine.NewContext(r)
-  if r.Method == "GET" {
-    cookieName := "ACSID"
-    if appengine.IsDevAppServer() {
-      cookieName = "dev_appserver_login"
-    }
-    cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
-    http.SetCookie(w, &cookie)
+	c := appengine.NewContext(r)
+	if r.Method == "GET" {
+		cookieName := "ACSID"
+		if appengine.IsDevAppServer() {
+			cookieName = "dev_appserver_login"
+		}
+		cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
+		http.SetCookie(w, &cookie)
 
-    return templateshlp.RenderJson(w, c, "Google user has been logged out")
-  }
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		return templateshlp.RenderJson(w, c, "Google user has been logged out")
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {

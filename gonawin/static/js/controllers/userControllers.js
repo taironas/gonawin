@@ -8,19 +8,41 @@ userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, U
 
 userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {
   $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
-			     function(data){},
-			     function(err){
-			       console.log('get user failed: ', err.data);
-			       $scope.messageDanger = err.data;
-			     });
+    function(data){},
+    function(err){
+      console.log('get user failed: ', err.data);
+      $scope.messageDanger = err.data;
+    });
+    
+  $scope.scoreData = User.scores({id:$routeParams.id},
+    function(response){
+      console.log('response: ', response);
+    },
+    function(err){
+      console.log('user scores failed', err.data)
+    });
+    
     $scope.userData.$promise.then(function(response){
-	var lenInvite = 0;
-	if($scope.userData.Invitations != undefined){
-	    lenInvite = $scope.userData.Invitations.length;
-	}
-	for(var i = 0; i < lenInvite; i++){
-	    $scope.userData.Invitations[i].handled = true;
-	}
+      console.log('User show controller:: user = ', response);
+      if(!$scope.userData.Teams || ($scope.userData.Teams && !$scope.userData.Teams.length)){
+        $scope.noJoinedTeamsMessage = 'You didn\'t join a team';
+      }
+      if(!$scope.userData.Tournaments || ($scope.userData.Tournaments && !$scope.userData.Tournaments.length)){
+        $scope.noJoinedTournamentsMessage = 'You didn\'t join a tournament';
+      }
+      if(!$scope.userData.TeamRequests || ($scope.userData.TeamRequests && !$scope.userData.TeamRequests.length)){
+        $scope.noTeamRequestsMessage = 'You didn\'t have pending team request';
+      }
+      if(!$scope.userData.Invitations || ($scope.userData.Invitations && !$scope.userData.Invitations.length)){
+        $scope.noInvitationMessage = 'You didn\'t receive an invitation';
+      }
+      var lenInvite = 0;
+      if($scope.userData.Invitations != undefined){
+        lenInvite = $scope.userData.Invitations.length;
+      }
+      for(var i = 0; i < lenInvite; i++){
+        $scope.userData.Invitations[i].handled = true;
+      }
     });
     
     $scope.acceptTeamRequest = function(request){
@@ -75,7 +97,6 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
 				$scope.messageDanger = err.data;
 			    });
     };
-    
 }]);
 
 // User edit controller. Use this controller to edit the current user data.
@@ -109,22 +130,4 @@ userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', '$location',
         });
       }
     };
-}]);
-
-userControllers.controller('UserScoresCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {
-  console.log('User Scores controller');
-  $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments" },
-			     function(data){},
-			     function(err){
-			       console.log('get user failed: ', err.data);
-			       $scope.messageDanger = err.data;
-			     });
-
-  $scope.scoreData = User.scores({id:$routeParams.id},
-				 function(response){
-				   console.log('response: ', response);
-				 },
-				 function(err){
-				   console.log('user scores failed', err.data)
-				 });
 }]);

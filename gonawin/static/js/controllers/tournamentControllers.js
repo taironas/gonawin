@@ -8,17 +8,17 @@ var tournamentControllers = angular.module('tournamentControllers', []);
 tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
   console.log('Tournament list controller:');
 
-    $scope.count = 25;  // counter for the number of tournaments to display in view.
-    $scope.page = 1;    // page counter for tournaments, to know which page to display next.
+    $scope.countTournaments = 25;  // counter for the number of tournaments to display in view.
+    $scope.pageTournaments = 1;    // page counter for tournaments, to know which page to display next.
 
     // main query to /j/tournaments to get all tournaments.
-    $scope.tournaments = Tournament.query({count:$scope.countTeams, page:$scope.pageTeams});
+    $scope.tournaments = Tournament.query({count:$scope.countTournaments, page:$scope.pageTournaments});
 
     $scope.tournaments.$promise.then(function(response){
 	if(!$scope.tournaments || ($scope.tournaments && !$scope.tournaments.length)){
 	    $scope.noTournamentsMessage = 'You have no tournaments';
 	}else if($scope.tournaments != undefined){
-	    $scope.showMoreTournaments = (response.length == $scope.count);
+	    $scope.showMoreTournaments = (response.length == $scope.countTournaments);
 	}
     });
     
@@ -26,11 +26,11 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
     // retreive tournaments by page and increment page.
     $scope.moreTournaments = function(){
 	console.log('more tournaments');
-	$scope.page = $scope.page + 1;
-	Tournament.query({count:$scope.count, page:$scope.page}).$promise.then(function(response){
+	$scope.pageTournaments = $scope.pageTournaments + 1;
+	Tournament.query({count:$scope.countTournaments, page:$scope.pageTournaments}).$promise.then(function(response){
 	    console.log('response: ', response);
 	    $scope.tournaments = $scope.tournaments.concat(response);
-	    $scope.showMoreTournaments = (response.length == $scope.count);
+	    $scope.showMoreTournaments = (response.length == $scope.countTournaments);
 	});
     };
 
@@ -406,6 +406,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     
     $scope.activatePredict = function(matchIdNumber, index, parentIndex){
 	console.log('Tournament calendar controller: activate predict:', matchIdNumber);
+  console.log('Tournament calendar controller: activate matchesData:', $scope.matchesData);
 	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
     };
 
