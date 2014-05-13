@@ -42,10 +42,10 @@ func Set(c appengine.Context, key string, value interface{}) error {
 	// Set the item, unconditionally
 	if err := memcache.Set(c, item); err != nil {
 		log.Errorf(c, " error setting item: %v", err)
-    return err
+		return err
 	}
 
-  return nil
+	return nil
 }
 
 // get value from memcache with respect to a key string
@@ -53,10 +53,10 @@ func Get(c appengine.Context, key string) (interface{}, error) {
 	// Get the item from the memcache
 	item, err := memcache.Get(c, key)
 
-  if err != nil {
-    log.Errorf(c, " error getting item: %v", err)
-    return nil, err
-  }
+	if err != nil {
+		log.Errorf(c, " error getting item: %v", err)
+		return nil, err
+	}
 
 	return item.Value, err
 }

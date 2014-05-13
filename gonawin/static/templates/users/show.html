@@ -7,29 +7,62 @@
   <div class="panel-body">
     <h1 class="gw-h1">
       <i class="fa fa-user fa-lg"></i>
-      User
+      {{userData.User.Username}}
     </h1>
     <!-- <div class="row"> -->
-      
-      <!-- User: -->
-      <dl class="dl-horizontal">
-	<dt><strong>Id:</strong></dt>
-	<dd>{{userData.User.Id}}</dd>
-	<dt><strong>Username:</strong></dt>
-	<dd>{{userData.User.Username}}</dd>
-	<dt><strong>Name:</strong></dt>
-	<dd>{{userData.User.Name}}</dd>
-	<dt><strong>Email:</strong></dt>
-	<dd>{{userData.User.Email}}</dd>
-	<dt><strong>Created at:</strong></dt>
-	<dd>{{userData.User.Created}}</dd>
-      </dl>
-      
-      <a href="/#/users/{{userData.User.Id}}/scores"> User scores </a>
-      <div ng-include src="'templates/users/teams.html'"></div>
-      <div ng-include src="'templates/users/tournaments.html'"></div>
-      <div ng-include src="'templates/users/teamRequests.html'"></div>
-      <div ng-include src="'templates/users/userInvitations.html'"></div>
-      <!-- </div> <\!-- / row -\-> -->
+    </br></br>
+    <h4>Teams you've joined:</h4>
+    </br>
+    <div class="row center-block">
+      <div ng-repeat="team in userData.Teams">
+        <div class="panel panel-default card">
+          <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+          <div class="card-body">
+            <p>
+              <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i>
+              <small>members: {{team.MembersCount}}</small>
+            </p>
+          </div>
+          <div class="card-footer">
+            <p>accuracy: <b>{{100 * team.Accuracy | number:2}}%</b></p>
+          </div>
+        </div>
+      </div>
+    <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
     </div>
+    </br>
+    <h4>Tournaments you've joined:</h4>
+    </br>
+    <div class="row center-block">
+      <div ng-repeat="tournament in userData.Tournaments">
+        <div class="panel panel-default card">
+          <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+          <div class="card-body">
+            <p>
+              <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+              <small>participants: {{tournament.UserIds.length}}</small>
+              <small ng-if="tournament.TeamIds.length > 0">teams: {{tournament.TeamIds.length}}</small>
+              <small ng-if="tournament.TeamIds == undefined">teams: 0</small>
+            </p>
+          </div>
+          <div class="card-footer">
+            <p ng-if="scoreData.Scores[$index] != undefined">score: <b>{{scoreData.Scores[$index].Score}}</b></p>
+            <p ng-if="scoreData.Scores[$index] == undefined">score: <b>0</b></p>
+          </div>
+        </div>
+      </div>
+      <h3 style="text-align: center">{{noJoinedTournamentsMessage}}</h3>
+    </div>
+    </br>
+    <h4>Team Requests:</h4>
+    </br>
+    <div ng-include src="'templates/users/teamRequests.html'"></div>
+    <h3 style="text-align: center">{{noTeamRequestsMessage}}</h3>
+    </br>
+    <h4>Invitations:</h4>
+    </br>
+    <div ng-include src="'templates/users/userInvitations.html'"></div>
+    <h3 style="text-align: center">{{noInvitationMessage}}</h3>
+    <!-- </div> <\!-- / row -\-> -->
+  </div>
 </div> <!-- / panel -->
