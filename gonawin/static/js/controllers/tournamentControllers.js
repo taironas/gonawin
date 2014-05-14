@@ -405,9 +405,15 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     $scope.updateMatchesView();
     
     $scope.activatePredict = function(matchIdNumber, index, parentIndex){
-	console.log('Tournament calendar controller: activate predict:', matchIdNumber);
-  console.log('Tournament calendar controller: activate matchesData:', $scope.matchesData);
+	console.log('Tournament calendar controller: activate predict: matchid number, index, parent index', matchIdNumber, index, parentIndex);
+	console.log('Tournament calendar controller: activate predict: matchesdata', $scope.matchesData);
+
 	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = true;
+    };
+
+    $scope.activatePredictPhase = function(matchIdNumber, index, parentIndex, parentParentIndex){
+	console.log('Tournament calendar controller: activate predict: matchid number, index, parent index, parent parent index', matchIdNumber, index, parentIndex, parentParentIndex);
+	$scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].wantToPredict = true;
     };
 
     $scope.predict = function(matchIdNumber, index, parentIndex, result1, result2){
@@ -433,8 +439,37 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
     };
 
+    $scope.predictPhase = function(matchIdNumber, index, parentIndex, parentParentIndex, result1, result2){
+	console.log('Tournament calendar controller: predict:', matchIdNumber);
+	console.log('Tournament calendar controller: predict: index:', index);
+	console.log('Tournament calendar controller: predict: parent  index:', parentIndex);
+	console.log('Tournament calendar controller: predict: parent parent  index:', parentParentIndex);
+
+	$scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].wantToPredict = false;
+
+	Tournament.predict({id:$routeParams.id, matchId:matchIdNumber, result1:result1, result2:result2},
+			   function(result){
+			       console.log('success in setting prediction!');
+			       $scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].Predict = result.Predict.Result1 + ' - ' + result.Predict.Result2;
+			       $scope.messageInfo = result.MessageInfo;
+			       console.log('match result: ', result.Predict.Result1 + ' - ' + result.Predict.Result2);
+			       $scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].HasPredict = true;
+			   },
+			   function(err) {
+			       console.log('failure setting prediction! ', err.data);
+			       $scope.messageDanger = err.data;
+			   });
+	console.log('match result: ', result1, ' ', result2);
+
+    };
+
     $scope.cancel = function(matchIdNumber, index, parentIndex, result1, result2){
 	$scope.matchesData.Days[parentIndex].Matches[index].wantToPredict = false;
+    };
+    $scope.cancelPhase = function(matchIdNumber, index, parentIndex, parentParentIndex, result1, result2){
+	console.log($scope.matchesData);
+	console.log('matchIdNumber, index, parentIndex, parentParentIndex, result1, result2)',matchIdNumber, index, parentIndex, parentParentIndex, result1, result2);
+	$scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].wantToPredict = false;
     };
 
   // $locationChangeSuccess event is triggered when url changes.
