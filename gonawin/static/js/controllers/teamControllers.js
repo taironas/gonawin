@@ -278,10 +278,11 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   }
   
   $scope.tabs = {
-    "members":    { title: 'Members',     url: 'templates/teams/tab_members.html' },
-    "ranking":    { title: 'Ranking',     url: 'templates/teams/tab_ranking.html' },
-    "accuracies": { title: 'Accuracies',  url: 'templates/teams/tab_accuracies.html' },
-    "prices":     { title: 'Prices',      url: 'templates/teams/tab_prices.html' }
+    "members":      { title: 'Members',     url: 'templates/teams/tab_members.html' },
+    "tournaments":  { title: 'Tournaments', url: 'templates/teams/tab_tournaments.html' },
+    "ranking":      { title: 'Ranking',     url: 'templates/teams/tab_ranking.html' },
+    "accuracies":   { title: 'Accuracies',  url: 'templates/teams/tab_accuracies.html' },
+    "prices":       { title: 'Prices',      url: 'templates/teams/tab_prices.html' }
   };
 
   // set the current tab based on the 'tab' parameter

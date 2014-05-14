@@ -1,0 +1,27 @@
+<div class="tournaments">
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-repeat="tournament in teamData.Tournaments">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <small>participants: {{tournament.ParticipantsCount}}</small>
+                <small>teams: {{tournament.TeamsCount}}</small>
+                <small>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
+                      {{100 * tournament.Progress | number:0}}%
+                    </div>
+                  </div>
+                </small>
+              </p>
+            </div>
+          </div>
+        </div>
+        <h4 ng-if="teamData.Tournaments == undefined">No Tournament has been joined</h4>
+      </div>
+    </div>
+  </div>
+</div>

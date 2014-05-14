@@ -208,17 +208,40 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeepForPlayer := []string{"Id", "Username", "Score"}
 		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
+    
+    // build tournaments json
+		tournaments := team.Tournaments(c)
+    type tournament struct {
+			Id                int64  `json:",omitempty"`
+			Name              string `json:",omitempty"`
+			ParticipantsCount int
+			TeamsCount        int
+			Progress          float64
+		}
+		ts := make([]tournament, len(tournaments))
+		for i, t := range tournaments {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].ParticipantsCount = len(t.UserIds)
+			ts[i].TeamsCount = len(t.TeamIds)
+			ts[i].Progress = t.Progress(c)
+		}
+		/*fieldsToKeepForTournament := []string{"Id", "Name", "Start", "End"}
+		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
+		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeepForTournament)*/
 
 		teamData := struct {
 			Team        mdl.TeamJson
 			Joined      bool
 			RequestSent bool
 			Players     []mdl.UserJson
+      Tournaments []tournament
 		}{
 			tJson,
 			team.Joined(c, u),
 			mdl.WasTeamRequestSent(c, intID, u.Id),
 			playersJson,
+      ts,
 		}
 		return templateshlp.RenderJson(w, c, teamData)
 	}
