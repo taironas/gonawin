@@ -143,6 +143,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 		}
 		m.Result1 = results1[i]
 		m.Result2 = results2[i]
+		m.Finished = true
 	}
 
 	// batch match update

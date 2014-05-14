@@ -395,6 +395,18 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 	if($scope.groupby != undefined){
 	    if($scope.groupby == 'phase'){
 		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+		$scope.matchesData.$promise.then(function(result){
+		    if(result.Phases != undefined){
+			for(var i = 0; i < result.Phases.length; i++){
+			    if($scope.matchesData.Phases[i].Completed){
+				$scope.matchesData.Phases[i].showPhase = false;
+			    }else{
+				$scope.matchesData.Phases[i].showPhase = true;
+			    }
+			}
+		    }
+		});
+
 	    } else if($scope.groupby == 'date'){
 		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
 	    }
@@ -470,6 +482,15 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 	console.log($scope.matchesData);
 	console.log('matchIdNumber, index, parentIndex, parentParentIndex, result1, result2)',matchIdNumber, index, parentIndex, parentParentIndex, result1, result2);
 	$scope.matchesData.Phases[parentParentIndex].Days[parentIndex].Matches[index].wantToPredict = false;
+    };
+
+    $scope.showPhase = function(index){
+	console.log('showPhase on index ', index);
+	if($scope.matchesData.Phases[index].showPhase){
+	    $scope.matchesData.Phases[index].showPhase = false;
+	}else{
+	    $scope.matchesData.Phases[index].showPhase = true;
+	}
     };
 
   // $locationChangeSuccess event is triggered when url changes.

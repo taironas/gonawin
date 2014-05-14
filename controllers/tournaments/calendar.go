@@ -44,6 +44,7 @@ type DayJson struct {
 type PhaseJson struct {
 	Name string
 	Days []DayJson
+	Completed bool
 }
 
 // Json tournament calendar handler:
@@ -128,6 +129,13 @@ func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 			}
 		}
 		phases[i].Days = matchesGroupByDay(filteredMatches)
+		lastDayOfPhase := len(phases[i].Days) - 1
+		lastMatchOfPhase := len(phases[i].Days[lastDayOfPhase].Matches) - 1
+		if phases[i].Days[lastDayOfPhase].Matches[lastMatchOfPhase].Finished{
+			phases[i].Completed = true
+		}else{
+			phases[i].Completed = false
+		}
 	}
 	return phases
 }

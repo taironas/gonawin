@@ -24,8 +24,9 @@
 <div class="row">
   <div class="col-md-12">
     <div ng-repeat="phase in matchesData.Phases">
-      <h2>{{phase.Name}}</h3>
-        <div ng-repeat="d in phase.Days">
+      <h3 ng-show="phase.showPhase"><a href="" ng-click="showPhase($index)"><i class="fa fa-chevron-down fa-lg" style="vertical-align: 50%;"> {{phase.Name}}</i></a></h3>
+      <h3 ng-hide="phase.showPhase"><a href="" ng-click="showPhase($index)"><i class="fa fa-chevron-right fa-lg" style="vertical-align: 50%;"> {{phase.Name}}</i></a></h3>
+        <div ng-repeat="d in phase.Days" ng-show="phase.showPhase">
           <div class="panel panel-default">
             <div class="panel-heading">
               <h3 class="panel-title">{{d.Date | date:'EEE dd MMM'}}</h3>
