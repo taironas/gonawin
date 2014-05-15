@@ -390,14 +390,18 @@ body {
 
 /* style for chevron icon*/
 .gw-chevron {
-    color: silver;
-    text-decoration: none; /* no underline */
-    a:hover { color:blue; }
+  color: silver;
+  text-decoration: none; /* no underline */
+  a:hover { color:blue; }
 }
 
 /* Force inline for titles in order to be able to set icons before them without a break line in between*/
 .gw-h1 {
-    display: inline;
+  display: inline;
+}
+
+.gw-h3 {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 .btn-transparent {
@@ -497,6 +501,7 @@ body {
 /* End Bracket
 -------------------------------------------------- */
 
+/* Add circle border on identicons (dashboard) */
 .gw-border {
   border: 2px solid #FF8447;
 }
