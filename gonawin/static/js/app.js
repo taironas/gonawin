@@ -134,7 +134,7 @@ purpleWingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth'
       // Everytime the route in our app changes check authentication status.
       // Get current user only if we are logged in.
       if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
-        $rootScope.currentUser = User.get({ id:sAuth.getUserID() });
+        $rootScope.currentUser = User.get({ id:sAuth.getUserID(), including: "Invitations" });
         console.log('routeChangeStart, current user = ', $rootScope.currentUser);
       }
       // Redirect user to root if he tries to go on welcome page or signin page and he is logged in.

@@ -28,7 +28,7 @@
           </div>
         </div>
       </div>
-    <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
+    <h5 style="text-align: center">{{noJoinedTeamsMessage}}</h5>
     </div>
     </br>
     <h4>Tournaments you've joined:</h4>
@@ -51,18 +51,18 @@
           </div>
         </div>
       </div>
-      <h3 style="text-align: center">{{noJoinedTournamentsMessage}}</h3>
+      <h5 style="text-align: center">{{noJoinedTournamentsMessage}}</h5>
     </div>
     </br>
     <h4>Team Requests:</h4>
     </br>
     <div ng-include src="'templates/users/teamRequests.html'"></div>
-    <h3 style="text-align: center">{{noTeamRequestsMessage}}</h3>
+    <h5 style="text-align: center">{{noTeamRequestsMessage}}</h5>
     </br>
     <h4>Invitations:</h4>
     </br>
-    <div ng-include src="'templates/users/userInvitations.html'"></div>
-    <h3 style="text-align: center">{{noInvitationMessage}}</h3>
+    <div ng-include src="'templates/users/userInvitations.html'" ng-show="currentUser.User.Id == userData.User.Id"></div>
+    <h5 style="text-align: center">{{noInvitationMessage}}</h5>
     <!-- </div> <\!-- / row -\-> -->
   </div>
 </div> <!-- / panel -->
