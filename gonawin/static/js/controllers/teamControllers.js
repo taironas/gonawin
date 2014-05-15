@@ -215,14 +215,16 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     // It does so by caling Leave on a Team.
     // This will update members data and leave button name.
     $scope.leaveTeam = function(){
-	Team.leave({ id:$routeParams.id }).$promise.then(function(response){
-	    $scope.joinButtonName = 'Join';
-	    $scope.joinButtonMethod = $scope.joinTeam;
-	    $scope.messageInfo = response.MessageInfo;
-	    Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-		$scope.teamData.Members = membersResult.Members;
-	    });
-	});
+      if(confirm('Are you sure?')){
+        Team.leave({ id:$routeParams.id }).$promise.then(function(response){
+            $scope.joinButtonName = 'Join';
+            $scope.joinButtonMethod = $scope.joinTeam;
+            $scope.messageInfo = response.MessageInfo;
+            Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+          $scope.teamData.Members = membersResult.Members;
+            });
+        });
+      }
     };
 
     $scope.teamData.$promise.then(function(teamResult){

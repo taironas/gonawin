@@ -126,25 +126,27 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     };
 
     $scope.joinTournament = function(){
-	Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
-	    $scope.joinButtonName = 'Leave';
-	    $scope.joinButtonMethod = $scope.leaveTournament;
-	    $scope.messageInfo = response.MessageInfo;
-	    Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-		$scope.tournamentData.Participants = participantsResult.Participants;
-	    });
-	});
+      Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
+          $scope.joinButtonName = 'Leave';
+          $scope.joinButtonMethod = $scope.leaveTournament;
+          $scope.messageInfo = response.MessageInfo;
+          Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+        $scope.tournamentData.Participants = participantsResult.Participants;
+          });
+      });
     };
 
     $scope.leaveTournament = function(){
-	Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
-	    $scope.joinButtonName = 'Join';
-	    $scope.joinButtonMethod = $scope.joinTournament;
-	    $scope.messageInfo = response.MessageInfo;
-	    Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-		$scope.tournamentData.Participants = participantsResult.Participants;
-	    });
-	});
+      if(confirm('Are you sure?\nYou will not be able to play on this tournament.')){
+        Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
+            $scope.joinButtonName = 'Join';
+            $scope.joinButtonMethod = $scope.joinTournament;
+            $scope.messageInfo = response.MessageInfo;
+            Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
+          $scope.tournamentData.Participants = participantsResult.Participants;
+            });
+        });
+      }
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
@@ -159,14 +161,16 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     };
 
     $scope.leaveTournamentAsTeam = function(teamId){
-	Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
-	    $scope.joinAsTeamButtonName[teamId] = 'Join';
-	    $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
-	    $scope.messageInfo = response.MessageInfo;
-	    Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-		$scope.tournamentData.Teams = tournamentResult.Teams;
-	    });
-	});
+      if(confirm('Are you sure?\nYou will not be able to play on this tournament as team.')){
+        Tournament.leaveAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
+            $scope.joinAsTeamButtonName[teamId] = 'Join';
+            $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
+            $scope.messageInfo = response.MessageInfo;
+            Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
+          $scope.tournamentData.Teams = tournamentResult.Teams;
+            });
+        });
+      }
     };
 
   // tab at undefined means you are in tournament/:id url.
