@@ -40,6 +40,7 @@ type Team struct {
 	Id               int64
 	KeyName          string
 	Name             string
+	Description      string
 	AdminIds         []int64 // ids of User that are admins of the team
 	Private          bool
 	Created          time.Time
@@ -55,6 +56,7 @@ type TeamJson struct {
 	Id            *int64             `json:",omitempty"`
 	KeyName       *string            `json:",omitempty"`
 	Name          *string            `json:",omitempty"`
+	Description   *string            `json:",omitempty"`
 	AdminIds      *[]int64           `json:",omitempty"`
 	Private       *bool              `json:",omitempty"`
 	Created       *time.Time         `json:",omitempty"`
@@ -67,7 +69,7 @@ type TeamJson struct {
 }
 
 // Create a team given a name, an admin id and a private mode.
-func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (*Team, error) {
+func CreateTeam(c appengine.Context, name string, description string, adminId int64, private bool) (*Team, error) {
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
 	if err != nil {
@@ -79,7 +81,7 @@ func CreateTeam(c appengine.Context, name string, adminId int64, private bool) (
 	admins[0] = adminId
 	emptyArray := make([]int64, 0)
 	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
-	team := &Team{teamId, helpers.TrimLower(name), name, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
+	team := &Team{teamId, helpers.TrimLower(name), name, description, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {

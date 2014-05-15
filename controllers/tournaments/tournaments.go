@@ -322,17 +322,19 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 					log.Errorf(c, "Tournament New Handler: That tournament name already exists.")
 					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
 				}
+				// update data
 				tournament.Name = updatedData.Name
-				tournament.Update(c)
-			} else if updatedData.Description != tournament.Description {
-				tournament.Description = updatedData.Description
-				tournament.Update(c)
 			}
+			tournament.Description = updatedData.Description
+			tournament.Update(c)
 		} else {
 			log.Errorf(c, "Cannot update because updated data is not valid.")
 			log.Errorf(c, "Update name = %s", updatedData.Name)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
 		}
+
+		// publish new activity
+		u.Publish(c, "tournament", "updated tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 		// return the updated tournament
 		fieldsToKeep := []string{"Id", "Name"}

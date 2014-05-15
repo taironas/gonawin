@@ -56,8 +56,9 @@ import (
 )
 
 type TeamData struct {
-	Name       string
-	Visibility string
+	Name        string
+	Description string
+	Visibility  string
 }
 
 type PriceData struct {
@@ -144,7 +145,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s That team name already exists.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 		} else {
-			team, err := mdl.CreateTeam(c, data.Name, u.Id, data.Visibility == "Private")
+			team, err := mdl.CreateTeam(c, data.Name, data.Description, u.Id, data.Visibility == "Private")
 			if err != nil {
 				log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
@@ -200,7 +201,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build team json
 		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "TournamentIds", "Accuracy"}
+		fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 		// build players json
@@ -295,16 +296,19 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
 		log.Errorf(c, "%s updateddata %v.", desc, updatedData)
 
-		if helpers.IsStringValid(updatedData.Name) && (updatedData.Name != team.Name || updatedPrivate != team.Private) {
-			// be sure that a team with that name does not exist in datastore.
+		if helpers.IsStringValid(updatedData.Name) &&
+			helpers.IsStringValid(updatedData.Description) &&
+			(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
 			if updatedData.Name != team.Name {
+				// be sure that a team with that name does not exist in datastore.
 				if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
 					log.Errorf(c, "%s That team name already exists.", desc)
 					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 				}
+				// update data
+				team.Name = updatedData.Name
 			}
-			// update data
-			team.Name = updatedData.Name
+			team.Description = updatedData.Description
 			team.Private = updatedPrivate
 			team.Update(c)
 		} else {
