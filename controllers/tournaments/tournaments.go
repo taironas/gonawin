@@ -228,9 +228,13 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// delete all tournament-user relationships
 		for _, participant := range tournament.Participants(c) {
-			participant.RemoveTournamentId(c, tournament.Id)
 			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
 				log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
+			} else if u.Id == participant.Id {
+				// Be sure that current user has the latest data,
+				// as the u.Publish method will update again the user,
+				// we don't want to override the tournament ID removal.
+				u = participant
 			}
 		}
 		// delete all tournament-team relationships

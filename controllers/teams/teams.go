@@ -208,10 +208,10 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeepForPlayer := []string{"Id", "Username", "Score"}
 		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
-    
-    // build tournaments json
+
+		// build tournaments json
 		tournaments := team.Tournaments(c)
-    type tournament struct {
+		type tournament struct {
 			Id                int64  `json:",omitempty"`
 			Name              string `json:",omitempty"`
 			ParticipantsCount int
@@ -235,13 +235,13 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			Joined      bool
 			RequestSent bool
 			Players     []mdl.UserJson
-      Tournaments []tournament
+			Tournaments []tournament
 		}{
 			tJson,
 			team.Joined(c, u),
 			mdl.WasTeamRequestSent(c, intID, u.Id),
 			playersJson,
-      ts,
+			ts,
 		}
 		return templateshlp.RenderJson(w, c, teamData)
 	}

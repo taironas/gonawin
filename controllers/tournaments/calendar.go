@@ -42,8 +42,8 @@ type DayJson struct {
 // A PhaseJson is a variable to hold a the name of a phase and an array of days.
 // We use it to group tournament matches information by phases.
 type PhaseJson struct {
-	Name string
-	Days []DayJson
+	Name      string
+	Days      []DayJson
 	Completed bool
 }
 
@@ -131,9 +131,9 @@ func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 		phases[i].Days = matchesGroupByDay(filteredMatches)
 		lastDayOfPhase := len(phases[i].Days) - 1
 		lastMatchOfPhase := len(phases[i].Days[lastDayOfPhase].Matches) - 1
-		if phases[i].Days[lastDayOfPhase].Matches[lastMatchOfPhase].Finished{
+		if phases[i].Days[lastDayOfPhase].Matches[lastMatchOfPhase].Finished {
 			phases[i].Completed = true
-		}else{
+		} else {
 			phases[i].Completed = false
 		}
 	}
