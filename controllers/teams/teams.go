@@ -441,14 +441,13 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// check that ids exist in datastore.
-		var err error
-		_, err = mdl.TeamById(c, teamId)
+		team, err := mdl.TeamById(c, teamId)
 		if err != nil {
 			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
-		_, err = mdl.UserById(c, userId)
+		user, err := mdl.UserById(c, userId)
 		if err != nil {
 			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
@@ -458,6 +457,9 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
 		}
+
+		// publish new activity
+		user.Publish(c, "welcome", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
 
 		return templateshlp.RenderJson(w, c, "user request was created")
 	}
