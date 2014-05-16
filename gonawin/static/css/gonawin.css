@@ -104,6 +104,10 @@ fieldset[disabled] .btn-warning.active {
   text-align: center;
 }
 
+.gw-float-none {
+  float:none;
+}
+
 /* Navbar styles
 -------------------------------------------------- */
 
@@ -449,6 +453,8 @@ body {
   background-color: #f5f5f5;
 }
 
+/* Panel
+-------------------------------------------------- */
 .panel-transparent {
   background-color: transparent;
   -webkit-box-shadow: none;
