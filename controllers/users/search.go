@@ -65,7 +65,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Name"}
+		fieldsToKeep := []string{"Id", "Username"}
 		usersJson := make([]mdl.UserJson, len(users))
 		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 		data := struct {
