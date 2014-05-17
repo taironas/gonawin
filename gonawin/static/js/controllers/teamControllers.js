@@ -32,7 +32,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 	userData.$promise.then(function(result){
             $scope.joinedTeams = result.Teams;
             if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length)){
-		$scope.noJoinedTeamsMessage = 'You didn\'t join a team';
+		$scope.noJoinedTeamsMessage = 'You haven\'t joined a team yet';
 	    }else if($scope.joinedTeams != undefined){
 		$scope.showMoreJoinedTeams = (result.Teams.length == $scope.countJoinedTeams);
 	    }

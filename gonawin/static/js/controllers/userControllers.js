@@ -31,10 +31,10 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
         $scope.noJoinedTournamentsMessage = 'You didn\'t join a tournament';
       }
       if(!$scope.userData.TeamRequests || ($scope.userData.TeamRequests && !$scope.userData.TeamRequests.length)){
-        $scope.noTeamRequestsMessage = 'You didn\'t have pending team request';
+        $scope.noTeamRequestsMessage = 'You don\'t have any pending team requests';
       }
       if(!$scope.userData.Invitations || ($scope.userData.Invitations && !$scope.userData.Invitations.length)){
-        $scope.noInvitationMessage = 'You didn\'t receive an invitation';
+        $scope.noInvitationMessage = 'You haven\'t received any invitations';
       }
       var lenInvite = 0;
       if($scope.userData.Invitations != undefined){

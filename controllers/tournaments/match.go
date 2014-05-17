@@ -183,7 +183,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		if match.Result1 > match.Result2 {
 			verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
 		} else if match.Result1 < match.Result2 {
-			verb = fmt.Sprintf("loose %d-%d against", match.Result1, match.Result2)
+			verb = fmt.Sprintf("lost %d-%d against", match.Result1, match.Result2)
 		} else {
 			verb = fmt.Sprintf("tied %d-%d against", match.Result1, match.Result2)
 		}

@@ -394,7 +394,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 				if u, err := mdl.UserById(c, id); err != nil {
 					log.Errorf(c, "%s cannot find user with id=%", desc, id)
 				} else {
-					verb := fmt.Sprintf(" score is now %d", u.Score)
+					verb := fmt.Sprintf("'s score is now %d", u.Score)
 					u.Publish(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{})
 				}
 			}

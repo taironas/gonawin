@@ -623,7 +623,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// publish activity
-		verb := fmt.Sprintf("predicted %d-%d for match", p.Result1, p.Result2)
+		verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
 		object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
 		u.Publish(c, "predict", verb, object, tournament.Entity())
 

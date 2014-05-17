@@ -91,7 +91,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			if results1[i] > results2[i] {
 				verb = fmt.Sprintf("won %d-%d against", results1[i], results2[i])
 			} else if results1[i] < results2[i] {
-				verb = fmt.Sprintf("loose %d-%d against", results1[i], results2[i])
+				verb = fmt.Sprintf("lost %d-%d against", results1[i], results2[i])
 			} else {
 				verb = fmt.Sprintf("tied %d-%d against", results1[i], results2[i])
 			}

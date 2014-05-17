@@ -36,10 +36,10 @@ import (
 )
 
 const inviteMessage = `
-Hi,
-Join us on Gonawin.
+Hi there,
+Join us at gonawin.
 
-You will be able to bet on tournament and win some rewards!
+You will be able to join your friends and compete with them by predicting the results of your favorite sports events!
 
 Sign in here: %s
 
