@@ -459,7 +459,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// publish new activity
-		user.Publish(c, "welcome", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
+		user.Publish(c, "invitation", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
 
 		return templateshlp.RenderJson(w, c, "user request was created")
 	}
