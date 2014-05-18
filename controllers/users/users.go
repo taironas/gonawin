@@ -505,6 +505,9 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
+      // publish new activity
+      u.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+        
 			msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
 			data := struct {
 				MessageInfo string `json:",omitempty"`
