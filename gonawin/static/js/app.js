@@ -50,6 +50,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
       when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
+      when('/getting-started', { templateUrl: 'templates/getting-started.html', requireLogin: false }).
       when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
       when('/signin', { templateUrl: 'templates/signin.html', requireLogin: false }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
