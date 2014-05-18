@@ -420,6 +420,10 @@ body {
 .gw-h1 {
   display: inline;
 }
+/* Break word when text size exceeds the size of its container*/
+.gw-h1 .gw-small{
+  word-break:break-all;
+}
 
 .gw-h3 {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
