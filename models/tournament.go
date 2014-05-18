@@ -584,10 +584,7 @@ func (t *Tournament) Entity() ActivityEntity {
 // with respect of todays date and start and end date of tournament.
 func (t *Tournament) Progress(c appengine.Context) float64 {
 	const shortForm = "Jan/02/2006"
-	// remove this line when going in production.
-	now, _ := time.Parse(shortForm, "Jun/28/2014")
-	// add this line when going in production.
-	//now := time.Now()
+	now := time.Now()
 	if now.Before(t.Start) {
 		return float64(0)
 	}
