@@ -12,7 +12,9 @@
     </div>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-content">
-      <a class="btn btn-warning navbar-btn pull-right" href="/#/signin" ng-if="!isLoggedIn">Sign in</a>
+      <ul class="nav navbar-nav navbar-right" ng-if="!isLoggedIn">
+        <li data-match-route="/*.*"><a href="/#/signin"><i class="fa fa-sign-in fa-lg"></i> Sign in</a></li>
+      </ul>
       <ul class="nav navbar-nav navbar-right" ng-if="isLoggedIn">
         <li data-match-route="/"><a href="/#"><i class="fa fa-home fa-lg"></i> Home</a></li>
         <li class="dropdown" ng-show="currentUser.User.IsAdmin">
