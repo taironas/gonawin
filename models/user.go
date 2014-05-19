@@ -96,8 +96,16 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 		log.Errorf(c, "User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
-	// udpate inverted index
-	AddToUserInvertedIndex(c, helpers.TrimLower(name), user.Id)
+	// add name to inverted index
+	// as name and username can have the same words.
+	// We build a string with a set of words between these two strings
+	allnames := name + " " + username
+	setOfNames := helpers.SetOfStrings(allnames)
+	names := ""
+	for _, n := range setOfNames {
+		names = names + " " + n
+	}
+	AddToUserInvertedIndex(c, names, user.Id)
 
 	return user, nil
 }
@@ -114,9 +122,20 @@ func (u *User) Destroy(c appengine.Context) error {
 			return errd
 		} else {
 			// remove key name.
-			return UpdateUserInvertedIndex(c, helpers.TrimLower(u.Name), "", u.Id)
-		}
+			if err = UpdateUserInvertedIndex(c, helpers.TrimLower(u.Name), "", u.Id); err != nil {
+				return err
+			}
+			// remove key username.
+			if err = UpdateUserInvertedIndex(c, helpers.TrimLower(u.Username), "", u.Id); err != nil {
+				return err
+			}
+			// remove key alias.
+			if err = UpdateUserInvertedIndex(c, helpers.TrimLower(u.Alias), "", u.Id); err != nil {
+				return err
+			}
 
+			return nil
+		}
 	}
 }
 
@@ -167,8 +186,14 @@ func UserKeyById(c appengine.Context, id int64) *datastore.Key {
 // Update user given a user pointer.
 func (u *User) Update(c appengine.Context) error {
 	k := UserKeyById(c, u.Id)
-	if _, err := datastore.Put(c, k, u); err != nil {
-		return err
+	oldUser := new(User)
+	if err := datastore.Get(c, k, oldUser); err == nil {
+		if _, err := datastore.Put(c, k, u); err != nil {
+			return err
+		}
+		// use lower trim names for alias as user inverted index store them like this.
+		// alias is the only field that can be changed.
+		UpdateUserInvertedIndex(c, oldUser.Alias, helpers.TrimLower(u.Alias), u.Id)
 	}
 	return nil
 }
