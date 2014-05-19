@@ -224,6 +224,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         });
       // Default dashboard: user
       } else {
+        // if same state as before just exit.
+        if($scope.state == 'user') {
+          console.log('same!');
+          return;
+        }
+        
         $scope.state = 'user';
         // reset dashboard before getting data
         $scope.dashboard = {};
