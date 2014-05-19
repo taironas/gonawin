@@ -6,7 +6,8 @@
             <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{player.Id}}.png?inverted=1" height="80" width="80">
             <div class="card-body">
               <p>
-                <h4><a href="/#/users/{{player.Id}}">{{player.Username}}</a></h4>
+                <h4 ng-show="player.Alias.length > 0"><a href="/#/users/{{player.Id}}">{{player.Alias}}</a></h4>
+                <h4 ng-show="player.Alias.length == 0"><a href="/#/users/{{player.Id}}">{{player.Username}}</a></h4>
               </p>
               <h5>Score: {{player.Score}}</h5>
             </div>

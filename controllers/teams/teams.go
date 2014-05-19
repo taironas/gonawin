@@ -206,7 +206,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build players json
 		players := team.Players(c)
-		fieldsToKeepForPlayer := []string{"Id", "Username", "Score"}
+		fieldsToKeepForPlayer := []string{"Id", "Username", "Alias", "Score"}
 		playersJson := make([]mdl.UserJson, len(players))
 		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
 
@@ -227,9 +227,6 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ts[i].TeamsCount = len(t.TeamIds)
 			ts[i].Progress = t.Progress(c)
 		}
-		/*fieldsToKeepForTournament := []string{"Id", "Name", "Start", "End"}
-		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
-		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, fieldsToKeepForTournament)*/
 
 		teamData := struct {
 			Team        mdl.TeamJson
@@ -644,7 +641,7 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build members json
 		members := team.Players(c)
-		fieldsToKeepForMember := []string{"Id", "Username", "Score"}
+		fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
 		membersJson := make([]mdl.UserJson, len(members))
 		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
 
