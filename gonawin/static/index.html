@@ -13,12 +13,14 @@
   <body>
     <div id="wrap">
       <div ng-include src="'templates/partials/navigation.html'"></div>
-      <div ng-switch on="isLoggedIn">
+      <div ng-switch on="isLoggedIn && isLoginRequired">
         <div ng-switch-when="true">
           <ng-include src="'templates/main.html'"></ng-include>
         </div>
         <div ng-switch-default>
-          <ng-view><ng-view>
+          <div class="container main-container">
+            <ng-view><ng-view>
+          </div>
         </div>
       </div>
     </div>

@@ -125,6 +125,9 @@ purpleWingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth'
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
 
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
+    $rootScope.isLoginRequired = next.requireLogin;
+    
+    
 
     if($location.$$path === '/auth/twitter/callback') {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
