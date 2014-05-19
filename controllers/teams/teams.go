@@ -489,7 +489,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		users := mdl.UsersByIds(c, ids)
 
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Username"}
+		fieldsToKeep := []string{"Id", "Username", "Alias"}
 		usersJson := make([]mdl.UserJson, len(users))
 		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 

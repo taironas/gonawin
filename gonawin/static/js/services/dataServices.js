@@ -18,7 +18,6 @@ dataServices.factory('User', function($http, $resource, $cookieStore) {
   // define display name to handle alias or user name.
   // Note: There is another displayName function definition in the Session ressource as we handle users via User and Session.
   User.prototype.displayName = function() {
-    console.log('displayName, user = ', this);
     if(this.User == undefined) return;
     if(this.User.Alias.length > 0){
       return this.User.Alias;
