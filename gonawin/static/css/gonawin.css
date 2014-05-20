@@ -570,11 +570,34 @@ body {
 
 .gw-dashboard-subtitle {
   color: #ADE3DF;
+  font-weight: 500;
+}
+
+.gw-dashboard-h5 {
+  color: #ADE3DF;
+  font-weight: 500;
 }
 
 .table>tbody>tr>.gw-td-borderless {
   border-top: none;
   padding: 0px;
+}
+
+.gw-leaderboard {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.gw-leaderboard .table tr td {
+  color: #00b9Ab;
+  font-weight: 500;
+  border: none;
+  text-align: left;
+}
+
+.gw-leaderboard .table tr .gw-td-position {
+  border: none;
+  border-right: 1px solid #ddd;
 }
 
 /* End Dahsboard styles

@@ -69,6 +69,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           console.log(ctx, 'get tournament ', tournamentResult);
           $scope.dashboard.tournament = tournamentResult.Tournament.Name;
           $scope.dashboard.tournamentid = tournamentResult.Tournament.Id;
+          $scope.dashboard.id = tournamentResult.Tournament.Id;
           $scope.dashboard.name = tournamentResult.Tournament.Name;
 
           if(tournamentResult.Participants){
@@ -97,6 +98,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         $rootScope.currentUser.$promise.then(function(currentUser){
           $scope.dashboard.user = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
+          $scope.dashboard.id = currentUser.User.Id;
         });
       } else if(url.match('^/tournaments/?$') != null) {
         // if same state as before just exit.
@@ -114,6 +116,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.user = currentUser.dislpayName();
 	        $scope.dashboard.name = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
+          $scope.dashboard.id = currentUser.User.Id;
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
@@ -158,6 +161,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         $rootScope.currentUser.$promise.then(function(currentUser) {
           $scope.dashboard.user = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
+          $scope.dashboard.id = currentUser.User.Id;
         });
 
         console.log(ctx, 'route', $route);
@@ -165,6 +169,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           console.log(ctx, 'get team ', teamResult);
           $scope.dashboard.team = teamResult.Team.Name;
           $scope.dashboard.teamid = teamResult.Team.Id;
+          $scope.dashboard.id = teamResult.Team.Id;
           $scope.dashboard.name = teamResult.Team.Name;
 
           if(teamResult.Team.TournamentIds){
@@ -202,6 +207,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.user = currentUser.displayName();
           $scope.dashboard.name = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
+          $scope.dashboard.id = currentUser.User.Id;
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
@@ -239,6 +245,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.user = currentUser.User.Name;
           $scope.dashboard.name = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
+          $scope.dashboard.id = currentUser.User.Id;
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
