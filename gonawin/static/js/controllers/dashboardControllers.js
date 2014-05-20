@@ -113,7 +113,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         $scope.dashboard.context = 'tournaments index';
 
         $rootScope.currentUser.$promise.then(function(currentUser){
-          $scope.dashboard.user = currentUser.dislpayName();
+          $scope.dashboard.user = currentUser.displayName();
 	        $scope.dashboard.name = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
           $scope.dashboard.id = currentUser.User.Id;

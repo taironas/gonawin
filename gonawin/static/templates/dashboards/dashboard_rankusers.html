@@ -1,17 +1,13 @@
 <!-- participants ranking -->
-<table class="table table-condensed table-hover text-left">
-  <thead>
-    <tr>
-      <th>Participants</th>
-      <th>Score</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr ng-repeat="u in dashboard.rank.users | orderBy:'Score':!reverse">
+<div class="panel panel-default gw-leaderboard">
+  <table class="table table-bordered table-condensed">
+    <tr ng-repeat="u in dashboard.rank.users">
+      <td ng-show="u.Id == dashboard.userid" class="gw-td-position info">{{index + 1}}</td>
+      <td ng-show="u.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>
       <td ng-show="u.Id == dashboard.userid" class="info"><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
       <td ng-show="u.Id != dashboard.userid"><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
-      <td ng-show="u.Id == dashboard.userid" class="info">{{u.Score}}</td>
-      <td ng-show="u.Id != dashboard.userid">{{u.Score}}</td>
+      <td ng-show="u.Id == dashboard.userid" class="info">{{u.Score}} Points</td>
+      <td ng-show="u.Id != dashboard.userid">{{u.Score}} Points</td>
     </tr>
-  </tbody>
-</table>
+  </table>
+</div>
