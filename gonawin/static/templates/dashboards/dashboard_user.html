@@ -1,15 +1,36 @@
 <div class="dashboard-user" ng-show="(dashboard.context == 'user') || (dashboard.context == 'tournaments index') || (dashboard.context == 'teams index')">
-  <img src="https://sigil.cupcake.io/{{dashboard.userid}}.png?inverted=1" height="80" width="80" class="img-circle gw-border">
-  <table class="table-condensed table-centered">
-    <tr>
-      <td><h5><strong>Score</strong></h5></td>
-      <td><h5><strong>Tournaments</strong></h5></td>
-      <td><h5><strong>Teams</strong></h5></td>
-    </tr>
-    <tr>
-      <td><h2><strong>{{dashboard.score}}</strong></h2></td>
-      <td><h2><strong>{{dashboard.ntournaments}}</strong></h2></td>
-      <td><h2><strong>{{dashboard.nteams}}</strong></h2></td>
-    </tr>
-  </table>
+  <div class="row">
+    <table class="table table-condensed">
+      <tr>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-list-ol fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-number">{{dashboard.score}}</td>
+        <td class="gw-td-borderless gw-dashboard-number"><strong>{{dashboard.ntournaments}}</td>
+        <td class="gw-td-borderless gw-dashboard-number"><strong>{{dashboard.nteams}}</td>
+      </tr>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-subtitle">Score</td>
+        <td class="gw-td-borderless gw-dashboard-subtitle">Tournaments</td>
+        <td class="gw-td-borderless gw-dashboard-subtitle">Teams</td>
+      </tr>
+    </table>
+  </div>
 </div>
