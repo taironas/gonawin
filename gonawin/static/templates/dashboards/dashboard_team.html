@@ -1,32 +1,50 @@
 <div class="dashboard-team" ng-show="dashboard.context == 'team'">
-  <img src="https://sigil.cupcake.io/{{dashboard.teamid}}.png?inverted=1" height="80" width="80" class="img-circle gw-border">
-  <table class="table-condensed table-centered">
-    <tr>
-      <td><h5><strong>Accuracy</strong></h5></td>
-      <td><h5><strong>Tournaments</strong></h5></td>
-      <td><h5><strong>Members</strong></h5></td>
-    </tr>
-    <tr>
-      <td><h2><strong>{{100 * dashboard.accuracy | number:2}}%</strong></h2></td>
-      <td><h2><strong>{{dashboard.ntournaments}}</strong></h2></td>
-      <td><h2><strong>{{dashboard.nmembers}}</strong></h2></td>
-    </tr>
-  </table>
-  <hr>
-  <table class="table table-condensed table-hover text-left">
-    <thead>
+  <div class="row">
+    <table class="table table-condensed">
       <tr>
-        <th>Members</th>
-        <th>Score</th>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-bar-chart-o fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x"> 
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
       </tr>
-    </thead>
-    <tbody>
-      <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
-      	<td ng-show="m.Id == dashboard.userid" class="info"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
-      	<td ng-show="m.Id != dashboard.userid"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
-      	<td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}}</td>
-      	<td ng-show="m.Id != dashboard.userid">{{m.Score}}</td>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-number">{{100 * dashboard.accuracy | number:2}}%</td>
+        <td class="gw-td-borderless gw-dashboard-number">{{dashboard.ntournaments}}</td>
+        <td class="gw-td-borderless gw-dashboard-number">{{dashboard.nmembers}}</td>
       </tr>
-    </tbody>
-  </table>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-subtitle">ACCURACY</strong></td>
+        <td class="gw-td-borderless gw-dashboard-subtitle">TOURNAMENTS</strong></td>
+        <td class="gw-td-borderless gw-dashboard-subtitle">MEMBERS</strong></td>
+      </tr>
+    </table>
+    <br>
+    <h5 class="gw-dashboard-h5">LEADERBOARD</h5>
+    <div class="panel panel-default gw-leaderboard">
+      <table class="table table-bordered table-condensed">
+        <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
+          <td ng-show="m.Id == dashboard.userid" class="gw-td-position info">{{index + 1}}</td>
+          <td ng-show="m.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>
+          <td ng-show="m.Id == dashboard.userid" class="info"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
+          <td ng-show="m.Id != dashboard.userid"><a href="/#/users/{{m.Id}}">{{m.Name}}</a></td>
+          <td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}} Points</td>
+          <td ng-show="m.Id != dashboard.userid">{{m.Score}} Points</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 </div>
