@@ -588,11 +588,28 @@ body {
   margin-right: 10px;
 }
 
-.gw-leaderboard .table tr td {
+.gw-dashboard-table {
+  background-color: #00B9AB;
+  border: none;
+}
+
+.gw-leaderboard .table tr td,
+.gw-dashboard-table .table tr td {
   color: #00b9Ab;
   font-weight: 500;
   border: none;
+}
+
+.gw-dashboard-table .table tr td a {
+  color: white;
+}
+
+.gw-leaderboard .table tr td {
   text-align: left;
+}
+
+.gw-leaderboard .table tr .gw-td-position {
+  text-align: center;
 }
 
 .gw-leaderboard .table tr .gw-td-position {
