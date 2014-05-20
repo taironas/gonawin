@@ -1,12 +1,11 @@
-<div class="dashboard-team-index" ng-show="dashboard.context == 'teams index'">
-  <hr>
-  <h3>Teams</h3>
-  <table class="table table-condensed table-hover">
-    <tbody>
-    <tr ng-repeat="t in dashboard.teams">
-      <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
-    </tr>
-    </tbody>
-  </table>
+<div class="dashboard-team-index" ng-show="dashboard.context == 'teams index' && dashboard.teams.length > 0">
+  <br>
+  <h5 class="gw-dashboard-h5">TEAMS</h5>
+  <div class="panel panel-default gw-dashboard-table">
+    <table class="table table-bordered table-condensed">
+      <tr ng-repeat="t in dashboard.teams">
+        <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
+      </tr>
+    </table>
+  </div>
 </div>
-

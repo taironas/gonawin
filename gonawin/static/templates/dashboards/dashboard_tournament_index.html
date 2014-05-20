@@ -1,12 +1,12 @@
-<div class="dashboard-tournament-index" ng-show="dashboard.context == 'tournaments index'">
-  <hr>
-  <h3>Tournaments</h3>
-  <table class="table table-condensed table-hover">
-    <tbody>
-    <tr ng-repeat="t in dashboard.tournaments">
-      <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
-    </tr>
-    </tbody>
-  </table>
+<div class="dashboard-tournament-index" ng-show="dashboard.context == 'tournaments index' && dashboard.tournaments.length > 0">
+  <br>
+  <h5 class="gw-dashboard-h5">TOURNAMENTS</h5>
+  <div class="panel panel-default gw-dashboard-tournaments">
+    <table class="table table-bordered table-condensed">
+      <tr ng-repeat="t in dashboard.tournaments">
+        <td><a href="/#/tournaments/{{t.Id}}">{{t.Name}}</a></td>
+      </tr>
+    </table>
+  </div>
 </div>
 
