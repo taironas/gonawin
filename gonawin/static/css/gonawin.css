@@ -413,6 +413,9 @@ body {
 
 .card-body h4 {
   margin-bottom: 0px;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
 }
 
 .card-footer {
@@ -619,10 +622,23 @@ body {
 
 .gw-dashboard-table .table tr td a {
   color: white;
+  display:inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
+  width:250px;
 }
 
 .gw-leaderboard .table tr td {
   text-align: left;
+}
+
+.gw-leaderboard .table tr td a {
+  display:inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
+  width:170px;
 }
 
 .gw-leaderboard .table tr .gw-td-position {
