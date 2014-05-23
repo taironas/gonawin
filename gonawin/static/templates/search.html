@@ -9,12 +9,12 @@
         <div class="col-md-2"></div>
         <div class="col-md-8">
           <!-- search box -->
-          <div class="input-group">
-            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-            <form ng-submit="search()">
-              <input type="text" class="form-control" name="InputSearch" id="inputIcon" ng-model="keywords">
-            </form>
-          </div>
+          <form ng-submit="search()">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+                <input type="text" class="form-control" name="InputSearch" id="inputIcon" ng-model="keywords">
+            </div>
+          </form>
           <!-- / search box -->
         </div>
       </div>
