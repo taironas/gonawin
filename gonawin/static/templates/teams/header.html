@@ -28,7 +28,6 @@
   <div class="col-md-10">
     <!-- start if !isTeamAdmin && !teamData.Joined -->
     <div ng-if="!isTeamAdmin && !teamData.Joined">
-      <p>debug: team not admin</p>
       <div ng-if="teamData.Team.Private">
         <div ng-if="teamData.RequestSent">
           <input class="btn btn-default disabled pull-right" name="commit" type="submit" value="Request sent..." />

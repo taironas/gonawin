@@ -101,6 +101,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId'},
 		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id', cache : true},
 		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'},
+         getWorldCup: {method: 'GET', url: 'j/tournaments/getwc', cache : true},
 		     groups: {method: 'GET', url: 'j/tournaments/:id/groups', cache : true},
 		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby', cache : true},
 		     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter', cache : true},

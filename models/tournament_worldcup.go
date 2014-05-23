@@ -489,8 +489,8 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	tend, _ := time.Parse(shortForm, "Jul/13/2014")
 	adminIds := make([]int64, 1)
 	adminIds[0] = adminId
-	name := "World Cup"
-	description := "FIFA World Cup"
+	name := "2014 FIFA World Cup"
+	description := "FIFA World Cup in Brazil"
 	var tournament *Tournament
 	var err error
 	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {

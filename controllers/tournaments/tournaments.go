@@ -182,19 +182,31 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 		// progress
 		progress := tournament.Progress(c)
+		// formatted start and end
+		const layout = "2 January 2006"
+		start := tournament.Start.Format(layout)
+		end := tournament.End.Format(layout)
+		// remaining days
+		remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 		// data
 		data := struct {
-			Tournament   mdl.TournamentJson
-			Joined       bool
-			Participants []mdl.UserJson
-			Teams        []mdl.TeamJson
-			Progress     float64
+			Tournament    mdl.TournamentJson
+			Joined        bool
+			Participants  []mdl.UserJson
+			Teams         []mdl.TeamJson
+			Progress      float64
+			Start         string
+			End           string
+			RemainingDays int64
 		}{
 			tournamentJson,
 			tournament.Joined(c, u),
 			participantsJson,
 			teamsJson,
 			progress,
+			start,
+			end,
+			remainingDays,
 		}
 
 		return templateshlp.RenderJson(w, c, data)
