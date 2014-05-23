@@ -9,7 +9,7 @@
       <div class="form-group" ng-class="{error: newTournamentForm.name.$invalid}">
         <label class="col-sm-2 control-label">Name</label>
         <div class="col-sm-4">
-          <input class="text-field form-control" name="name" size="30" type="text" ng-model="tournament.name" required/>
+          <input class="text-field form-control" name="name" size="30" type="text" ng-model="tournament.name" focus="true" required/>
         </div>
         <span ng-show="newTournamentForm.name.$error.required" class="text-danger"> Required</span>
       </div>

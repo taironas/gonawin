@@ -1,6 +1,6 @@
 'use strict';
 
-var purpleWingApp = angular.module('purpleWingApp', [
+var gonawingApp = angular.module('gonawingApp', [
   'ngSanitize',
   'ngRoute',
   'ngResource',
@@ -10,6 +10,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'directive.googlesignin',
   'directive.facebooksignin',
   'directive.formValidation',
+  'directive.formFocus',
   'directive.joinButton',
   'directive.addButton',
   'directive.activities',
@@ -31,7 +32,7 @@ var purpleWingApp = angular.module('purpleWingApp', [
   'authServices'
 ]);
 
-purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
+gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
   return {
     response: function(response) {
       return response || $q.when(response);
@@ -46,7 +47,7 @@ purpleWingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $l
   };
 }]);
 
-purpleWingApp.config(['$routeProvider', '$httpProvider',
+gonawingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
       when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
@@ -80,7 +81,7 @@ purpleWingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-purpleWingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
+gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
     $rootScope.currentUser = undefined;
     $rootScope.isLoggedIn = false;
     $rootScope.serviceIds = Session.serviceIds();
