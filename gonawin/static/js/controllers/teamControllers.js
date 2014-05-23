@@ -201,15 +201,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     // It does so by caling Join on a Team.
     // This will update members data and join button name.
     $scope.joinTeam = function(){
-	Team.join({ id:$routeParams.id }).$promise.then(function(response){
-	    $scope.joinButtonName = 'Leave';
-	    $scope.joinButtonMethod = $scope.leaveTeam;
-	    $scope.messageInfo = response.MessageInfo;
-	    Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-		$scope.teamData.Members = membersResult.Members;
-	    } );
-
-	});
+      Team.join({ id:$routeParams.id }).$promise.then(function(response){
+        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonMethod = $scope.leaveTeam;
+        $scope.messageInfo = response.MessageInfo;
+        Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
+          $scope.teamData.Players = membersResult.Members;
+        } );
+      });
     };
     // This function makes a user leave a team.
     // It does so by caling Leave on a Team.
@@ -221,7 +220,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
             $scope.joinButtonMethod = $scope.joinTeam;
             $scope.messageInfo = response.MessageInfo;
             Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-          $scope.teamData.Members = membersResult.Members;
+              $scope.teamData.Players = membersResult.Members;
             });
         });
       }
