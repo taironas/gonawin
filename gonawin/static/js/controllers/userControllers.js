@@ -67,19 +67,30 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
     };
     
     $scope.acceptInvitation = function(invitation, index){
-	if(!$scope.userData.Invitations[index].handled){
-	    return;
-	}
-	User.allowInvitation({ id:$routeParams.Id, teamId:invitation.Id},
-			     function(data){
-				 console.log('user allow invitation');
-				 $scope.messageInfo = data.MessageInfo;
-				 $scope.userData.Invitations[index].handled = false;
-			     },
-			     function(err){
-				 console.log('allow invitation failed: ', err.data);
-				 $scope.messageDanger = err.data;
-			     });
+      if(!$scope.userData.Invitations[index].handled){
+        return;
+      }
+      User.allowInvitation({ id:$routeParams.Id, teamId:invitation.Id},
+      function(data){
+        console.log('user allow invitation');
+        $scope.messageInfo = data.MessageInfo;
+        $scope.userData.Invitations[index].handled = false;
+        
+        User.get({ id:$routeParams.id, including: "Teams Invitations" },
+          function(data){
+            $scope.userData.Teams = data.Teams;
+            $scope.userData.Invitations = data.Invitations;
+            $scope.noInvitationMessage = 'You haven\'t received any invitations';
+          },
+          function(err){
+            console.log('get updated user data failed: ', err.data);
+            $scope.messageDanger = err.data;
+        });
+      },
+      function(err){
+        console.log('allow invitation failed: ', err.data);
+        $scope.messageDanger = err.data;
+      });
     };
     
     $scope.denyInvitation = function(invitation, index){
