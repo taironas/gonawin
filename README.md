@@ -81,6 +81,18 @@ access from your smartphone on `http://192.168.1.X:8080/ng`
 
     goapp deploy
     
+    
+__Note:__ If deployment hangs rollback it by doing:
+
+#####On OSX:
+
+    appcfg rollback ..
+    
+#####On Windows:
+
+    python appcfg.py rollback $GOPATH\src\github.com\santiaago\gonawin\gonawin
+
+    
 #### Documentation
 
     godoc -http=:6060
