@@ -25,10 +25,10 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
     $scope.userData.$promise.then(function(response){
       console.log('User show controller:: user = ', response);
       if(!$scope.userData.Teams || ($scope.userData.Teams && !$scope.userData.Teams.length)){
-        $scope.noJoinedTeamsMessage = 'You didn\'t join a team';
+        $scope.noJoinedTeamsMessage = 'You haven\'t joined a team yet';
       }
       if(!$scope.userData.Tournaments || ($scope.userData.Tournaments && !$scope.userData.Tournaments.length)){
-        $scope.noJoinedTournamentsMessage = 'You didn\'t join a tournament';
+        $scope.noJoinedTournamentsMessage = 'You haven\'t joined a tournament yet';
       }
       if(!$scope.userData.TeamRequests || ($scope.userData.TeamRequests && !$scope.userData.TeamRequests.length)){
         $scope.noTeamRequestsMessage = 'You don\'t have any pending team requests';

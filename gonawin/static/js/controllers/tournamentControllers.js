@@ -16,7 +16,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
 
     $scope.tournaments.$promise.then(function(response){
 	if(!$scope.tournaments || ($scope.tournaments && !$scope.tournaments.length)){
-	    $scope.noTournamentsMessage = 'You have no tournaments';
+	    $scope.noTournamentsMessage = 'There are no tournaments yet';
 	}else if($scope.tournaments != undefined){
 	    $scope.showMoreTournaments = (response.length == $scope.countTournaments);
 	}
