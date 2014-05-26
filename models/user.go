@@ -514,13 +514,14 @@ func (u *User) AddTournamentScore(c appengine.Context, scoreId int64, tourId int
 	s.ScoreId = scoreId
 	s.TournamentId = tourId
 	u.ScoreOfTournaments = append(u.ScoreOfTournaments, s)
-	log.Infof(c, "model/user: add tournament score, update user entity")
-	if err := u.Update(c); err != nil {
-		log.Infof(c, "model/user: add tournament score, something went wrong cannot update")
-		return err
-	}
-	log.Infof(c, "model/user: add tournament score, all good user updated")
 	return nil
+	// log.Infof(c, "model/user: add tournament score, update user entity")
+	// if err := u.Update(c); err != nil {
+	// 	log.Infof(c, "model/user: add tournament score, something went wrong cannot update")
+	// 	return err
+	// }
+	// log.Infof(c, "model/user: add tournament score, all good user updated")
+	// return nil
 }
 
 // Returns an array of score entities group by tournament.

@@ -275,6 +275,8 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 			log.Infof(c, "%s value of tournamentId: %v", desc, tournamentId)
 
 			log.Infof(c, "%s crunching data...", desc)
+			users := make([]*mdl.User, 0)
+
 			for _, id := range userIds {
 				if u, err := mdl.UserById(c, id); err != nil {
 					log.Errorf(c, "%s cannot find user with id=%", desc, id)
@@ -286,9 +288,15 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 					} else {
 						log.Infof(c, "%s score ready add it to tournament %v", desc, se)
 						u.AddTournamentScore(c, se.Id, se.TournamentId)
+						users = append(users, u)
 					}
 				}
 			}
+			if err := mdl.UpdateUsers(c, users); err != nil {
+				log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
+			}
+			
 			log.Infof(c, "%s task done!", desc)
 			return nil
 		}
