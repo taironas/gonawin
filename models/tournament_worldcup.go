@@ -490,7 +490,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	adminIds := make([]int64, 1)
 	adminIds[0] = adminId
 	name := "2014 FIFA World Cup"
-	description := "FIFA World Cup in Brazil"
+	description := "Brazil"
 	var tournament *Tournament
 	var err error
 	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {
