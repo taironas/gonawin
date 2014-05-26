@@ -412,6 +412,7 @@ body {
   overflow: hidden;
   -o-text-overflow: ellipsis; /*Opera 9 */
   text-overflow: ellipsis; /* other browsers */
+  white-space:nowrap; 
 }
 
 .card-footer {
