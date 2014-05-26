@@ -6,7 +6,7 @@
         <td ng-if="tournamentData.Tournament != undefined">
           <h3 ng-if="tournamentData.RemainingDays <= 0">CURRENT TOURNAMENT</h3>
           <h3 ng-if="tournamentData.RemainingDays > 0" >NEW TOURNAMENT</h3>
-          <h3 class="gw-no-margin"><strong><a href="/#/tournaments/{{tournamentData.Tournament.Id"}}>{{tournamentData.Tournament.Name}}</a></strong></h3>
+          <h3 class="gw-no-margin"><strong><a href="/#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></strong></h3>
           <h3 class="gw-no-margin"><small>{{tournamentData.Start}} - {{tournamentData.End}}</small></h3>
           <a class=" btn btn-success" href="/#/tournaments/{{tournamentData.Tournament.Id}}">Play now!</a>
         </td>
