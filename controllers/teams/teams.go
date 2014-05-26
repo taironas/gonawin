@@ -364,6 +364,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		for _, player := range team.Players(c) {
 			if err := player.RemoveTeamId(c, team.Id); err != nil {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+			} else if u.Id == player.Id {
+				// Be sure that current user has the latest data,
+				// as the u.Publish method will update again the user,
+				// we don't want to override the team ID removal.
+				u = player
 			}
 		}
 		// delete all tournament-team relationships
