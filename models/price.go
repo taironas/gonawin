@@ -32,19 +32,20 @@ type Price struct {
 	Id           int64     // price id
 	TeamId       int64     // team id, a price is binded to a single team.
 	TournamentId int64     // tournament id, a price is binded to a single team.
+  TournamentName string  // tournament name.
 	Description  string    // the description of the price
 	Created      time.Time // date of creation
 }
 
 // Create a Price entity given a description, a team id and a tournament id.
-func CreatePrice(c appengine.Context, teamId, tournamentId int64, description string) (*Price, error) {
+func CreatePrice(c appengine.Context, teamId, tournamentId int64, tournamentName string, description string) (*Price, error) {
 
 	pId, _, err := datastore.AllocateIDs(c, "Price", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Price", "", pId, nil)
-	p := &Price{pId, teamId, tournamentId, description, time.Now()}
+	p := &Price{pId, teamId, tournamentId, tournamentName, description, time.Now()}
 	if _, err = datastore.Put(c, key, p); err != nil {
 		return nil, err
 	}

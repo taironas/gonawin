@@ -4,7 +4,7 @@
     <div class="row" ng-repeat="p in pricesData.Prices">
       <div class="col-md-1"></div>
       <div class="col-md-11">
-        <h4>Tournament: {{p.TournamentId}}</h4>
+        <h4>Tournament: {{p.TournamentName}}</h4>
         <p>Price:{{p.Description}}</p>
         <form class="form-inline" role="form" name="editPriceForm">
           <a class="btn btn-default" ng-click="visible=true" ng-hide="visible"><span>Edit</span></a>
