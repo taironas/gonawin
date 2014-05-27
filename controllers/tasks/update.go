@@ -296,7 +296,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 				log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
 				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
 			}
-			
+
 			log.Infof(c, "%s task done!", desc)
 			return nil
 		}

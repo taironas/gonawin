@@ -29,12 +29,12 @@ import (
 
 // A Price entity is defined by a description of the price that the winner gets for a specific tournament.
 type Price struct {
-	Id           int64     // price id
-	TeamId       int64     // team id, a price is binded to a single team.
-	TournamentId int64     // tournament id, a price is binded to a single team.
-  TournamentName string  // tournament name.
-	Description  string    // the description of the price
-	Created      time.Time // date of creation
+	Id             int64     // price id
+	TeamId         int64     // team id, a price is binded to a single team.
+	TournamentId   int64     // tournament id, a price is binded to a single team.
+	TournamentName string    // tournament name.
+	Description    string    // the description of the price
+	Created        time.Time // date of creation
 }
 
 // Create a Price entity given a description, a team id and a tournament id.

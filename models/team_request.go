@@ -28,21 +28,25 @@ import (
 )
 
 type TeamRequest struct {
-	Id      int64
-	TeamId  int64
-	UserId  int64
-	Created time.Time
+	Id       int64
+	TeamId   int64
+	TeamName string
+	UserId   int64
+	UserName string
+	Created  time.Time
 }
 
 type TeamRequestJson struct {
-	Id      *int64     `json:",omitempty"`
-	TeamId  *int64     `json:",omitempty"`
-	UserId  *int64     `json:",omitempty"`
-	Created *time.Time `json:",omitempty"`
+	Id       *int64     `json:",omitempty"`
+	TeamId   *int64     `json:",omitempty"`
+	TeamName *string    `json:",omitempty"`
+	UserId   *int64     `json:",omitempty"`
+	UserName *string    `json:",omitempty"`
+	Created  *time.Time `json:",omitempty"`
 }
 
 // Create a teamrequest with params teamid and userid
-func CreateTeamRequest(c appengine.Context, teamId int64, userId int64) (*TeamRequest, error) {
+func CreateTeamRequest(c appengine.Context, teamId int64, teamName string, userId int64, userName string) (*TeamRequest, error) {
 	// create new team request
 	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
 	if err != nil {
@@ -51,7 +55,7 @@ func CreateTeamRequest(c appengine.Context, teamId int64, userId int64) (*TeamRe
 
 	key := datastore.NewKey(c, "TeamRequest", "", teamRequestId, nil)
 
-	teamRequest := &TeamRequest{teamRequestId, teamId, userId, time.Now()}
+	teamRequest := &TeamRequest{teamRequestId, teamId, teamName, userId, userName, time.Now()}
 
 	_, err = datastore.Put(c, key, teamRequest)
 	if err != nil {

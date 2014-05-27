@@ -146,7 +146,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentfieldsToKeep)
 		// team requests
-		teamRequestFieldsToKeep := []string{"Id", "TeamId", "UserId"}
+		teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
 		trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
 		helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
 		// invitations

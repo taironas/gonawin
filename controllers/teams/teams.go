@@ -412,8 +412,13 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
 		// check if team id exist.
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, intID); err != nil {
+			log.Errorf(c, "%s team not found: %v", desc, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
 
-		if _, err := mdl.CreateTeamRequest(c, intID, u.Id); err != nil {
+		if _, err := mdl.CreateTeamRequest(c, team.Id, team.Name, u.Id, u.Username); err != nil {
 			log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
 		}
