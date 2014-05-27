@@ -43,7 +43,7 @@ dataServices.factory('Team', function($http, $resource, $cookieStore) {
       page: '@page'
     },
     {
-      get: { method: 'GET', url: 'j/teams/show/:id', cache : true },
+      get: { method: 'GET', url: 'j/teams/show/:id' },
       save: { method: 'POST', url: 'j/teams/new' },
       update: { method: 'POST', url: 'j/teams/update/:id' },
       delete: { method: 'POST', url: 'j/teams/destroy/:id' },

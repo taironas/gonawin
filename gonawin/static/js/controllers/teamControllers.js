@@ -47,7 +47,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
     };
 
     // show more teams function:
-    // retreive teams by page and increment page.
+    // retrieve teams by page and increment page.
     $scope.moreTeams = function(){
 	console.log('more teams');
 	$scope.pageTeams = $scope.pageTeams + 1;
@@ -202,12 +202,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     // This will update members data and join button name.
     $scope.joinTeam = function(){
       Team.join({ id:$routeParams.id }).$promise.then(function(response){
+        console.log('joinTeam response = ', response);
         $scope.joinButtonName = 'Leave';
         $scope.joinButtonMethod = $scope.leaveTeam;
         $scope.messageInfo = response.MessageInfo;
-        Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-          $scope.teamData.Players = membersResult.Members;
-        } );
+        Team.get({ id:$routeParams.id }).$promise.then(function(teamDataResult){
+          console.log('teamDataResult = ', teamDataResult);
+          $scope.teamData = teamDataResult;
+        });
       });
     };
     // This function makes a user leave a team.
@@ -216,12 +218,14 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.leaveTeam = function(){
       if(confirm('Are you sure?')){
         Team.leave({ id:$routeParams.id }).$promise.then(function(response){
-            $scope.joinButtonName = 'Join';
-            $scope.joinButtonMethod = $scope.joinTeam;
-            $scope.messageInfo = response.MessageInfo;
-            Team.members({ id:$routeParams.id }).$promise.then(function(membersResult){
-              $scope.teamData.Players = membersResult.Members;
-            });
+          console.log('leaveTeam response = ', response);
+          $scope.joinButtonName = 'Join';
+          $scope.joinButtonMethod = $scope.joinTeam;
+          $scope.messageInfo = response.MessageInfo;
+          Team.get({ id:$routeParams.id }).$promise.then(function(teamDataResult){
+            console.log('teamDataResult = ', teamDataResult);
+            $scope.teamData = teamDataResult;
+          });
         });
       }
     };
@@ -251,23 +255,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     }).then(function(result){
 	$scope.joinButtonMethod = result;
     });
-
-    // Action triggered when 'Add Admin button' is clicked, modal window will be hidden.
-    $scope.newTeam = function(){
-	$('#team-modal').modal('hide');
-    };
-
-    // listen 'hidden.bs.modal' event to redirect to new team page
-    // Only redirect if flag 'redirectToNewTeam' is set.
-    $('#team-modal').on('hidden.bs.modal', function (e) {
-	// need to have scope for $location to work. So add 'apply' function
-	// inside js listener
-	// if($scope.redirectToNewTeam == true){
-	//     $scope.$apply(function(){
-	// 	$location.path('/teams/new/');
-	//     });
-	// }
-    })
 
   // tab at undefined means you are in tournament/:id url.
   // So calendar should be active by default
