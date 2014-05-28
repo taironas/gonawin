@@ -294,7 +294,6 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s updateddata %v.", desc, updatedData)
 
 		if helpers.IsStringValid(updatedData.Name) &&
-			helpers.IsStringValid(updatedData.Description) &&
 			(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
 			if updatedData.Name != team.Name {
 				// be sure that a team with that name does not exist in datastore.
