@@ -188,13 +188,15 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   });
 
     $scope.requestInvitation = function(){
-	console.log('team request invitation');
-	Team.requestInvite( {id:$routeParams.id}, function(){
-	    console.log('team invite successful');
-	}, function(err){
-	    $scope.messageDanger = err
-	    console.log('invite failed ', err);
-	});
+      console.log('team request invitation');
+      Team.requestInvite( {id:$routeParams.id}, function(){
+        Team.get({ id:$routeParams.id }).$promise.then(function(teamDataResult){
+          $scope.teamData = teamDataResult;
+        });
+      }, function(err){
+        $scope.messageDanger = err
+        console.log('invite failed ', err);
+      });
     };
 
     // This function makes a user join a team.

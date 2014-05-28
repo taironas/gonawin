@@ -31,11 +31,11 @@
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">
             <i class="fa fa-user fa-lg"></i>
-            {{currentUser.displayName()}} <span class="badge gw-badge">{{currentUser.Invitations.length}}</span>
+            {{currentUser.displayName()}} <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span>
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            <li><a href="/#/users/{{currentUser.User.Id}}"><i class="fa fa-user fa-fw"></i> Profile <span class="badge gw-badge">{{currentUser.Invitations.length}}</span></a></li>
+            <li><a href="/#/users/{{currentUser.User.Id}}"><i class="fa fa-user fa-fw"></i> Profile <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span></a></li>
             <li><a href="/#/settings/edit-profile"><i class="fa fa-gear fa-fw"></i> Settings</a></li>
             <li><a href="/#/invite"><i class="fa fa-bullhorn fa-fw"></i> Invite</a></li>
             <li><a href="" ng-click="disconnect()"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
