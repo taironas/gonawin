@@ -71,6 +71,30 @@ func CreateScore(c appengine.Context, userId int64, tournamentId int64) (*Score,
 	return s, nil
 }
 
+// Create a Score entity.
+func CreateScores(c appengine.Context, userIds []int64, tournamentId int64) ([]*Score, error) {
+	keys := make([]*datastore.Key, 0)
+  scoreEntities := make([]*Score, 0)
+  for _, id := range userIds {
+		sId, _, err := datastore.AllocateIDs(c, "Score", nil, 1)
+    if err != nil {
+      return nil, err
+    }
+    k := datastore.NewKey(c, "Score", "", sId, nil)
+    keys = append(keys, k)
+    
+    scores := make([]int64, 0)
+    s := &Score{sId, id, tournamentId, scores}
+    scoreEntities = append(scoreEntities, s)
+	}
+  
+	if _, err := datastore.PutMulti(c, keys, scoreEntities); err != nil {
+    return nil, err
+  }
+  
+	return scoreEntities, nil
+}
+
 // Add accuracy to array of accuracies in Accuracy entity
 func (s *Score) Add(c appengine.Context, score int64) error {
 	s.Scores = append(s.Scores, score)
