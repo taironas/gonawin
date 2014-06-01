@@ -72,33 +72,68 @@ func CreateScore(c appengine.Context, userId int64, tournamentId int64) (*Score,
 }
 
 // Create a Score entity.
-func CreateScores(c appengine.Context, userIds []int64, tournamentId int64) ([]*Score, error) {
+func CreateScores(c appengine.Context, userIds []int64, tournamentId int64) ([]*Score, []*datastore.Key, error) {
 	keys := make([]*datastore.Key, 0)
-  scoreEntities := make([]*Score, 0)
-  for _, id := range userIds {
+	scoreEntities := make([]*Score, 0)
+	for _, id := range userIds {
 		sId, _, err := datastore.AllocateIDs(c, "Score", nil, 1)
-    if err != nil {
-      return nil, err
-    }
-    k := datastore.NewKey(c, "Score", "", sId, nil)
-    keys = append(keys, k)
-    
-    scores := make([]int64, 0)
-    s := &Score{sId, id, tournamentId, scores}
-    scoreEntities = append(scoreEntities, s)
+		if err != nil {
+			return nil, nil, err
+		}
+		k := datastore.NewKey(c, "Score", "", sId, nil)
+		keys = append(keys, k)
+
+		scores := make([]int64, 0)
+		s := &Score{sId, id, tournamentId, scores}
+		scoreEntities = append(scoreEntities, s)
 	}
-  
-	if _, err := datastore.PutMulti(c, keys, scoreEntities); err != nil {
-    return nil, err
-  }
-  
-	return scoreEntities, nil
+
+	// if _, err := datastore.PutMulti(c, keys, scoreEntities); err != nil {
+	// 	return nil, err
+	// }
+
+	return scoreEntities, keys, nil
+}
+
+func SaveScores(c appengine.Context, scores []*Score, keys []*datastore.Key) error {
+	if _, err := datastore.PutMulti(c, keys, scores); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Add accuracy to array of accuracies in Accuracy entity
 func (s *Score) Add(c appengine.Context, score int64) error {
 	s.Scores = append(s.Scores, score)
 	return s.Update(c)
+}
+
+// Add new scores to each score entity and update all scores at the end.
+func AddScores(c appengine.Context, tournamentScores []*Score, scores []int64) error {
+	scoresToUpdate := make([]*Score, 0)
+	for i, _ := range tournamentScores {
+		if tournamentScores[i] != nil {
+			tournamentScores[i].Scores = append(tournamentScores[i].Scores, scores[i])
+			scoresToUpdate = append(scoresToUpdate, tournamentScores[i])
+		}
+	}
+	if err := UpdateScores(c, scoresToUpdate); err != nil {
+		return err
+	}
+	return nil
+
+}
+
+// Update an array of scores.
+func UpdateScores(c appengine.Context, scores []*Score) error {
+	keys := make([]*datastore.Key, len(scores))
+	for i, _ := range keys {
+		keys[i] = ScoreKeyById(c, scores[i].Id)
+	}
+	if _, err := datastore.PutMulti(c, keys, scores); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Update a team given an id and a team pointer.

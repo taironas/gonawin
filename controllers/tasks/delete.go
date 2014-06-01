@@ -22,7 +22,6 @@ import (
 	"net/http"
 
 	"appengine"
-	"appengine/datastore"
 
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
@@ -34,32 +33,24 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - DeleteUsersActivities Handler:"
 	log.Infof(c, "%s processing...", desc)
-	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
 
-		if r.Method == "POST" {
-			log.Infof(c, "%s reading data...", desc)
-			activityIdsBlob := []byte(r.FormValue("activity_ids"))
+	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
+		activityIdsBlob := []byte(r.FormValue("activity_ids"))
 
-			var activityIds []int64
-			err1 := json.Unmarshal(activityIdsBlob, &activityIds)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err1)
-			}
-
-			if err1 = mdl.DestroyActivities(c, activityIds); err1 != nil {
-				log.Errorf(c, "%s activities have not been deleted. %v", desc, err1)
-			}
-
-			log.Infof(c, "%s task done!", desc)
-			return nil
+		var activityIds []int64
+		err1 := json.Unmarshal(activityIdsBlob, &activityIds)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err1)
 		}
-		log.Infof(c, "%s something went wrong...")
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}, nil)
-	if err != nil {
-		c.Errorf("%s error: %v", err)
-		log.Infof(c, "%s something went wrong...")
-		return err
+
+		if err1 = mdl.DestroyActivities(c, activityIds); err1 != nil {
+			log.Errorf(c, "%s activities have not been deleted. %v", desc, err1)
+		}
+
+		log.Infof(c, "%s task done!", desc)
+		return nil
 	}
-	return nil
+	log.Infof(c, "%s something went wrong...")
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

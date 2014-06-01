@@ -450,6 +450,16 @@ func (a UserByScore) Less(i, j int) bool { return a[i].Score < a[j].Score }
 
 // Publish user activity
 func (u *User) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
+	activity := u.BuildActivity(c, activityType, verb, object, target)
+
+	if err := activity.save(c); err != nil {
+		return err
+	}
+	// add new activity id in user activity table
+	return activity.AddNewActivityId(c, u)
+}
+
+func (u *User) BuildActivity(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) *Activity {
 	var activity Activity
 	activity.Type = activityType
 	activity.Verb = verb
@@ -458,12 +468,13 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	activity.Target = target
 	activity.Published = time.Now()
 	activity.CreatorID = u.Id
-
-	if err := activity.save(c); err != nil {
-		return err
+	id, _, err1 := datastore.AllocateIDs(c, "Activity", nil, 1)
+	if err1 != nil {
+		log.Errorf(c, " BuildActivity: error occurred during AllocateIDs call: %v", err1)
+		return nil
 	}
-	// add new activity id in user activity table
-	return activity.addNewActivityId(c, u)
+	activity.Id = id
+	return &activity
 }
 
 // Activity entity representation of an user

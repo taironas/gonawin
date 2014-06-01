@@ -99,6 +99,23 @@ func DestroyActivities(c appengine.Context, activityIds []int64) error {
 	return datastore.DeleteMulti(c, keys)
 }
 
+// Update an array of users.
+func SaveActivities(c appengine.Context, activities []*Activity) error {
+	var keys []*datastore.Key // := make([]*datastore.Key, len(activities))
+	var acts []*Activity
+	for i, _ := range activities {
+		if activities[i] != nil {
+			key := datastore.NewKey(c, "Activity", "", activities[i].Id, nil)
+			keys = append(keys, key)
+			acts = append(acts, activities[i])
+		}
+	}
+	if _, err := datastore.PutMulti(c, keys, acts); err != nil {
+		return err
+	}
+	return nil
+}
+
 // save an activity entity in datastore
 // returns the id of the newly saved activity
 func (a *Activity) save(c appengine.Context) error {
@@ -118,11 +135,12 @@ func (a *Activity) save(c appengine.Context) error {
 }
 
 // add new activity id for a specific user
-func (a *Activity) addNewActivityId(c appengine.Context, u *User) error {
+func (a *Activity) AddNewActivityId(c appengine.Context, u *User) error {
 	// add new activity id to user activities
 	u.ActivityIds = append(u.ActivityIds, a.Id)
-	// update user with new activity id
-	return u.Update(c)
+	return nil
+	// // update user with new activity id
+	// return u.Update(c)
 }
 
 // Calculates the start and the end position in the activities slice.

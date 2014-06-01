@@ -193,57 +193,49 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Users Scores Handler:"
 	log.Infof(c, "%s processing...", desc)
-	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
 
-		if r.Method == "POST" {
-			log.Infof(c, "%s reading data...", desc)
+	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
 
-			userIdsBlob := []byte(r.FormValue("userIds"))
-			scoresBlob := []byte(r.FormValue("scores"))
+		userIdsBlob := []byte(r.FormValue("userIds"))
+		scoresBlob := []byte(r.FormValue("scores"))
 
-			var userIds []int64
-			err1 := json.Unmarshal(userIdsBlob, &userIds)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-			}
-
-			var scores []int64
-			err2 := json.Unmarshal(scoresBlob, &scores)
-			if err2 != nil {
-				log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
-			}
-
-			log.Infof(c, "%s value of user ids: %v", desc, userIds)
-			log.Infof(c, "%s value of scores: %v", desc, scores)
-
-			log.Infof(c, "%s crunching data...", desc)
-			usersToUpdate := make([]*mdl.User, 0)
-			for i, id := range userIds {
-				if u, err := mdl.UserById(c, id); err != nil {
-					log.Errorf(c, "cannot find user with id=%", id)
-				} else {
-					u.Score += scores[i]
-					usersToUpdate = append(usersToUpdate, u)
-				}
-			}
-			log.Infof(c, "%s update users", desc)
-
-			if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
-				log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
-			}
-			log.Infof(c, "%s task done!", desc)
-			return nil
+		var userIds []int64
+		err1 := json.Unmarshal(userIdsBlob, &userIds)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
 		}
-		log.Infof(c, "%s something went wrong...", desc)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}, &datastore.TransactionOptions{XG: true})
-	if err != nil {
-		c.Errorf("%s error: %v", err)
-		log.Infof(c, "%s something went wrong...", desc)
-		return err
+
+		var scores []int64
+		err2 := json.Unmarshal(scoresBlob, &scores)
+		if err2 != nil {
+			log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
+		}
+
+		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+		log.Infof(c, "%s value of scores: %v", desc, scores)
+
+		log.Infof(c, "%s crunching data...", desc)
+		log.Infof(c, "%s get users", desc)
+		usersToUpdate := make([]*mdl.User, 0)
+		for i, id := range userIds {
+			if u, err := mdl.UserById(c, id); err != nil {
+				log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+			} else {
+				u.Score += scores[i]
+				usersToUpdate = append(usersToUpdate, u)
+			}
+		}
+		log.Infof(c, "%s update users", desc)
+		if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
+			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+			return errors.New(helpers.ErrorCodeUsersCannotUpdate)
+		}
+		log.Infof(c, "%s task done!", desc)
+		return nil
 	}
-	return nil
+	log.Infof(c, "%s something went wrong...", desc)
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Create the score entities.
@@ -251,74 +243,65 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Create score entities Handler:"
 	log.Infof(c, "%s processing...", desc)
-	
-  if r.Method == "POST" {
-    log.Infof(c, "%s preparing data", desc)
 
-    userIdsBlob := []byte(r.FormValue("userIds"))
-    tournamentIdBlob := []byte(r.FormValue("tournamentId"))
+	if r.Method == "POST" {
+		log.Infof(c, "%s preparing data", desc)
 
-    var userIds []int64
-    err1 := json.Unmarshal(userIdsBlob, &userIds)
-    if err1 != nil {
-      log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-    }
+		userIdsBlob := []byte(r.FormValue("userIds"))
+		tournamentIdBlob := []byte(r.FormValue("tournamentId"))
 
-    var tournamentId int64
-    err1 = json.Unmarshal(tournamentIdBlob, &tournamentId)
-    if err1 != nil {
-      log.Errorf(c, "%s unable to extract tournamentId from data, %v", desc, err1)
-    }
+		var userIds []int64
+		errjson := json.Unmarshal(userIdsBlob, &userIds)
+		if errjson != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, errjson)
+		}
 
-    log.Infof(c, "%s value of user ids: %v", desc, userIds)
-    log.Infof(c, "%s value of tournamentId: %v", desc, tournamentId)
+		var tournamentId int64
+		errjson = json.Unmarshal(tournamentIdBlob, &tournamentId)
+		if errjson != nil {
+			log.Errorf(c, "%s unable to extract tournamentId from data, %v", desc, errjson)
+		}
 
-    log.Infof(c, "%s crunching data...", desc)
-    users := make([]*mdl.User, 0)
-    err := datastore.RunInTransaction(c, func(c appengine.Context) error {  
-      var scores []*mdl.Score
-      var err2 error
-      log.Infof(c, "%s create score entities as it does not exist", desc)
-      if scores, err2 = mdl.CreateScores(c, userIds, tournamentId); err2 != nil {
-        log.Errorf(c, "%s unable to create score entities. %v", desc, err2)
-        return err2
-      }  
+		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+		log.Infof(c, "%s value of tournamentId: %v", desc, tournamentId)
 
-			for i, id := range userIds {
-				if u, err := mdl.UserById(c, id); err != nil {
-					log.Errorf(c, "%s cannot find user with id=%d", desc, id)
-				} else {
-						log.Infof(c, "%s score ready add it to tournament %v", desc, scores[i])
-						u.AddTournamentScore(c, scores[i].Id, scores[i].TournamentId)
-						users = append(users, u)
-				}
+		log.Infof(c, "%s crunching data...", desc)
+
+		users := make([]*mdl.User, 0)
+		var scores []*mdl.Score
+		var keyScores []*datastore.Key
+
+		var err2 error
+		log.Infof(c, "%s create score entities as it does not exist", desc)
+		if scores, keyScores, err2 = mdl.CreateScores(c, userIds, tournamentId); err2 != nil {
+			log.Errorf(c, "%s unable to create score entities. %v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
+		log.Infof(c, "%s save scores", desc)
+		if err := mdl.SaveScores(c, scores, keyScores); err != nil {
+			log.Errorf(c, "%s unable to save score entities. %v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
+		log.Infof(c, "%s get users", desc)
+		for i, id := range userIds {
+			if u, err := mdl.UserById(c, id); err != nil {
+				log.Errorf(c, "%s cannot find user with id=%d", desc, id)
+			} else {
+				log.Infof(c, "%s score ready add it to tournament %v", desc, scores[i])
+				u.AddTournamentScore(c, scores[i].Id, scores[i].TournamentId)
+				users = append(users, u)
 			}
-      log.Infof(c, "%s task done 1!", desc)
-      return nil
-    }, &datastore.TransactionOptions{XG: true})
-    if err != nil {
-      c.Errorf("%s error: %v", err)
-      log.Infof(c, "%s something went wrong...", desc)
-      return err
-    }
-    
-    err3 := datastore.RunInTransaction(c, func(c appengine.Context) error {
-			if err := mdl.UpdateUsers(c, users); err != nil {
-				log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-				return errors.New(helpers.ErrorCodeUsersCannotUpdate)
-			}
-			log.Infof(c, "%s task done 2!", desc)
-      return nil
-    }, &datastore.TransactionOptions{XG: true})
-    if err3 != nil {
-      c.Errorf("%s error: %v", err3)
-      log.Infof(c, "%s something went wrong...", desc)
-      return err3
-    }
-    return nil
-  }
-  log.Infof(c, "%s something went wrong...", desc)
-  return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+		}
+		log.Infof(c, "%s update users", desc)
+		if err := mdl.UpdateUsers(c, users); err != nil {
+			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+			return errors.New(helpers.ErrorCodeUsersCannotUpdate)
+		}
+		log.Infof(c, "%s task done!", desc)
+		return nil
+	}
+	log.Infof(c, "%s something went wrong...", desc)
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Add score to score entities.
@@ -326,65 +309,66 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Add score to score entity Handler:"
 	log.Infof(c, "%s processing...", desc)
-	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
+		userIdsBlob := []byte(r.FormValue("userIds"))
+		scoresBlob := []byte(r.FormValue("scores"))
+		tournamentBlob := []byte(r.FormValue("tournament"))
 
-		if r.Method == "POST" {
-			log.Infof(c, "%s reading data...", desc)
-			userIdsBlob := []byte(r.FormValue("userIds"))
-			scoresBlob := []byte(r.FormValue("scores"))
-			tournamentBlob := []byte(r.FormValue("tournament"))
+		var userIds []int64
+		err1 := json.Unmarshal(userIdsBlob, &userIds)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		}
 
-			var userIds []int64
-			err1 := json.Unmarshal(userIdsBlob, &userIds)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		var scores []int64
+		err1 = json.Unmarshal(scoresBlob, &scores)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		}
+
+		var t mdl.Tournament
+		err1 = json.Unmarshal(tournamentBlob, &t)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		}
+
+		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+		log.Infof(c, "%s value of scores: %v", desc, scores)
+		log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
+
+		log.Infof(c, "%s crunching data...", desc)
+		users := make([]*mdl.User, len(userIds))
+		tournamentScores := make([]*mdl.Score, len(userIds))
+		log.Infof(c, "%s get users", desc)
+		for i, id := range userIds {
+			if u, err := mdl.UserById(c, id); err != nil {
+				log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+			} else {
+				users[i] = u
 			}
+		}
 
-			var scores []int64
-			err1 = json.Unmarshal(scoresBlob, &scores)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-			}
-
-			var t mdl.Tournament
-			err1 = json.Unmarshal(tournamentBlob, &t)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-			}
-
-			log.Infof(c, "%s value of user ids: %v", desc, userIds)
-			log.Infof(c, "%s value of scores: %v", desc, scores)
-			log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
-
-			log.Infof(c, "%s crunching data...", desc)
-			for i, id := range userIds {
-				if u, err := mdl.UserById(c, id); err != nil {
-					log.Errorf(c, "%s cannot find user with id=%", desc, id)
+		log.Infof(c, "%s get tournament score entities", desc)
+		for i, _ := range users {
+			if users[i] != nil {
+				if se, err1 := users[i].TournamentScore(c, &t); se == nil {
+					log.Errorf(c, "%s score entity does not exist. %v", desc, err1)
 				} else {
-					log.Infof(c, "%s retrieving score entity.", desc)
-					if se, err1 := u.TournamentScore(c, &t); se == nil {
-						log.Errorf(c, "%s score entity does not exist. %v", desc, err1)
-					} else {
-						log.Infof(c, "%s score entity exists, lets add the score.", desc)
-						var err error
-						if err = se.Add(c, scores[i]); err != nil {
-							log.Errorf(c, "%s unable to add score of user %v, ", desc, u.Id, err)
-						}
-					}
+					tournamentScores[i] = se
 				}
 			}
-			log.Infof(c, "%s task done!", desc)
-			return nil
 		}
-		log.Infof(c, "%s something went wrong...")
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}, &datastore.TransactionOptions{XG: true})
-	if err != nil {
-		c.Errorf("%s error: %v", err)
-		log.Infof(c, "%s something went wrong...")
-		return err
+
+		log.Infof(c, "%s add scores", desc)
+		if err := mdl.AddScores(c, tournamentScores, scores); err != nil {
+			log.Errorf(c, "%s cannot add scores to score entities. %v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
+		log.Infof(c, "%s task done!", desc)
+		return nil
 	}
-	return nil
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // Publish score activities for array of users.
@@ -392,41 +376,66 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Publish Users Score Activities Handler:"
 	log.Infof(c, "%s processing...", desc)
-	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
+	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
 
-		if r.Method == "POST" {
-			log.Infof(c, "%s reading data...", desc)
+		userIdsBlob := []byte(r.FormValue("userIds"))
 
-			userIdsBlob := []byte(r.FormValue("userIds"))
+		var userIds []int64
+		err1 := json.Unmarshal(userIdsBlob, &userIds)
+		if err1 != nil {
+			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		}
 
-			var userIds []int64
-			err1 := json.Unmarshal(userIdsBlob, &userIds)
-			if err1 != nil {
-				log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+		log.Infof(c, "%s value of user ids: %v", desc, userIds)
+
+		log.Infof(c, "%s crunching data...", desc)
+		users := make([]*mdl.User, len(userIds))
+
+		log.Infof(c, "%s get users", desc)
+		for i, id := range userIds {
+			if u, err := mdl.UserById(c, id); err != nil {
+				log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+			} else {
+				users[i] = u
 			}
+		}
 
-			log.Infof(c, "%s value of user ids: %v", desc, userIds)
-
-			log.Infof(c, "%s crunching data...", desc)
-			for _, id := range userIds {
-				if u, err := mdl.UserById(c, id); err != nil {
-					log.Errorf(c, "%s cannot find user with id=%", desc, id)
+		log.Infof(c, "%s build activities", desc)
+		activities := make([]*mdl.Activity, len(users))
+		for i, _ := range users {
+			if users[i] != nil {
+				verb := fmt.Sprintf("'s score is now %d", users[i].Score)
+				if a := users[i].BuildActivity(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{}); a != nil {
+					activities[i] = a
 				} else {
-					verb := fmt.Sprintf("'s score is now %d", u.Score)
-					u.Publish(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{})
+					c.Errorf("%s error when building activity.", desc)
 				}
 			}
-
-			log.Infof(c, "%s task done!", desc)
-			return nil
 		}
-		log.Infof(c, "%s something went wrong...")
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}, &datastore.TransactionOptions{XG: true})
-	if err != nil {
-		c.Errorf("%s error: %v", err)
-		log.Infof(c, "%s something went wrong...")
-		return err
+
+		log.Infof(c, "%s save activities %v", desc, activities)
+		if err := mdl.SaveActivities(c, activities); err != nil {
+			c.Errorf("%s something went wrong when saving all activities: error: %v", desc, err)
+		}
+
+		log.Infof(c, "%s add activity ids", desc)
+		for i, _ := range activities {
+			if activities[i] != nil && users[i] != nil {
+				c.Infof("%s>>>  activities ids: %v", desc, users[i].ActivityIds)
+				activities[i].AddNewActivityId(c, users[i])
+				c.Infof("%s  activities ids: %v", desc, users[i].ActivityIds)
+			}
+		}
+
+		log.Infof(c, "%s update users", desc)
+		if err := mdl.UpdateUsers(c, users); err != nil {
+			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUsersCannotUpdate)}
+		}
+		log.Infof(c, "%s tasks done!", desc)
+		return nil
 	}
-	return nil
+	log.Infof(c, "%s something went wrong...")
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
