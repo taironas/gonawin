@@ -411,7 +411,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
      };
      $scope.updateMatchesView();
 
-     $scope.$on('setUpdatedTournamentData', function(event, args) {
+     $scope.$on('setUpdatedTournamentData', function(event) {
        $scope.tournamentData = Tournament.get({ id:$routeParams.id });
      });
 

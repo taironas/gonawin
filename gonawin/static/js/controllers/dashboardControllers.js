@@ -43,7 +43,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 
       if(url.match('^/tournaments/[0-9]+.*') != null){
         // if same state as before just exit.
-        if($scope.state == 'tournaments'){
+        if($scope.state == 'tournaments' && $scope.needToRefresh == false){
           console.log('same!');
           return;
         }
@@ -102,7 +102,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         });
       } else if(url.match('^/tournaments/?$') != null) {
         // if same state as before just exit.
-        if($scope.state == 'tournamentsindex') {
+        if($scope.state == 'tournamentsindex' && $scope.needToRefresh == false) {
           console.log('same!');
           return;
         }
@@ -138,7 +138,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         });
       } else if(url.match('^/teams/[0-9]+.*') != null) {
         // if same state as before just exit.
-        if($scope.state == 'teams'){
+        if($scope.state == 'teams' && $scope.needToRefresh == false){
           console.log('same!');
           return;
         }
@@ -193,7 +193,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
         });
       } else if(url.match('^/teams/?$') != null) {
         // if same state as before just exit.
-        if($scope.state == 'teamsindex') {
+        if($scope.state == 'teamsindex' && $scope.needToRefresh == false) {
           console.log('same!');
           return;
         }
@@ -231,11 +231,11 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
       // Default dashboard: user
       } else {
         // if same state as before just exit.
-        if($scope.state == 'user') {
+        if($scope.state == 'user' && $scope.needToRefresh == false) {
           console.log('same!');
           return;
         }
-        
+
         $scope.state = 'user';
         // reset dashboard before getting data
         $scope.dashboard = {};
@@ -277,12 +277,19 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
     // set dashboard with respect to url in the global controller.
     // We do this because the $locationChangeSuccess event is not triggered by a refresh.
     // As the controller is called when there is a refresh we are able to set the Dashboard with the proper information.
+    $scope.needToRefresh = false;
     $scope.setDashboard();
 
     // $locationChangeSuccess event is triggered when url changes.
     // note: this event is not triggered when page is refreshed.
     $scope.$on('$locationChangeSuccess', function(event) {
       console.log('location changed:');
+      $scope.needToRefresh = false;
+      $scope.setDashboard();
+    });
+
+    $scope.$on('setUpdatedDashboard', function(event, refresh) {
+      $scope.needToRefresh = true;
       $scope.setDashboard();
     });
 }]);
