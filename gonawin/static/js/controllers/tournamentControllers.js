@@ -21,7 +21,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
 	    $scope.showMoreTournaments = (response.length == $scope.countTournaments);
 	}
     });
-    
+
     // show more tournaments function:
     // retreive tournaments by page and increment page.
     $scope.moreTournaments = function(){
@@ -39,7 +39,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
 	console.log('keywords: ', $scope.keywords)
 	$location.search('q', $scope.keywords).path('/search');
     };
-    
+
     // start world cup create action
     $scope.createWorldCup = function(){
 	console.log('Creating world cup');
@@ -130,9 +130,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
           $scope.joinButtonName = 'Leave';
           $scope.joinButtonMethod = $scope.leaveTournament;
           $scope.messageInfo = response.MessageInfo;
-          Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-        $scope.tournamentData.Participants = participantsResult.Participants;
-          });
+          $scope.$broadcast('setUpdatedTournamentData');
+          $rootScope.$broadcast('setUpdatedDashboard');
       });
     };
 
@@ -142,22 +141,20 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
             $scope.joinButtonName = 'Join';
             $scope.joinButtonMethod = $scope.joinTournament;
             $scope.messageInfo = response.MessageInfo;
-            Tournament.participants({ id:$routeParams.id }).$promise.then(function(participantsResult){
-          $scope.tournamentData.Participants = participantsResult.Participants;
-            });
+            $scope.$broadcast('setUpdatedTournamentData');
+            $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
-	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
-	    $scope.joinAsTeamButtonName[teamId] = 'Leave';
-	    $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
-	    $scope.messageInfo = response.MessageInfo;
-	    Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-		$scope.tournamentData.Teams = tournamentResult.Teams;
-	    });
-	});
+    	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
+    	    $scope.joinAsTeamButtonName[teamId] = 'Leave';
+    	    $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
+    	    $scope.messageInfo = response.MessageInfo;
+    	    $scope.$broadcast('setUpdatedTournamentData');
+          $rootScope.$broadcast('setUpdatedDashboard');
+    	});
     };
 
     $scope.leaveTournamentAsTeam = function(teamId){
@@ -166,21 +163,20 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
             $scope.joinAsTeamButtonName[teamId] = 'Join';
             $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
             $scope.messageInfo = response.MessageInfo;
-            Tournament.get({ id:$routeParams.id }).$promise.then(function(tournamentResult){
-          $scope.tournamentData.Teams = tournamentResult.Teams;
-            });
+            $scope.$broadcast('setUpdatedTournamentData');
+            $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
     };
 
-  // tab at undefined means you are in tournament/:id url.
-  // So calendar should be active by default
-  if($routeParams.tab == undefined){
-    $scope.tab = 'calendar';
-  } else {
-    // Initialize tab variable to handle views:
-    $scope.tab = $routeParams.tab;
-  }
+    // tab at undefined means you are in tournament/:id url.
+    // So calendar should be active by default
+    if($routeParams.tab == undefined){
+      $scope.tab = 'calendar';
+    } else {
+      // Initialize tab variable to handle views:
+      $scope.tab = $routeParams.tab;
+    }
 
     // set isTournamentAdmin boolean:
     // This variable defines if the current user is admin of the current tournament.
@@ -197,21 +193,21 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     // Checks if user has joined a tournament
     $scope.joined = $scope.tournamentData.$promise.then(function(result){
-	console.log('tournament joined ready!');
-	return result.Joined;
+	     console.log('tournament joined ready!');
+       return result.Joined;
     });
 
     $scope.tournamentData.$promise.then(function(tournamentResult){
-	var deferred = $q.defer();
-	if (tournamentResult.Joined) {
-	    deferred.resolve('Leave');
-	}
-	else {
-	    deferred.resolve('Join');
-	}
-	return deferred.promise;
+    	var deferred = $q.defer();
+    	if (tournamentResult.Joined) {
+        deferred.resolve('Leave');
+    	}
+    	else {
+        deferred.resolve('Join');
+    	}
+    	return deferred.promise;
     }).then(function(result){
-	$scope.joinButtonName = result;
+    	$scope.joinButtonName = result;
     });
 
     $scope.tournamentData.$promise.then(function(tournamentResult){
@@ -332,16 +328,16 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	    });
 	}
     })
-    
+
   $scope.tabs = {
     "calendar":         { title: 'Calendar',                url: 'templates/tournaments/tab_calendar.html' },
-    "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' }, 
+    "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' },
     "secondstage":     { title: 'Second Stage',   url: 'templates/tournaments/tab_bracketV.html' },
     "ranking":          { title: 'Ranking',                 url: 'templates/tournaments/tab_ranking.html' },
     "admin.setresults": { title: 'Set Results',             url: 'templates/tournaments/tab_setresults.html' },
     "admin.setteams":   { title: 'Set Teams',               url: 'templates/tournaments/tab_setteams.html' }
   };
-  
+
   // set the current tab based on the 'tab' parameter
   if($scope.tab == undefined) {
     $scope.currentTab = $scope.tabs["calendar"].url;
@@ -396,30 +392,33 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
     $scope.groupby = $routeParams.groupby;
 
     $scope.updateMatchesView = function(){
-	if($scope.groupby != undefined){
-	    if($scope.groupby == 'phase'){
-		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
-		$scope.matchesData.$promise.then(function(result){
-		    if(result.Phases != undefined){
-			for(var i = 0; i < result.Phases.length; i++){
-			    if($scope.matchesData.Phases[i].Completed){
-				$scope.matchesData.Phases[i].showPhase = false;
-			    }else{
-				$scope.matchesData.Phases[i].showPhase = true;
-			    }
-			}
-		    }
-		});
+    	if($scope.groupby != undefined){
+	       if($scope.groupby == 'phase'){
+           $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+           $scope.matchesData.$promise.then(function(result){
+             if(result.Phases != undefined){
+               for(var i = 0; i < result.Phases.length; i++){
+                 if($scope.matchesData.Phases[i].Completed){
+                   $scope.matchesData.Phases[i].showPhase = false;
+                 }else{
+                   $scope.matchesData.Phases[i].showPhase = true;
+                 }
+               }
+             }
+           });
+         } else if($scope.groupby == 'date'){
+           $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
+         }
+       } else{
+         $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
+       }
+     };
+     $scope.updateMatchesView();
 
-	    } else if($scope.groupby == 'date'){
-		$scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
-	    }
-	} else{
-	    $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
-	}
-    };
-    $scope.updateMatchesView();
-    
+     $scope.$on('setUpdatedTournamentData', function(event) {
+       $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+     });
+
     $scope.activatePredict = function(matchIdNumber, index, parentIndex){
 	console.log('Tournament calendar controller: activate predict: matchid number, index, parent index', matchIdNumber, index, parentIndex);
 	console.log('Tournament calendar controller: activate predict: matchesdata', $scope.matchesData);

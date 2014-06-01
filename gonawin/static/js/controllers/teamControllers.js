@@ -25,7 +25,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 	    $scope.showMoreTeams = (response.length == $scope.countTeams);
 	}
     });
-    
+
     $rootScope.currentUser.$promise.then(function(currentUser){
 	var userData = User.get({ id:currentUser.User.Id, including: "Teams", count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams});
 	console.log('user data = ', userData);
@@ -38,7 +38,7 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 	    }
 	});
     });
-    
+
     // Search function redirects to main search url /search.
     $scope.searchTeam = function(){
 	console.log('TeamListCtrl: searchTeam');
@@ -212,6 +212,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
           console.log('teamDataResult = ', teamDataResult);
           $scope.teamData = teamDataResult;
         });
+        $rootScope.$broadcast('setUpdatedDashboard');
       });
     };
     // This function makes a user leave a team.
@@ -228,6 +229,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
             console.log('teamDataResult = ', teamDataResult);
             $scope.teamData = teamDataResult;
           });
+          $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
     };
@@ -266,7 +268,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     // Initialize tab variable to handle views:
     $scope.tab = $routeParams.tab;
   }
-  
+
   $scope.tabs = {
     "members":      { title: 'Members',     url: 'templates/teams/tab_members.html' },
     "tournaments":  { title: 'Tournaments', url: 'templates/teams/tab_tournaments.html' },
@@ -291,7 +293,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   // predicate is updated for ranking tables
   $scope.predicate = 'Score';
   $scope.accuracyData = Team.accuracies({id:$routeParams.id});
-  
+
   $scope.pricesData = Team.prices({id:$routeParams.id});
 
   $scope.updatePrice = function(index) {
@@ -337,8 +339,8 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
   }
 }]);
 
-// TeamInviteCtrl: 
-teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', 'User', '$location', 
+// TeamInviteCtrl:
+teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', 'User', '$location',
   function($rootScope, $scope, $routeParams, Team, User, $location) {
     console.log('Team invite controller:');
     $scope.teamData = Team.get({ id:$routeParams.id });
@@ -351,7 +353,7 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
       }
       $scope.invitedUsers = response.Users;
     });
-    
+
     if($routeParams.q != undefined){
       $scope.teamData.$promise.then(function(teamResponse){
         // get teams result from search query
@@ -395,19 +397,19 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
       });
     }
 
-    // Search function 
+    // Search function
     $scope.searchTeam = function(){
 	console.log('TeamInviteCtrl: searchTeam');
 	console.log('keywords: ', $scope.keywords);
 	$location.search('q', $scope.keywords);
     };
-    
+
     $scope.invite = function(userId, index){
 	console.log('invite user id: ', userId);
 	console.log('invite index: ', index);
 	console.log('user: ', $scope.users[index]);
 	$scope.users[index].invitationSent = true;
-	
+
 	console.log('sending invitation');
 	Team.sendInvite({ id:$routeParams.id, userId: $scope.users[index].Id}).$promise.then(function(r){
 	    console.log('invitation sent.');
