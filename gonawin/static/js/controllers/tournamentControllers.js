@@ -131,6 +131,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
           $scope.joinButtonMethod = $scope.leaveTournament;
           $scope.messageInfo = response.MessageInfo;
           $scope.$broadcast('setUpdatedTournamentData');
+          $rootScope.$broadcast('setUpdatedDashboard');
       });
     };
 
@@ -141,6 +142,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
             $scope.joinButtonMethod = $scope.joinTournament;
             $scope.messageInfo = response.MessageInfo;
             $scope.$broadcast('setUpdatedTournamentData');
+            $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
     };
@@ -151,6 +153,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     	    $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
     	    $scope.messageInfo = response.MessageInfo;
     	    $scope.$broadcast('setUpdatedTournamentData');
+          $rootScope.$broadcast('setUpdatedDashboard');
     	});
     };
 
@@ -161,6 +164,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
             $scope.joinAsTeamButtonMethod[teamId] = $scope.joinTournamentAsTeam;
             $scope.messageInfo = response.MessageInfo;
             $scope.$broadcast('setUpdatedTournamentData');
+            $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
     };

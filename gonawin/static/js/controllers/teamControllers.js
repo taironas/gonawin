@@ -212,7 +212,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
           console.log('teamDataResult = ', teamDataResult);
           $scope.teamData = teamDataResult;
         });
-        var refresh = true;
         $rootScope.$broadcast('setUpdatedDashboard');
       });
     };
@@ -230,7 +229,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
             console.log('teamDataResult = ', teamDataResult);
             $scope.teamData = teamDataResult;
           });
-          var refresh = true;
           $rootScope.$broadcast('setUpdatedDashboard');
         });
       }
