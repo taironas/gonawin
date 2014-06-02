@@ -17,12 +17,14 @@
         <table class="table table-striped">
           <thead>
             <tr>
+              <th>#</th>
               <th>Teams</th>
               <th>Accuracy</th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="t in rankingData.Teams | orderBy:'Accuracy':!reverse">
+              <td>{{$index + 1}}</td>
               <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
               <td>{{100*t.Accuracy | number:2}}%</td>
             </tr>
@@ -41,14 +43,19 @@
         <table class="table table-striped">
           <thead>
             <tr>
+              <th>#</th>
               <th>Participants</th>
               <th>Score</th>
             </tr>
           </thead>
           <tbody>
             <tr ng-repeat="u in rankingData.Users | orderBy:'Score':!reverse">
-              <td><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
-              <td>{{u.Score}}</td>
+              <td ng-show="u.Id == currentUser.User.Id" class="info">{{$index + 1}}</td>
+                <td ng-show="u.Id != currentUser.User.Id">{{$index + 1}}</td>
+                <td ng-show="u.Id == currentUser.User.Id" class="info"><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
+                <td ng-show="u.Id != currentUser.User.Id"><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
+                <td ng-show="u.Id == currentUser.User.Id" class="info">{{u.Score}}</td>
+                <td ng-show="u.Id != currentUser.User.Id">{{u.Score}}</td>
             </tr>
           </tbody>
         </table>
