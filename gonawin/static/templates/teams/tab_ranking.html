@@ -8,11 +8,11 @@
               <thead>
                 <tr>
                   <th>Players</th>
-                  <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+                  <th>Score</th>
                  </tr>
                </thead>
                <tbody>
-                 <tr ng-repeat="u in rankingData.Users | orderBy:predicate:!reverse">
+                 <tr ng-repeat="u in rankingData.Users | orderBy:'Score':!reverse">
                    <td><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
                    <td>{{u.Score}}</td>
                   </tr>

@@ -18,11 +18,11 @@
           <thead>
             <tr>
               <th>Teams</th>
-              <th><a href="" ng-click="predicate = 'Accuracy'; reverse=!reverse">Accuracy</a></th>
+              <th>Accuracy</th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="t in rankingData.Teams | orderBy:predicate:reverse">
+            <tr ng-repeat="t in rankingData.Teams | orderBy:'Accuracy':!reverse">
               <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
               <td>{{100*t.Accuracy | number:2}}%</td>
             </tr>
@@ -42,11 +42,11 @@
           <thead>
             <tr>
               <th>Participants</th>
-              <th><a href="" ng-click="predicate = 'Score'; reverse=!reverse">Score</a></th>
+              <th>Score</th>
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="u in rankingData.Users |  orderBy:predicate:reverse">
+            <tr ng-repeat="u in rankingData.Users | orderBy:'Score':!reverse">
               <td><a href="/#/users/{{u.Id}}">{{u.Name}}</a></td>
               <td>{{u.Score}}</td>
             </tr>
