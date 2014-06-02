@@ -110,7 +110,8 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			"scores":       []string{string(bscores)},
 			"tournamentId": []string{string(btournamentId)},
 		})
-		if _, err := taskqueue.Add(c, task1, ""); err != nil {
+    
+		if _, err := taskqueue.Add(c, task1, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
 		} else {
@@ -135,7 +136,8 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			"scores":       []string{string(bscores)},
 			"tournamentId": []string{string(btournamentId)},
 		})
-		if _, err := taskqueue.Add(c, task2, ""); err != nil {
+    
+		if _, err := taskqueue.Add(c, task2, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
 		} else {
@@ -154,12 +156,13 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		if errm2 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, errm2)
 		}
-		task := taskqueue.NewPOSTTask("/a/add/scoreentities/score/", url.Values{
+		task3 := taskqueue.NewPOSTTask("/a/add/scoreentities/score/", url.Values{
 			"userIds":    []string{string(buserIds)},
 			"scores":     []string{string(bscores)},
 			"tournament": []string{string(tournamentBlob)},
 		})
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
+    
+		if _, err := taskqueue.Add(c, task3, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
 		} else {
@@ -170,10 +173,11 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		// task queue for updating scores of users.
 		log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
 
-		task3 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
+		task4 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
 			"userIds": []string{string(buserIds)},
 		})
-		if _, err := taskqueue.Add(c, task3, ""); err != nil {
+    
+		if _, err := taskqueue.Add(c, task4, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
 		} else {
