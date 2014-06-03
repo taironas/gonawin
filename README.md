@@ -27,7 +27,7 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 * [Google App Engine for Go](https://developers.google.com/appengine/docs/go/)
 * [Boostrap v3](http://getbootstrap.com/)
 * [Angularjs](http://angularjs.org/)
-* [go-oauth](http://github.com/garyburd/go-oauth/oauth)
+* [go-oauth](http://github.com/garyburd/go-oauth)
 * [flags](https://github.com/lipis/flag-icon-css)
 * [avatars](https://github.com/cupcake/sigil)
 * [Social Buttons for Bootstrap](http://lipis.github.io/bootstrap-social/)
