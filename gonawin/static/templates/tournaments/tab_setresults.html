@@ -17,8 +17,8 @@
                 <td>
                   <div ng-repeat="m in d.Matches">
                     <p>
-                      <form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
-                        <div class="row">
+		      <div class="row">
+			<form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
                           <div class="col-xs-1">#{{m.IdNumber}}</div>
                           <div class="col-xs-1">
                             <small><label class="control-label">{{m.Team1}}</label></small>
@@ -35,8 +35,12 @@
                           <div class="col-xs-2">
                             <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
                           </div>
-                        </div>
-                      </form>
+			</form>
+			<div class="col-xs-1">
+			  
+			  <button class="btn btn-warning btn-xs" ng-class="{disabled: !m.CanPredict}" ng-click="blockPrediction(m, $index, $parent.$index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-ban-circle"></span></button>
+			</div>
+                      </div>
                     </p>
                   </div>
                 </td>

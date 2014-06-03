@@ -457,8 +457,8 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 	}
 	// add new activity id in user activity table
 	activity.AddNewActivityId(c, u)
-  
-  return u.Update(c)
+
+	return u.Update(c)
 }
 
 func (u *User) BuildActivity(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) *Activity {

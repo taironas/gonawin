@@ -388,6 +388,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				emptyresult,
 				false,
 				true,
+				true,
 			}
 			log.Infof(c, "World Cup: match: build match ok")
 
@@ -472,6 +473,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 				emptyresult,
 				false,
 				false,
+				true,
 			}
 			log.Infof(c, "World Cup: match 2nd round: build match ok")
 

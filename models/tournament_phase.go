@@ -163,6 +163,7 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			}
 			matches[i].Rule = ""
 			matches[i].Ready = true
+			matches[i].CanPredict = true
 		}
 		if err := UpdateMatches(c, matches); err != nil {
 			log.Errorf(c, "Set Results: unable to set results on matches: %v", err)

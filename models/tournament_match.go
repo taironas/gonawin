@@ -29,17 +29,18 @@ import (
 )
 
 type Tmatch struct {
-	Id       int64     // datastore match id
-	IdNumber int64     // id of match in tournament
-	Date     time.Time // date of match
-	TeamId1  int64     // id of 1st team
-	TeamId2  int64     // id of 2nd team
-	Location string    // match location
-	Rule     string    // we use this field to store a specific match rule.
-	Result1  int64     // result of 1st team
-	Result2  int64     // result of 2nd team
-	Finished bool      // is match finished
-	Ready    bool      // is match ready for predictions.
+	Id         int64     // datastore match id
+	IdNumber   int64     // id of match in tournament
+	Date       time.Time // date of match
+	TeamId1    int64     // id of 1st team
+	TeamId2    int64     // id of 2nd team
+	Location   string    // match location
+	Rule       string    // we use this field to store a specific match rule.
+	Result1    int64     // result of 1st team
+	Result2    int64     // result of 2nd team
+	Finished   bool      // is match finished
+	Ready      bool      // is match ready for predictions.
+	CanPredict bool      // can user make a prediction (used to block predictions when match has started).
 }
 
 // Get a Tmatch entity by id.

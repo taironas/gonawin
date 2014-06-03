@@ -110,7 +110,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			"scores":       []string{string(bscores)},
 			"tournamentId": []string{string(btournamentId)},
 		})
-    
+
 		if _, err := taskqueue.Add(c, task1, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
@@ -136,7 +136,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			"scores":       []string{string(bscores)},
 			"tournamentId": []string{string(btournamentId)},
 		})
-    
+
 		if _, err := taskqueue.Add(c, task2, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
@@ -161,7 +161,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 			"scores":     []string{string(bscores)},
 			"tournament": []string{string(tournamentBlob)},
 		})
-    
+
 		if _, err := taskqueue.Add(c, task3, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
@@ -176,7 +176,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		task4 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
 			"userIds": []string{string(buserIds)},
 		})
-    
+
 		if _, err := taskqueue.Add(c, task4, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
@@ -426,9 +426,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 		log.Infof(c, "%s add activity ids", desc)
 		for i, _ := range activities {
 			if activities[i] != nil && users[i] != nil {
-				c.Infof("%s>>>  activities ids: %v", desc, users[i].ActivityIds)
 				activities[i].AddNewActivityId(c, users[i])
-				c.Infof("%s  activities ids: %v", desc, users[i].ActivityIds)
 			}
 		}
 

@@ -554,6 +554,18 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 			     });
   };
 
+    // block preduction
+    $scope.blockPrediction = function(match, matchindex, dayindex, phaseindex){
+	console.log('block prediction', match, matchindex, dayindex, phaseindex);
+	Tournament.blockMatchPrediction({id:$routeParams.id, matchId:match.IdNumber},
+				       function(response){
+					   $scope.matchesData.Phases[phaseindex].Days[dayindex].Matches[matchindex].CanPredict = response.CanPredict;
+				       },
+				      function(response){
+					  console.log('block match predictions failed.')
+				      });
+    };
+
 }]);
 
 // TournamentSetTeamsCtrl (admin): change teams.

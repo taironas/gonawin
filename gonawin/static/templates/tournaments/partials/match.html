@@ -27,9 +27,11 @@
       <div class="col-md-2">
 	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="!tournamentData.Joined && !m.Finished"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
 	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && !m.Ready"><span class="glyphicon glyphicon glyphicon-time"> gonawin</span></button>
-	<button class="btn btn-primary btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && !m.HasPredict && !m.Finished && !m.wantToPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
+	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && m.Ready && !m.CanPredict && !m.Finished && !m.HasPredict"><span class="glyphicon glyphicon glyphicon-time"> gonawin</span></button>
+	<button class="btn btn-primary btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && !m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"> gonawin</span></button>
 	<button class="btn btn-primary btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready  && !m.Finished && m.wantToPredict" ng-click="predict(m.IdNumber, $index, $parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon glyphicon-edit"> save</span></button>
-	<button class="btn btn-success btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.Predict}}</span></button>
+	<button class="btn btn-success btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredict(m.IdNumber, $index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-check"> {{m.Predict}}</span></button>
+	<button class="btn btn-success btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && !m.CanPredict"><span class="glyphicon glyphicon glyphicon-check"> {{m.Predict}}</span></button>
 	<button class="btn btn-default btn-xs btn-block active" disabled="disabled" ng-show="m.Finished"><span class="glyphicon glyphicon glyphicon-check"> {{m.Predict}}</span></button>
       </div>
     </div> <!-- / row -->
