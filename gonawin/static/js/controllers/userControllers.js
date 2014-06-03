@@ -46,24 +46,36 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
     });
     
     $scope.acceptTeamRequest = function(request){
-	console.log('User show controller:: accept team Request');
-	console.log('req: ', request);
-	Team.allowRequest({requestId:request.Id},
-			  function(data){},
+      console.log('User show controller:: accept team Request');
+      console.log('req: ', request);
+      Team.allowRequest({requestId:request.Id},
+			  function(data){
+          User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
+            function(userData){
+              console.log('userData: ', userData);
+              $scope.userData.TeamRequests = userData.TeamRequests;
+          });
+        },
 			  function(err){
-			      console.log('allow request failed: ', err.data);
-			      $scope.messageDanger = err.data;
-			  });
+          console.log('allow request failed: ', err.data);
+          $scope.messageDanger = err.data;
+      });
     };
     $scope.denyTeamRequest = function(request){
-	console.log('User show controller:: deny team Request');
-	console.log('req: ', request);
-	Team.denyRequest({requestId:request.Id},
-			 function(data){},
-			 function(err){
-			     console.log('deny request failed: ', err.data);
-			     $scope.messageDanger = err.data;
-			 });
+      console.log('User show controller:: deny team Request');
+      console.log('req: ', request);
+      Team.denyRequest({requestId:request.Id},
+        function(data){
+          User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
+            function(userData){
+              console.log('userData: ', userData);
+              $scope.userData.TeamRequests = userData.TeamRequests;
+          });
+        },
+        function(err){
+          console.log('deny request failed: ', err.data);
+          $scope.messageDanger = err.data;
+      });
     };
     
     $scope.acceptInvitation = function(invitation, index){
