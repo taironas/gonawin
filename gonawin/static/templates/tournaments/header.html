@@ -42,14 +42,14 @@
       <div class="form-group">
         <div class="btn-group pull-right">
           <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-          <button class="btn btn-default" data-toggle="modal" data-target="#tournament-modal">Add Team</button>
+          <button class="btn btn-default" data-toggle="modal" data-target=".addTeamModal">Add Team</button>
         </div>
       </div>
     </form>
   </div>
   <!-- / actions -->
   <!-- modal -->
-  <div id="tournament-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
+  <div class="modal fade addTeamModal" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -57,7 +57,30 @@
           <h3 id="tournamentModalLabel">Add Team</h3>
         </div>
         <div class="modal-body">
-          <div ng-include src="'templates/tournaments/partials/teamCandidates.html'"></div>
+          <!-- candidates -->
+          <div ng-if="candidates.length > 0">
+            <table class="table table-hover">
+              <tbody>
+                <tr ng-repeat="c in candidates">
+                  <form accept-charset="UTF-8" class="form-horizontal">
+                    <div class="form-group">
+                      <td><a href="/#/teams/{{c.Team.Id}}">{{c.Team.Name}}</a></td>
+                      <td>
+                        <joinbutton action="joinAsTeamButtonMethod[c.Team.Id](c.Team.Id)" name="joinAsTeamButtonName[c.Team.Id]" />
+                      </td>
+                    </div>
+                  </form>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div ng-if="!candidates || candidates.length == 0">
+            <div id="no_team">
+              <p>No team has been created by you.</p>
+              <button class="btn btn-primary" ng-click="newTeam()" data-dismiss="modal"><span>Create new team</span></button>
+            </div>
+          </div>
+          <!-- end of candidates -->
         </div>
       </div>
     </div>

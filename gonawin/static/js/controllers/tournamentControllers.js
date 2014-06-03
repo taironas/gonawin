@@ -313,20 +313,22 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     // Action triggered when 'Create new button' is clicked, modal window will be hidden.
     // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
     $scope.newTeam = function(){
-	$('#tournament-modal').modal('hide');
-	$scope.redirectToNewTeam = true;
+      console.log('.addTeamModal newTeam');
+      $('.addTeamModal').modal('hide');
+      $scope.redirectToNewTeam = true;
     };
 
     // listen 'hidden.bs.modal' event to redirect to new team page
     // Only redirect if flag 'redirectToNewTeam' is set.
-    $('#tournament-modal').on('hidden.bs.modal', function (e) {
-	// need to have scope for $location to work. So add 'apply' function
-	// inside js listener
-	if($scope.redirectToNewTeam == true){
-	    $scope.$apply(function(){
-		$location.path('/teams/new/');
-	    });
-	}
+    $('body').on('hidden.bs.modal', '.addTeamModal', function (e) {
+      console.log('.addTeamModal hidden.bs.modal');
+      // need to have scope for $location to work. So add 'apply' function
+      // inside js listener
+      if($scope.redirectToNewTeam == true){
+        $scope.$apply(function(){
+          $location.path('/teams/new/');
+        });
+      }
     })
 
   $scope.tabs = {
@@ -599,8 +601,8 @@ tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$route
 
   // list of tournament groups
   $scope.groupsData = Tournament.groups({id:$routeParams.id});
-  // predicate is udate for ranking tables
-  $scope.predicate = '';
+  // predicate is updated for ranking tables
+  $scope.predicate = 'Points';
 
 }]);
 
