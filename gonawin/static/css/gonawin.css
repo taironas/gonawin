@@ -274,17 +274,22 @@ body {
   /* Negative indent footer by its height */
   margin: 0 auto -60px;
   /* Pad bottom by footer height */
-  margin: 0 0 210px;
+  padding: 0 0 210px;
 }
 
 /* Set the fixed height of the footer here */
 #footer {
+  height: auto;
   background-color: #00b9Ab;
   border-top: 2px solid #FF8447;
   z-index: 9999;
   position:absolute;
   width: 100%;
-  padding-bottom: 30px;
+  /*padding-bottom: 30px;*/
+}
+
+#footer .container {
+  margin-bottom: 18px;
 }
 
 .footer-brand{
