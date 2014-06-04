@@ -28,8 +28,17 @@
           <ng-include src="'templates/main.html'"></ng-include>
         </div>
         <div ng-switch-default>
-          <div class="container main-container">
-            <ng-view><ng-view>
+          <div ng-switch on="originalPath">
+            <div ng-switch-when="/welcome">
+              <div class="main-container">
+                <ng-view><ng-view>
+              </div>
+            </div>
+            <div ng-switch-default>
+              <div class="container main-container">
+                <ng-view><ng-view>
+              </div>
+            </div>
           </div>
         </div>
       </div>
