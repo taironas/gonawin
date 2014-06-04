@@ -4,7 +4,7 @@
     <div class="col-md-1"><h4>#{{m.IdNumber}}</h4></div>
     <div class="col-md-3"><p class="lead text-right"><span class="flag-icon flag-icon-{{m.Iso1}}"></span> <small>{{m.Team1}}</small></p></div>
     <div class="col-md-2"><p class="lead text-center">{{m.Result1}} - {{m.Result2}}</p></div>
-    <div class="col-md-3"><p class="lead text-left"><span class="flag-icon flag-icon-{{m.Iso2}}"></span> {{m.Team2}}</p></div>
+    <div class="col-md-3"><p class="lead text-left"><span class="flag-icon flag-icon-{{m.Iso2}}"></span> <small>{{m.Team2}}</small></p></div>
   </div>
   <form class="form" role="form" ng-submit="updateResult()">
     <div ng-show="m.wantToPredict">
