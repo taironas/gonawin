@@ -2,13 +2,17 @@
 
 var userControllers = angular.module('userControllers', []);
 
-userControllers.controller('UserListCtrl', ['$scope', 'User', function($scope, User) {
+userControllers.controller('UserListCtrl', ['$scope', '$rootScope', 'User', function($scope, $rootScope, User) {
   $scope.users = User.query();
+  
+  $rootScope.title = 'gonawin - Users';
 }]);
 
-userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'Team', function($scope, $routeParams, User, Team) {
+userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParams', 'User', 'Team', function($scope, $rootScope, $routeParams, User, Team) {
   $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
-    function(data){},
+    function(data){
+      $rootScope.title = 'gonawin - ' + data.User.Username;
+    },
     function(err){
       console.log('get user failed: ', err.data);
       $scope.messageDanger = err.data;
@@ -125,6 +129,7 @@ userControllers.controller('UserShowCtrl', ['$scope', '$routeParams', 'User', 'T
 // User edit controller. Use this controller to edit the current user data.
 userControllers.controller('UserEditCtrl', ['$scope', '$rootScope', '$location', 'User', 'sAuth', 
   function($scope, $rootScope, $location, User, sAuth) {
+    $rootScope.title = 'gonawin - Edit Profile';
     $scope.updateUser = function() {
       User.update({ id:$rootScope.currentUser.User.Id}, $scope.currentUser,
         function(response){

@@ -5,7 +5,8 @@
 // Handle also user subscription to a team (join/leave).
 var teamControllers = angular.module('teamControllers', []);
 // TeamListCtrl: fetch all teams data
-teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', function($rootScope, $scope, Team, User, $location) {
+teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', 
+  function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
     
     $rootScope.title = 'gonawin - Teams';

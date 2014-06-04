@@ -5,9 +5,12 @@
 // Handle also user subscription to a tournament (join/leave and join as team/leave as team).
 var tournamentControllers = angular.module('tournamentControllers', []);
 // TournamentListCtrl: fetch all tournaments data
-tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', '$location', function($scope, Tournament, $location) {
-  console.log('Tournament list controller:');
-
+tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 'Tournament', '$location', 
+  function($scope, $rootScope, Tournament, $location) {
+    console.log('Tournament list controller:');
+  
+    $rootScope.title = 'gonawin - Tournaments';
+    
     $scope.countTournaments = 25;  // counter for the number of tournaments to display in view.
     $scope.pageTournaments = 1;    // page counter for tournaments, to know which page to display next.
 
@@ -59,6 +62,8 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', 'Tournament', 
 // TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');
+  
+  $rootScope.title = 'gonawin - New Tournament';
 
   $scope.addTournament = function() {
     Tournament.save($scope.tournament,
@@ -80,6 +85,10 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
     console.log('tournamentData', $scope.tournamentData);
+    
+    $scope.tournamentData.$promise.then(function(response){
+      $rootScope.title = 'gonawin - ' + response.Tournament.Name;
+    });
 
     // get message info from redirects.
     $scope.messageInfo = $rootScope.messageInfo;
@@ -109,7 +118,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 			     $scope.messageDanger = err.data;
 			 });
     };
-
 
     $scope.deleteTournament = function() {
 	if(confirm('Are you sure?')){
@@ -367,6 +375,10 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 // TournamentEditCtrl: collects data to update an existing tournament.
 tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location',function($rootScope, $scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
+  
+  $scope.tournamentData.$promise.then(function(response){
+    $rootScope.title = 'gonawin - ' + response.Tournament.Name;
+  });
 
   $scope.updateTournament = function() {
     var tournamentData = Tournament.get({ id:$routeParams.id });
