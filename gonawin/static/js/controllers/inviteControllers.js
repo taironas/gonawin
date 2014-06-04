@@ -2,7 +2,9 @@
 
 var inviteControllers = angular.module('inviteControllers', []);
 
-inviteControllers.controller('InviteCtrl', ['$scope', 'Invite', function($scope, Invite) {
+inviteControllers.controller('InviteCtrl', ['$scope', '$rootScope', 'Invite', function($scope, $rootScope, Invite) {
+  $rootScope.title = 'gonawin - Invite';
+  
   $scope.inviteFriends = function() {
     console.log('invite friends');
     Invite.send({emails: $scope.invite.emails},

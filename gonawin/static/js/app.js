@@ -82,6 +82,8 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
 }]);
 
 gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
+    $rootScope.title = 'gonawin';
+    
     $rootScope.currentUser = undefined;
     $rootScope.isLoggedIn = false;
     $rootScope.serviceIds = Session.serviceIds();
@@ -128,8 +130,6 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
     $rootScope.isLoginRequired = next.requireLogin;
     
-    
-
     if($location.$$path === '/auth/twitter/callback') {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else if($location.$$path === '/auth/google/callback') {

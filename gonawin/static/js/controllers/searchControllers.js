@@ -3,9 +3,12 @@
 // Search controllers manage the search of entities.
 var searchControllers = angular.module('searchControllers', []);
 // SearchCtrl: fetch all entities (teams, tournaments, users) on demand.
-searchControllers.controller('SearchCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', 'User', 'Tournament', '$location', function($rootScope, $scope, $routeParams, Team, User, Tournament, $location) {
+searchControllers.controller('SearchCtrl', ['$rootScope', '$scope', '$routeParams', 'Team', 'User', 'Tournament', '$location', 
+  function($rootScope, $scope, $routeParams, Team, User, Tournament, $location) {
     console.log('Search Controller:', $routeParams.q);
 
+    $rootScope.title = 'gonawin - Search';
+    
     $scope.noTournamentsMessage = '';
     $scope.noTeamsMessage = '';
     $scope.noUsersMessage = '';

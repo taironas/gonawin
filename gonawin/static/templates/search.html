@@ -1,25 +1,26 @@
 <div ng-include src="'templates/partials/notifications.html'"></div>
 <ol class="breadcrumb">
-  <li class="active">search</li>
+  <li class="active">Search</li>
 </ol>
 <div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <!-- search box -->
+        <form ng-submit="search()">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+              <input type="text" class="form-control" name="InputSearch" id="inputIcon" ng-model="keywords">
+          </div>
+        </form>
+        <!-- / search box -->
+      </div>
+    </div>
+  </div>
   <div class="panel-body">
     <div class="page-content">
-      <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-8">
-          <!-- search box -->
-          <form ng-submit="search()">
-            <div class="input-group">
-              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
-                <input type="text" class="form-control" name="InputSearch" id="inputIcon" ng-model="keywords">
-            </div>
-          </form>
-          <!-- / search box -->
-        </div>
-      </div>
       <!-- tournaments  -->
-      <hr>
       <h3>Tournaments</h3>
       <div class="row center-block">
         <div ng-repeat="tournament in tournaments">
@@ -30,13 +31,13 @@
                 <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
                 <small>participants: {{tournament.ParticipantsCount}}</small>
                 <small>teams: {{tournament.TeamsCount}}</small>
-		<small>
-		  <div class="progress">
-		    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
-		      {{100 * tournament.Progress | number:0}}%
-		    </div>
-		  </div>
-		</small>
+                <small>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
+                      {{100 * tournament.Progress | number:0}}%
+                    </div>
+                  </div>
+                </small>
               </p>
             </div>
           </div>

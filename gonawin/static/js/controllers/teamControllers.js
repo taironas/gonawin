@@ -7,6 +7,8 @@ var teamControllers = angular.module('teamControllers', []);
 // TeamListCtrl: fetch all teams data
 teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
+    
+    $rootScope.title = 'gonawin - Teams';
 
     $scope.countTeams = 25;            // counter for the number of teams to display in view.
     $scope.countJoinedTeams = 25;      // counter for the number of teams joined by user to display in view.
@@ -73,6 +75,9 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 // TeamNewCtrl: use this controller to create a team.
 teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$location', function($rootScope, $scope, Team, $location) {
   console.log('Team new controller:');
+  
+  $rootScope.title = 'gonawin - New Team';
+  
   $scope.addTeam = function() {
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
@@ -98,6 +103,10 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.messageInfo = $rootScope.messageInfo;
   // reset to nil var message info in root scope.
   $rootScope.messageInfo = undefined;
+  
+  $scope.teamData.$promise.then(function(response){
+    $rootScope.title = 'gonawin - ' + response.Team.Name;
+  });
 
   $scope.deleteTeam = function() {
     if(confirm('Are you sure?')){
@@ -318,6 +327,7 @@ teamControllers.controller('TeamEditCtrl', ['$rootScope', '$scope', '$routeParam
   $scope.visibility = 'public';
   console.log('$scope.teamData = ', $scope.teamData);
   $scope.teamData.$promise.then(function(response){
+    $rootScope.title = 'gonawin - ' + response.Team.Name;
     if(response.Team.Private){
       $scope.visibility = 'private';
     }
@@ -344,6 +354,10 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
   function($rootScope, $scope, $routeParams, Team, User, $location) {
     console.log('Team invite controller:');
     $scope.teamData = Team.get({ id:$routeParams.id });
+    
+    $scope.teamData.$promise.then(function(response){
+      $rootScope.title = 'gonawin - ' + response.Team.Name;
+    });
 
     $scope.inviteData = Team.invited({id:$routeParams.id });
     $scope.inviteData.$promise.then(function(response){
@@ -399,9 +413,9 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
 
     // Search function
     $scope.searchTeam = function(){
-	console.log('TeamInviteCtrl: searchTeam');
-	console.log('keywords: ', $scope.keywords);
-	$location.search('q', $scope.keywords);
+      console.log('TeamInviteCtrl: searchTeam');
+      console.log('keywords: ', $scope.keywords);
+      $location.search('q', $scope.keywords);
     };
 
     $scope.invite = function(userId, index){
