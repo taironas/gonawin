@@ -59,8 +59,8 @@ fieldset[disabled] .btn-primary.active {
 
 .btn-warning {
   color: #ffffff;
-  background-color: #ff8447;
-  border-color: #ff732d;
+  background-color: #ffaa3c;
+  border-color: #ff9f22;
 }
 .btn-warning:hover,
 .btn-warning:focus,
@@ -68,8 +68,8 @@ fieldset[disabled] .btn-primary.active {
 .btn-warning.active,
 .open .dropdown-toggle.btn-warning {
   color: #ffffff;
-  background-color: #ff691e;
-  border-color: #ef4f00;
+  background-color: #ff9813;
+  border-color: #e48100;
 }
 .btn-warning:active,
 .btn-warning.active,
@@ -91,11 +91,11 @@ fieldset[disabled] .btn-warning:active,
 .btn-warning.disabled.active,
 .btn-warning[disabled].active,
 fieldset[disabled] .btn-warning.active {
-  background-color: #ff8447;
-  border-color: #ff732d;
+  background-color: #ffaa3c;
+  border-color: #ff9f22;
 }
 .btn-warning .badge {
-  color: #ff8447;
+  color: #ffaa3c;
   background-color: #ffffff;
 }
 
@@ -133,7 +133,7 @@ fieldset[disabled] .btn-warning.active {
 
 .navbar-default {
   background-color: #00b9Ab;
-  border-bottom: 2px solid #FF8447;
+  border-bottom: 2px solid #ffaa3c;
   border-radius: 0px;
   margin-bottom: 0px;
 }
@@ -149,16 +149,16 @@ fieldset[disabled] .btn-warning.active {
 
 .navbar-default .navbar-nav>li>a:hover {
   color: white;
-  background-color: #ff8447;
+  background-color: #ffaa3c;
 }
 
 .navbar-default .navbar-brand:hover {
-  color: #ff8447;
+  color: #ffaa3c;
 }
 
 .navbar-default .navbar-nav .dropdown-menu>li>a:hover {
   color: white;
-  background-color: #ff8447;
+  background-color: #ffaa3c;
 }
 
 .navbar-nav>li>.dropdown-menu {
@@ -171,23 +171,23 @@ fieldset[disabled] .btn-warning.active {
 
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
   color: white;
-  background-color: #FF8447;
+  background-color: #ffaa3c;
 }
 
 .navbar-default .navbar-nav>.active>a {
   color: white;
-  background-color: #FF8447;
+  background-color: #ffaa3c;
 }
 
 .navbar-default .navbar-nav>.active>a:hover {
   color: #00b9Ab;
-  background-color: #FF8447;
+  background-color: #ffaa3c;
 }
 
 .navbar-default .navbar-nav>.open>a,
 .navbar-default .navbar-nav>.open>a:hover,
 .navbar-default .navbar-nav>.open>a:focus {
-background-color: #FF8447;
+background-color: #ffaa3c;
 color: white;
 }
 
@@ -196,11 +196,11 @@ color: white;
 }
 
 .navbar-default .navbar-toggle {
-  border: 2px solid #FF8447;
+  border: 2px solid #ffaa3c;
 }
 
 .navbar-default .navbar-toggle  .icon-bar {
-  background-color: #FF8447;
+  background-color: #ffaa3c;
 }
 
 .gw-badge {
@@ -217,14 +217,45 @@ color: white;
 /* End Navbar styles
 -------------------------------------------------- */
 
-.header {
-  background-color: #f5f5f5;
-	padding-top: 60px;
-  color: #00958B;
+.header-welcome {
+  background-color: #00b9Ab;
+  margin-top: -20px;
+	padding-top: 30px;
+  color: #f5f5f5;
+  height: 400px;
+  width: 100%;
 }
 
-.header .container-fluid {
-  background-color: #f5f5f5;
+.header-welcome .container-fluid {
+  background-color: #00b9Ab;
+}
+
+.header-welcome img {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.header-welcome h1 {
+  font-size: 45pt;
+}
+
+.header-signin {
+  background-image: url(/static/img/landing-page-background2.jpg);
+  background-position:center center;
+  background-repeat:no-repeat;
+  padding-top: 130px;
+  color: #f5f5f5;
+  height: 400px;
+  width: 100%;
+}
+
+.header-signin .container-fluid {
+  background-color: transparent;
+}
+
+.header-signin h3 {
+  font-size: 20pt;
+  margin-bottom: 30px;
 }
 
 .header h5 {
@@ -248,6 +279,7 @@ color: white;
   background-color: #f5f5f5;
 	padding-top: 50px;
   color: #00958B;
+  margin-bottom: -60px;
 }
 
 .intro .container-fluid {
@@ -255,8 +287,17 @@ color: white;
 }
 
 .intro img {
-  border: 3px solid #FF8447;
   margin-top: 20px;
+}
+
+.intro h3 {
+  font-weight: 700;
+  font-size: 20pt;
+}
+
+.intro p {
+  color: #808080;
+  font-size: 15pt;
 }
 
 /* Sticky footer styles
@@ -281,7 +322,7 @@ body {
 #footer {
   height: auto;
   background-color: #00b9Ab;
-  border-top: 2px solid #FF8447;
+  border-top: 2px solid #ffaa3c;
   z-index: 9999;
   position:absolute;
   width: 100%;
@@ -381,7 +422,7 @@ body {
 }
 
 .activity-panel a {
-  color: #FF8447;
+  color: #ffaa3c;
 }
 
 .activity-panel h5 {
@@ -453,7 +494,7 @@ body {
 }
 
 .gw-h3 {
-  color: #FF8447;
+  color: #ffaa3c;
 }
 
 .gw-no-margin {
