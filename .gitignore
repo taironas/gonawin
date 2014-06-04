@@ -27,3 +27,7 @@ _testmain.go
 .DS_Store
 config.json
 .idea/*
+
+# Reserved Images
+landing-page-background.jpg
+landing-page-background2.jpg
