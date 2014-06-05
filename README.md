@@ -17,7 +17,6 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 #### Contributors :
 * [Santiago](https://github.com/santiaago)
 * [Remy](https://github.com/rjourde)
-* [Cabernal4](https://github.com/cabernal4)
 
 #### Third Parties Installation
 
