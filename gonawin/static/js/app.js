@@ -89,18 +89,18 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     $rootScope.serviceIds = Session.serviceIds();
 
     $window.fbAsyncInit = function() {
-	// Executed when the SDK is loaded
-	$rootScope.serviceIds.$promise.then(function(response){
-	    FB.init({
-		appId: response.FacebookAppId,
-		channelUrl: 'static/templates/channel.html',
-		status: true, /*Set if you want to check the authentication status at the start up of the app */
-		cookie: true,
-		xfbml: true
-	    });
+      // Executed when the SDK is loaded
+      $rootScope.serviceIds.$promise.then(function(response){
+          FB.init({
+        appId: response.FacebookAppId,
+        channelUrl: 'static/templates/channel.html',
+        status: true, /*Set if you want to check the authentication status at the start up of the app */
+        cookie: true,
+        xfbml: true
+          });
 
-	    sAuth.watchLoginChange();
-	});
+          sAuth.watchLoginChange();
+      });
     };
 
   (function(d){
@@ -126,6 +126,8 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
+    
+    setPageTite();
     
     $rootScope.originalPath = $location.$$url;
 
@@ -179,4 +181,17 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
   $rootScope.$on('event:google-plus-signin-failure', function (event, authResult) {
     // User has not authorized the G+ App!
   });
+  
+  // search function:
+  function setPageTite(){
+    if( $location.$$url == '/welcome') {
+      $rootScope.title = 'gonawin';
+    } else if($location.$$url == '/signin'){
+      $rootScope.title = 'gonawin - Sign In';
+    } else if($location.$$url == '/about'){
+      $rootScope.title = 'gonawin - About';
+    } else if($location.$$url == '/getting-started') {
+      $rootScope.title = 'gonawin - Getting Started';
+    }
+  };
 }]);
