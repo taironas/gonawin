@@ -586,23 +586,28 @@ body {
     clear:right;
 }
 
+.gw-no-margin-bottom{
+    margin-bottom: 0px;
+}
+
 .gw-match{
     padding-top: 12px;
     padding-bottom: 12px;
 }
 
 .gw-cell-match{
-    background-color: #fff;
-    border-color: #00b9Ab;
+    border-color: #ddd;
     border-radius: 4px;
-    border-style:solid;
-    border-width:2px;
+    border-style: solid;
+    border-width: 1px;
     padding-left: 1px;
     padding-right: 1px;
     font-size: 12px;
     margin: 0 0 0px;
     text-align: center;
     word-wrap: break-word;
+    webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
 
 /* End Bracket
