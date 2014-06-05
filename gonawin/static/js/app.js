@@ -127,7 +127,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
     
-    $rootScope.originalPath = next.$$route.originalPath;
+    $rootScope.originalPath = $location.$$url;
 
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
     $rootScope.isLoginRequired = next.requireLogin;
