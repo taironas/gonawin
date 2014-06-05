@@ -108,6 +108,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/getwc/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GetWorldCup)))
 	h.HandleFunc("/j/tournaments/[0-9]+/groups/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Groups)))
 	h.HandleFunc("/j/tournaments/[0-9]+/calendar/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Calendar)))
+	h.HandleFunc("/j/tournaments/[0-9]+/[0-9]+/calendarwithprediction/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarWithPrediction)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Matches)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/update/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.UpdateMatchResult)))
 	h.HandleFunc("/j/tournaments/[0-9]+/matches/[0-9]+/predict/?", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Predict)))

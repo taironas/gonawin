@@ -36,6 +36,7 @@ import (
 
 // A MatchJson is a variable to hold of match information.
 type MatchJson struct {
+	Id         int64
 	IdNumber   int64
 	Date       time.Time
 	Team1      string
@@ -271,6 +272,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 
 	matchesJson := make([]MatchJson, len(matches))
 	for i, m := range matches {
+		matchesJson[i].Id = m.Id
 		matchesJson[i].IdNumber = m.IdNumber
 		matchesJson[i].Date = m.Date
 		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
@@ -295,6 +297,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 	// append 2nd round to first one
 	for _, m := range matches2ndPhase {
 		var matchJson2ndPhase MatchJson
+		matchJson2ndPhase.Id = m.Id
 		matchJson2ndPhase.IdNumber = m.IdNumber
 		matchJson2ndPhase.Date = m.Date
 		rule := strings.Split(m.Rule, " ")

@@ -18,6 +18,7 @@ package tournaments
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
@@ -37,6 +38,22 @@ import (
 type DayJson struct {
 	Date    time.Time
 	Matches []MatchJson
+}
+
+type DayWithPredictionJson struct {
+	Date    time.Time
+	Matches []MatchWithPredictionJson
+}
+
+type MatchWithPredictionJson struct {
+	Match        MatchJson
+	Participants []UserPredictionJson
+}
+
+type UserPredictionJson struct {
+	Id      int64
+	Name    string
+	Predict string
 }
 
 // A PhaseJson is a variable to hold a the name of a phase and an array of days.
@@ -105,6 +122,112 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				phases,
 			}
 			return templateshlp.RenderJson(w, c, data)
+		}
+	}
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// Json tournament calendar with predictions handler:
+// Use this handler to get the calendar of a tournament with the predictions of the players in a specific team.
+// The calendar structure is an array of the tournament matches with the following information:
+// * the location
+// * the teams involved
+// * the date
+// by default the data returned is grouped by days.This means we will return an array of days, each of which can have an array of matches.
+// the 'groupby' parameter does not support 'phases' yet.
+func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	c := appengine.NewContext(r)
+	desc := "Tournament Calendar with prediction Handler:"
+
+	if r.Method == "GET" {
+		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		if err != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		teamId, err2 := handlers.PermalinkID(r, c, 4)
+		if err2 != nil {
+			log.Errorf(c, "%s error extracting permalink err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var t *mdl.Tournament
+		t, err = mdl.TournamentById(c, tournamentId)
+		if err != nil {
+			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+		players := team.Players(c)
+
+		predictsByPlayer := make([]mdl.Predicts, len(players))
+		for i, p := range players {
+			predicts := mdl.PredictsByIds(c, p.PredictIds)
+			predictsByPlayer[i] = predicts
+		}
+
+		groupby := r.FormValue("groupby")
+		// if wrong data we set groupby to "day"
+		if groupby != "day" && groupby != "phase" {
+			groupby = "day"
+		}
+
+		if groupby == "day" {
+			log.Infof(c, "%s ready to build days array", desc)
+			matchesJson := buildMatchesFromTournament(c, t, u)
+
+			days := matchesGroupByDay(matchesJson)
+			dayswp := make([]DayWithPredictionJson, len(days))
+			for i, d := range days {
+				dayswp[i].Date = d.Date
+				matcheswp := make([]MatchWithPredictionJson, len(d.Matches))
+				for j, m := range d.Matches {
+					matcheswp[j].Match = m
+					uwp := make([]UserPredictionJson, len(players))
+					for k, p := range players {
+						// get player prediction
+						uwp[k].Id = p.Id
+						uwp[k].Name = p.Name
+						if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
+							uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
+						} else {
+							uwp[k].Predict = "-"
+						}
+					}
+					matcheswp[j].Participants = uwp
+				}
+				dayswp[i].Matches = matcheswp
+			}
+
+			data := struct {
+				Days []DayWithPredictionJson
+			}{
+				dayswp,
+			}
+
+			return templateshlp.RenderJson(w, c, data)
+
+		} else if groupby == "phase" {
+			//
+			// @santiaago: right now not supported.
+			//
+			// log.Infof(c, "%s ready to build phase array", desc)
+			// matchesJson := buildMatchesFromTournament(c, t, u)
+			// phases := matchesGroupByPhase(matchesJson)
+
+			// data := struct {
+			// 	Phases []PhaseJson
+			// }{
+			// 	phases,
+			// }
+			// return templateshlp.RenderJson(w, c, data)
 		}
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}

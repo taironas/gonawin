@@ -104,6 +104,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
          getWorldCup: {method: 'GET', url: 'j/tournaments/getwc', cache : true},
 		     groups: {method: 'GET', url: 'j/tournaments/:id/groups', cache : true},
 		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'},
+		     calendarWithPrediction: {method: 'GET', url: 'j/tournaments/:id/:teamId/calendarwithprediction?groupby=:groupby'},
 		     matches: {method: 'GET', url: 'j/tournaments/:id/matches?filter=:filter'},
 		     updateMatchResult: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/update?result=:result'},
 		     blockMatchPrediction: {method: 'POST', url: '/j/tournaments/:id/matches/:matchId/blockprediction'},

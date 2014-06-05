@@ -18,6 +18,7 @@
       <li ng-class="{active: tab == 'firststage'}"><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=firststage" ng-click="onClickTab(tabs['firststage'])" data-toggle="tab">First Stage</a></li>
       <li ng-class="{active: tab == 'secondstage'}" ><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=secondstage" ng-click="onClickTab(tabs['secondstage'])" data-toggle="tab">Second Stage</a></li>
       <li ng-class="{active: tab == 'ranking'}" ><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=ranking" ng-click="onClickTab(tabs['ranking'])" data-toggle="tab">Ranking</a></li>
+      <li ng-class="{active: tab == 'predictions'}" ><a href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab=predictions" ng-click="onClickTab(tabs['predictions'])" data-toggle="tab">Predictions</a></li>
       <li class="dropdown" ng-class="{active: (tab == 'admin.setresults') || (tab == 'admin.setteams')}" ng-if="isTournamentAdmin">
 	<a href="" data-toggle="dropdown">Results <b class="caret"></b></a>
 	<ul class="dropdown-menu">

@@ -1,0 +1,32 @@
+<div class="panel-body">
+  <div class="row">
+    <div class="col-md-1"><h4>#{{m.Match.IdNumber}}</h4></div>
+    <div class="col-md-3"><p class="lead text-right"><span class="flag-icon flag-icon-{{m.Match.Iso1}}"></span> <small>{{m.Match.Team1}}</small></p></div>
+    <div class="col-md-2"><p class="lead text-center">{{m.Match.Result1}} - {{m.Match.Result2}}</p></div>
+    <div class="col-md-3"><p class="lead text-left"><span class="flag-icon flag-icon-{{m.Match.Iso2}}"></span> <small>{{m.Match.Team2}}</small></p></div>
+  </div>
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="participants col-md-8">
+      <table class="table table-striped">
+	<thead>
+          <tr>
+            <th>#</th>
+            <th>Participant</th>
+            <th>Predictions</th>
+          </tr>
+	</thead>
+	<tbody>
+          <tr ng-repeat="p in m.Participants">
+            <td ng-show="p.Id == currentUser.User.Id" class="info">{{$index + 1}}</td>
+            <td ng-show="p.Id != currentUser.User.Id">{{$index + 1}}</td>
+            <td ng-show="p.Id == currentUser.User.Id" class="info"><a href="/#/users/{{p.Id}}">{{p.Name}}</a></td>
+            <td ng-show="p.Id != currentUser.User.Id"><a href="/#/users/{{u.Id}}">{{p.Name}}</a></td>
+            <td ng-show="p.Id == currentUser.User.Id" class="info">{{p.Predict}}</td>
+            <td ng-show="p.Id != currentUser.User.Id">{{p.Predict}}</td>
+          </tr>
+	</tbody>
+      </table>
+    </div>
+  </div> <!-- / row -->
+</div>
