@@ -217,7 +217,8 @@ color: white;
 /* End Navbar styles
 -------------------------------------------------- */
 
-.header-welcome {
+.header-welcome,
+.header-404 {
   background-color: #00b9Ab;
   margin-top: -20px;
 	padding-top: 30px;
@@ -240,7 +241,12 @@ color: white;
   font-size: 45pt;
 }
 
-.header-signin {
+.header-404 h1 {
+  font-size: 80pt;
+}
+
+.header-signin,
+.header-404-message {
   background-image: url(/static/img/landing-page-background2.jpg);
   background-position:center center;
   background-repeat:no-repeat;
@@ -259,6 +265,10 @@ color: white;
 .header-signin h3 {
   font-size: 20pt;
   margin-bottom: 30px;
+}
+
+.header-404-message h2 {
+  font-size: 30pt;
 }
 
 .header h5 {
