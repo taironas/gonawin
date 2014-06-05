@@ -687,7 +687,7 @@ body {
   overflow: hidden;
   -o-text-overflow: ellipsis; /*Opera 9 */
   text-overflow: ellipsis; /* other browsers */
-  width:250px;
+  width:200px;
 }
 
 .gw-leaderboard .table tr td {
@@ -699,7 +699,7 @@ body {
   overflow: hidden;
   -o-text-overflow: ellipsis; /*Opera 9 */
   text-overflow: ellipsis; /* other browsers */
-  width:170px;
+  width:130px;
 }
 
 .gw-leaderboard .table tr .gw-td-position {
