@@ -506,7 +506,11 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 			// publish new activity
-			u.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+			if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+				log.Errorf(c, "User not found %v", u.Id)
+			} else {
+				updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+			}
 
 			msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
 			data := struct {

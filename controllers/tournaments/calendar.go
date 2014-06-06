@@ -51,9 +51,9 @@ type MatchWithPredictionJson struct {
 }
 
 type UserPredictionJson struct {
-	Id      int64
-	Name    string
-	Predict string
+	Id       int64
+	Username string
+	Predict  string
 }
 
 // A PhaseJson is a variable to hold a the name of a phase and an array of days.
@@ -194,7 +194,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 					for k, p := range players {
 						// get player prediction
 						uwp[k].Id = p.Id
-						uwp[k].Name = p.Name
+						uwp[k].Username = p.Username
 						if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
 							uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
 						} else {

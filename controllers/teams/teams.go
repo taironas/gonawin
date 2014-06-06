@@ -156,7 +156,11 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 			}
 			// publish new activity
-			u.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
+			if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+				log.Errorf(c, "User not found %v", u.Id)
+			} else {
+				updatedUser.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
+			}
 
 			// return the newly created team
 			var tJson mdl.TeamJson

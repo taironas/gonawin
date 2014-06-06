@@ -20,8 +20,8 @@
           <tr ng-repeat="p in m.Participants">
             <td ng-show="p.Id == currentUser.User.Id" class="info">{{$index + 1}}</td>
             <td ng-show="p.Id != currentUser.User.Id">{{$index + 1}}</td>
-            <td ng-show="p.Id == currentUser.User.Id" class="info"><a href="/#/users/{{p.Id}}">{{p.Name}}</a></td>
-            <td ng-show="p.Id != currentUser.User.Id"><a href="/#/users/{{u.Id}}">{{p.Name}}</a></td>
+            <td ng-show="p.Id == currentUser.User.Id" class="info"><a href="/#/users/{{p.Id}}">{{p.Username}}</a></td>
+            <td ng-show="p.Id != currentUser.User.Id"><a href="/#/users/{{u.Id}}">{{p.Username}}</a></td>
             <td ng-show="p.Id == currentUser.User.Id" class="info">{{p.Predict}}</td>
             <td ng-show="p.Id != currentUser.User.Id">{{p.Predict}}</td>
           </tr>
