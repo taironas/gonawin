@@ -318,6 +318,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 	}
     };
 
+    $scope.redirectToNewTeam = false;
     // Action triggered when 'Create new button' is clicked, modal window will be hidden.
     // We also set flag 'redirectToNewTeam' to true for listener to know if redirection is needed.
     $scope.newTeam = function(){
