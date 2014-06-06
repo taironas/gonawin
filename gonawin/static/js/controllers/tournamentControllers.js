@@ -425,8 +425,19 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
          } else if($scope.groupby == 'date'){
            $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
          }
-       } else{
-         $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'date'});
+      } else {
+        $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
+         $scope.matchesData.$promise.then(function(result){
+           if(result.Phases != undefined){
+             for(var i = 0; i < result.Phases.length; i++){
+               if($scope.matchesData.Phases[i].Completed){
+                 $scope.matchesData.Phases[i].showPhase = false;
+               }else{
+                 $scope.matchesData.Phases[i].showPhase = true;
+               }
+             }
+           }
+         });
        }
      };
      $scope.updateMatchesView();
