@@ -233,15 +233,12 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Google Accounts Login URL Handler:"
 	if r.Method == "GET" {
-		u := user.Current(c)
 		var url string
-		if u == nil {
-			var err error
-			url, err = user.LoginURL(c, "/j/auth/google/callback/")
-			if err != nil {
-				log.Errorf(c, "%s error when getting Google accounts login URL", desc)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
-			}
+		var err error
+		url, err = user.LoginURL(c, "/j/auth/google/callback/")
+		if err != nil {
+			log.Errorf(c, "%s error when getting Google accounts login URL", desc)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
 		}
 
 		// return user
