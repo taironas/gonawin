@@ -284,7 +284,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     "tournaments":  { title: 'Tournaments', url: 'templates/teams/tab_tournaments.html' },
     "ranking":      { title: 'Ranking',     url: 'templates/teams/tab_ranking.html' },
     "accuracies":   { title: 'Accuracies',  url: 'templates/teams/tab_accuracies.html' },
-    "prices":       { title: 'Prices',      url: 'templates/teams/tab_prices.html' }
+    "prizes":       { title: 'Prizes',      url: 'templates/teams/tab_prices.html' }
   };
 
   // set the current tab based on the 'tab' parameter
@@ -308,7 +308,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
   $scope.updatePrice = function(index) {
     var price = $scope.pricesData.Prices[index];
-    console.log('update, price = ', price)
+    console.log('update, prize = ', price)
     Team.updatePrice({id:price.TeamId, tournamentId:price.TournamentId}, price,
 		function(response){
 		  $rootScope.messageInfo = response.MessageInfo;
