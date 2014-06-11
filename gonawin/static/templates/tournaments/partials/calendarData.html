@@ -4,7 +4,7 @@
     <div ng-repeat="d in matchesData.Days">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">{{d.Date | date:'EEE dd MMM'}}</h3>
+          <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
         </div>
         <div class="calendar">
           <div ng-repeat="m in d.Matches" class="row">
@@ -29,7 +29,7 @@
       <div ng-repeat="d in phase.Days" ng-show="phase.showPhase">
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">{{d.Date | date:'EEE dd MMM'}}</h3>
+            <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
           </div>
           <div class="calendar">
             <div ng-repeat="m in d.Matches" class="row">

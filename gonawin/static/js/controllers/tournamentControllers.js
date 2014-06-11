@@ -404,7 +404,6 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 
     $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:$routeParams.groupby});
     console.log('routeparams!!!!!', $routeParams);
-
     $scope.groupby = $routeParams.groupby;
 
     $scope.updateMatchesView = function(){

@@ -16,6 +16,7 @@ var gonawingApp = angular.module('gonawingApp', [
   'directive.activities',
   '$strap.directives',
   'filter.fromNow',
+  'filter.moment',
   'filter.reverse',
 
   'rootControllers',
