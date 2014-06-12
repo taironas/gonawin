@@ -64,7 +64,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		strlimit := r.FormValue("limit")
-		limit := 10
+		limit := 100
 		if len(strlimit) > 0 {
 			if n, err := strconv.ParseInt(strlimit, 10, 64); err != nil {
 				log.Infof(c, "%s, unable to parse %v, error:%v", strlimit, err)
