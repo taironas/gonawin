@@ -16,8 +16,10 @@
                 <tr ng-repeat="u in rankingData.Users | orderBy:'Score':!reverse">
                   <td ng-show="u.Id == currentUser.User.Id" class="info">{{$index + 1}}</td>
                   <td ng-show="u.Id != currentUser.User.Id">{{$index + 1}}</td>
-                  <td ng-show="u.Id == currentUser.User.Id" class="info"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
-                  <td ng-show="u.Id != currentUser.User.Id"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
+                  <td ng-show="u.Id == currentUser.User.Id && (u.Alias.length > 0)" class="info"><a href="/#/users/{{u.Id}}">{{u.Alias}}</a></td>
+                  <td ng-show="u.Id == currentUser.User.Id && (u.Alias.length == 0)" class="info"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
+                  <td ng-show="u.Id != currentUser.User.Id && (u.Alias.length > 0)"><a href="/#/users/{{u.Id}}">{{u.Alias}}</a></td>
+                  <td ng-show="u.Id != currentUser.User.Id && (u.Alias.length == 0)"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
                   <td ng-show="u.Id == currentUser.User.Id" class="info">{{u.Score}}</td>
                   <td ng-show="u.Id != currentUser.User.Id">{{u.Score}}</td>
                 </tr>

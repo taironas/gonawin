@@ -79,7 +79,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Infof(c, "%s ready to build a user array", desc)
 			users := t.RankingByUser(c, limit)
 
-			fieldsToKeep := []string{"Id", "Username", "Score"}
+			fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
 			usersJson := make([]mdl.UserJson, len(users))
 			helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 

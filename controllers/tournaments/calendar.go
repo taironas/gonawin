@@ -53,6 +53,7 @@ type MatchWithPredictionJson struct {
 type UserPredictionJson struct {
 	Id       int64
 	Username string
+	Alias    string
 	Predict  string
 }
 
@@ -195,6 +196,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 						// get player prediction
 						uwp[k].Id = p.Id
 						uwp[k].Username = p.Username
+						uwp[k].Alias = p.Alias
 						if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
 							uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
 						} else {

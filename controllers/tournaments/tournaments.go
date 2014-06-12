@@ -174,7 +174,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		var tournamentJson mdl.TournamentJson
 		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
 		// participant
-		participantFieldsToKeep := []string{"Id", "Username"}
+		participantFieldsToKeep := []string{"Id", "Username", "Alias"}
 		participantsJson := make([]mdl.UserJson, len(participants))
 		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// teams
@@ -497,7 +497,7 @@ func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		participants := tournament.Participants(c)
 		// participant
-		participantFieldsToKeep := []string{"Id", "Username"}
+		participantFieldsToKeep := []string{"Id", "Username", "Alias"}
 		participantsJson := make([]mdl.UserJson, len(participants))
 		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 		// data

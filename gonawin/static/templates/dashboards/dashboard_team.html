@@ -36,11 +36,13 @@
     <h5 class="gw-dashboard-h5">LEADERBOARD</h5>
     <div class="panel panel-default gw-leaderboard">
       <table class="table table-bordered table-condensed">
-        <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse"">
+        <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
           <td ng-show="m.Id == dashboard.userid" class="gw-td-position info">{{$index + 1}}</td>
           <td ng-show="m.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>
-          <td ng-show="m.Id == dashboard.userid" class="info"><a href="/#/users/{{m.Id}}">{{m.Username}}</a></td>
-          <td ng-show="m.Id != dashboard.userid"><a href="/#/users/{{m.Id}}">{{m.Username}}</a></td>
+          <td ng-show="m.Id == dashboard.userid && (m.Alias.length > 0)" class="info"><a href="/#/users/{{m.Id}}">{{m.Alias}}</a></td>
+          <td ng-show="m.Id == dashboard.userid && (m.Alias.length == 0)" class="info"><a href="/#/users/{{m.Id}}">{{m.Username}}</a></td>
+          <td ng-show="m.Id != dashboard.userid && (m.Alias.length > 0)"><a href="/#/users/{{m.Id}}">{{m.Alias}}</a></td>
+          <td ng-show="m.Id != dashboard.userid && (m.Alias.length == 0)"><a href="/#/users/{{m.Id}}">{{m.Username}}</a></td>
           <td ng-show="m.Id == dashboard.userid" class="info">{{m.Score}} Points</td>
           <td ng-show="m.Id != dashboard.userid">{{m.Score}} Points</td>
         </tr>

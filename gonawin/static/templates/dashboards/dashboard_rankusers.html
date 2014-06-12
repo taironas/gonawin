@@ -4,8 +4,10 @@
     <tr ng-repeat="u in dashboard.rank.users | orderBy:'Score':!reverse">
       <td ng-show="u.Id == dashboard.userid" class="gw-td-position info">{{$index + 1}}</td>
       <td ng-show="u.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>
-      <td ng-show="u.Id == dashboard.userid" class="info"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
-      <td ng-show="u.Id != dashboard.userid"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
+      <td ng-show="u.Id == dashboard.userid && (u.Alias.length > 0)" class="info"><a href="/#/users/{{u.Id}}">{{u.Alias}}</a></td>
+      <td ng-show="u.Id == dashboard.userid && (u.Alias.length == 0)" class="info"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
+      <td ng-show="u.Id != dashboard.userid && (u.Alias.length > 0)"><a href="/#/users/{{u.Id}}">{{u.Alias}}</a></td>
+      <td ng-show="u.Id != dashboard.userid && (u.Alias.length == 0)"><a href="/#/users/{{u.Id}}">{{u.Username}}</a></td>
       <td ng-show="u.Id == dashboard.userid" class="info">{{u.Score}} Points</td>
       <td ng-show="u.Id != dashboard.userid">{{u.Score}} Points</td>
     </tr>
