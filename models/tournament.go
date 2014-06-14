@@ -547,7 +547,7 @@ func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
 	if len(teams) <= limit {
 		return teams
 	} else {
-		return teams[0:limit]
+		return teams[len(teams)-limit:]
 	}
 }
 
