@@ -136,7 +136,7 @@ func computeScore(c appengine.Context, m *Tmatch, p *Predict) int64 {
 	// wining trend
 	trendW := (m.Result1 > m.Result2)
 	ptrendW := (p.Result1 > p.Result2)
-	if trendW == ptrendW == true {
+	if (trendW == ptrendW) && (trendW == true)  {
 		return int64(1)
 	}
 	// losign trend
