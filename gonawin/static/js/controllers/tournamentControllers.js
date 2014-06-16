@@ -341,13 +341,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     })
 
   $scope.tabs = {
-    "calendar":         { title: 'Calendar',                url: 'templates/tournaments/tab_calendar.html' },
-    "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' },
-    "secondstage":      { title: 'Second Stage',            url: 'templates/tournaments/tab_bracket2.html' },
-    "ranking":          { title: 'Ranking',                 url: 'templates/tournaments/tab_ranking.html' },
-    "predictions":      { title: 'Predictions',             url: 'templates/tournaments/tab_predictions.html' },
-    "admin.setresults": { title: 'Set Results',             url: 'templates/tournaments/tab_setresults.html' },
-    "admin.setteams":   { title: 'Set Teams',               url: 'templates/tournaments/tab_setteams.html' }
+      "calendar":         { title: 'Calendar',                url: 'templates/tournaments/tab_calendar.html' },
+      "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' },
+      "secondstage":      { title: 'Second Stage',            url: 'templates/tournaments/tab_bracket2.html' },
+      "ranking":          { title: 'Ranking',                 url: 'templates/tournaments/tab_ranking.html' },
+      "predictions":      { title: 'Predictions',             url: 'templates/tournaments/tab_predictions.html' },
+      "admin.setresults": { title: 'Set Results',             url: 'templates/tournaments/tab_setresults.html' },
+      "admin.syncdata":   { title: 'Sync Data',                 url: 'templates/tournaments/tab_syncdata.html' },
+      "admin.setteams":   { title: 'Set Teams',               url: 'templates/tournaments/tab_setteams.html' }
   };
 
   // set the current tab based on the 'tab' parameter
@@ -618,6 +619,26 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 				      function(response){
 					  console.log('block match predictions failed.')
 				      });
+    };
+
+}]);
+
+// TournamentSyncDataCtrl (admin): sync data.
+tournamentControllers.controller('TournamentSyncDataCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
+    $scope.syncResults = function(){
+	console.log('sync results');
+	console.log('not yet implemented...');
+    };
+
+    $scope.syncScores = function(){
+	console.log('sync scores');
+	Tournament.syncScores({id:$routeParams.id},
+			       function(response){
+				   console.log('sync scores successfull');
+			       },
+			       function(response){
+				   console.log('unable to sync scores successfully');
+			       });
     };
 
 }]);

@@ -101,7 +101,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId' },
 		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id' },
 		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'},
-         getWorldCup: {method: 'GET', url: 'j/tournaments/getwc', cache : true},
+		     getWorldCup: {method: 'GET', url: 'j/tournaments/getwc', cache : true},
 		     groups: {method: 'GET', url: 'j/tournaments/:id/groups', cache : true},
 		     calendar: {method: 'GET', url: 'j/tournaments/:id/calendar?groupby=:groupby'},
 		     calendarWithPrediction: {method: 'GET', url: 'j/tournaments/:id/:teamId/calendarwithprediction?groupby=:groupby'},
@@ -115,7 +115,8 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby' },
 		     updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'},
 		     addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
-		     removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'}
+		     removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'},
+		     syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'}
 		   })
 });
 

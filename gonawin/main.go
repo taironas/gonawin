@@ -120,7 +120,7 @@ func init() {
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/updateteam/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.UpdateTeam)))
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/add/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.AddAdmin)))
 	h.HandleFunc("/j/tournaments/[0-9]+/admin/remove/[0-9]+/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.RemoveAdmin)))
-
+	h.HandleFunc("/j/tournaments/[0-9]+/admin/syncscores/?", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.SyncScores)))
 	// activities
 	h.HandleFunc("/j/activities/?", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))
 
@@ -132,6 +132,7 @@ func init() {
 	h.HandleFunc("/a/create/scoreentities/", handlers.ErrorHandler(tasksctrl.CreateScoreEntities))
 	h.HandleFunc("/a/add/scoreentities/score/", handlers.ErrorHandler(tasksctrl.AddScoreToScoreEntities))
 	h.HandleFunc("/a/invite/", handlers.ErrorHandler(tasksctrl.Invite))
+	h.HandleFunc("/a/sync/scores/", handlers.ErrorHandler(tasksctrl.SyncScores))
 
 	http.Handle("/", h)
 }

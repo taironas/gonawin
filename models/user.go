@@ -193,7 +193,7 @@ func (u *User) Update(c appengine.Context) error {
 		}
 		// use lower trim names for alias as user inverted index store them like this.
 		// alias is the only field that can be changed.
-		UpdateUserInvertedIndex(c, oldUser.Alias, helpers.TrimLower(u.Alias), u.Id)
+		UpdateUserInvertedIndex(c, helpers.TrimLower(oldUser.Alias), helpers.TrimLower(u.Alias), u.Id)
 	}
 	return nil
 }
