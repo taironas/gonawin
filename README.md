@@ -9,7 +9,7 @@ We believe that todays betting platforms are full of adds that polute the game i
 
 As we are in early stages data might flight away from here :-) .
 
-[![baby-gopher](https://raw2.github.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
+[![baby-gopher](https://raw.github.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
 
 This is a baby-gophers project because `The young are born blind and helpless` - [Wikipedia](http://en.wikipedia.org/wiki/Gopher_(animal)#Pocket_gopher) and [babygopher.org](http://www.babygopher.org/) ^^
 
