@@ -1,7 +1,7 @@
 French
 ===========
 
-Notez et commentez pourquoi
+Notez et commentez:
 
 1. Votre experience sur Gonawin de 1 a 10
 2. La facilite d'utilisation de Gonawin
@@ -20,17 +20,17 @@ Notez et commentez pourquoi
 English
 =========
 
-Grade and comment why
+Grade and comment:
 
 1. Your experience in Gonawin from 1 to 10
 2. Ease of use of Gonawin
 3. The way to join a team
 4. Ease to join a tournament
-5. The ease of making predictions on matches
-6. The access to the team information
-7. The access to a tournament information
-8. The access to predictions of a team
-9. The interest of the web site
+5. Ease of making predictions on matches
+6. Access to the team information
+7. Access to a tournament information
+8. Access to predictions of a team
+9. Interest of the web site
 10. What kind of competition do you want to see on Gonawin?
 11. What functionality could be added to Gonawin to improve its use (comments, badges, sharing in social networks, avatars, ...)
 12. Would you like to get email notifications via email?
@@ -39,18 +39,18 @@ Grade and comment why
 Spanish
 =========
 
-Note y comente por que
+Por favor evalúe y comente:
 
 1. Su experiencia con Gonawin de 1 a 10
-2. La facilidad de utilisation de Gonawin
-3. La manera de uniser a un equipo
-4. La facilidad the uniser a un torneo
+2. La facilidad de utilización de Gonawin
+3. La manera de unirse a un equipo
+4. La facilidad de unirse a un torneo
 5. La facilidad para hacer predicciones sobre partidos
-6. El acceso a la information de un equipo
-7. El acceso a las informations de un tourneo
+6. El acceso a la información de un equipo
+7. El acceso a la información de un torneo
 8. El acceso a las predicciones de un equipo
-9. El iteres de esta pagina web
-10. Que tipo de competicion desearia usted ver en Gonawin?
-11. Que funcionalidades podrian ser agregadas a Gonawin para mejorar su utilisacion (commentarios, medallas, compartir en redes sociales, avatares ...) 
-12. Que piensa ud de recibir notificaciones de Gonawin via email?
-13. Le gustaria una applicacion mobil (iOS, Android...) ?
+9. El interés de este sitio web
+10. Qué tipo de competición desearía ver en Gonawin?
+11. Qué funcionalidades podrían ser agregadas a Gonawin para mejorar su utilización (commentarios, medallas, compartir en redes sociales, avatares ...) 
+12. Qué piensa ud de recibir notificaciones de Gonawin via email?
+13. Le gustaría una applicacion mobil (iOS, Android...) ?
