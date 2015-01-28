@@ -57,7 +57,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -150,7 +150,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

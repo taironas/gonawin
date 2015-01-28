@@ -72,7 +72,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User show handler:"
 	if r.Method == "GET" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -187,7 +187,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User update handler:"
 	if r.Method == "POST" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
@@ -265,7 +265,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Destroy Handler:"
 	if r.Method == "POST" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
@@ -371,7 +371,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -444,7 +444,7 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -513,7 +513,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	desc := "User allow invitation handler:"
 
 	if r.Method == "POST" {
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -577,7 +577,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User deny invitation handler:"
 
 	if r.Method == "POST" {
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}

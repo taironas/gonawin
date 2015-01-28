@@ -43,7 +43,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}

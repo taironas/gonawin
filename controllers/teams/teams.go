@@ -192,7 +192,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -268,7 +268,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
@@ -362,7 +362,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Destroy Handler:"
 	if r.Method == "POST" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
@@ -433,7 +433,7 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
@@ -470,7 +470,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
@@ -484,7 +484,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
@@ -531,7 +531,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
@@ -576,7 +576,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Allow Request Handler:"
 	if r.Method == "POST" {
 		// get request id
-		strRequestId, err := route.Context.Get(r, "request_id")
+		strRequestId, err := route.Context.Get(r, "requestId")
 		if err != nil {
 			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
@@ -627,7 +627,7 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Deny Request Handler:"
 	if r.Method == "POST" {
 		// get request id
-		strRequestId, err := route.Context.Get(r, "request_id")
+		strRequestId, err := route.Context.Get(r, "requestId")
 		if err != nil {
 			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
@@ -713,7 +713,7 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Members Handler:"
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
@@ -758,7 +758,7 @@ func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -803,7 +803,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 	if r.Method == "GET" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -824,7 +824,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		}
 
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -862,7 +862,7 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -883,7 +883,7 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

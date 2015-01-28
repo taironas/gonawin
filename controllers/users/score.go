@@ -38,7 +38,7 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get user id
-		strUserId, err := route.Context.Get(r, "user_id")
+		strUserId, err := route.Context.Get(r, "userId")
 		if err != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}

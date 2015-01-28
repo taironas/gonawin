@@ -154,7 +154,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Show Handler:"
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -229,7 +229,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -309,7 +309,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -453,7 +453,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -520,7 +520,7 @@ func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -564,7 +564,7 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -610,7 +610,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -636,7 +636,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "match_id")
+		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}

@@ -35,7 +35,7 @@ import (
 // Team accuracies handler:
 //
 // Use this handler to get the accuracies of a team.
-//	GET	/j/teams/:team_id/accuracies	retrieves all the tournament accuracies of a team with the given id.
+//	GET	/j/teams/:teamId/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
 func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -43,7 +43,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Accuracies Handler:"
 
 	if r.Method == "GET" {
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -80,7 +80,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Team accuracies by tournament handler:
 //
 // Use this handler to get the accuracies of a team for a specific tournament.
-//	GET	/j/teams/:team_id/accuracies/:tournament_id	retrieves accuracies of a team with the given id for the specified tournament.
+//	GET	/j/teams/:teamId/accuracies/:tournamentId	retrieves accuracies of a team with the given id for the specified tournament.
 //
 // The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
 func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -88,7 +88,7 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	desc := "Team Accuracies by tournament Handler:"
 
 	if r.Method == "GET" {
-		strTeamId, err := route.Context.Get(r, "team_id")
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -108,7 +108,7 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

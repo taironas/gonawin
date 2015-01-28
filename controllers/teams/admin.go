@@ -36,14 +36,14 @@ import (
 // Team add admin handler:
 //
 // Use this handler to add a user as admin of current team.
-//	GET	/j/teams/:team_id/admin/add/:user_id
+//	GET	/j/teams/:teamId/admin/add/:userId
 //
 func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team add admin Handler:"
 	if r.Method == "POST" {
 		// get team id and user id
-		strTeamId, err1 := route.Context.Get(r, "team_id")
+		strTeamId, err1 := route.Context.Get(r, "teamId")
 		if err1 != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -56,7 +56,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		strUserId, err2 := route.Context.Get(r, "user_id")
+		strUserId, err2 := route.Context.Get(r, "userId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -111,7 +111,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Team remove admin handler:
 //
 // Use this handler to remove a user as admin of the current team.
-//	GET	/j/teams/:team_id/admin/remove/:user_id
+//	GET	/j/teams/:teamId/admin/remove/:userId
 //
 func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
@@ -119,7 +119,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id and user id
-		strTeamId, err1 := route.Context.Get(r, "team_id")
+		strTeamId, err1 := route.Context.Get(r, "teamId")
 		if err1 != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -132,7 +132,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		strUserId, err2 := route.Context.Get(r, "user_id")
+		strUserId, err2 := route.Context.Get(r, "userId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}

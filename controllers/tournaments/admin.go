@@ -43,7 +43,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament add admin Handler:"
 	if r.Method == "POST" {
 		// get tournament id and user id
-		strTournamentId, err1 := route.Context.Get(r, "tournament_id")
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
 		if err1 != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -56,7 +56,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		strUserId, err2 := route.Context.Get(r, "user_id")
+		strUserId, err2 := route.Context.Get(r, "userId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
@@ -118,7 +118,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id and user id
-		strTournamentId, err1 := route.Context.Get(r, "tournament_id")
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
 		if err1 != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -131,7 +131,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		strUserId, err2 := route.Context.Get(r, "user_id")
+		strUserId, err2 := route.Context.Get(r, "userId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}

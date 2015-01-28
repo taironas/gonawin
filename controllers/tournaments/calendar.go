@@ -81,7 +81,7 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -151,7 +151,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 
 	if r.Method == "GET" {
 		// get tournament id and user id
-		strTournamentId, err1 := route.Context.Get(r, "tournament_id")
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
 		if err1 != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -164,7 +164,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		strTeamId, err2 := route.Context.Get(r, "team_id")
+		strTeamId, err2 := route.Context.Get(r, "teamId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}

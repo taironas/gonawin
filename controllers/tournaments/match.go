@@ -65,7 +65,7 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "GET" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -119,7 +119,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -140,7 +140,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		}
 
 		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "match_id")
+		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
@@ -229,7 +229,7 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 
 	if r.Method == "POST" {
 		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournament_id")
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
 			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
@@ -250,7 +250,7 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		}
 
 		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "match_id")
+		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
 		if err2 != nil {
 			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
