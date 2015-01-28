@@ -122,7 +122,7 @@ func init() {
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/updateteam", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.UpdateTeam)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/add/:userId", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.AddAdmin)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/remove/:userId", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.RemoveAdmin)))
-	h.HandleFunc("/j/tournaments/:tournamentId/admin/syncscores", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.SyncScores)))
+	r.HandleFunc("/j/tournaments/:tournamentId/admin/syncscores", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.SyncScores)))
 
 	// activities
 	r.HandleFunc("/j/activities", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))
@@ -135,7 +135,7 @@ func init() {
 	r.HandleFunc("/a/create/scoreentities", handlers.ErrorHandler(tasksctrl.CreateScoreEntities))
 	r.HandleFunc("/a/add/scoreentities/score", handlers.ErrorHandler(tasksctrl.AddScoreToScoreEntities))
 	r.HandleFunc("/a/invite", handlers.ErrorHandler(tasksctrl.Invite))
-	h.HandleFunc("/a/sync/scores/", handlers.ErrorHandler(tasksctrl.SyncScores))
+	r.HandleFunc("/a/sync/scores/", handlers.ErrorHandler(tasksctrl.SyncScores))
 
 	http.Handle("/", r)
 }

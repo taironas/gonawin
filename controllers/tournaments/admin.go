@@ -192,16 +192,23 @@ func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament sync scores Handler:"
 	log.Infof(c, "%v", desc)
 	if r.Method == "POST" {
-		// get tournament id and user id
-		tournamentId, err1 := handlers.PermalinkID(r, c, 3)
-		if err1 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v", desc, err1)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
+		if err != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tournament *mdl.Tournament
-		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
-			log.Errorf(c, "%s tournament not found: %v", desc, err1)
+		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+			log.Errorf(c, "%s tournament not found: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 		// prepare data to add task to queue.
@@ -214,7 +221,7 @@ func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			"tournament": []string{string(b1)},
 		})
 
-		if _, err := taskqueue.Add(c, task, "gw-queue"); err != nil {
+		if _, err = taskqueue.Add(c, task, "gw-queue"); err != nil {
 			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 			return err
 		} else {
