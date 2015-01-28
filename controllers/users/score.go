@@ -19,11 +19,13 @@ package users
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 	mdl "github.com/santiaago/gonawin/models"
@@ -35,13 +37,19 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		var userId int64
-		intID, err := handlers.PermalinkID(r, c, 3)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
-		userId = intID
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
 
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)

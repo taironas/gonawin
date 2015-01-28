@@ -29,8 +29,9 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 	mdl "github.com/santiaago/gonawin/models"
@@ -70,13 +71,19 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User show handler:"
 	if r.Method == "GET" {
-		var userId int64
-		intID, err := handlers.PermalinkID(r, c, 4)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
-		userId = intID
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
 
 		// user
 		var user *mdl.User
@@ -179,11 +186,20 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User update handler:"
 	if r.Method == "POST" {
-		userId, err := handlers.PermalinkID(r, c, 4)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v.", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+		}
+
 		if userId != u.Id {
 			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
@@ -248,11 +264,20 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User Destroy Handler:"
 	if r.Method == "POST" {
-		userId, err := handlers.PermalinkID(r, c, 4)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
 		}
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
+		}
+
 		if userId != u.Id {
 			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
@@ -345,13 +370,19 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User joined teams handler:"
 
 	if r.Method == "GET" {
-		var userId int64
-		intID, err := handlers.PermalinkID(r, c, 3)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
-		userId = intID
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
 
 		// user
 		var user *mdl.User
@@ -412,13 +443,19 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User joined teams handler:"
 
 	if r.Method == "GET" {
-		var userId int64
-		intID, err := handlers.PermalinkID(r, c, 3)
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err)
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
-		userId = intID
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
 
 		// user
 		var user *mdl.User
@@ -476,14 +513,22 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	desc := "User allow invitation handler:"
 
 	if r.Method == "POST" {
-		teamId, err2 := handlers.PermalinkID(r, c, 4)
-		if err2 != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		strTeamId, err := route.Context.Get(r, "team_id")
+		if err != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		// check team
-		team, err := mdl.TeamById(c, teamId)
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamId)
 		if err != nil {
 			log.Errorf(c, "%s team not found", desc)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
@@ -532,14 +577,22 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User deny invitation handler:"
 
 	if r.Method == "POST" {
-		teamId, err2 := handlers.PermalinkID(r, c, 4)
-		if err2 != nil {
-			log.Errorf(c, "%s error when extracting permalink for url: %v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		strTeamId, err := route.Context.Get(r, "team_id")
+		if err != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		// check team
-		team, err := mdl.TeamById(c, teamId)
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamId)
 		if err != nil {
 			log.Errorf(c, "%s team not found", desc)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}

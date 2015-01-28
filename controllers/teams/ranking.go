@@ -19,11 +19,13 @@ package teams
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -40,9 +42,17 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Ranking Handler:"
 
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 

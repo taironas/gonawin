@@ -47,8 +47,9 @@ import (
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -190,14 +191,22 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-		intID, err := handlers.PermalinkID(r, c, 4)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var team *mdl.Team
-		if team, err = mdl.TeamById(c, intID); err != nil {
+		if team, err = mdl.TeamById(c, teamId); err != nil {
 			log.Errorf(c, "%s team not found: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
@@ -241,7 +250,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			tJson,
 			team.Joined(c, u),
-			mdl.WasTeamRequestSent(c, intID, u.Id),
+			mdl.WasTeamRequestSent(c, teamId, u.Id),
 			playersJson,
 			ts,
 		}
@@ -258,22 +267,29 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
-
-		teamID, err := handlers.PermalinkID(r, c, 4)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
-		if !mdl.IsTeamAdmin(c, teamID, u.Id) {
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+		}
+
+		if !mdl.IsTeamAdmin(c, teamId, u.Id) {
 			log.Errorf(c, "%s user is not admin", desc)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 		}
 
 		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamID)
+		team, err = mdl.TeamById(c, teamId)
 		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamID, err)
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 		// only work on name and private. Other values should not be editable
@@ -345,21 +361,28 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Destroy Handler:"
 	if r.Method == "POST" {
-
-		teamID, err := handlers.PermalinkID(r, c, 4)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
 		}
 
-		if !mdl.IsTeamAdmin(c, teamID, u.Id) {
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
+		}
+
+		if !mdl.IsTeamAdmin(c, teamId, u.Id) {
 			log.Errorf(c, "%s user is not admin", desc)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 		}
 		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamID)
+		team, err = mdl.TeamById(c, teamId)
 		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamID, err)
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
 		}
 
@@ -409,14 +432,22 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
-		intID, err := handlers.PermalinkID(r, c, 4)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
 		// check if team id exist.
 		var team *mdl.Team
-		if team, err = mdl.TeamById(c, intID); err != nil {
+		if team, err = mdl.TeamById(c, teamId); err != nil {
 			log.Errorf(c, "%s team not found: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
@@ -438,16 +469,32 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "POST" {
-
-		teamId, err1 := handlers.PermalinkID(r, c, 4)
-		if err1 != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err1)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
+		if err != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
-		userId, err2 := handlers.PermalinkID(r, c, 5)
-		if err2 != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err2)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+
+		// get user id
+		strUserId, err := route.Context.Get(r, "user_id")
+		if err != nil {
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
+		}
+
+		var userId int64
+		userId, err = strconv.ParseInt(strUserId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
 		}
 
 		// check that ids exist in datastore.
@@ -460,7 +507,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		user, err := mdl.UserById(c, userId)
 		if err != nil {
 			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 		}
 
 		if _, err := mdl.CreateUserRequest(c, teamId, userId); err != nil {
@@ -483,11 +530,18 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 
 	if r.Method == "GET" {
-
-		teamId, err := handlers.PermalinkID(r, c, 4)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 		}
 
 		urs := mdl.FindUserRequests(c, "TeamId", teamId)
@@ -521,9 +575,17 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Allow Request Handler:"
 	if r.Method == "POST" {
-		requestId, err := handlers.PermalinkID(r, c, 4)
+		// get request id
+		strRequestId, err := route.Context.Get(r, "request_id")
 		if err != nil {
-			log.Errorf(c, "%s teams.AllowRequest, id could not be extracter from url: %v", desc, err)
+			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		}
+
+		var requestId int64
+		requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
 
@@ -564,11 +626,20 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Deny Request Handler:"
 	if r.Method == "POST" {
-		requestId, err := handlers.PermalinkID(r, c, 4)
+		// get request id
+		strRequestId, err := route.Context.Get(r, "request_id")
 		if err != nil {
-			log.Errorf(c, "%s teams.DenyRequest, id could not be extracter from url: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 		}
+
+		var requestId int64
+		requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		}
+
 		if teamRequest, err := mdl.TeamRequestById(c, requestId); err != nil {
 			log.Errorf(c, "%s teams.DenyRequest, team request not found: %v", desc, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
@@ -641,14 +712,24 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Members Handler:"
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
 		}
-		team, err1 := mdl.TeamById(c, teamId)
-		if err1 != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err1)
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+		}
+
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamId)
+		if err != nil {
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
 		}
 
@@ -676,21 +757,29 @@ func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Prices Handler:"
 
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		var t *mdl.Team
-		t, err = mdl.TeamById(c, teamId)
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamId)
 		if err != nil {
 			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		log.Infof(c, "%s ready to build a price array", desc)
-		prices := t.Prices(c)
+		prices := team.Prices(c)
 
 		data := struct {
 			Prices []*mdl.Price
@@ -713,9 +802,17 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	desc := "Team Prices by tournament Handler:"
 
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
@@ -726,10 +823,18 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		tournamentId, err := handlers.PermalinkID(r, c, 5)
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournament_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		log.Infof(c, "%s ready to get price", desc)
@@ -756,9 +861,17 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team update price Handler:"
 
 	if r.Method == "POST" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		// get team id
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
@@ -769,10 +882,18 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		tournamentId, err := handlers.PermalinkID(r, c, 6)
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournament_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		log.Infof(c, "%s ready to get price", desc)

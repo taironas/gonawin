@@ -19,11 +19,13 @@ package teams
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -33,7 +35,7 @@ import (
 // Team accuracies handler:
 //
 // Use this handler to get the accuracies of a team.
-//	GET	/j/teams/[0-9]+/accuracies/	Retreives all the tournament accuracies of a team with the given id.
+//	GET	/j/teams/:team_id/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
 func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -41,9 +43,16 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Accuracies Handler:"
 
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
@@ -71,7 +80,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Team accuracies by tournament handler:
 //
 // Use this handler to get the accuracies of a team for a specific tournament.
-//	GET	/j/teams/[0-9]+/accuracies/[0-9]+/	Retreives accuracies of a team with the given id for the specified tournament.
+//	GET	/j/teams/:team_id/accuracies/:tournament_id	retrieves accuracies of a team with the given id for the specified tournament.
 //
 // The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
 func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -79,9 +88,16 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	desc := "Team Accuracies by tournament Handler:"
 
 	if r.Method == "GET" {
-		teamId, err := handlers.PermalinkID(r, c, 3)
+		strTeamId, err := route.Context.Get(r, "team_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
@@ -92,10 +108,17 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
-		tournamentId, err := handlers.PermalinkID(r, c, 5)
+		strTournamentId, err := route.Context.Get(r, "tournament_id")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var tour *mdl.Tournament

@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -41,11 +43,30 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament add admin Handler:"
 	if r.Method == "POST" {
 		// get tournament id and user id
-		tournamentId, err1 := handlers.PermalinkID(r, c, 3)
-		userId, err2 := handlers.PermalinkID(r, c, 6)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		strTournamentId, err1 := route.Context.Get(r, "tournament_id")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		strUserId, err2 := route.Context.Get(r, "user_id")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		var userId int64
+		userId, err2 = strconv.ParseInt(strUserId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		var tournament *mdl.Tournament
@@ -54,7 +75,6 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		var newAdmin *mdl.User
 		newAdmin, err := mdl.UserById(c, userId)
 		log.Infof(c, "%s User: %v", desc, newAdmin)
 		if err != nil {
@@ -98,11 +118,30 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id and user id
-		tournamentId, err1 := handlers.PermalinkID(r, c, 3)
-		userId, err2 := handlers.PermalinkID(r, c, 6)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v.", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		strTournamentId, err1 := route.Context.Get(r, "tournament_id")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		strUserId, err2 := route.Context.Get(r, "user_id")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		var userId int64
+		userId, err2 = strconv.ParseInt(strUserId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		var tournament *mdl.Tournament

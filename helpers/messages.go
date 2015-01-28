@@ -41,6 +41,7 @@ const (
 	ErrorCodeUserNotFound                      = "User not found"
 	ErrorCodeUserNotFoundCannotUpdate          = "User not found, unable to update"
 	ErrorCodeUserNotFoundCannotDelete          = "User not found, unable to delete"
+	ErrorCodeUserNotFoundCannotInvite          = "User not found, unable to send invitation"
 	ErrorCodeUserCannotUpdate                  = "Could not update user"
 	ErrorCodeUsersCannotUpdate                 = "Could not update users"
 	ErrorCodeUsersCannotPublishScore           = "Could not pusblish score activities"

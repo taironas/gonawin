@@ -19,8 +19,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"appengine"
 
@@ -30,32 +28,6 @@ import (
 
 	mdl "github.com/santiaago/gonawin/models"
 )
-
-// parse permalink id from URL  and return it
-func PermalinkID(r *http.Request, c appengine.Context, level int64) (int64, error) {
-	url := strings.Replace(r.URL.String(), "http://", "", 1)
-	path := strings.Split(url, "/")
-	// if url has params extract id until the ? character
-	var strID string
-
-	strID = path[level]
-	intID, err := strconv.ParseInt(strID, 0, 64)
-	if err != nil {
-		// only try to extract id if were are unable to exracted using the level.
-		if strings.Contains(r.URL.String(), "?") {
-			strPath := path[level]
-			strID = strPath[0:strings.Index(strPath, "?")]
-		} else {
-			strID = path[level]
-		}
-		intID, err = strconv.ParseInt(strID, 0, 64)
-		if err != nil {
-			log.Errorf(c, " error when calling PermalinkID with %v.Error: %v", path[level], err)
-		}
-	}
-
-	return intID, err
-}
 
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
 
