@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -34,18 +36,37 @@ import (
 // Team add admin handler:
 //
 // Use this handler to add a user as admin of current team.
-//	GET	/j/teams/[0-9]+/admin/add/
+//	GET	/j/teams/:teamId/admin/add/:userId
 //
 func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team add admin Handler:"
 	if r.Method == "POST" {
 		// get team id and user id
-		teamId, err1 := handlers.PermalinkID(r, c, 3)
-		userId, err2 := handlers.PermalinkID(r, c, 6)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		strTeamId, err1 := route.Context.Get(r, "teamId")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err1 = strconv.ParseInt(strTeamId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		strUserId, err2 := route.Context.Get(r, "userId")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		var userId int64
+		userId, err2 = strconv.ParseInt(strUserId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		var team *mdl.Team
@@ -90,7 +111,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // Team remove admin handler:
 //
 // Use this handler to remove a user as admin of the current team.
-//	GET	/j/teams/[0-9]+/admin/remove/
+//	GET	/j/teams/:teamId/admin/remove/:userId
 //
 func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
@@ -98,11 +119,30 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id and user id
-		teamId, err1 := handlers.PermalinkID(r, c, 3)
-		userId, err2 := handlers.PermalinkID(r, c, 6)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v.", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		strTeamId, err1 := route.Context.Get(r, "teamId")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err1 = strconv.ParseInt(strTeamId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		strUserId, err2 := route.Context.Get(r, "userId")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		var userId int64
+		userId, err2 = strconv.ParseInt(strUserId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 		}
 
 		var team *mdl.Team

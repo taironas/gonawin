@@ -21,12 +21,14 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 	"time"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -79,9 +81,17 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Calendar Handler:"
 
 	if r.Method == "GET" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -141,29 +151,44 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	desc := "Tournament Calendar with prediction Handler:"
 
 	if r.Method == "GET" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
-		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+		// get tournament id and user id
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		teamId, err2 := handlers.PermalinkID(r, c, 4)
+		var tournamentId int64
+		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		strTeamId, err2 := route.Context.Get(r, "teamId")
 		if err2 != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err2)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err2 = strconv.ParseInt(strTeamId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		t, err1 = mdl.TournamentById(c, tournamentId)
+		if err1 != nil {
+			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err1)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
 		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+		team, err2 = mdl.TeamById(c, teamId)
+		if err2 != nil {
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err2)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 		players := team.Players(c)

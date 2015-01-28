@@ -26,8 +26,9 @@ import (
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -63,9 +64,17 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Matches Handler:"
 
 	if r.Method == "GET" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -109,12 +118,20 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	desc := "Tournament Update Match Result Handler:"
 
 	if r.Method == "POST" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
-
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
@@ -122,9 +139,17 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
+		// get match id number
+		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
 		if err2 != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err2)
+			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+
+		var matchIdNumber int64
+		matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 
@@ -203,12 +228,20 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	desc := "Tournament block match prediction Handler:"
 
 	if r.Method == "POST" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
-
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
@@ -216,9 +249,17 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		matchIdNumber, err2 := handlers.PermalinkID(r, c, 5)
+		// get match id number
+		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
 		if err2 != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err2)
+			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+		}
+
+		var matchIdNumber int64
+		matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 		}
 

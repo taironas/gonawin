@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -37,22 +39,31 @@ import (
 // Reponse: a JSON formatted team.
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
+	desc := "Team Join Handler:"
 
 	if r.Method == "POST" {
 		// get team id
-		teamId, err := handlers.PermalinkID(r, c, 4)
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
-			log.Errorf(c, "Team Join Handler: error when extracting permalink id: %v", err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
 		var team *mdl.Team
 		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "Team Join Handler: team not found: %v", err)
+			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		if err := team.Join(c, u); err != nil {
-			log.Errorf(c, "Team Join Handler: error on Join team: %v", err)
+			log.Errorf(c, "%s  error on Join team: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 		}
 
@@ -62,7 +73,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// publish new activity
 		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-			log.Errorf(c, "User not found %v", u.Id)
+			log.Errorf(c, "%s  User not found %v", desc, u.Id)
 		} else {
 			updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 		}
@@ -91,9 +102,16 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get team id
-		teamId, err := handlers.PermalinkID(r, c, 4)
+		strTeamId, err := route.Context.Get(r, "teamId")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 

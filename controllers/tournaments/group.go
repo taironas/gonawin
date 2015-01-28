@@ -19,11 +19,13 @@ package tournaments
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -54,11 +56,20 @@ func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Group Handler:"
 
 	if r.Method == "GET" {
-		tournamentId, err := handlers.PermalinkID(r, c, 3)
+		// get tournament id
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error extracting permalink err:%v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
 		var tournament *mdl.Tournament
 		tournament, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {

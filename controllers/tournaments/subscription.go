@@ -20,11 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"appengine"
 
+	"github.com/taironas/route"
+
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/handlers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -38,11 +40,19 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		tournamentId, err := handlers.PermalinkID(r, c, 4)
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
 		var tournament *mdl.Tournament
 		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 			log.Errorf(c, "%s tournament not found: %v", desc, err)
@@ -86,9 +96,16 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method == "POST" {
 		// get tournament id
-		tournamentId, err := handlers.PermalinkID(r, c, 4)
+		strTournamentId, err := route.Context.Get(r, "tournamentId")
 		if err != nil {
-			log.Errorf(c, "%s error when extracting permalink id: %v", desc, err)
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+		if err != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
@@ -134,12 +151,31 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Join as a Team Handler:"
 
 	if r.Method == "POST" {
-		// get tournament and team id
-		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
-		teamId, err2 := handlers.PermalinkID(r, c, 5)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		// get tournament id and team id
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		var tournamentId int64
+		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		strTeamId, err2 := route.Context.Get(r, "teamId")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err2 = strconv.ParseInt(strTeamId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 		}
 
 		var tournament *mdl.Tournament
@@ -191,14 +227,33 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament Leave as a Team Handler:"
 
 	if r.Method == "POST" {
-
-		// get tournament and team id
-		tournamentId, err1 := handlers.PermalinkID(r, c, 4)
-		teamId, err2 := handlers.PermalinkID(r, c, 5)
-		if err1 != nil || err2 != nil {
-			log.Errorf(c, "%s string value could not be parsed: %v, %v", desc, err1, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		// get tournament id and team id
+		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
+		if err1 != nil {
+			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
+
+		var tournamentId int64
+		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+		if err1 != nil {
+			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		}
+
+		strTeamId, err2 := route.Context.Get(r, "teamId")
+		if err2 != nil {
+			log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
+		var teamId int64
+		teamId, err2 = strconv.ParseInt(strTeamId, 0, 64)
+		if err2 != nil {
+			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err2)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		}
+
 		var tournament *mdl.Tournament
 		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
 			log.Errorf(c, "%s tournament with id: %v was not found %v", desc, tournamentId, err1)
