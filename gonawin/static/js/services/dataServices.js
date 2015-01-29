@@ -99,7 +99,7 @@ dataServices.factory('Tournament', function($http, $resource, $cookieStore) {
 		     leave: {method: 'POST', url: 'j/tournaments/leave/:id' },
 		     joinAsTeam: {method: 'POST', url: 'j/tournaments/joinasteam/:id/:teamId' },
 		     leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId' },
-		     candidates: {method: 'GET', url: 'j/tournaments/candidates/:id' },
+		     candidates: {method: 'GET', url: 'j/tournaments/:id/candidates' },
 		     saveWorldCup: {method: 'POST', url: 'j/tournaments/newwc'},
 		     getWorldCup: {method: 'GET', url: 'j/tournaments/getwc', cache : true},
 		     groups: {method: 'GET', url: 'j/tournaments/:id/groups', cache : true},
