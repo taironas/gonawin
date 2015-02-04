@@ -247,7 +247,7 @@ color: white;
 
 .header-signin,
 .header-404-message {
-  background-image: url(/app/img/landing-page-background2.jpg);
+  background-image: url(/app/assets/img/landing-page-background2.jpg);
   background-position:center center;
   background-repeat:no-repeat;
   padding-top: 130px;

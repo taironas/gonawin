@@ -18,6 +18,9 @@ handlers:
 - url: /templates
   static_dir: app/templates
 
+- url: /components
+  static_dir: app/components
+
 - url: /a/.*
   script: _go_app
   login: admin

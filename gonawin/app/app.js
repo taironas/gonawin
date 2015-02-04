@@ -51,10 +51,10 @@ gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $loc
 gonawingApp.config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
-      when('/welcome', { templateUrl: 'templates/welcome.html', requireLogin: false }).
-      when('/getting-started', { templateUrl: 'templates/getting-started.html', requireLogin: false }).
-      when('/', { templateUrl:  'templates/home.html', controller: 'RootCtrl', requireLogin: true }).
-      when('/signin', { templateUrl: 'templates/signin.html', requireLogin: false }).
+      when('/welcome', { templateUrl: 'components/home/welcome.html', requireLogin: false }).
+      when('/getting-started', { templateUrl: 'components/home/getting-started.html', requireLogin: false }).
+      when('/', { templateUrl:  'components/home/home.html', controller: 'RootCtrl', requireLogin: true }).
+      when('/signin', { templateUrl: 'components/home/signin.html', requireLogin: false }).
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
 
