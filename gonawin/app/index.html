@@ -2,17 +2,17 @@
 <html ng-app="gonawingApp">
   <head>
     <title ng-bind="title"></title>
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="keywords" content="gonawin,sport,friendly,event,bet,fun,play,team,tournament,world,cup,trophy" />
     <meta name="description" content="gonawin - A social web application to make 'friendly bets' on sport games with your friends." />
     <meta name="author" content="Santiago Arias, Remy Jourde" />
-    <meta name="image" content="http://gonawin.com/static/img/apple-touch-icon-114-precomposed.png" />
+    <meta name="image" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png" />
     <!-- facebook -->
     <meta property="og:title" content="gonawin" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="http://www.gonawin.com/" />
-    <meta property="og:image" content="http://gonawin.com/static/img/apple-touch-icon-114-precomposed.png" />
+    <meta property="og:image" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="144" />
     <meta property="og:image:height" content="144" />
@@ -24,20 +24,20 @@
     <meta name="twitter:title" content="gonawin">
     <meta name="twitter:description" content="A social web application to make friendly bets on sports events.">
     <meta name="twitter:creator" content="@santiago_arias">
-    <meta name="twitter:image:src" content="http://gonawin.com/static/img/apple-touch-icon-114-precomposed.png">
+    <meta name="twitter:image:src" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png">
     <meta name="twitter:domain" content="gonawin.com">
-    <!--link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen"-->
+    <!--link href="/app/css/bootstrap.min.css" rel="stylesheet" media="screen"-->
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-    <link href="/static/css/font-awesome/css/font-awesome.min.css" rel="stylesheet" >
-    <link href="/static/css/bootstrap-social.css" rel="stylesheet" />
-    <link type="text/css" rel="stylesheet" href="/static/css/gonawin.css" />
-    <link href="/static/css/flag-icon.css" rel="stylesheet">
-    
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/static/img/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/static/img/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/static/img/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="/static/img/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" href="/static/img/favicon.ico" />
+    <link href="/app/css/font-awesome/css/font-awesome.min.css" rel="stylesheet" >
+    <link href="/app/css/bootstrap-social.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/app/app.css" />
+    <link href="/app/css/flag-icon.css" rel="stylesheet">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/app/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/app/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/app/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="/app/img/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="/app/img/favicon.ico" />
   </head>
   <body>
     <div id="wrap">
@@ -75,53 +75,53 @@
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
       m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-      
+
       ga('create', 'UA-50669590-1', 'gonawin.com');
       ga('send', 'pageview');
     </script>
     <!-- / le analytics -->
-    <!--script src="/static/lib/jquery-1.10.2.min.js"></script-->
+    <!--script src="/app/lib/jquery-1.10.2.min.js"></script-->
     <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-    <!--script src="/static/lib/angular/angular.min.js"></script-->
+    <!--script src="/app/lib/angular/angular.min.js"></script-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script>
-    <!--script src="/static/lib/angular/angular-route.min.js"></script-->
+    <!--script src="/app/lib/angular/angular-route.min.js"></script-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-route.min.js"></script>
-    <!--script src="/static/lib/angular/angular-resource.min.js"></script-->
+    <!--script src="/app/lib/angular/angular-resource.min.js"></script-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-resource.min.js"></script>
-    <!--script src="/static/lib/angular/angular-sanitize.min.js"></script-->
+    <!--script src="/app/lib/angular/angular-sanitize.min.js"></script-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-sanitize.min.js"></script>
-    <!--script src="/static/lib/angular/angular-cookies.min.js"></script-->
+    <!--script src="/app/lib/angular/angular-cookies.min.js"></script-->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-cookies.min.js"></script>
-    <!--script src="/static/lib/bootstrap.min.js"></script-->
+    <!--script src="/app/lib/bootstrap.min.js"></script-->
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script src="/static/lib/angular-strap.min.js"></script>
-    <script src="/static/lib/moment.min.js"></script>
+    <script src="/app/lib/angular-strap.min.js"></script>
+    <script src="/app/lib/moment.min.js"></script>
 
-    <script src="/static/js/app.js"></script>
-    <script src="/static/js/controllers/rootControllers.js"></script>
-    <script src="/static/js/controllers/navigationControllers.js"></script>
-    <script src="/static/js/controllers/dashboardControllers.js"></script>
-    <script src="/static/js/controllers/activitiesControllers.js"></script>
-    <script src="/static/js/controllers/inviteControllers.js"></script>
-    <script src="/static/js/controllers/searchControllers.js"></script>
-    <script src="/static/js/controllers/userControllers.js"></script>
-    <script src="/static/js/controllers/teamControllers.js"></script>
-    <script src="/static/js/controllers/tournamentControllers.js"></script>
+    <script src="/app/app.js"></script>
+    <script src="/app/js/controllers/rootControllers.js"></script>
+    <script src="/app/js/controllers/navigationControllers.js"></script>
+    <script src="/app/js/controllers/dashboardControllers.js"></script>
+    <script src="/app/js/controllers/activitiesControllers.js"></script>
+    <script src="/app/js/controllers/inviteControllers.js"></script>
+    <script src="/app/js/controllers/searchControllers.js"></script>
+    <script src="/app/js/controllers/userControllers.js"></script>
+    <script src="/app/js/controllers/teamControllers.js"></script>
+    <script src="/app/js/controllers/tournamentControllers.js"></script>
 
-    <script src="/static/js/services/dataServices.js"></script>
-    <script src="/static/js/services/authServices.js"></script>
+    <script src="/app/js/services/dataServices.js"></script>
+    <script src="/app/js/services/authServices.js"></script>
 
-    <script src="/static/js/directives/google-plus-signin.js"></script>
-    <script src="/static/js/directives/twitter-signin.js"></script>
-    <script src="/static/js/directives/google-signin.js"></script>
-    <script src="/static/js/directives/facebook-signin.js"></script>
-    <script src="/static/js/directives/formValidation.js"></script>
-    <script src="/static/js/directives/formFocus.js"></script>
-    <script src="/static/js/directives/joinButton.js"></script>
-    <script src="/static/js/directives/addButton.js"></script>
-    <script src="/static/js/directives/activities.js"></script>
+    <script src="/app/js/directives/google-plus-signin.js"></script>
+    <script src="/app/js/directives/twitter-signin.js"></script>
+    <script src="/app/js/directives/google-signin.js"></script>
+    <script src="/app/js/directives/facebook-signin.js"></script>
+    <script src="/app/js/directives/formValidation.js"></script>
+    <script src="/app/js/directives/formFocus.js"></script>
+    <script src="/app/js/directives/joinButton.js"></script>
+    <script src="/app/js/directives/addButton.js"></script>
+    <script src="/app/js/directives/activities.js"></script>
 
-    <script src="/static/js/filters/fromNow.js"></script>
-    <script src="/static/js/filters/reverse.js"></script>
+    <script src="/app/js/filters/fromNow.js"></script>
+    <script src="/app/js/filters/reverse.js"></script>
   </body>
 </html>

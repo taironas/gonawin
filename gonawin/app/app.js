@@ -76,7 +76,7 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
       when('/settings/email', { templateUrl: 'templates/settings/email.html', requireLogin: true }).
       when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
-      when('/404', { templateUrl: 'static/templates/404.html' }).
+      when('/404', { templateUrl: 'app/templates/404.html' }).
       otherwise( {redirectTo: '/'});
 
     $httpProvider.interceptors.push('notFoundInterceptor');
@@ -84,7 +84,7 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
 
 gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
     $rootScope.title = 'gonawin';
-    
+
     $rootScope.currentUser = undefined;
     $rootScope.isLoggedIn = false;
     $rootScope.serviceIds = Session.serviceIds();
@@ -94,7 +94,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
       $rootScope.serviceIds.$promise.then(function(response){
           FB.init({
         appId: response.FacebookAppId,
-        channelUrl: 'static/templates/channel.html',
+        channelUrl: 'app/templates/channel.html',
         status: true, /*Set if you want to check the authentication status at the start up of the app */
         cookie: true,
         xfbml: true
@@ -127,13 +127,13 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     console.log('routeChangeStart, requireLogin = ', next.requireLogin);
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
-    
+
     setPageTite();
     $rootScope.originalPath = $location.$$path;
 
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
     $rootScope.isLoginRequired = next.requireLogin;
-    
+
     if($location.$$path === '/auth/twitter/callback') {
       sAuth.signinWithTwitter(($location.search()).oauth_token, ($location.search()).oauth_verifier);
     } else if($location.$$path === '/auth/google/callback') {
@@ -181,7 +181,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
   $rootScope.$on('event:google-plus-signin-failure', function (event, authResult) {
     // User has not authorized the G+ App!
   });
-  
+
   // search function:
   function setPageTite(){
     if( $location.$$url == '/welcome') {
