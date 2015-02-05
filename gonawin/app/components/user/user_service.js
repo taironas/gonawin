@@ -1,7 +1,7 @@
 'use strict'
-var dataServices = angular.module('dataServices', ['ngResource']);
+var userService = angular.module('userService', ['ngResource']);
 
-dataServices.factory('User', function($http, $resource, $cookieStore) {
+userService.factory('User', function($http, $resource, $cookieStore) {
   $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 
   var User = $resource('j/users/:id', {id:'@id', including:'@including', teamId:'@teamId'}, {

@@ -1,7 +1,7 @@
 'use strict'
-var tournamentServices = angular.module('tournamentServices', ['ngResource']);
+var tournamentService = angular.module('tournamentService', ['ngResource']);
 
-tournamentServices.factory('Tournament', function($http, $resource, $cookieStore) {
+tournamentService.factory('Tournament', function($http, $resource, $cookieStore) {
     $http.defaults.headers.common['Authorization'] = $cookieStore.get('auth');
 
     return $resource('j/tournaments/:id',

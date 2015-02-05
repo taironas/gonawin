@@ -56,12 +56,12 @@
     </br>
     <h4>Team Requests:</h4>
     </br>
-    <div ng-include src="'templates/users/teamRequests.html'"></div>
+    <div ng-include src="'components/user/teamRequests.html'"></div>
     <h5 style="text-align: center">{{noTeamRequestsMessage}}</h5>
     </br>
     <h4>Invitations:</h4>
     </br>
-    <div ng-include src="'templates/users/userInvitations.html'" ng-show="currentUser.User.Id == userData.User.Id"></div>
+    <div ng-include src="'components/user/userInvitations.html'" ng-show="currentUser.User.Id == userData.User.Id"></div>
     <h5 style="text-align: center">{{noInvitationMessage}}</h5>
     <!-- </div> <\!-- / row -\-> -->
   </div>

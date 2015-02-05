@@ -29,13 +29,13 @@ var gonawingApp = angular.module('gonawingApp', [
   'inviteControllers',
   'searchControllers',
 
-  'dataServices',
+  'userService',
   'authService',
   'sessionService',
   'activitiesService',
   'inviteService',
   'teamService',
-  'tournamentServices'
+  'tournamentService'
 ]);
 
 gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
@@ -63,8 +63,8 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
       when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
 
-      when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
-      when('/users/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl', requireLogin: true }).
+      when('/users/', { templateUrl: 'components/user/index.html', controller: 'UserListCtrl', requireLogin: true }).
+      when('/users/:id', { templateUrl: 'components/user/show.html', controller: 'UserShowCtrl', requireLogin: true }).
 
       when('/teams', { templateUrl: 'components/team/index.html', controller: 'TeamListCtrl', requireLogin: true }).
       when('/teams/new', { templateUrl: 'components/team/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
@@ -77,7 +77,7 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/tournaments/:id', { templateUrl: 'components/tournament/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
       when('/tournaments/edit/:id', { templateUrl: 'components/tournament/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
 
-      when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
+      when('/settings/edit-profile', { templateUrl: 'components/user/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
       when('/settings/networks', { templateUrl: 'components/settings/networks.html', requireLogin: true }).
       when('/settings/email', { templateUrl: 'components/settings/email.html', requireLogin: true }).
       when('/invite', { templateUrl: 'components/invite.html', controller: 'InviteCtrl', requireLogin: true }).
