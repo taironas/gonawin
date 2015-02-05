@@ -78,9 +78,9 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/tournaments/edit/:id', { templateUrl: 'components/tournament/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
 
       when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
-      when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).
-      when('/settings/email', { templateUrl: 'templates/settings/email.html', requireLogin: true }).
-      when('/invite', { templateUrl: 'templates/invite.html', controller: 'InviteCtrl', requireLogin: true }).
+      when('/settings/networks', { templateUrl: 'components/settings/networks.html', requireLogin: true }).
+      when('/settings/email', { templateUrl: 'components/settings/email.html', requireLogin: true }).
+      when('/invite', { templateUrl: 'components/invite.html', controller: 'InviteCtrl', requireLogin: true }).
       when('/404', { templateUrl: 'app/templates/404.html' }).
       otherwise( {redirectTo: '/'});
 
