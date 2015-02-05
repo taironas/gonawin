@@ -34,7 +34,8 @@ var gonawingApp = angular.module('gonawingApp', [
   'sessionService',
   'activitiesService',
   'inviteService',
-  'teamService'
+  'teamService',
+  'tournamentServices'
 ]);
 
 gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
@@ -71,10 +72,10 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/teams/edit/:id', { templateUrl: 'components/team/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
       when('/teams/invite/:id', { templateUrl: 'components/team/invite.html', controller: 'TeamInviteCtrl', requireLogin: true }).
 
-      when('/tournaments', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentListCtrl', requireLogin: true }).
-      when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl', requireLogin: true }).
-      when('/tournaments/:id', { templateUrl: 'templates/tournaments/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
-      when('/tournaments/edit/:id', { templateUrl: 'templates/tournaments/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
+      when('/tournaments', { templateUrl: 'components/tournament/index.html', controller: 'TournamentListCtrl', requireLogin: true }).
+      when('/tournaments/new', { templateUrl: 'components/tournament/new.html', controller: 'TournamentNewCtrl', requireLogin: true }).
+      when('/tournaments/:id', { templateUrl: 'components/tournament/show.html', controller: 'TournamentShowCtrl', requireLogin: true, reloadOnSearch: false }).
+      when('/tournaments/edit/:id', { templateUrl: 'components/tournament/edit.html', controller: 'TournamentEditCtrl', requireLogin: true }).
 
       when('/settings/edit-profile', { templateUrl: 'templates/users/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
       when('/settings/networks', { templateUrl: 'templates/settings/networks.html', requireLogin: true }).

@@ -5,12 +5,12 @@
 // Handle also user subscription to a tournament (join/leave and join as team/leave as team).
 var tournamentControllers = angular.module('tournamentControllers', []);
 // TournamentListCtrl: fetch all tournaments data
-tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 'Tournament', '$location', 
+tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 'Tournament', '$location',
   function($scope, $rootScope, Tournament, $location) {
     console.log('Tournament list controller:');
-  
+
     $rootScope.title = 'gonawin - Tournaments';
-    
+
     $scope.countTournaments = 25;  // counter for the number of tournaments to display in view.
     $scope.pageTournaments = 1;    // page counter for tournaments, to know which page to display next.
 
@@ -62,7 +62,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
 // TournamentNewCtrl: use this controller to create a new tournament.
 tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', 'Tournament', '$location', function($rootScope, $scope, Tournament, $location) {
   console.log('Tournament New controller');
-  
+
   $rootScope.title = 'gonawin - New Tournament';
 
   $scope.addTournament = function() {
@@ -85,7 +85,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
     console.log('tournamentData', $scope.tournamentData);
-    
+
     $scope.tournamentData.$promise.then(function(response){
       $rootScope.title = 'gonawin - ' + response.Tournament.Name;
     });
@@ -341,14 +341,14 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     })
 
   $scope.tabs = {
-      "calendar":         { title: 'Calendar',                url: 'templates/tournaments/tab_calendar.html' },
-      "firststage":       { title: 'First Stage',             url: 'templates/tournaments/tab_firststage.html' },
-      "secondstage":      { title: 'Second Stage',            url: 'templates/tournaments/tab_bracket2.html' },
-      "ranking":          { title: 'Ranking',                 url: 'templates/tournaments/tab_ranking.html' },
-      "predictions":      { title: 'Predictions',             url: 'templates/tournaments/tab_predictions.html' },
-      "admin.setresults": { title: 'Set Results',             url: 'templates/tournaments/tab_setresults.html' },
-      "admin.syncdata":   { title: 'Sync Data',                 url: 'templates/tournaments/tab_syncdata.html' },
-      "admin.setteams":   { title: 'Set Teams',               url: 'templates/tournaments/tab_setteams.html' }
+      "calendar":         { title: 'Calendar',                url: 'components/tournament/tab_calendar.html' },
+      "firststage":       { title: 'First Stage',             url: 'components/tournament/tab_firststage.html' },
+      "secondstage":      { title: 'Second Stage',            url: 'components/tournament/tab_bracket2.html' },
+      "ranking":          { title: 'Ranking',                 url: 'components/tournament/tab_ranking.html' },
+      "predictions":      { title: 'Predictions',             url: 'components/tournament/tab_predictions.html' },
+      "admin.setresults": { title: 'Set Results',             url: 'components/tournament/tab_setresults.html' },
+      "admin.syncdata":   { title: 'Sync Data',               url: 'components/tournament/tab_syncdata.html' },
+      "admin.setteams":   { title: 'Set Teams',               url: 'components/tournament/tab_setteams.html' }
   };
 
   // set the current tab based on the 'tab' parameter
@@ -378,7 +378,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 // TournamentEditCtrl: collects data to update an existing tournament.
 tournamentControllers.controller('TournamentEditCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location',function($rootScope, $scope, $routeParams, Tournament, $location) {
   $scope.tournamentData = Tournament.get({ id:$routeParams.id });
-  
+
   $scope.tournamentData.$promise.then(function(response){
     $rootScope.title = 'gonawin - ' + response.Tournament.Name;
   });
