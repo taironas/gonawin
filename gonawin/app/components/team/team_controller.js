@@ -5,10 +5,10 @@
 // Handle also user subscription to a team (join/leave).
 var teamControllers = angular.module('teamControllers', []);
 // TeamListCtrl: fetch all teams data
-teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location', 
+teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'User', '$location',
   function($rootScope, $scope, Team, User, $location) {
     console.log('Team list controller:');
-    
+
     $rootScope.title = 'gonawin - Teams';
 
     $scope.countTeams = 25;            // counter for the number of teams to display in view.
@@ -76,9 +76,9 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 // TeamNewCtrl: use this controller to create a team.
 teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$location', function($rootScope, $scope, Team, $location) {
   console.log('Team new controller:');
-  
+
   $rootScope.title = 'gonawin - New Team';
-  
+
   $scope.addTeam = function() {
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
@@ -104,7 +104,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.messageInfo = $rootScope.messageInfo;
   // reset to nil var message info in root scope.
   $rootScope.messageInfo = undefined;
-  
+
   $scope.teamData.$promise.then(function(response){
     $rootScope.title = 'gonawin - ' + response.Team.Name;
   });
@@ -280,11 +280,11 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   }
 
   $scope.tabs = {
-    "members":      { title: 'Members',     url: 'templates/teams/tab_members.html' },
-    "tournaments":  { title: 'Tournaments', url: 'templates/teams/tab_tournaments.html' },
-    "ranking":      { title: 'Ranking',     url: 'templates/teams/tab_ranking.html' },
-    "accuracies":   { title: 'Accuracies',  url: 'templates/teams/tab_accuracies.html' },
-    "prizes":       { title: 'Prizes',      url: 'templates/teams/tab_prices.html' }
+    "members":      { title: 'Members',     url: 'components/team/tab_members.html' },
+    "tournaments":  { title: 'Tournaments', url: 'components/team/tab_tournaments.html' },
+    "ranking":      { title: 'Ranking',     url: 'components/team/tab_ranking.html' },
+    "accuracies":   { title: 'Accuracies',  url: 'components/team/tab_accuracies.html' },
+    "prizes":       { title: 'Prizes',      url: 'components/team/tab_prices.html' }
   };
 
   // set the current tab based on the 'tab' parameter
@@ -355,7 +355,7 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
   function($rootScope, $scope, $routeParams, Team, User, $location) {
     console.log('Team invite controller:');
     $scope.teamData = Team.get({ id:$routeParams.id });
-    
+
     $scope.teamData.$promise.then(function(response){
       $rootScope.title = 'gonawin - ' + response.Team.Name;
     });

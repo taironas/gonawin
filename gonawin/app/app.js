@@ -33,7 +33,8 @@ var gonawingApp = angular.module('gonawingApp', [
   'authService',
   'sessionService',
   'activitiesService',
-  'inviteService'
+  'inviteService',
+  'teamService'
 ]);
 
 gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
@@ -64,11 +65,11 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/users/', { templateUrl: 'templates/users/index.html', controller: 'UserListCtrl', requireLogin: true }).
       when('/users/:id', { templateUrl: 'templates/users/show.html', controller: 'UserShowCtrl', requireLogin: true }).
 
-      when('/teams', { templateUrl: 'templates/teams/index.html', controller: 'TeamListCtrl', requireLogin: true }).
-      when('/teams/new', { templateUrl: 'templates/teams/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
-      when('/teams/:id', { templateUrl: 'templates/teams/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
-      when('/teams/edit/:id', { templateUrl: 'templates/teams/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
-      when('/teams/invite/:id', { templateUrl: 'templates/teams/invite.html', controller: 'TeamInviteCtrl', requireLogin: true }).
+      when('/teams', { templateUrl: 'components/team/index.html', controller: 'TeamListCtrl', requireLogin: true }).
+      when('/teams/new', { templateUrl: 'components/team/new.html', controller: 'TeamNewCtrl', requireLogin: true }).
+      when('/teams/:id', { templateUrl: 'components/team/show.html', controller: 'TeamShowCtrl', requireLogin: true }).
+      when('/teams/edit/:id', { templateUrl: 'components/team/edit.html', controller: 'TeamEditCtrl', requireLogin: true }).
+      when('/teams/invite/:id', { templateUrl: 'components/team/invite.html', controller: 'TeamInviteCtrl', requireLogin: true }).
 
       when('/tournaments', { templateUrl: 'templates/tournaments/index.html', controller: 'TournamentListCtrl', requireLogin: true }).
       when('/tournaments/new', { templateUrl: 'templates/tournaments/new.html', controller: 'TournamentNewCtrl', requireLogin: true }).
