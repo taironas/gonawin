@@ -41,7 +41,7 @@
   </head>
   <body>
     <div id="wrap">
-      <div ng-include src="'templates/partials/navigation.html'"></div>
+      <div ng-include src="'app/components/navigation/navigation.html'"></div>
       <div ng-switch on="isLoggedIn && isLoginRequired">
         <div ng-switch-when="true">
           <ng-include src="'templates/main.html'"></ng-include>
@@ -107,9 +107,10 @@
     <!-- / invite component -->
     <script src="/app/components/invite/invite_controller.js"></script>
     <script src="/app/components/invite/invite_service.js"></script>
+    <!-- / navigation component -->
+    <script src="/app/components/navigation/navigation_controller.js"></script>
 
     <script src="/app/components/controllers/rootControllers.js"></script>
-    <script src="/app/components/controllers/navigationControllers.js"></script>
     <script src="/app/components/controllers/searchControllers.js"></script>
     <script src="/app/components/controllers/userControllers.js"></script>
     <script src="/app/components/controllers/teamControllers.js"></script>
