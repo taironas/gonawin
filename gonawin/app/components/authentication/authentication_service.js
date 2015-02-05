@@ -1,7 +1,7 @@
 'use strict'
-var authServices = angular.module('authServices', ['ngResource']);
+var authService = angular.module('authService', ['ngResource']);
 
-authServices.factory('sAuth', function($rootScope, $cookieStore, $cookies, $location, $q, $timeout, User, Session) {
+authService.factory('sAuth', function($rootScope, $cookieStore, $cookies, $location, $q, $timeout, User, Session) {
   return {
     /* returns true when user is logged in based on cookies */
     isLoggedIn: function() {

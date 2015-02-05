@@ -30,8 +30,10 @@ var gonawingApp = angular.module('gonawingApp', [
   'searchControllers',
 
   'dataServices',
-  'authServices',
-  'sessionServices'
+  'authService',
+  'sessionService',
+  'activitiesService',
+  'inviteService'
 ]);
 
 gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){

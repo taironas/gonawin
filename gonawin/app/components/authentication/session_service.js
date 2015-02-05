@@ -1,7 +1,7 @@
 'use strict'
-var sessionServices = angular.module('sessionServices', ['ngResource']);
+var sessionService = angular.module('sessionService', ['ngResource']);
 
-sessionServices.factory('Session', function($cookieStore, $resource) {
+sessionService.factory('Session', function($cookieStore, $resource) {
 
   var Session = $resource('/j/auth/', {access_token:'@access_token', id:'@id', name:'@name', email:'@email'}, {
     fetchUserInfo: { method:'GET', params: {access_token:'@access_token'}, url: 'https://www.googleapis.com/plus/v1/people/me' },
