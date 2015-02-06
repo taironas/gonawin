@@ -44,7 +44,7 @@
       <div ng-include src="'app/components/navigation/navigation.html'"></div>
       <div ng-switch on="isLoggedIn && isLoginRequired">
         <div ng-switch-when="true">
-          <ng-include src="'templates/main.html'"></ng-include>
+          <ng-include src="'shared/main.html'"></ng-include>
         </div>
         <div ng-switch-default>
           <div ng-switch on="originalPath">
@@ -67,7 +67,7 @@
         </div>
       </div>
     </div>
-    <div ng-include src="'templates/partials/footer.html'"></div>
+    <div ng-include src="'shared/footer.html'"></div>
     <div id="fb-root"></div>
     <!-- le analytics -->
     <script>
@@ -122,13 +122,12 @@
     <script src="/components/user/user_service.js"></script>
     <!-- / root component -->
     <script src="/components/root/root_controller.js"></script>
-
-    <script src="/components/directives/formValidation.js"></script>
-    <script src="/components/directives/formFocus.js"></script>
-    <script src="/components/directives/joinButton.js"></script>
-    <script src="/components/directives/addButton.js"></script>
-
-    <script src="/components/filters/fromNow.js"></script>
-    <script src="/components/filters/reverse.js"></script>
+    <!-- / shared components -->
+    <script src="/shared/formValidation.js"></script>
+    <script src="/shared/formFocus.js"></script>
+    <script src="/shared/joinButton.js"></script>
+    <script src="/shared/addButton.js"></script>
+    <script src="/shared/fromNow.js"></script>
+    <script src="/shared/reverse.js"></script>
   </body>
 </html>

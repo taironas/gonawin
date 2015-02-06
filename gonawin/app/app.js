@@ -5,6 +5,7 @@ var gonawingApp = angular.module('gonawingApp', [
   'ngRoute',
   'ngResource',
   'ngCookies',
+  /* directives */
   'directive.googleplussignin',
   'directive.twittersignin',
   'directive.googlesignin',
@@ -15,10 +16,11 @@ var gonawingApp = angular.module('gonawingApp', [
   'directive.addButton',
   'directive.activities',
   '$strap.directives',
+  /* filters */
   'filter.fromNow',
   'filter.moment',
   'filter.reverse',
-
+  /* controllers */
   'rootControllers',
   'navigationControllers',
   'dashboardControllers',
@@ -28,7 +30,7 @@ var gonawingApp = angular.module('gonawingApp', [
   'tournamentControllers',
   'inviteControllers',
   'searchControllers',
-
+  /* services */
   'userService',
   'authService',
   'sessionService',
@@ -60,8 +62,8 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/getting-started', { templateUrl: 'components/home/getting-started.html', requireLogin: false }).
       when('/', { templateUrl:  'components/home/home.html', controller: 'RootCtrl', requireLogin: true }).
       when('/signin', { templateUrl: 'components/home/signin.html', requireLogin: false }).
-      when('/about', { templateUrl: 'templates/about.html', requireLogin: false }).
-      when('/search', { templateUrl: 'templates/search.html', controller: 'SearchCtrl', requireLogin: true }).
+      when('/about', { templateUrl: 'shared/about.html', requireLogin: false }).
+      when('/search', { templateUrl: 'components/search/search.html', controller: 'SearchCtrl', requireLogin: true }).
 
       when('/users/', { templateUrl: 'components/user/index.html', controller: 'UserListCtrl', requireLogin: true }).
       when('/users/:id', { templateUrl: 'components/user/show.html', controller: 'UserShowCtrl', requireLogin: true }).
@@ -80,8 +82,8 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
       when('/settings/edit-profile', { templateUrl: 'components/user/edit.html', controller: 'UserEditCtrl', requireLogin: true }).
       when('/settings/networks', { templateUrl: 'components/settings/networks.html', requireLogin: true }).
       when('/settings/email', { templateUrl: 'components/settings/email.html', requireLogin: true }).
-      when('/invite', { templateUrl: 'components/invite.html', controller: 'InviteCtrl', requireLogin: true }).
-      when('/404', { templateUrl: 'app/templates/404.html' }).
+      when('/invite', { templateUrl: 'components/invite/invite.html', controller: 'InviteCtrl', requireLogin: true }).
+      when('/404', { templateUrl: 'shared/404.html' }).
       otherwise( {redirectTo: '/'});
 
     $httpProvider.interceptors.push('notFoundInterceptor');
@@ -99,7 +101,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
       $rootScope.serviceIds.$promise.then(function(response){
           FB.init({
         appId: response.FacebookAppId,
-        channelUrl: 'app/templates/channel.html',
+        channelUrl: 'app/shared/channel.html',
         status: true, /*Set if you want to check the authentication status at the start up of the app */
         cookie: true,
         xfbml: true

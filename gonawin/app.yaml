@@ -15,14 +15,14 @@ handlers:
 - url: /app
   static_dir: app
 
-- url: /templates
-  static_dir: app/templates
-
 - url: /assets
   static_dir: app/assets
 
 - url: /components
   static_dir: app/components
+
+- url: /shared
+  static_dir: app/shared
 
 - url: /a/.*
   script: _go_app
