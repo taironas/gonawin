@@ -1,0 +1,47 @@
+<!-- Calendar by days -->
+<div class="row">
+  <div class="col-md-12">
+    <div ng-repeat="d in matchesData.Days">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
+        </div>
+        <div class="calendar">
+          <div ng-repeat="m in d.Matches" class="row">
+            <!-- <div class="col-md-1"></div> -->
+            <div class="col-md-12">
+              <!-- show use another include that has full match information: location, ... -->
+              <div ng-include src="'components/tournament/shared/match.html'"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- / Calendar by days-->
+<!-- Calendar by phases -->
+<div class="row">
+  <div class="col-md-12">
+    <div ng-repeat="phase in matchesData.Phases">
+      <h3 ng-show="phase.showPhase"><a href="" ng-click="showPhase($index)"><i class="fa fa-chevron-down fa-lg" ></i> {{phase.Name}}</a></h3>
+      <h3 ng-hide="phase.showPhase"><a href="" ng-click="showPhase($index)"><i class="fa fa-chevron-right fa-lg"></i> {{phase.Name}}</a></h3>
+      <div ng-repeat="d in phase.Days" ng-show="phase.showPhase">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
+          </div>
+          <div class="calendar">
+            <div ng-repeat="m in d.Matches" class="row">
+              <!-- <div class="col-md-1"></div> -->
+              <div class="col-md-12">
+                <div ng-include src="'components/tournament/shared/match_phase.html'"> </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Calendar by phases -->

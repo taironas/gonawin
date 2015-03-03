@@ -1,0 +1,715 @@
+/*app.css*/
+
+body {
+  background-color: #f5f5f5;
+}
+
+a {
+  color: #00b9Ab;
+}
+
+a:hover {
+  color: #00958B;
+}
+
+/* Button styles
+-------------------------------------------------- */
+
+.btn-primary {
+  color: #ffffff;
+  background-color: #00b9ab;
+  border-color: #00a093;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary.active,
+.open .dropdown-toggle.btn-primary {
+  color: #ffffff;
+  background-color: #009085;
+  border-color: #00625b;
+}
+.btn-primary:active,
+.btn-primary.active,
+.open .dropdown-toggle.btn-primary {
+  background-image: none;
+}
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+  background-color: #00b9ab;
+  border-color: #00a093;
+}
+.btn-primary .badge {
+  color: #00b9ab;
+  background-color: #ffffff;
+}
+
+.btn-warning {
+  color: #ffffff;
+  background-color: #ffaa3c;
+  border-color: #ff9f22;
+}
+.btn-warning:hover,
+.btn-warning:focus,
+.btn-warning:active,
+.btn-warning.active,
+.open .dropdown-toggle.btn-warning {
+  color: #ffffff;
+  background-color: #ff9813;
+  border-color: #e48100;
+}
+.btn-warning:active,
+.btn-warning.active,
+.open .dropdown-toggle.btn-warning {
+  background-image: none;
+}
+.btn-warning.disabled,
+.btn-warning[disabled],
+fieldset[disabled] .btn-warning,
+.btn-warning.disabled:hover,
+.btn-warning[disabled]:hover,
+fieldset[disabled] .btn-warning:hover,
+.btn-warning.disabled:focus,
+.btn-warning[disabled]:focus,
+fieldset[disabled] .btn-warning:focus,
+.btn-warning.disabled:active,
+.btn-warning[disabled]:active,
+fieldset[disabled] .btn-warning:active,
+.btn-warning.disabled.active,
+.btn-warning[disabled].active,
+fieldset[disabled] .btn-warning.active {
+  background-color: #ffaa3c;
+  border-color: #ff9f22;
+}
+.btn-warning .badge {
+  color: #ffaa3c;
+  background-color: #ffffff;
+}
+
+.btn-transparent {
+  background-color: transparent;
+  border: none;
+  color: #a9a9a9;
+}
+
+.btn-transparent:hover {
+  color: #696969;
+}
+
+.btn-group-gn {
+  margin-bottom: 20px;
+}
+
+/* End Button styles
+-------------------------------------------------- */
+
+.container-fluid {
+  background-color: #f5f5f5;
+}
+
+.centered {
+  text-align: center;
+}
+
+.gw-float-none {
+  float:none;
+}
+
+/* Navbar styles
+-------------------------------------------------- */
+
+.navbar-default {
+  background-color: #00b9Ab;
+  border-bottom: 2px solid #ffaa3c;
+  border-radius: 0px;
+  margin-bottom: 0px;
+}
+
+.navbar-default .navbar-nav>li>a,
+.navbar-default .navbar-brand {
+  color: white;
+}
+
+.navbar-default .navbar-nav .dropdown-menu>li>a {
+  color: white;
+}
+
+.navbar-default .navbar-nav>li>a:hover {
+  color: white;
+  background-color: #ffaa3c;
+}
+
+.navbar-default .navbar-brand:hover {
+  color: #ffaa3c;
+}
+
+.navbar-default .navbar-nav .dropdown-menu>li>a:hover {
+  color: white;
+  background-color: #ffaa3c;
+}
+
+.navbar-nav>li>.dropdown-menu {
+  background-color: #00b9Ab;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu>li>a {
+  color: white;
+}
+
+.navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
+  color: white;
+  background-color: #ffaa3c;
+}
+
+.navbar-default .navbar-nav>.active>a {
+  color: white;
+  background-color: #ffaa3c;
+}
+
+.navbar-default .navbar-nav>.active>a:hover {
+  color: #00b9Ab;
+  background-color: #ffaa3c;
+}
+
+.navbar-default .navbar-nav>.open>a,
+.navbar-default .navbar-nav>.open>a:hover,
+.navbar-default .navbar-nav>.open>a:focus {
+background-color: #ffaa3c;
+color: white;
+}
+
+.navbar-default small {
+  font-size: 10px;
+}
+
+.navbar-default .navbar-toggle {
+  border: 2px solid #ffaa3c;
+}
+
+.navbar-default .navbar-toggle  .icon-bar {
+  background-color: #ffaa3c;
+}
+
+.gw-badge {
+  background-color: #008279;
+}
+
+.navbar-default .navbar-nav>li>a:hover .gw-badge,
+.navbar-default .navbar-nav>li>a:focus .gw-badge,
+.navbar-default .navbar-nav .open .dropdown-menu>li>a:hover .gw-badge,
+.navbar-default .navbar-nav .open .dropdown-menu>li>a:focus .gw-badge {
+  background-color: #A3542E;
+}
+
+/* End Navbar styles
+-------------------------------------------------- */
+
+.header-welcome,
+.header-404 {
+  background-color: #00b9Ab;
+  margin-top: -20px;
+	padding-top: 30px;
+  color: #f5f5f5;
+  height: 400px;
+  position:absolute;
+  width: 100%;
+}
+
+.header-welcome .container-fluid {
+  background-color: #00b9Ab;
+}
+
+.header-welcome img {
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.header-welcome h1 {
+  font-size: 45pt;
+}
+
+.header-404 h1 {
+  font-size: 80pt;
+}
+
+.header-signin,
+.header-404-message {
+  background-image: url(/app/assets/img/landing-page-background2.jpg);
+  background-position:center center;
+  background-repeat:no-repeat;
+  padding-top: 130px;
+  margin-top: 380px;
+  color: #f5f5f5;
+  height: 400px;
+  position:absolute;
+  width: 100%;
+}
+
+.header-signin .container-fluid {
+  background-color: transparent;
+}
+
+.header-signin h3 {
+  font-size: 20pt;
+  margin-bottom: 30px;
+}
+
+.header-404-message h2 {
+  font-size: 30pt;
+}
+
+.header h5 {
+	font-weight: 700;
+	text-align: left;
+}
+
+.header p {
+  color: #267F79;
+}
+
+.table-centered
+{
+  margin: 0 auto !important;
+  float: none !important;
+}
+
+/* intro Wrap */
+
+.intro {
+  background-color: #f5f5f5;
+	padding-top: 50px;
+  color: #00958B;
+  margin-bottom: -60px;
+  margin-top: 800px;
+}
+
+.intro .container-fluid {
+  background-color: #f5f5f5;
+}
+
+.intro img {
+  margin-top: 20px;
+}
+
+.intro h3 {
+  font-weight: 700;
+  font-size: 20pt;
+}
+
+.intro p {
+  color: #808080;
+  font-size: 15pt;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 210px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+  height: auto;
+  background-color: #00b9Ab;
+  border-top: 2px solid #ffaa3c;
+  z-index: 9999;
+  position:absolute;
+  width: 100%;
+}
+
+#footer .container {
+  margin-bottom: 18px;
+}
+
+.footer-brand{
+    float: left;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
+}
+
+.footer-content{
+    float: left;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
+}
+
+.footer-link{
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    color: white;
+}
+/* End Sticky footer styles
+-------------------------------------------------- */
+
+.main-container {
+  padding-top: 20px;
+}
+
+.activity-icon {
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+  background: #00B9AB;
+  height: 45px;
+  width: 45px;
+  line-height: 30px;
+  text-align: center;
+  z-index: 2;
+  position: absolute;
+  margin-left: 15px;
+  margin-top: 10px;
+}
+
+.team {
+  background: #3498db;
+}
+
+.tournament {
+  background: #2ecc71;
+}
+
+.match {
+  background: #f1c40f;
+}
+
+.score {
+  background: #9b59b6;
+}
+
+.predict {
+  background: #f39c12;
+}
+
+.accuracy {
+  background: #e74c3c;
+}
+
+.activity-icon i {
+  margin-top: 10px;
+}
+
+.activities-line {
+  position: absolute;
+  content: '';
+  height: 100%;
+  width: 3px;
+  background: #e4e6eb;
+  margin-left: 21px;
+  margin-top: 20px;
+}
+
+.activity-panel {
+  margin-left: 100px;
+  margin-right: 20px;
+}
+
+.activity-panel a {
+  color: #ffaa3c;
+}
+
+.activity-panel h5 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.user-dashboard h3 {
+	text-align: center;
+}
+
+/* teams */
+.card {
+  width: 260px;
+  height: 81px;
+  float: left;
+  margin-left: 25px;
+}
+
+.card-avatar {
+  margin-right: 10px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.card-body {
+  height: 49px;
+}
+
+.card-body h4 {
+  margin-bottom: 0px;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
+  white-space:nowrap;
+}
+
+.card-footer {
+  background-color: #F5F5F5;
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px;
+  color: #67c2ef;
+}
+
+/* tournaments */
+.panel-match h4 {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.circle-avatar {
+  border: 2px solid #67c2ef;
+}
+
+/* style for chevron icon*/
+.gw-chevron {
+  color: silver;
+  text-decoration: none; /* no underline */
+  a:hover { color:blue; }
+}
+
+/* Force inline for titles in order to be able to set icons before them without a break line in between*/
+.gw-h1 {
+  display: inline;
+}
+/* Break word when text size exceeds the size of its container*/
+.gw-h1 .gw-small{
+  word-break:break-all;
+}
+
+.gw-h3 {
+  color: #ffaa3c;
+}
+
+.gw-no-margin {
+  margin: 0px;
+}
+
+.tab-panel {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.gn-grey {
+  color: #a9a9a9;
+}
+
+.col-main-content,
+.col-dashboard {
+  background-color: #f5f5f5;
+}
+
+/* Panel
+-------------------------------------------------- */
+
+.table tbody>tr>td.gw-vert-align
+{
+    vertical-align: middle;
+}
+
+/* Panel
+-------------------------------------------------- */
+.panel-transparent {
+  background-color: transparent;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+/* Bracket
+-------------------------------------------------- */
+.gw-row-phase-even{
+    /*background-color: green;*/
+    display: table;
+    padding-bottom: 10px;
+}
+
+.gw-row-phase-odd{
+    background-color: #F5F5F5;
+    display: table;
+    padding-bottom: 10px;
+}
+
+.gw-row-phase-header-odd{
+    background-color: #F5F5F5;
+}
+
+.gw-row-phase-header-even{
+    /*right now transparent.*/
+}
+
+.gw-row-phase-odd [class*="col-"] {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.gw-row-phase-even [class*="col-"] {
+    float: none;
+    display: table-cell;
+    vertical-align: top;
+}
+
+.gw-match-number{
+    font-weight: bold;
+    float:left;
+    position:absolute;
+    clear:right;
+}
+
+.gw-no-margin-bottom{
+    margin-bottom: 0px;
+}
+
+.gw-match{
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.gw-cell-match{
+    border-color: #ddd;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 1px;
+    padding-right: 1px;
+    font-size: 12px;
+    margin: 0 0 0px;
+    text-align: center;
+    word-wrap: break-word;
+    webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+}
+
+/* End Bracket
+-------------------------------------------------- */
+
+/* Dashboard styles
+-------------------------------------------------- */
+
+/* Add circle border on identicons (dashboard) */
+/*.gw-border {
+  border: 4px solid #008279;
+}*/
+
+.panel-default .gw-panel-heading {
+  color: white;
+  background-color: #00b9Ab;
+  border-bottom: none;
+  height: 153px;
+  padding-top: 25px;
+}
+
+.panel-default .gw-panel-body {
+  color: white;
+  background-color: #16A799;
+  border-bottom-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.gw-dashboard-icon {
+  color: #ADE3DF;
+}
+
+.gw-dashboard-icon-background {
+  color: #00B9AB;
+}
+
+.gw-dashboard-number {
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.gw-dashboard-subtitle {
+  color: #ADE3DF;
+  font-weight: 500;
+}
+
+.gw-dashboard-h5 {
+  color: #ADE3DF;
+  font-weight: 500;
+}
+
+.table>tbody>tr>.gw-td-borderless {
+  border-top: none;
+  padding: 0px;
+}
+
+.gw-leaderboard {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.gw-dashboard-table {
+  background-color: #00B9AB;
+  border: none;
+}
+
+.gw-leaderboard .table tr td,
+.gw-dashboard-table .table tr td {
+  color: #00b9Ab;
+  font-weight: 500;
+  border: none;
+}
+
+.gw-dashboard-table .table tr td a {
+  color: white;
+  display:inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
+  width:200px;
+}
+
+.gw-leaderboard .table tr td {
+  text-align: left;
+}
+
+.gw-leaderboard .table tr td a {
+  display:inline-block;
+  overflow: hidden;
+  -o-text-overflow: ellipsis; /*Opera 9 */
+  text-overflow: ellipsis; /* other browsers */
+  width:130px;
+}
+
+.gw-leaderboard .table tr .gw-td-position {
+  text-align: center;
+}
+
+.gw-leaderboard .table tr .gw-td-position {
+  border: none;
+  border-right: 1px solid #ddd;
+}
+
+/* End Dahsboard styles
+-------------------------------------------------- */

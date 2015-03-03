@@ -1,0 +1,65 @@
+<div ng-include src="'shared/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li class="active">Tournaments</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="page-content">
+      <div class="row">
+	<div class="col-md-5">
+	  <h1 class="gw-h1">
+	    <i class="fa fa-trophy fa-lg"></i>
+	    Tournaments
+	  </h1>
+	</div>
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+          <a class="btn btn-primary btn-sm" ng-show="currentUser.User.IsAdmin" href="/#/tournaments/new">New Tournament</a>
+          <!-- temporary button -->
+          <button class="btn btn-primary btn-sm" ng-show="currentUser.User.IsAdmin" ng-click="createWorldCup()">World Cup 2014</button>
+          <!-- / temporary button -->
+        </div>
+        <div class="col-md-4">
+          <!-- search box -->
+          <form ng-submit="searchTournament()">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+              <input type="text" class="form-control" name="TournamentInputSearch" id="inputIcon" ng-model="keywords">
+            </div>
+          </form>
+          <!-- / search box -->
+        </div>
+      </div>
+      </br></br>
+      <div class="row center-block">
+         <div ng-repeat="tournament in tournaments">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <small>participants: {{tournament.ParticipantsCount}}</small>
+                <small>teams: {{tournament.TeamsCount}}</small>
+                <small>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
+                      {{100 * tournament.Progress | number:0}}%
+                    </div>
+                  </div>
+                </small>
+              </p>
+            </div>
+          </div>
+        </div>
+        <h3 style="text-align: center">{{noTournamentsMessage}}</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="moreTournaments()" ng-show="showMoreTournaments">More Tournaments</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+    </div>
+  </div>
+</div>

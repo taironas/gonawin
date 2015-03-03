@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html ng-app="gonawingApp">
+  <head>
+    <title ng-bind="title"></title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="keywords" content="gonawin,sport,friendly,event,bet,fun,play,team,tournament,world,cup,trophy" />
+    <meta name="description" content="gonawin - A social web application to make 'friendly bets' on sport games with your friends." />
+    <meta name="author" content="Santiago Arias, Remy Jourde" />
+    <meta name="image" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png" />
+    <!-- facebook -->
+    <meta property="og:title" content="gonawin" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://www.gonawin.com/" />
+    <meta property="og:image" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="144" />
+    <meta property="og:image:height" content="144" />
+    <meta property="og:description" content="A social web application to make friendly bets on sports events." />
+    <meta property="fb:app_id" content="232160743609875" />
+    <!-- twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@gonawin_app">
+    <meta name="twitter:title" content="gonawin">
+    <meta name="twitter:description" content="A social web application to make friendly bets on sports events.">
+    <meta name="twitter:creator" content="@santiago_arias">
+    <meta name="twitter:image:src" content="http://gonawin.com/app/img/apple-touch-icon-114-precomposed.png">
+    <meta name="twitter:domain" content="gonawin.com">
+    <!--link href="/app/css/bootstrap.min.css" rel="stylesheet" media="screen"-->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="/app/assets/css/font-awesome/css/font-awesome.min.css" rel="stylesheet" >
+    <link href="/app/assets/css/bootstrap-social.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/app/app.css" />
+    <link href="/app/assets/css/flag-icon.min.css" rel="stylesheet">
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/app/img/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/app/img/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/app/img/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="/app/img/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="/app/img/favicon.ico" />
+  </head>
+  <body>
+    <div id="wrap">
+      <div ng-include src="'app/components/navigation/navigation.html'"></div>
+      <div ng-switch on="isLoggedIn && isLoginRequired">
+        <div ng-switch-when="true">
+          <ng-include src="'shared/main.html'"></ng-include>
+        </div>
+        <div ng-switch-default>
+          <div ng-switch on="originalPath">
+            <div ng-switch-when="/welcome">
+              <div class="main-container">
+                <ng-view><ng-view>
+              </div>
+            </div>
+            <div ng-switch-when="/404">
+              <div class="main-container">
+                <ng-view><ng-view>
+              </div>
+            </div>
+            <div ng-switch-default>
+              <div class="container main-container">
+                <ng-view><ng-view>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div ng-include src="'shared/footer.html'"></div>
+    <div id="fb-root"></div>
+    <!-- le analytics -->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-50669590-1', 'gonawin.com');
+      ga('send', 'pageview');
+    </script>
+    <!-- / le analytics -->
+    <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-resource.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.11/angular-cookies.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="/assets/libs/angular-strap.min.js"></script>
+    <script src="/assets/libs/moment.min.js"></script>
+
+    <script src="/app/app.js"></script>
+    <!-- / authentication component -->
+    <script src="/components/authentication/authentication_service.js"></script>
+    <script src="/components/authentication/session_service.js"></script>
+    <script src="/components/authentication/google-plus-signin.js"></script>
+    <script src="/components/authentication/twitter-signin.js"></script>
+    <script src="/components/authentication/google-signin.js"></script>
+    <script src="/components/authentication/facebook-signin.js"></script>
+    <!-- / activities component -->
+    <script src="/components/activities/activities_controller.js"></script>
+    <script src="/components/activities/activities_directive.js"></script>
+    <script src="/components/activities/activities_service.js"></script>
+    <!-- / dashboard component -->
+    <script src="/components/dashboard/dashboard_controller.js"></script>
+    <!-- / invite component -->
+    <script src="/components/invite/invite_controller.js"></script>
+    <script src="/components/invite/invite_service.js"></script>
+    <!-- / navigation component -->
+    <script src="/components/navigation/navigation_controller.js"></script>
+    <!-- / search component -->
+    <script src="/components/search/search_controller.js"></script>
+    <!-- / team component -->
+    <script src="/components/team/team_controller.js"></script>
+    <script src="/components/team/team_service.js"></script>
+    <!-- / tournament component -->
+    <script src="/components/tournament/tournament_controller.js"></script>
+    <script src="/components/tournament/tournament_service.js"></script>
+    <!-- / user component -->
+    <script src="/components/user/user_controller.js"></script>
+    <script src="/components/user/user_service.js"></script>
+    <!-- / root component -->
+    <script src="/components/root/root_controller.js"></script>
+    <!-- / shared components -->
+    <script src="/shared/formValidation.js"></script>
+    <script src="/shared/formFocus.js"></script>
+    <script src="/shared/joinButton.js"></script>
+    <script src="/shared/addButton.js"></script>
+    <script src="/shared/fromNow.js"></script>
+    <script src="/shared/reverse.js"></script>
+  </body>
+</html>

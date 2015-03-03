@@ -1,0 +1,15 @@
+<div ng-controller="TournamentCalendarCtrl">
+  <div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-11">
+      <div class="btn-group pull-right">
+        <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=phase">Phase</a></li>
+        <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=date">Date</a></li>
+      </div>
+    </div>
+  </div>
+  <br>
+  <!-- start calendar data -->
+  <div ng-include src="'components/tournament/shared/calendarData.html'"></div>
+  <!-- end calendar data -->
+</div>

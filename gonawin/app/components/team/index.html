@@ -1,0 +1,84 @@
+<div ng-include src="'shared/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li class="active">Teams</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-body">
+    <div class="page-content">
+      <div class="row">
+        <div class="col-md-6">
+          <h1 class="gw-h1">
+            <i class="fa fa-users fa-lg"></i>
+            Teams
+          </h1>
+        </div>
+        <div class="col-md-2">
+          <a class="btn btn-primary" href="/#/teams/new">New Team</a>
+        </div>
+        <div class="col-md-4">
+          <!-- search box -->
+          <form ng-submit="searchTeam()">
+            <div class="input-group">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+              <input type="text" class="form-control" name="TeamInputSearch" id="inputIcon" ng-model="keywords">
+            </div>
+          </form>
+          <!-- / search box -->
+        </div>
+      </div>
+      </br></br>
+      <h4>Teams you've joined:</h4>
+      </br>
+      <div class="row center-block">
+        <div ng-repeat="team in joinedTeams">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i>
+                <small>members: {{team.MembersCount}}</small>
+              </p>
+            </div>
+            <div class="card-footer">
+              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+            </div>
+          </div>
+        </div>
+        <h3 style="text-align: center">{{noJoinedTeamsMessage}}</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="moreJoinedTeams()" ng-show="showMoreJoinedTeams">More Teams</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+      </br>
+      <h4>Teams you can join:</h4>
+      <div class="row center-block">
+        <div ng-repeat="team in teams">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg  gn-grey" ng-if="team.Private"></i>
+                <small>members: {{team.MembersCount}}</small>
+              </p>
+            </div>
+            <div class="card-footer">
+              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+            </div>
+          </div>
+        </div>
+        <h3 style="text-align: center">{{noTeamsMessage}}</h3>
+      </div>
+      <div class="row">
+        <div class="col-md-5"></div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-primary" ng-click="moreTeams()" ng-show="showMoreTeams">More Teams</button>
+        </div>
+        <div class="col-md-5"></div>
+      </div>
+    </div>
+  </div>
+</div>

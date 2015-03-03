@@ -1,0 +1,86 @@
+<div ng-include src="'shared/notifications.html'"></div>
+<ol class="breadcrumb">
+  <li class="active">Search</li>
+</ol>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <!-- search box -->
+        <form ng-submit="search()">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span>
+              <input type="text" class="form-control" name="InputSearch" id="inputIcon" ng-model="keywords">
+          </div>
+        </form>
+        <!-- / search box -->
+      </div>
+    </div>
+  </div>
+  <div class="panel-body">
+    <div class="page-content">
+      <!-- tournaments  -->
+      <h3>Tournaments</h3>
+      <div class="row center-block">
+        <div ng-repeat="tournament in tournaments">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
+                <small>participants: {{tournament.ParticipantsCount}}</small>
+                <small>teams: {{tournament.TeamsCount}}</small>
+                <small>
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {{100 * tournament.Progress | number:0}}%;">
+                      {{100 * tournament.Progress | number:0}}%
+                    </div>
+                  </div>
+                </small>
+              </p>
+            </div>
+          </div>
+        </div>
+        <small><h3 style="text-align: center">{{noTournamentsMessage}}</h3></small>
+      </div>
+      <!-- teams -->
+      <hr>
+      <h3>Teams</h3>
+      <div class="row center-block">
+        <div ng-repeat="team in teams">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg" ng-if="team.Private"></i>
+                <small>members: {{team.MembersCount}}</small>
+              </p>
+            </div>
+            <div class="card-footer">
+              <p>accuracy: {{100 * team.Accuracy | number:2}}%</p>
+            </div>
+          </div>
+        </div>
+        <small><h3 style="text-align: center">{{noTeamsMessage}}</h3></small>
+      </div>
+      <!-- users -->
+      <hr>
+      <h3>Users</h3>
+      <div class="row center-block">
+        <div ng-repeat="user in users">
+          <div class="panel panel-default card">
+            <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80">
+            <div class="card-body">
+              <p>
+                <h4 ng-show="user.Alias.length > 0"><a href="/#/users/{{user.Id}}">{{user.Alias}}</a></h4>
+                <h4 ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}">{{user.Username}}</a></h4>
+              </p>
+            </div>
+          </div>
+        </div>
+        <small><h3 style="text-align: center">{{noUsersMessage}}</h3></small>
+      </div>
+    </div>
+  </div>
+</div>

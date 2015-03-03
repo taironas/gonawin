@@ -9,14 +9,20 @@ handlers:
   upload: robots.txt
 
 - url: /
-  static_files: static/index.html
-  upload: static/index.html
+  static_files: app/index.html
+  upload: app/index.html
 
-- url: /static
-  static_dir: static
+- url: /app
+  static_dir: app
 
-- url: /templates
-  static_dir: static/templates
+- url: /assets
+  static_dir: app/assets
+
+- url: /components
+  static_dir: app/components
+
+- url: /shared
+  static_dir: app/shared
 
 - url: /a/.*
   script: _go_app
