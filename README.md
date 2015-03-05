@@ -51,6 +51,21 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 
     > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
     > goapp serve
+    
+#### Run App with production datastore backup
+
+Create datastore backup
+    
+    > go_appengine\appcfg.py download_data --url=http://www.gonawin.com/_ah/remote_api --filename=bck_gonawin_mmddyyyy
+    
+Run local server
+
+    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
+    > goapp serve
+    
+Connect datastore backup to the local server
+
+    > go_appengine\appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=bck_gonawin_mmddyyyy
 
 #### Access app from smartphone
 
