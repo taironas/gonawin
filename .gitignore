@@ -31,3 +31,7 @@ config.json
 # Reserved Images
 landing-page-background.jpg
 landing-page-background2.jpg
+
+# Backup files
+backup_gonawin_*
+bulkloader*

@@ -28,5 +28,9 @@ handlers:
   script: _go_app
   login: admin
 
+- url: /_ah/remote_api
+  script: _go_app
+  login: admin
+
 - url: /.*
   script: _go_app
