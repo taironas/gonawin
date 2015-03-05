@@ -15,7 +15,7 @@ var gonawingApp = angular.module('gonawingApp', [
   'directive.joinButton',
   'directive.addButton',
   'directive.activities',
-  '$strap.directives',
+  'mgcrea.ngStrap',
   /* filters */
   'filter.fromNow',
   'filter.moment',
