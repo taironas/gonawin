@@ -19,6 +19,8 @@ package gonawin
 import (
 	"net/http"
 
+	_ "appengine/remote_api"
+
 	"github.com/taironas/route"
 
 	"github.com/santiaago/gonawin/helpers/handlers"
