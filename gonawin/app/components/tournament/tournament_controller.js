@@ -343,7 +343,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
   $scope.tabs = {
       "calendar":         { title: 'Calendar',                url: 'components/tournament/tab_calendar.html' },
       "firststage":       { title: 'First Stage',             url: 'components/tournament/tab_firststage.html' },
-      "secondstage":      { title: 'Second Stage',            url: 'components/tournament/tab_bracket2.html' },
+      "secondstage":      { title: 'Second Stage',            url: 'components/tournament/tab_secondstage.html' },
       "ranking":          { title: 'Ranking',                 url: 'components/tournament/tab_ranking.html' },
       "predictions":      { title: 'Predictions',             url: 'components/tournament/tab_predictions.html' },
       "admin.setresults": { title: 'Set Results',             url: 'components/tournament/tab_setresults.html' },

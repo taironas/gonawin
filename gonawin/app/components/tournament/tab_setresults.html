@@ -1,52 +1,59 @@
 <div ng-controller="TournamentSetResultsCtrl">
   <!-- Calendar by phase and date -->
-  <div class="row">
-    <div class="col-md-12">
-      <div ng-repeat="phase in matchesData.Phases">
-        <div class="calendar">
-          <div class="row">
-            <div class="col-md-4">
-              <h3>{{phase.Name}} <button class="btn btn-primary btn-xs" ng-click="simulatePhase(phase.Name, $index)"><span class="glyphicon glyphicon glyphicon-random"> simulate</span></button></h3>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div ng-repeat="phase in matchesData.Phases">
+          <div class="calendar">
+            <div class="row">
+              <div class="col-md-4">
+                <h3>{{phase.Name}} <button class="btn btn-primary btn-xs" type="button" ng-click="simulatePhase(phase.Name, $index)"><span class="glyphicon glyphicon glyphicon-random"></span> simulate</button></h3>
+              </div>
             </div>
-          </div>
-          <table class="table table-striped  table-condensed">
-            <thead></thead>
-            <tbody>
-              <tr ng-repeat="d in phase.Days">
-                <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
-                <td>
-                  <div ng-repeat="m in d.Matches">
-                    <p>
-		      <div class="row">
-			<form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
-                          <div class="col-xs-1">#{{m.IdNumber}}</div>
-                          <div class="col-xs-1">
-                            <small><label class="control-label">{{m.Team1}}</label></small>
+            <table class="table table-striped  table-condensed">
+              <thead></thead>
+              <tbody>
+                <tr ng-repeat="d in phase.Days">
+                  <td><b>{{d.Date | date:'EEE dd MMM'}}</b></td>
+                  <td>
+                    <div ng-repeat="m in d.Matches">
+                      <br>
+                      <div class="container-fluid">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <form class="form" role="form" ng-submit="updateResult(m, $index, $parent.$index, $parent.$parent.$index)">
+                              <div class="row">
+                                <div class="col-xs-1">#{{m.IdNumber}}</div>
+                                <div class="col-xs-2">
+                                  <small><label class="control-label">{{m.Team1}}</label></small>
+                                </div>
+                                <div class="col-xs-1">
+                                  <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result1" placeholder="">
+                                </div>
+                                <div class="col-xs-1">
+                                  <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result2" placeholder="">
+                                </div>
+                                <div class="col-xs-2">
+                                  <small><label class="control-label">{{m.Team2}}</label></small>
+                                </div>
+                                <div class="col-xs-2">
+                                  <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
+                                </div>
+                                <div class="col-xs-1">
+                          			  <button class="btn btn-warning btn-xs" type="button" ng-class="{disabled: !m.CanPredict}" ng-click="blockPrediction(m, $index, $parent.$index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-ban-circle"></span></button>
+                          			</div>
+                              </div>
+                            </form>
                           </div>
-                          <div class="col-xs-1">
-                            <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result1" placeholder="">
-                          </div>
-                          <div class="col-xs-1">
-                            <input type="text" class="form-control input-sm" id="{{m.IdNumber}}" ng-model="m.Result2" placeholder="">
-                          </div>
-                          <div class="col-xs-1">
-                            <small><label class="control-label">{{m.Team2}}</label></small>
-                          </div>
-                          <div class="col-xs-2">
-                            <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
-                          </div>
-			</form>
-			<div class="col-xs-1">
-			  
-			  <button class="btn btn-warning btn-xs" ng-class="{disabled: !m.CanPredict}" ng-click="blockPrediction(m, $index, $parent.$index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-ban-circle"></span></button>
-			</div>
+                        </div>
                       </div>
-                    </p>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                      <br>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
