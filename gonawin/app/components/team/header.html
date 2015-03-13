@@ -23,9 +23,8 @@
 <!-- <p>debug:<br>isTeamAdmin: {{isTeamAdmin}}<br>teamData.Joined: {{teamData.Joined}}<br>team.Private: {{teamData.Team.Private}}<br>team.RequestSent: {{teamData.RequestSent}}</p> -->
 
 <div class="row">
-  <div class="col-md-1"></div>
   <!-- actions -->
-  <div class="col-md-10">
+  <div class="col-md-10 col-md-offset-1">
     <!-- start if !isTeamAdmin && !teamData.Joined -->
     <div ng-if="!isTeamAdmin && !teamData.Joined">
       <div ng-if="teamData.Team.Private">
