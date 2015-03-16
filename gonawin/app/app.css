@@ -116,10 +116,6 @@ fieldset[disabled] .btn-warning.active {
 /* End Button styles
 -------------------------------------------------- */
 
-.container-fluid {
-  background-color: #f5f5f5;
-}
-
 .centered {
   text-align: center;
 }
@@ -388,7 +384,6 @@ body {
   text-align: center;
   z-index: 2;
   position: absolute;
-  margin-left: 15px;
   margin-top: 10px;
 }
 
@@ -428,11 +423,6 @@ body {
   background: #e4e6eb;
   margin-left: 21px;
   margin-top: 20px;
-}
-
-.activity-panel {
-  margin-left: 100px;
-  margin-right: 20px;
 }
 
 .activity-panel a {
@@ -603,7 +593,6 @@ body {
     padding-left: 1px;
     padding-right: 1px;
     font-size: 12px;
-    margin: 0 0 0px;
     text-align: center;
     word-wrap: break-word;
     webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
@@ -616,10 +605,12 @@ body {
 /* Dashboard styles
 -------------------------------------------------- */
 
-/* Add circle border on identicons (dashboard) */
-/*.gw-border {
-  border: 4px solid #008279;
-}*/
+.gw-dashboard-container {
+  padding-right: 0px;
+  padding-left: 0px;
+  margin-right: -15px;
+  margin-left: -15px;
+}
 
 .panel-default .gw-panel-heading {
   color: white;

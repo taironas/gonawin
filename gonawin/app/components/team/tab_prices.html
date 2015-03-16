@@ -2,8 +2,7 @@
   <div class="col-md-12">
     <h4 ng-show="pricesData.Prices.length == 0">No prices has been won</h4>
     <div class="row" ng-repeat="p in pricesData.Prices">
-      <div class="col-md-1"></div>
-      <div class="col-md-11">
+      <div class="col-md-11 col-md-offset-1">
         <h4>Tournament: {{p.TournamentName}}</h4>
         <p>Prize:{{p.Description}}</p>
         <form class="form-inline" role="form" name="editPriceForm">
@@ -11,11 +10,11 @@
           <div class="form-group" ng-class="{error: editPriceForm.name.$invalid}" ng-show="visible">
             <input class="text-field form-control" name="description" size="30" type="text" ng-model="p.Description" required/>
             <span ng-show="editPriceForm.name.$error.required" class="text-danger"> Required</span>
-            <button class="btn btn-default" ng-click="visible=false">Cancel</button>
-            <button class="btn btn-primary" ng-click="updatePrice($index); visible=false" ng-disabled="editPriceForm.$invalid">Update Prize</button>
+            <button class="btn btn-default" type="button" ng-click="visible=false">Cancel</button>
+            <button class="btn btn-primary" type="button" ng-click="updatePrice($index); visible=false" ng-disabled="editPriceForm.$invalid">Update Prize</button>
           </div>
         </form>
       </div>
     </div> <!-- / row -->
-    </div> <!-- / col-md-11 -->
+  </div> <!-- / col-md-12 -->
 </div> <!-- / row -->

@@ -1,0 +1,144 @@
+<div ng-controller="TournamentSecondStageCtrl">
+  <!-- Calendar -->
+  <div class="secondstage container-fluid">
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 text-center"><h3>Round of 16</h3></div>
+      <div class="col-md-2 text-center"><h3>Quarter finals</h3></div>
+      <div class="col-md-2 text-center"><h3>Semi finals</h3></div>
+      <div class="col-md-2 text-center"><h3>Third place</h3></div>
+      <div class="col-md-2 text-center"><h3>Finals</h3></div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <hr>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+        <div class="gw-match-number">#{{matchesData.Matches[0].IdNumber}}</div>
+        <div class="gw-match">
+          <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[0].Iso1}}"></span> <small>{{matchesData.Matches[0].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[0].Result1}} - {{matchesData.Matches[0].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[0].Iso2}}"></span> <small>{{matchesData.Matches[0].Team2}}</small></p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-3 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[8].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[8].Iso1}}"></span> <small>{{matchesData.Matches[8].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[8].Result1}} - {{matchesData.Matches[8].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[8].Iso2}}"></span> <small>{{matchesData.Matches[8].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[1].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[1].Iso1}}"></span> <small>{{matchesData.Matches[1].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[1].Result1}} - {{matchesData.Matches[1].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[1].Iso2}}"></span> <small>{{matchesData.Matches[1].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-5 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[12].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[12].Iso1}}"></span> <small>{{matchesData.Matches[12].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[12].Result1}} - {{matchesData.Matches[12].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[12].Iso2}}"></span> <small>{{matchesData.Matches[12].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[4].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[4].Iso1}}"></span> <small>{{matchesData.Matches[4].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[4].Result1}} - {{matchesData.Matches[4].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[4].Iso2}}"></span> <small>{{matchesData.Matches[4].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-3 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[9].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[9].Iso1}}"></span> <small>{{matchesData.Matches[9].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[9].Result1}} - {{matchesData.Matches[9].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[9].Iso2}}"></span> <small>{{matchesData.Matches[9].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[5].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[5].Iso1}}"></span> <small>{{matchesData.Matches[5].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[5].Result1}} - {{matchesData.Matches[5].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[5].Iso2}}"></span> <small>{{matchesData.Matches[5].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-7 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[14].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[14].Iso1}}"></span> <small>{{matchesData.Matches[14].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[14].Result1}} - {{matchesData.Matches[14].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[14].Iso2}}"></span> <small>{{matchesData.Matches[14].Team2}}</small></p>
+      	</div>
+      </div>
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[15].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[15].Iso1}}"></span> <small>{{matchesData.Matches[15].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[15].Result1}} - {{matchesData.Matches[15].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[15].Iso2}}"></span> <small>{{matchesData.Matches[15].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[2].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[2].Iso1}}"></span> <small>{{matchesData.Matches[2].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[2].Result1}} - {{matchesData.Matches[2].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[2].Iso2}}"></span> <small>{{matchesData.Matches[2].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-3 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[10].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[10].Iso1}}"></span> <small>{{matchesData.Matches[10].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[10].Result1}} - {{matchesData.Matches[10].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[10].Iso2}}"></span> <small>{{matchesData.Matches[10].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[3].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[3].Iso1}}"></span> <small>{{matchesData.Matches[3].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[3].Result1}} - {{matchesData.Matches[3].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[3].Iso2}}"></span> <small>{{matchesData.Matches[3].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-5 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[13].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[13].Iso1}}"></span> <small>{{matchesData.Matches[13].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[13].Result1}} - {{matchesData.Matches[13].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[13].Iso2}}"></span> <small>{{matchesData.Matches[13].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[6].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[6].Iso1}}"></span> <small>{{matchesData.Matches[6].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[6].Result1}} - {{matchesData.Matches[6].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[6].Iso2}}"></span> <small>{{matchesData.Matches[6].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-3 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[11].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[11].Iso1}}"></span> <small>{{matchesData.Matches[11].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[11].Result1}} - {{matchesData.Matches[11].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[11].Iso2}}"></span> <small>{{matchesData.Matches[11].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-1 gw-cell-match">
+      	<div class="gw-match-number">#{{matchesData.Matches[7].IdNumber}}</div>
+      	<div class="gw-match">
+      	  <p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[7].Iso1}}"></span> <small>{{matchesData.Matches[7].Team1}}</small></p><div class="center-block"><p class="lead gw-no-margin-bottom"><small>{{matchesData.Matches[7].Result1}} - {{matchesData.Matches[7].Result2}}</small></p></div><br><p class="lead gw-no-margin-bottom text-center"><span class="flag-icon flag-icon-{{matchesData.Matches[7].Iso2}}"></span> <small>{{matchesData.Matches[7].Team2}}</small></p>
+      	</div>
+      </div>
+    </div>
+  </div> <!-- / second stage -->
+  <!-- / Calendar -->
+</div>

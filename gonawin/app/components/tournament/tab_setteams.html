@@ -1,37 +1,36 @@
 <div ng-controller="TournamentSetTeamsCtrl">
   <!-- Teams by phase -->
-  <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-11">
-      <div ng-repeat="phase in teamsData.Phases">
-        <h3>{{phase.Name}}</h3>
-        <table class="table table-striped table-condensed">
-    <thead>
-      <th>teams</th>
-      <th>actions<th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="t in phase.Teams">
-        <td class="col-md-3"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</td>
-        <td class="col-md-9">
-          <form class="form-inline" role="form" ng-submit="">
-      <div ng-show="!t.wantToEdit">
-        <button class="btn btn-default" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
-      </div>
-      <div ng-show="t.wantToEdit">
-        <button class="btn btn-default" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
-        <input type="text" class="form-control input-sm" id="{{t.Id}}" ng-model="name" placeholder="{{t.Name}}">
-        <button type="submit" class="btn btn-default btn-xs" ng-click="save($index, $parent.$index, t.Name, name, phase.Name)"><span class="glyphicon glyphicon-share"> save</span></button>
-      </div>
-          </form>
-        </td>
-      </tr>
-    </tbody>
-        </table>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-11 col-md-offset-1">
+        <div ng-repeat="phase in teamsData.Phases">
+          <h3>{{phase.Name}}</h3>
+          <table class="table table-striped table-condensed">
+            <thead>
+              <th>teams</th>
+              <th>actions<th>
+            </thead>
+            <tbody>
+              <tr ng-repeat="t in phase.Teams">
+                <td class="col-md-3"><span class="flag-icon flag-icon-{{t.Iso}}"></span> {{t.Name}}</td>
+                <td class="col-md-9">
+                  <form class="form-inline" role="form" ng-submit="">
+                    <div ng-show="!t.wantToEdit">
+                      <button class="btn btn-default" type="button" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
+                    </div>
+                    <div ng-show="t.wantToEdit">
+                      <button class="btn btn-default" type="button" name="edit" onclick="" ng-click="edit($index, $parent.$index)"><i class="fa fa-edit fa-fw"></i></button>
+                      <input type="text" class="form-control input-sm" id="{{t.Id}}" ng-model="name" placeholder="{{t.Name}}">
+                      <button type="submit" class="btn btn-default btn-xs" ng-click="save($index, $parent.$index, t.Name, name, phase.Name)"><span class="glyphicon glyphicon-share"></span> save</button>
+                    </div>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <!-- <div class="col-md-4"> -->
-
   <!-- / Teams by phase -->
 </div>

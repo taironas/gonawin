@@ -4,16 +4,16 @@
 <div class="row">
   <!-- alert message to display when search query does not bring up any results -->
   <div class="col-md-12">
-    <div class="alert alert-info" ng-show="messageInfo">
+    <div class="alert alert-info alert-dismissible" ng-show="messageInfo">
       <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageInfo}}
     </div>
-    <div class="alert alert-success" ng-show="messageSuccess">
+    <div class="alert alert-success alert-dismissible" ng-show="messageSuccess">
       <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageSuccess}}
     </div>
-    <div class="alert alert-warning" ng-show="messageWarning">
+    <div class="alert alert-warning alert-dismissible" ng-show="messageWarning">
       <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageWarning}}
     </div>
-    <div class="alert alert-danger" ng-show="messageDanger">
+    <div class="alert alert-danger alert-dismissible" ng-show="messageDanger">
       <button type="button" class="close" data-dismiss="alert">&times;</button>{{messageDanger}}
     </div>
   </div>
