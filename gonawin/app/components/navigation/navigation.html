@@ -11,11 +11,8 @@
       <a class="navbar-brand" href="#" ng-if="!currentUser.User.IsAdmin">gonawin <small>v0.2</small></a>
     </div>
 
-    <div class="collapse navbar-collapse" id="navbar-collapse-content">
-      <ul class="nav navbar-nav navbar-right" ng-if="!isLoggedIn">
-        <li data-match-route="/*.*"><a href="/#/signin"><i class="fa fa-sign-in fa-lg"></i> Sign in</a></li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right" ng-if="isLoggedIn">
+    <div class="collapse navbar-collapse" id="navbar-collapse-content" ng-if="isLoggedIn">
+      <ul class="nav navbar-nav navbar-right" >
         <li data-match-route="/"><a href="/#"><i class="fa fa-home fa-lg"></i> Home</a></li>
         <li class="dropdown" ng-show="currentUser.User.IsAdmin">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">

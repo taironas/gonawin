@@ -1,47 +1,50 @@
-<div class="container-fluid activities" ng-controller="ActivitiesCtrl" ng-show="activities.length">
-  <div class="activities-line"></div>
-  <div class="row activity" ng-repeat="activity in activities">
-    <div class="col-md-1">
-      <span class="activity-icon {{activity.Type}}">
-        <div ng-switch on="activity.Type">
-          <i class="fa fa-check fa-2x fa-inverse" ng-switch-when="welcome"/>
-          <i class="fa fa-users fa-2x fa-inverse" ng-switch-when="team"/>
-          <i class="fa fa-trophy fa-2x fa-inverse" ng-switch-when="tournament"/>
-          <i class="fa fa-compress fa-2x fa-inverse" ng-switch-when="match"/>
-          <i class="fa fa-bar-chart-o fa-2x fa-inverse" ng-switch-when="accuracy"/>
-          <i class="fa fa-crosshairs fa-2x fa-inverse" ng-switch-when="predict"/>
-          <i class="fa fa-list-ol fa-2x fa-inverse" ng-switch-when="score"/>
-          <i class="fa fa-bullhorn fa-2x fa-inverse" ng-switch-when="invitation"/>
+<div class="panel panel-warning">
+  <div class="panel-heading"><strong>Recent activities</strong></div>
+  <div class="panel-body">
+    <div class="activities" ng-controller="ActivitiesCtrl" ng-show="activities.length">
+      <div class="row gw-row-activity" ng-repeat="activity in activities">
+        <div class="col-md-1 centered">
+          <span class="fa-stack fa-lg gw-activity-icon">
+            <i class="fa fa-circle fa-stack-2x {{activity.Type}}"></i>
+            <div ng-switch on="activity.Type">
+              <i class="fa fa-check fa-stack-1x fa-inverse" ng-switch-when="welcome"/>
+              <i class="fa fa-users fa-stack-1x fa-inverse" ng-switch-when="team"/>
+              <i class="fa fa-trophy fa-stack-1x fa-inverse" ng-switch-when="tournament"/>
+              <i class="fa fa-compress fa-stack-1x fa-inverse" ng-switch-when="match"/>
+              <i class="fa fa-bar-chart-o fa-stack-1x fa-inverse" ng-switch-when="accuracy"/>
+              <i class="fa fa-crosshairs fa-stack-1x fa-inverse" ng-switch-when="predict"/>
+              <i class="fa fa-list-ol fa-stack-1x fa-inverse" ng-switch-when="score"/>
+              <i class="fa fa-bullhorn fa-stack-1x fa-inverse" ng-switch-when="invitation"/>
+            </div>
+          </span>
         </div>
-      </span>
-    </div>
-    <div class="col-md-11">
-      <div class="activity-panel panel panel-default">
-        <div class="panel-body">
-          <div ng-switch on="activity.Type">
-            <span ng-switch-when="predict">
-              <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>:
-              <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
-              <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
-            </span>
-            <span ng-switch-when="match">
-              <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong>:
-              <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}}
-              <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>
-            </span>
-            <span ng-switch-default>
-              <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
-              <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
-            </span>
-          </div>
-          <h5 class="text-right"><small>{{activity.Published | fromNow}}</small></h5>
+        <div class="col-md-11">
+          <p>
+            <div ng-switch on="activity.Type">
+              <span ng-switch-when="predict">
+                <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>:
+                <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
+                <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
+              </span>
+              <span ng-switch-when="match">
+                <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong>:
+                <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong> {{activity.Verb}}
+                <strong><a href="/#/{{activity.Target.Type}}s/{{activity.Target.Id}}">{{activity.Target.DisplayName}}</a></strong>
+              </span>
+              <span ng-switch-default>
+                <strong><a href="/#/{{activity.Actor.Type}}s/{{activity.Actor.Id}}">{{activity.Actor.DisplayName}}</a></strong> {{activity.Verb}}
+                <strong><a href="/#/{{activity.Object.Type}}s/{{activity.Object.Id}}">{{activity.Object.DisplayName}}</a></strong>
+              </span>
+            </div>
+          </p>
+          <h5><small>{{activity.Published | fromNow}}</small></h5>
         </div>
       </div>
+      <div class="row gw-row-activity-more centered">
+        <div class="col-md-12">
+          <button class="btn btn-info" type="button" ng-show="hasMore()" ng-click="showMore()"><i class="icon-plus icon-white"></i>More</button>
+      </div>
+      </div>
     </div>
-  </div>
-  <div class="row centered">
-    <div class="col-md-12">
-      <button class="btn btn-info" type="button" ng-show="hasMore()" ng-click="showMore()"><i class="icon-plus icon-white"></i>More</button>
-  </div>
   </div>
 </div>

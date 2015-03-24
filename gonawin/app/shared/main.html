@@ -1,13 +1,11 @@
-<!-- The main container is where the controllers views are displayed if logged in. -->
-<div class="container main-container">
-  <div class="row">
-    <div class="col-md-9 col-main-content">
-      <ng-view></ng-view>
+<div class="row">
+  <div class="col-md-offset-1 col-md-8 col-main-content">
+    <ng-view></ng-view>
+  </div>
+  <div class="col-md-2 col-dashboard">
+    <div class="row">
+      <div ng-include src="'app/components/dashboard/dashboard.html'"></div>
     </div>
-    <div class="col-md-3 col-dashboard">
-      <div class="row">
-        <div ng-include src="'app/components/dashboard/dashboard.html'"></div>
-      </div>
-    </div>
-    </div>
+  </div>
+  <div class="col-md-1"></div>
 </div>

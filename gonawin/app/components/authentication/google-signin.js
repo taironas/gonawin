@@ -4,7 +4,7 @@ angular.module('directive.googlesignin', []).
   directive('googleSignin', function (Session, $rootScope) {
     return {
       restrict: 'E',
-      template: '<button class="btn btn-block btn-social btn-google-plus btn-lg"><i class="fa fa-google"></i> Google</button>',
+      template: '<button class="btn btn-block btn-social btn-google-plus btn-lg"><i class="fa fa-google"></i> Signin with Google</button>',
       replace: true,
       link: function (scope, element, attrs) {
         element.bind("click", function(){

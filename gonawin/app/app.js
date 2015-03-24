@@ -1,6 +1,6 @@
 'use strict';
 
-var gonawingApp = angular.module('gonawingApp', [
+angular.module('gonawingApp', [
   'ngSanitize',
   'ngRoute',
   'ngResource',
@@ -40,7 +40,7 @@ var gonawingApp = angular.module('gonawingApp', [
   'tournamentService'
 ]);
 
-gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
+angular.module('gonawingApp').factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
   return {
     response: function(response) {
       return response || $q.when(response);
@@ -55,7 +55,7 @@ gonawingApp.factory('notFoundInterceptor', ['$q', '$location', function($q, $loc
   };
 }]);
 
-gonawingApp.config(['$routeProvider', '$httpProvider',
+angular.module('gonawingApp').config(['$routeProvider', '$httpProvider',
   function($routeProvider, $httpProvider) {
     $routeProvider.
       when('/welcome', { templateUrl: 'components/home/welcome.html', requireLogin: false }).
@@ -89,7 +89,7 @@ gonawingApp.config(['$routeProvider', '$httpProvider',
     $httpProvider.interceptors.push('notFoundInterceptor');
 }]);
 
-gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
+angular.module('gonawingApp').run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 'Session', 'User', function($rootScope, $location, $window, $cookieStore, sAuth, Session, User) {
     $rootScope.title = 'gonawin';
 
     $rootScope.currentUser = undefined;
@@ -135,7 +135,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
     console.log('routeChangeStart, current user = ', $rootScope.currentUser);
     console.log('routeChangeStart, isLoggedIn = ', $rootScope.isLoggedIn);
 
-    setPageTite();
+    setPageTitle();
     $rootScope.originalPath = $location.$$path;
 
     $rootScope.isLoggedIn = sAuth.isLoggedIn();
@@ -190,7 +190,7 @@ gonawingApp.run(['$rootScope', '$location', '$window', '$cookieStore', 'sAuth', 
   });
 
   // search function:
-  function setPageTite(){
+  function setPageTitle(){
     if( $location.$$url == '/welcome') {
       $rootScope.title = 'gonawin';
     } else if($location.$$url == '/signin'){
