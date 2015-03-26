@@ -1,34 +1,44 @@
-<div class="dashboard-user gw-dashboard-container" ng-show="(dashboard.context == 'user') || (dashboard.context == 'tournaments index') || (dashboard.context == 'teams index')">
-  <table class="table table-condensed">
-    <tr>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-list-ol fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-    </tr>
-    <tr>
-      <td class="gw-td-borderless gw-dashboard-number">{{dashboard.score}}</td>
-      <td class="gw-td-borderless gw-dashboard-number">{{dashboard.ntournaments}}</td>
-      <td class="gw-td-borderless gw-dashboard-number">{{dashboard.nteams}}</td>
-    </tr>
-    <tr>
-      <td class="gw-td-borderless gw-dashboard-subtitle">SCORE</td>
-      <td class="gw-td-borderless gw-dashboard-subtitle">TOURNAMENTS</td>
-      <td class="gw-td-borderless gw-dashboard-subtitle">TEAMS</td>
-    </tr>
-  </table>
+<div class="dashboard-user gw-dashboard-container container-fluid" ng-show="(dashboard.context == 'user') || (dashboard.context == 'tournaments index') || (dashboard.context == 'teams index')">
+  <div class="row">
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-list-ol fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <p class="gw-dashboard-number">{{dashboard.score}}</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-dashboard-number">{{dashboard.ntournaments}}</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-dashboard-number">{{dashboard.nteams}}</td>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <p class="gw-dashboard-subtitle">SCORE</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-dashboard-subtitle">TOURNAMENTS</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-dashboard-subtitle">TEAMS</p>
+    </div>
+  </div>
 </div>

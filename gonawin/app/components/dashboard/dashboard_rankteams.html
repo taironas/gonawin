@@ -1,6 +1,7 @@
 <!-- teams ranking -->
 <div class="panel panel-default gw-leaderboard">
-  <table class="table table-bordered table-condensed">
+  <div class="panel-heading text-center">LEADERBOARD</div>
+  <table class="table table-bordered table-condensed table-striped">
     <tr ng-repeat="t in dashboard.rank.teams | orderBy:'Accuracy':!reverse">
       <td class="gw-td-position">{{$index + 1}}</td>
       <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>

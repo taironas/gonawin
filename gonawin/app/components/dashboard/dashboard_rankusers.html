@@ -1,6 +1,7 @@
 <!-- participants ranking -->
 <div class="panel panel-default gw-leaderboard">
-  <table class="table table-bordered table-condensed">
+  <div class="panel-heading text-center">LEADERBOARD</div>
+  <table class="table table-bordered table-condensed table-striped">
     <tr ng-repeat="u in dashboard.rank.users | orderBy:'Score':!reverse">
       <td ng-show="u.Id == dashboard.userid" class="gw-td-position info">{{$index + 1}}</td>
       <td ng-show="u.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>
