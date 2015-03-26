@@ -1,18 +1,19 @@
 <div ng-include src="'shared/notifications.html'"></div>
-<ol class="breadcrumb">
-  <li class="active">Invite</li>
-</ol>
 <div class="panel panel-default">
+  <div class="panel-heading gw-panel-heading"><strong>Email invitation</strong></div>
   <div class="panel-body">
     <div class="container-fluid">
-      <h1 class="gw-h1">
-        <i class="fa fa-bullhorn fa-lg"></i>
-        Email Invitation
-      </h1>
       <div class="row">
         <div class="col-md-12">
-          <h3>Invite people to join gonawin</h3>
-          <p>They will receive the following message:</p>
+          <h3 class="gw-h1">
+            <i class="fa fa-bullhorn fa-lg"></i>
+            Invite people to join gonawin
+          </h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h5>They will receive the following message:</h5>
           <hr>
         	<div ng-dirty>
         	  <form name="inviteForm" role="form">
@@ -42,7 +43,7 @@
                   </div>
         	      </div>
         	    </div>
-        	    <button class="btn btn-success" type="button" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid">Invite friends</button>
+        	    <button class="btn btn-success btn-sm" type="button" ng-click="inviteFriends()" ng-disabled="inviteForm.$invalid"><strong>Invite friends</strong></button>
         	  </form>
         	</div>
         </div>
