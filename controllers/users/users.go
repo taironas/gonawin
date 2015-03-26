@@ -98,9 +98,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-		log.Infof(c, "%s User: %v", desc, uJson.TeamIds)
 		log.Infof(c, "%s User: %v", desc, uJson)
-		log.Infof(c, "%s User: %v", desc, *uJson.TeamIds)
 
 		// get with param:
 		with := r.FormValue("including")
@@ -149,7 +147,23 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teamsJson := make([]mdl.TeamJson, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 		// tournaments
-		tournamentfieldsToKeep := []string{"Id", "Name", "UserIds", "TeamIds"}
+		tournamentfieldsToKeep := []string{"Id", "Name", "UserIds", "TeamIds", "ParticipantsCount", "TeamsCount", "Progress"}
+		// build extended tournaments json
+		type tournament struct {
+			Id                int64  `json:",omitempty"`
+			Name              string `json:",omitempty"`
+			ParticipantsCount int
+			TeamsCount        int
+			Progress          float64
+		}
+		ts := make([]tournament, len(tournaments))
+		for i, t := range tournaments {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].ParticipantsCount = len(t.UserIds)
+			ts[i].TeamsCount = len(t.TeamIds)
+			ts[i].Progress = t.Progress(c)
+		}
 		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentfieldsToKeep)
 		// team requests
@@ -166,13 +180,13 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			User         mdl.UserJson          `json:",omitempty"`
 			Teams        []mdl.TeamJson        `json:",omitempty"`
 			TeamRequests []mdl.TeamRequestJson `json:",omitempty"`
-			Tournaments  []mdl.TournamentJson  `json:",omitempty"`
+			Tournaments  []tournament          `json:",omitempty"`
 			Invitations  []mdl.TeamJson        `json:",omitempty"`
 		}{
 			uJson,
 			teamsJson,
 			trsJson,
-			tournamentsJson,
+			ts,
 			invitationsJson,
 		}
 
