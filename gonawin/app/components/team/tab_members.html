@@ -1,17 +1,8 @@
 <div class="players container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <div ng-repeat="player in teamData.Players">
-        <div class="panel panel-default card">
-          <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{player.Id}}.png?inverted=1" height="80" width="80">
-          <div class="card-body">
-            <p>
-              <h4 ng-show="player.Alias.length > 0"><a href="/#/users/{{player.Id}}">{{player.Alias}}</a></h4>
-              <h4 ng-show="player.Alias.length == 0"><a href="/#/users/{{player.Id}}">{{player.Username}}</a></h4>
-            </p>
-            <h5>Score: {{player.Score}}</h5>
-          </div>
-        </div>
+      <div ng-repeat="user in teamData.Players">
+        <div ng-include src="'shared/user_card.html'"></div>
       </div>
     </div>
   </div>

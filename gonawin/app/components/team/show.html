@@ -1,9 +1,28 @@
 <div ng-include src="'shared/notifications.html'"></div>
-<ol class="breadcrumb">
-  <li><a href="/#/teams">Teams</a></li>
-  <li class="active">{{teamData.Team.Name}}</li>
-</ol>
 <div class="panel panel-default">
+  <div class="panel-heading gw-panel-heading">
+    <div class="row">
+      <div class="col-md-11">
+        <a class="gw-chevron" href="/#/teams"><i class="fa fa-chevron-left fa-lg">  </i></a>
+        <h6 class="gw-h6"><a href="/#/teams"><strong>Teams</strong></a></h6>
+      </div>
+      <div class="col-md-1">
+        <div ng-if="isTeamAdmin">
+          <!-- team's settings button -->
+          <div class="btn-group pull-right">
+            <button type="button" class="btn btn-transparent dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/#/teams/edit/{{teamData.Team.Id}}">Edit</a></li>
+              <li><a href="/#/teams/invite/{{teamData.Team.Id}}">Invite</a></li>
+              <li><a href="" data-toggle="modal" data-target="#team-modal">Manage admins</a></li>
+              <li class="divider"></li>
+              <li><a href="#" ng-click="deleteTeam()">Delete</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="panel-body">
     <div ng-include src="'components/team/header.html'"></div>
     <br/><br/>
