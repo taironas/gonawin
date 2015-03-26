@@ -13,29 +13,29 @@
 
     <div class="collapse navbar-collapse" id="navbar-collapse-content" ng-if="isLoggedIn">
       <ul class="nav navbar-nav navbar-right" >
-        <li data-match-route="/"><a href="/#"><i class="fa fa-home fa-lg"></i> Home</a></li>
+        <li data-match-route="/$"><a href="/#"><i class="fa fa-home fa-lg"></i> <strong>HOME</strong></a></li>
         <li class="dropdown" ng-show="currentUser.User.IsAdmin">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">
-            Manage
+            <strong>MANAGE</strong>
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu fa-ul" role="menu" aria-labelledby="dLabel">
-            <li><a href="/#/users/"><i class="fa fa fa-user fa-fw"></i> Users</a></li>
+            <li><a href="/#/users/"><i class="fa fa fa-user fa-fw"></i> <strong>USERS</strong></a></li>
           </ul>
         </li>
-        <li data-match-route="/teams.*"><a href="/#/teams"><i class="fa fa-users fa-lg"></i> Teams</a></li>
-        <li data-match-route="/tournaments.*"><a href="/#/tournaments"><i class="fa fa-trophy fa-lg"></i> Tournaments</a></li>
+        <li data-match-route="/teams.*"><a href="/#/teams"><i class="fa fa-users fa-lg"></i> <strong>TEAMS</strong></a></li>
+        <li data-match-route="/tournaments.*"><a href="/#/tournaments"><i class="fa fa-trophy fa-lg"></i> <strong>TOURNAMENTS</strong></a></li>
         <li class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown" href="">
             <i class="fa fa-user fa-lg"></i>
-            {{currentUser.displayName()}} <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span>
+            <strong class="text-uppercase">{{currentUser.displayName()}}</strong> <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span>
             <b class="caret"></b>
           </a>
           <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-            <li><a href="/#/users/{{currentUser.User.Id}}"><i class="fa fa-user fa-fw"></i> Profile <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span></a></li>
-            <li><a href="/#/settings/edit-profile"><i class="fa fa-gear fa-fw"></i> Settings</a></li>
-            <li><a href="/#/invite"><i class="fa fa-bullhorn fa-fw"></i> Invite</a></li>
-            <li><a href="" ng-click="disconnect()"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+            <li><a href="/#/users/{{currentUser.User.Id}}"><i class="fa fa-user fa-fw"></i> <strong>PROFILE</strong> <span class="badge gw-badge">{{currentUser.Invitations.length + currentUser.TeamRequests.length}}</span></a></li>
+            <li><a href="/#/settings/edit-profile"><i class="fa fa-gear fa-fw"></i> <strong>SETTINGS</strong></a></li>
+            <li><a href="/#/invite"><i class="fa fa-bullhorn fa-fw"></i> <strong>INVITE</strong></a></li>
+            <li><a href="" ng-click="disconnect()"><i class="fa fa-sign-out fa-fw"></i> <strong>LOGOUT</strong></a></li>
           </ul>
         </li>
       </ul>
