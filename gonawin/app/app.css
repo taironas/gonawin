@@ -5,11 +5,11 @@ body {
 }
 
 a {
-  color: #00b9Ab;
+  color: #ffa07a;
 }
 
 a:hover {
-  color: #00958B;
+  color: #fa8072;
 }
 
 /* Button styles
@@ -17,7 +17,7 @@ a:hover {
 
 .btn-primary {
   color: #ffffff;
-  background-color: #00b9ab;
+  background-color: #fa8072;
   border-color: #00a093;
 }
 .btn-primary:hover,
@@ -49,17 +49,17 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary.disabled.active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
-  background-color: #00b9ab;
+  background-color: #fa8072;
   border-color: #00a093;
 }
 .btn-primary .badge {
-  color: #00b9ab;
+  color: #fa8072;
   background-color: #ffffff;
 }
 
 .btn-warning {
   color: #ffffff;
-  background-color: #ffaa3c;
+  background-color: #ffa07a;
   border-color: #ff9f22;
 }
 .btn-warning:hover,
@@ -91,11 +91,11 @@ fieldset[disabled] .btn-warning:active,
 .btn-warning.disabled.active,
 .btn-warning[disabled].active,
 fieldset[disabled] .btn-warning.active {
-  background-color: #ffaa3c;
+  background-color: #ffa07a;
   border-color: #ff9f22;
 }
 .btn-warning .badge {
-  color: #ffaa3c;
+  color: #ffa07a;
   background-color: #ffffff;
 }
 
@@ -103,6 +103,7 @@ fieldset[disabled] .btn-warning.active {
   background-color: transparent;
   border: none;
   color: #a9a9a9;
+  padding: 0px 12px;
 }
 
 .btn-transparent:hover {
@@ -111,6 +112,13 @@ fieldset[disabled] .btn-warning.active {
 
 .btn-group-gn {
   margin-bottom: 20px;
+}
+
+.gw-btn-default.active,
+.gw-btn-default:hover {
+  color: #fff;
+  background-color: orange;
+  border-color: #faebcc
 }
 
 /* End Button styles
@@ -128,63 +136,61 @@ fieldset[disabled] .btn-warning.active {
 -------------------------------------------------- */
 
 .navbar-default {
-  background-color: #00b9Ab;
-  border-bottom: 2px solid #ffaa3c;
+  background-color: #f5f7f4;
   border-radius: 0px;
   margin-bottom: 0px;
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 
 .navbar-default .navbar-nav>li>a,
 .navbar-default .navbar-brand {
-  color: white;
+  color: #ffa07a;
 }
 
 .navbar-default .navbar-nav .dropdown-menu>li>a {
-  color: white;
+  color: #f5f7f4;
 }
 
-.navbar-default .navbar-nav>li>a:hover {
-  color: white;
-  background-color: #ffaa3c;
-}
-
+.navbar-default .navbar-nav>li>a:hover,
 .navbar-default .navbar-brand:hover {
-  color: #ffaa3c;
+  color: #fa8072;
+  background-color: #f5f7f4;
 }
 
 .navbar-default .navbar-nav .dropdown-menu>li>a:hover {
-  color: white;
-  background-color: #ffaa3c;
+  color: #fa8072;
+  background-color: #f5f7f4;
 }
 
 .navbar-nav>li>.dropdown-menu {
-  background-color: #00b9Ab;
+  background-color: #f5f7f4;
+  font-size: 12px;
 }
 
 .navbar-default .navbar-nav .open .dropdown-menu>li>a {
-  color: white;
+  color: #ffa07a;
 }
 
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover {
-  color: white;
-  background-color: #ffaa3c;
+  color: #fa8072;
 }
 
 .navbar-default .navbar-nav>.active>a {
-  color: white;
-  background-color: #ffaa3c;
+  color: #fa8072;
+  background-color: #f5f7f4;
 }
 
 .navbar-default .navbar-nav>.active>a:hover {
-  color: #00b9Ab;
-  background-color: #ffaa3c;
+  color: #ffa07a;
+  background-color: #f5f7f4;
 }
 
 .navbar-default .navbar-nav>.open>a,
 .navbar-default .navbar-nav>.open>a:hover,
 .navbar-default .navbar-nav>.open>a:focus {
-background-color: #ffaa3c;
-color: white;
+  color: #ffa07a;
+  background-color: #f5f7f4;
 }
 
 .navbar-default small {
@@ -192,26 +198,30 @@ color: white;
 }
 
 .navbar-default .navbar-toggle {
-  border: 2px solid #ffaa3c;
+  border: 2px solid #ffa07a;
 }
 
 .navbar-default .navbar-toggle  .icon-bar {
-  background-color: #ffaa3c;
+  background-color: #ffa07a;
 }
 
 .gw-badge {
-  background-color: #008279;
+  background-color: #ffa07a;
 }
 
 .navbar-default .navbar-nav>li>a:hover .gw-badge,
 .navbar-default .navbar-nav>li>a:focus .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus .gw-badge {
-  background-color: #A3542E;
+  background-color: #f5f7f4;
 }
 
 /* End Navbar styles
 -------------------------------------------------- */
+
+.panel-default .panel-heading {
+  background-color: #f5f7f4;
+}
 
 .header-welcome {
   color: #fff;
@@ -225,7 +235,7 @@ color: white;
 
 .header-welcome h1 {
   font-size: 45pt;
-  text-shadow: #ffaa3c 2px 2px 0px, #ffaa3c -2px 2px 0px, #ffaa3c -2px -2px 0px, #ffaa3c 2px -2px 0px;
+  text-shadow: #ffa07a 2px 2px 0px, #ffa07a -2px 2px 0px, #ffa07a -2px -2px 0px, #ffa07a 2px -2px 0px;
 }
 
 .header-signin {
@@ -267,7 +277,7 @@ color: white;
 /* intro Wrap */
 
 .intro {
-  color: #ffaa3c;
+  color: #ffa07a;
   margin-top: 580px;
 }
 
@@ -299,16 +309,11 @@ body {
   height: auto;
 }
 
-.cover {
-  background: url(/app/assets/img/stadium.jpg) no-repeat center fixed;
-  background-size: cover;
-}
-
 /* Set the fixed height of the footer here */
 #footer {
   height: auto;
-  background-color: #00b9Ab;
-  border-top: 2px solid #ffaa3c;
+  background-color: #ffa07a;
+  border-top: 1px solid #fa8072;
   z-index: 9999;
   position:absolute;
   width: 100%;
@@ -336,6 +341,11 @@ body {
 /* End Sticky footer styles
 -------------------------------------------------- */
 
+.cover {
+  background: url(/app/assets/img/stadium.jpg) no-repeat center fixed;
+  background-size: cover;
+}
+
 .main-container {
   padding-top: 20px;
 }
@@ -357,7 +367,20 @@ body {
   font-size: 30pt;
 }
 
+.gw-panel-heading {
+  font-size: 12px;
+}
+
+.gw-panel-heading a {
+  color: #000;
+}
+
+.gw-panel-footer {
+  font-size: 12px;
+}
+
 .gw-row-activity {
+  font-size: 12px;
   border-bottom: 1px solid #eee;
   margin-right: 0px;
   margin-left: 0px;
@@ -369,7 +392,11 @@ body {
 }
 
 .gw-row-activity a {
-  color: #ffaa3c;
+  color: #ffa07a;
+}
+
+.gw-row-activity h5 {
+  margin-top: 5px;
 }
 
 .team {
@@ -401,37 +428,7 @@ body {
 }
 
 /* teams */
-.card {
-  width: 260px;
-  height: 81px;
-  float: left;
-  margin-left: 25px;
-}
 
-.card-avatar {
-  margin-right: 10px;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-
-.card-body {
-  height: 49px;
-}
-
-.card-body h4 {
-  margin-bottom: 0px;
-  overflow: hidden;
-  -o-text-overflow: ellipsis; /*Opera 9 */
-  text-overflow: ellipsis; /* other browsers */
-  white-space:nowrap;
-}
-
-.card-footer {
-  background-color: #F5F5F5;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-  color: #67c2ef;
-}
 
 /* tournaments */
 .panel-match h4 {
@@ -451,7 +448,9 @@ body {
 }
 
 /* Force inline for titles in order to be able to set icons before them without a break line in between*/
-.gw-h1 {
+.gw-h1,
+.gw-h3,
+.gw-h6 {
   display: inline;
 }
 /* Break word when text size exceeds the size of its container*/
@@ -460,7 +459,7 @@ body {
 }
 
 .gw-h3 {
-  color: #ffaa3c;
+  color: #ffa07a;
 }
 
 .gw-no-margin {
@@ -567,6 +566,10 @@ body {
 /* Dashboard styles
 -------------------------------------------------- */
 
+.panel-default .gw-dashboard-panel-heading {
+  height: 153px;
+  padding-top: 25px;
+}
 .gw-dashboard-container {
   padding-right: 0px;
   padding-left: 0px;
@@ -574,41 +577,25 @@ body {
   margin-left: -15px;
 }
 
-.panel-default .gw-panel-heading {
-  color: white;
-  background-color: #00b9Ab;
-  border-bottom: none;
-  height: 153px;
-  padding-top: 25px;
-}
-
-.panel-default .gw-panel-body {
-  color: white;
-  background-color: #16A799;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
+.gw-dashboard-icon-background {
+  color: #ffa07a;
 }
 
 .gw-dashboard-icon {
-  color: #ADE3DF;
-}
-
-.gw-dashboard-icon-background {
-  color: #00B9AB;
+  color: #fff;
 }
 
 .gw-dashboard-number {
-  font-size: 30px;
+  font-size: 25px;
   font-weight: 700;
 }
 
 .gw-dashboard-subtitle {
-  color: #ADE3DF;
+  font-size: 12px;
   font-weight: 500;
 }
 
 .gw-dashboard-h5 {
-  color: #ADE3DF;
   font-weight: 500;
 }
 
@@ -623,13 +610,13 @@ body {
 }
 
 .gw-dashboard-table {
-  background-color: #00B9AB;
+  background-color: #fa8072;
   border: none;
 }
 
 .gw-leaderboard .table tr td,
 .gw-dashboard-table .table tr td {
-  color: #00b9Ab;
+  color: #fa8072;
   font-weight: 500;
   border: none;
 }
