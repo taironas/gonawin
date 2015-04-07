@@ -226,6 +226,7 @@ fieldset[disabled] .btn-warning.active {
 }
 
 .header-welcome {
+  margin-top: 50px;
   color: #fff;
   position:absolute;
   width: 100%;
@@ -241,7 +242,7 @@ fieldset[disabled] .btn-warning.active {
 }
 
 .header-signin {
-  margin-top: 250px;
+  margin-top: 150px;
   color: #fff;
   position:absolute;
   width: 100%;
@@ -254,6 +255,7 @@ fieldset[disabled] .btn-warning.active {
 .header-signin h3 {
   font-size: 20pt;
   margin-bottom: 30px;
+  color: #ffa07a;
 }
 
 .header-signin .btn {
@@ -280,7 +282,7 @@ fieldset[disabled] .btn-warning.active {
 
 .intro {
   color: #ffa07a;
-  margin-top: 580px;
+  margin-top: 500px;
 }
 
 .intro img {
@@ -344,7 +346,11 @@ body {
 -------------------------------------------------- */
 
 .cover {
-  background: url(/app/assets/img/stadium.jpg) no-repeat center fixed;
+  background: linear-gradient(
+      rgba(0, 0, 0, 0.30),
+      rgba(0, 0, 0, 0.30)
+    ), url(/app/assets/img/stadium.jpg) no-repeat center fixed;
+  background-color: rgba(0, 0, 0, 1.0);
   background-size: cover;
 }
 
