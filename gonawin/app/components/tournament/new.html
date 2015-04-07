@@ -1,9 +1,6 @@
 <div ng-include src="'shared/notifications.html'"></div>
-<ol class="breadcrumb">
-  <li><a href="/#/tournaments">Tournaments</a></li>
-  <li class="active">New Tournament</li>
-</ol>
 <div class="panel panel-default">
+  <div class="panel-heading gw-panel-heading"><strong>New tournament</strong></div>
   <div class="panel-body">
     <form class="form-horizontal" role="form" name="newTournamentForm">
       <div class="form-group" ng-class="{error: newTournamentForm.name.$invalid}">
@@ -21,8 +18,8 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <a href="/#/tournaments" class="btn btn-default">Cancel</a>
-          <button class="btn btn-primary" type="button" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid">Create Tournament</button>
+          <a href="/#/tournaments" class="btn btn-default btn-sm"><strong>Cancel</strong></a>
+          <button class="btn btn-primary btn-sm" type="button" ng-click="addTournament()" ng-disabled="newTournamentForm.$invalid"><strong>Create Tournament</strong></button>
         </div>
       </div>
     </form>

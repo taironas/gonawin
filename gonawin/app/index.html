@@ -43,11 +43,13 @@
     <link rel="shortcut icon" href="/app/img/favicon.ico" />
   </head>
   <body>
-    <div id="wrap">
+    <div id="wrap" ng-class="{false: 'cover'}[isLoggedIn]">
       <div ng-include src="'app/components/navigation/navigation.html'"></div>
       <div ng-switch on="isLoggedIn && isLoginRequired">
         <div ng-switch-when="true">
-          <ng-include src="'shared/main.html'"></ng-include>
+          <div class="container-fluid gw-container">
+            <ng-include src="'shared/main.html'"></ng-include>
+          </div>
         </div>
         <div ng-switch-default>
           <div ng-switch on="originalPath">
@@ -57,12 +59,12 @@
               </div>
             </div>
             <div ng-switch-when="/404">
-              <div class="main-container">
+              <div class="main-container gw-container-404">
                 <ng-view><ng-view>
               </div>
             </div>
             <div ng-switch-default>
-              <div class="container main-container">
+              <div class="container gw-container">
                 <ng-view><ng-view>
               </div>
             </div>

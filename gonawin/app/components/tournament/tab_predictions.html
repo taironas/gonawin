@@ -1,23 +1,16 @@
 <div ng-controller="TournamentPredictionsCtrl">
   <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-11">
+    <div class="col-md-11 col-md-offset-1">
       <p class="lead">Select a team to view its predictions:</p>
       </div>
   </div>
   <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-5">
+    <div class="col-md-5 col-md-offset-1">
       <select ng-model="selectedTeamId" class="form-control" ng-change="update()">
-	<option ng-repeat="t in currentUser.Teams" value="{{t.Id}}">
-	  {{t.Name}}
-	</option>
+      	<option ng-repeat="t in currentUser.Teams" value="{{t.Id}}">
+      	  {{t.Name}}
+      	</option>
       </select>
-
-      <!-- <div class="btn-group pull-right"> -->
-      <!--   <a class="btn btn-default" ng-class="{active: matchesData.Days != undefined}" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=date">Date</a></li> -->
-      <!--   <a class="btn btn-default" ng-class="{active: matchesData.Phases != undefined}" href="/#/tournaments/{{tournamentData.Tournament.Id}}?tab={{tab}}&groupby=phase">Phase</a></li> -->
-      <!-- </div> -->
     </div>
   </div>
   <br>

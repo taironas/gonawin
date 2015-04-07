@@ -1,0 +1,48 @@
+<div class="col-md-3">
+  <div class="panel panel-default text-center" ng-controller="TeamCardCtrl" ng-model="team">
+    <div class="panel-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <p><img class="center-block img-circle img-responsive" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80"></p>
+          </div>
+        </div>
+        <div class="row">
+          <p><a href="/#/teams/{{team.Id}}"><strong>{{team.Name}}</strong></a> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i></p>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div ng-if="!isTeamAdmin && !team.Joined">
+              <div ng-if="team.Private">
+                <div ng-if="team.RequestSent">
+                  <input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Request sent..." />
+                </div>
+                <div ng-if="!team.RequestSent">
+                  <strong><input class="btn btn-info btn-sm" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" /></strong>
+                </div>
+              </div>
+              <div ng-if="!team.Private">
+                <joinbutton action="joinButtonMethod()" name="joinButtonName" />
+              </div>
+            </div>
+            <div ng-if="isTeamAdmin">
+              <strong><input class="btn btn-info btn-sm disabled" name="commit" type="submit" value="Joined" /></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-footer gw-panel-footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-6">Members</div>
+          <div class="col-md-6">Accuracies</div>
+        </div>
+        <div class="row">
+          <div class="col-md-6"><strong>{{team.MembersCount}}</strong></div>
+          <div class="col-md-6"><strong>{{100 * team.Accuracy | number:2}}%</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

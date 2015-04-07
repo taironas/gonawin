@@ -1,40 +1,50 @@
-<div class="dashboard-team gw-dashboard-container" ng-show="dashboard.context == 'team'">
-  <table class="table table-condensed">
-    <tr>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-bar-chart-o fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-      <td class="gw-td-borderless">
-        <span class="fa-stack fa-2x">
-          <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-          <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
-        </span>
-      </td>
-    </tr>
-    <tr>
-      <td class="gw-td-borderless gw-dashboard-number">{{100 * dashboard.accuracy | number:2}}%</td>
-      <td class="gw-td-borderless gw-dashboard-number">{{dashboard.ntournaments}}</td>
-      <td class="gw-td-borderless gw-dashboard-number">{{dashboard.nmembers}}</td>
-    </tr>
-    <tr>
-      <td class="gw-td-borderless gw-dashboard-subtitle">ACCURACY</strong></td>
-      <td class="gw-td-borderless gw-dashboard-subtitle">TOURNAMENTS</strong></td>
-      <td class="gw-td-borderless gw-dashboard-subtitle">MEMBERS</strong></td>
-    </tr>
-  </table>
+<div class="dashboard-team gw-dashboard-container container-fluid" ng-show="dashboard.context == 'team'">
+  <div class="row">
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-bar-chart-o fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-trophy fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+    <div class="col-md-4">
+      <span class="fa-stack fa-2x">
+        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+        <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
+      </span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-number">{{100 * dashboard.accuracy | number:2}}%</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-number">{{dashboard.ntournaments}}</p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-number">{{dashboard.nmembers}}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-subtitle">ACCURACY</strong></p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-subtitle">TOURNAMENTS</strong></p>
+    </div>
+    <div class="col-md-4">
+      <p class="gw-td-borderless gw-dashboard-subtitle">MEMBERS</strong></p>
+    </div>
+  </div>
   <br>
-  <h5 class="gw-dashboard-h5">LEADERBOARD</h5>
   <div class="panel panel-default gw-leaderboard">
-    <table class="table table-bordered table-condensed">
+    <div class="panel-heading text-center">LEADERBOARD</div>
+    <table class="table table-bordered table-condensed table-striped">
       <tr ng-repeat="m in dashboard.members | orderBy:'Score':!reverse">
         <td ng-show="m.Id == dashboard.userid" class="gw-td-position info">{{$index + 1}}</td>
         <td ng-show="m.Id != dashboard.userid" class="gw-td-position">{{$index + 1}}</td>

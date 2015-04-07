@@ -98,9 +98,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 		var uJson mdl.UserJson
 		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-		log.Infof(c, "%s User: %v", desc, uJson.TeamIds)
 		log.Infof(c, "%s User: %v", desc, uJson)
-		log.Infof(c, "%s User: %v", desc, *uJson.TeamIds)
 
 		// get with param:
 		with := r.FormValue("including")
@@ -150,6 +148,20 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 		// tournaments
 		tournamentfieldsToKeep := []string{"Id", "Name", "UserIds", "TeamIds"}
+		// build tournaments stats json
+		type TournamentStats struct {
+			Id                int64
+			ParticipantsCount int
+			TeamsCount        int
+			Progress          float64
+		}
+		stats := make([]TournamentStats, len(tournaments))
+		for i, t := range tournaments {
+			stats[i].Id = t.Id
+			stats[i].ParticipantsCount = len(t.UserIds)
+			stats[i].TeamsCount = len(t.TeamIds)
+			stats[i].Progress = t.Progress(c)
+		}
 		tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
 		helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentfieldsToKeep)
 		// team requests
@@ -163,16 +175,18 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// data
 		data := struct {
-			User         mdl.UserJson          `json:",omitempty"`
-			Teams        []mdl.TeamJson        `json:",omitempty"`
-			TeamRequests []mdl.TeamRequestJson `json:",omitempty"`
-			Tournaments  []mdl.TournamentJson  `json:",omitempty"`
-			Invitations  []mdl.TeamJson        `json:",omitempty"`
+			User            mdl.UserJson          `json:",omitempty"`
+			Teams           []mdl.TeamJson        `json:",omitempty"`
+			TeamRequests    []mdl.TeamRequestJson `json:",omitempty"`
+			Tournaments     []mdl.TournamentJson  `json:",omitempty"`
+			TournamentStats []TournamentStats     `json:",omitempty"`
+			Invitations     []mdl.TeamJson        `json:",omitempty"`
 		}{
 			uJson,
 			teamsJson,
 			trsJson,
 			tournamentsJson,
+			stats,
 			invitationsJson,
 		}
 

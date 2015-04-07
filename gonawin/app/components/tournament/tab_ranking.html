@@ -1,12 +1,10 @@
 <div ng-controller="TournamentRankingCtrl">
   <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
+    <div class="col-md-4 col-md-offset-4 centered">
       <div class="btn-group">
-        <a class="btn btn-default" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()">Users</a>
-        <a class="btn btn-default" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()">Teams</a>
+        <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()"><strong>Users</strong></a>
+        <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()"><strong>Teams</strong></a>
       </div>
-      <div class="col-md-4"></div>
     </div>
   </div>
   <!-- Teams -->

@@ -11,66 +11,159 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 
     $rootScope.title = 'gonawin - Teams';
 
-    $scope.countTeams = 25;            // counter for the number of teams to display in view.
-    $scope.countJoinedTeams = 25;      // counter for the number of teams joined by user to display in view.
+    $scope.countTeams = 25; // counter for the number of teams to display in view.
+    $scope.pageTeams = 1;   // page counter for teams, to know which page to display next.
 
-    $scope.pageTeams = 1;         // page counter for teams, to know which page to display next.
-    $scope.pageJoinedTeams = 1;   // page counter for joined teams, to know which page to display next.
-
-    // main query to /j/teams to get not joined teams.
-    $scope.teams = Team.query({count:$scope.countTeams, page:$scope.pageTeams});
-
-    // initilize team message and button visibility.
-    $scope.teams.$promise.then(function(response){
-  if(!$scope.teams || ($scope.teams && !$scope.teams.length)){
-	    $scope.noTeamsMessage = 'There are no teams yet';
-	}else if($scope.teams != undefined){
-	    $scope.showMoreTeams = (response.length == $scope.countTeams);
-	}
+    $rootScope.currentUser.$promise.then(function(currentUser) {
+      $scope.showMyTeams();
     });
 
-    $rootScope.currentUser.$promise.then(function(currentUser){
-	var userData = User.get({ id:currentUser.User.Id, including: "Teams", count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams});
-	console.log('user data = ', userData);
-	userData.$promise.then(function(result){
-            $scope.joinedTeams = result.Teams;
-            if(!$scope.joinedTeams || ($scope.joinedTeams && !$scope.joinedTeams.length)){
-		$scope.noJoinedTeamsMessage = 'You haven\'t joined a team yet';
-	    }else if($scope.joinedTeams != undefined){
-		$scope.showMoreJoinedTeams = (result.Teams.length == $scope.countJoinedTeams);
-	    }
-	});
-    });
+    $scope.showMyTeams = function() {
+      var userData = User.get({ id:$rootScope.currentUser.User.Id, including: "Teams", count:$scope.countTeams, page:$scope.pageTeams});
+    	console.log('user data = ', userData);
+    	userData.$promise.then(function(response) {
+        $scope.teams = response.Teams;
+        if(!$scope.teams || ($scope.teams && !$scope.teams.length)) {
+    		    $scope.noTeamsMessage = 'You haven\'t joined a team yet';
+  	    } else if($scope.teams !== undefined) {
+    		    $scope.showMoreTeams = (response.Teams.length == $scope.countTeams);
+  	    }
+    	});
+    };
 
-    // Search function redirects to main search url /search.
-    $scope.searchTeam = function(){
-	console.log('TeamListCtrl: searchTeam');
-	console.log('keywords: ', $scope.keywords);
-	$location.search('q', $scope.keywords).path('/search');
+    $scope.showOtherTeams = function() {
+      Team.query({count:$scope.countTeams, page:$scope.pageTeams}).$promise.then(function(teams) {
+        $scope.teams = teams;
+        if(!$scope.teams || ($scope.teams && !$scope.teams.length)) {
+      	    $scope.noTeamsMessage = 'There are no teams yet';
+      	} else if($scope.teams !== undefined) {
+      	    $scope.showMoreTeams = (teams.length == $scope.countTeams);
+      	}
+      });
     };
 
     // show more teams function:
     // retrieve teams by page and increment page.
-    $scope.moreTeams = function(){
-	console.log('more teams');
-	$scope.pageTeams = $scope.pageTeams + 1;
-	Team.query({count:$scope.countTeams, page:$scope.pageTeams}).$promise.then(function(response){
-	    console.log('response: ', response);
-	    $scope.teams = $scope.teams.concat(response);
-	    $scope.showMoreTeams = (response.length == $scope.countTeams);
-	});
+    $scope.moreTeams = function() {
+    	console.log('more teams');
+    	$scope.pageTeams = $scope.pageTeams + 1;
+    	Team.query({count:$scope.countTeams, page:$scope.pageTeams}).$promise.then(function(response) {
+  	    console.log('response: ', response);
+  	    $scope.teams = $scope.teams.concat(response);
+  	    $scope.showMoreTeams = (response.length == $scope.countTeams);
+    	});
     };
 
-    $scope.moreJoinedTeams = function(){
-	console.log('more joined teams');
-	$scope.pageJoinedTeams = $scope.pageJoinedTeams + 1;
-	User.teams({id:$rootScope.currentUser.User.Id, count:$scope.countJoinedTeams, page:$scope.pageJoinedTeams}).$promise.then(function(response){
-	    console.log('response: ', response);
-	    $scope.joinedTeams = $scope.joinedTeams.concat(response.Teams);
-	    $scope.showMoreJoinedTeams = (response.Teams.length == $scope.countJoinedTeams);
-	});
+    $scope.moreJoinedTeams = function() {
+    	console.log('more joined teams');
+    	$scope.pageTeams = $scope.pageTeams + 1;
+    	User.teams({id:$rootScope.currentUser.User.Id, count:$scope.countTeams, page:$scope.pageTeams}).$promise.then(function(response) {
+  	    console.log('response: ', response);
+  	    $scope.teams = $scope.teams.concat(response.Teams);
+  	    $scope.showMoreTeams = (response.Teams.length == $scope.countTeams);
+    	});
+    };
 
-    }
+    // Search function redirects to main search url /search.
+    $scope.searchTeam = function(){
+      console.log('TeamListCtrl: searchTeam');
+      console.log('keywords: ', $scope.keywords);
+      $location.search('q', $scope.keywords).path('/search');
+     };
+}]);
+
+// TeamCardCtrl: handles team card
+teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team',
+  function($rootScope, $scope, $q, Team) {
+    console.log('Team Card controller: team = ', $scope.team);
+
+    $scope.teamData = Team.get({ id:$scope.team.Id });
+
+    // set isTeamAdmin boolean:
+    // This variable defines if the current user is admin of the current team.
+    $scope.teamData.$promise.then(function(teamResult) {
+      console.log('team is admin ready');
+      // as it depends of currentUser, make a promise
+      var deferred = $q.defer();
+      deferred.resolve((teamResult.Team.AdminIds.indexOf($scope.currentUser.User.Id)>=0));
+      return deferred.promise;
+    }).then(function(result){
+      console.log('is team admin:', result);
+      $scope.isTeamAdmin = result;
+    });
+
+    $scope.requestInvitation = function() {
+      console.log('team request invitation');
+      Team.requestInvite( {id:$scope.team.Id}, function() {
+        Team.get({ id:$scope.team.Id }).$promise.then(function(teamDataResult) {
+          $scope.teamData = teamDataResult;
+        });
+      }, function(err){
+        $scope.messageDanger = err;
+        console.log('invite failed ', err);
+      });
+    };
+
+    // This function makes a user join a team.
+    // It does so by caling Join on a Team.
+    // This will update members data and join button name.
+    $scope.joinTeam = function() {
+      Team.join({ id:$scope.team.Id }).$promise.then(function(response) {
+        console.log('joinTeam response = ', response);
+        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonMethod = $scope.leaveTeam;
+        $scope.messageInfo = response.MessageInfo;
+        Team.get({ id:$scope.team.Id }).$promise.then(function(teamDataResult) {
+          console.log('teamDataResult = ', teamDataResult);
+          $scope.teamData = teamDataResult;
+        });
+        $rootScope.$broadcast('setUpdatedDashboard');
+      });
+    };
+    // This function makes a user leave a team.
+    // It does so by caling Leave on a Team.
+    // This will update members data and leave button name.
+    $scope.leaveTeam = function() {
+      if(confirm('Are you sure?')) {
+        Team.leave({ id:$scope.team.Id }).$promise.then(function(response) {
+          console.log('leaveTeam response = ', response);
+          $scope.joinButtonName = 'Join';
+          $scope.joinButtonMethod = $scope.joinTeam;
+          $scope.messageInfo = response.MessageInfo;
+          Team.get({ id:$scope.team.Id }).$promise.then(function(teamDataResult) {
+            console.log('teamDataResult = ', teamDataResult);
+            $scope.teamData = teamDataResult;
+          });
+          $rootScope.$broadcast('setUpdatedDashboard');
+        });
+      }
+    };
+
+    $scope.teamData.$promise.then(function(teamResult) {
+      var deferred = $q.defer();
+    	if (teamResult.Joined) {
+        deferred.resolve('Leave');
+    	}
+    	else {
+        deferred.resolve('Join');
+    	}
+      return deferred.promise;
+    }).then(function(result) {
+      $scope.joinButtonName = result;
+    });
+
+    $scope.teamData.$promise.then(function(teamResult) {
+      var deferred = $q.defer();
+      if (teamResult.Joined) {
+        deferred.resolve($scope.leaveTeam);
+      }
+      else {
+        deferred.resolve($scope.joinTeam);
+      }
+      return deferred.promise;
+    }).then(function(result) {
+      $scope.joinButtonMethod = result;
+    });
 }]);
 
 // TeamNewCtrl: use this controller to create a team.
@@ -185,7 +278,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   // set tournament ids with "values" so that angular understands:
   // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
   $scope.teamData.$promise.then(function(teamresp){
-    var len  = 0
+    var len = 0;
     if(teamresp.Team.TournamentIds){
       len = teamresp.Team.TournamentIds.length;
     }
@@ -308,7 +401,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 
   $scope.updatePrice = function(index) {
     var price = $scope.pricesData.Prices[index];
-    console.log('update, prize = ', price)
+    console.log('update, prize = ', price);
     Team.updatePrice({id:price.TeamId, tournamentId:price.TournamentId}, price,
 		function(response){
 		  $rootScope.messageInfo = response.MessageInfo;
@@ -356,56 +449,56 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
     console.log('Team invite controller:');
     $scope.teamData = Team.get({ id:$routeParams.id });
 
-    $scope.teamData.$promise.then(function(response){
+    $scope.teamData.$promise.then(function(response) {
       $rootScope.title = 'gonawin - ' + response.Team.Name;
     });
 
     $scope.inviteData = Team.invited({id:$routeParams.id });
-    $scope.inviteData.$promise.then(function(response){
+    $scope.inviteData.$promise.then(function(response) {
     	console.log('invite data ', response);
-      if(response.Users.length == 0 ){
+      if(response.Users.length === 0 ) {
         $scope.noInvitationsMessage = 'No invitations sent.';
       }
       $scope.invitedUsers = response.Users;
     });
 
-    if($routeParams.q != undefined){
-      $scope.teamData.$promise.then(function(teamResponse){
+    if($routeParams.q !== undefined) {
+      $scope.teamData.$promise.then(function(teamResponse) {
         // get teams result from search query
         $scope.keywords = $routeParams.q;
         $scope.usersData = User.search( {q:$routeParams.q});
 
         // users
-        $scope.usersData.$promise.then(function(usersResult){
+        $scope.usersData.$promise.then(function(usersResult) {
           $scope.users = usersResult.Users;
           var len  = 0;
-          if($scope.users){
+          if($scope.users) {
               len = $scope.users.length;
           }
-          $scope.inviteData.$promise.then(function(inviteResponse){
-              for(var i = 0; i < len; i++){
-            $scope.users[i].invitationSent = false;
-            // set invitation sent data.
-            for( var j = 0; j < inviteResponse.Users.length;j++){
-                if($scope.users[i].Id == inviteResponse.Users[j].Id){
-              $scope.users[i].invitationSent = true;
+          $scope.inviteData.$promise.then(function(inviteResponse) {
+            for(var i = 0; i < len; i++) {
+              $scope.users[i].invitationSent = false;
+              // set invitation sent data.
+              for( var j = 0; j < inviteResponse.Users.length;j++) {
+                if($scope.users[i].Id == inviteResponse.Users[j].Id) {
+                  $scope.users[i].invitationSent = true;
                 }
-            }
-            var lenPlayers = 0;
-            if(teamResponse.Players){
-                lenPlayers = teamResponse.Players.length;
-            }
-            for(var j = 0; j < lenPlayers; j++){
-                if($scope.users[i].Id == teamResponse.Players[j].Id){
-              $scope.users[i].isMember = true;
-                }else{
-              $scope.users[i].isMember = false;
-                }
-            }
               }
+              var lenPlayers = 0;
+              if(teamResponse.Players) {
+                lenPlayers = teamResponse.Players.length;
+              }
+              for(var k = 0; k < lenPlayers; k++) {
+                if($scope.users[i].Id == teamResponse.Players[k].Id) {
+                  $scope.users[i].isMember = true;
+                } else {
+                  $scope.users[i].isMember = false;
+                }
+              }
+            }
           });
           $scope.messageInfo = usersResult.MessageInfo;
-          if(usersResult.Users == undefined){
+          if(usersResult.Users === undefined) {
               $scope.noUsersMessage = 'No users found.';
           }
         });

@@ -1,10 +1,6 @@
 <div ng-include src="'shared/notifications.html'"></div>
-<ol class="breadcrumb">
-  <li><a href="/#/tournaments">Tournaments</a></li>
-  <li><a href="/#/tournaments/{{tournamentData.Tournament.Id}}">{{tournamentData.Tournament.Name}}</a></li>
-  <li class="active">Edit</li>
-</ol>
 <div class="panel panel-default">
+  <div class="panel-heading gw-panel-heading"><strong>Edit tournament</strong></div>
   <div class="panel-body">
     <form class="form-horizontal" role="form" name="editTournamentForm">
       <div class="form-group" ng-class="{error: editTournamentForm.name.$invalid}">
@@ -24,8 +20,8 @@
       </div>
       <div class="form-group">
         <div class="col-sm-offset-2 col-sm-10">
-          <a href="/#/tournaments/{{tournamentData.Tournament.Id}}" class="btn btn-default">Cancel</a>
-          <button class="btn btn-primary" type="button" ng-click="updateTournament()" ng-disabled="editTournamentForm.$invalid">Update Tournament</button>
+          <a href="/#/tournaments/{{tournamentData.Tournament.Id}}" class="btn btn-default btn-sm"><strong>Cancel</strong></a>
+          <button class="btn btn-primary btn-sm" type="button" ng-click="updateTournament()" ng-disabled="editTournamentForm.$invalid"><strong>Update Tournament</strong></button>
         </div>
       </div>
     </form>

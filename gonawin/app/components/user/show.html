@@ -1,9 +1,13 @@
 <div ng-include src="'shared/notifications.html'"></div>
-<ol class="breadcrumb">
-  <li>Users</li>
-  <li class="active">{{userData.User.Username}}</li>
-</ol>
 <div class="panel panel-default">
+  <div class="panel-heading gw-panel-heading">
+    <div class="row">
+      <div class="col-md-12">
+        <a class="gw-chevron" href="/#/users"><i class="fa fa-chevron-left fa-lg">  </i></a>
+        <h6 class="gw-h6"><a href="/#/users"><strong>Users</strong></a></h6>
+      </div>
+    </div>
+  </div>
   <div class="panel-body">
     <h1 class="gw-h1">
       <i class="fa fa-user fa-lg"></i>
@@ -17,18 +21,7 @@
       <div class="row center-block">
         <div class="col-md-12">
           <div ng-repeat="team in userData.Teams">
-            <div class="panel panel-default card">
-              <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{team.Id}}.png?inverted=1" height="80" width="80">
-              <div class="card-body">
-                <p>
-                  <h4><a href="/#/teams/{{team.Id}}">{{team.Name}}</a></h4> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i>
-                  <small>members: {{team.MembersCount}}</small>
-                </p>
-              </div>
-              <div class="card-footer">
-                <p>accuracy: <b>{{100 * team.Accuracy | number:2}}%</b></p>
-              </div>
-            </div>
+            <div ng-include src="'shared/team_card.html'"></div>
           </div>
           <h5 style="text-align: center">{{noJoinedTeamsMessage}}</h5>
         </div>
@@ -38,22 +31,8 @@
       </br>
       <div class="row center-block">
         <div class="col-md-12">
-          <div ng-repeat="tournament in userData.Tournaments">
-            <div class="panel panel-default card">
-              <img class="card-avatar pull-left" src="https://sigil.cupcake.io/{{tournament.Id}}.png?inverted=1" height="80" width="80">
-              <div class="card-body">
-                <p>
-                  <h4><a href="/#/tournaments/{{tournament.Id}}">{{tournament.Name}}</a></h4>
-                  <small>participants: {{tournament.UserIds.length}}</small>
-                  <small ng-if="tournament.TeamIds.length > 0">teams: {{tournament.TeamIds.length}}</small>
-                  <small ng-if="tournament.TeamIds == undefined">teams: 0</small>
-                </p>
-              </div>
-              <div class="card-footer">
-                <p ng-if="scoreData.Scores[$index] != undefined">score: <b>{{scoreData.Scores[$index].Score}}</b></p>
-                <p ng-if="scoreData.Scores[$index] == undefined">score: <b>0</b></p>
-              </div>
-            </div>
+          <div ng-repeat="tournament in userData.TournamentStats">
+            <div ng-include src="'shared/tournament_card.html'"></div>
           </div>
           <h5 style="text-align: center">{{noJoinedTournamentsMessage}}</h5>
         </div>
