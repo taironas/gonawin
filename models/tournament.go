@@ -628,3 +628,9 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 
 	return tb
 }
+
+func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+	tb := GetTournamentBuilder(tournament)
+
+	return tb.MapOfIdTeams(c, tournament)
+}
