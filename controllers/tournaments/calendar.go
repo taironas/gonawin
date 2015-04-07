@@ -112,7 +112,7 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Infof(c, "%s ready to build days array", desc)
 			matchesJson := buildMatchesFromTournament(c, t, u)
 
-			days := matchesGroupByDay(matchesJson)
+			days := matchesGroupByDay(t, matchesJson)
 
 			data := struct {
 				Days []DayJson
@@ -125,8 +125,7 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		} else if groupby == "phase" {
 			log.Infof(c, "%s ready to build phase array", desc)
 			matchesJson := buildMatchesFromTournament(c, t, u)
-			phases := matchesGroupByPhase(matchesJson)
-
+			phases := matchesGroupByPhase(t, matchesJson)
 			data := struct {
 				Phases []PhaseJson
 			}{
@@ -209,7 +208,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 			log.Infof(c, "%s ready to build days array", desc)
 			matchesJson := buildMatchesFromTournament(c, t, u)
 
-			days := matchesGroupByDay(matchesJson)
+			days := matchesGroupByDay(t, matchesJson)
 			dayswp := make([]DayWithPredictionJson, len(days))
 			for i, d := range days {
 				dayswp[i].Date = d.Date
@@ -262,9 +261,11 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 
 // From an array of Matches, create an array of Phases where the matches are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
-	limits := mdl.MapOfPhaseIntervals()
-	phaseNames := mdl.ArrayOfPhases()
+func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJson) []PhaseJson {
+	tb := mdl.GetTournamentBuilder(t)
+
+	limits := tb.MapOfPhaseIntervals()
+	phaseNames := tb.ArrayOfPhases()
 
 	phases := make([]PhaseJson, len(limits))
 	for i, _ := range phases {
@@ -278,7 +279,7 @@ func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
-		phases[i].Days = matchesGroupByDay(filteredMatches)
+		phases[i].Days = matchesGroupByDay(t, filteredMatches)
 		lastDayOfPhase := len(phases[i].Days) - 1
 		lastMatchOfPhase := len(phases[i].Days[lastDayOfPhase].Matches) - 1
 		if phases[i].Days[lastDayOfPhase].Matches[lastMatchOfPhase].Finished {
@@ -292,7 +293,7 @@ func matchesGroupByPhase(matches []MatchJson) []PhaseJson {
 
 // From an array of matches, create an array of Days where the matches are grouped in.
 // We use the Date of each match to do this.
-func matchesGroupByDay(matches []MatchJson) []DayJson {
+func matchesGroupByDay(t *mdl.Tournament, matches []MatchJson) []DayJson {
 
 	mapOfDays := make(map[string][]MatchJson)
 

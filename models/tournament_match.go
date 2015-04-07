@@ -153,7 +153,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 		return err
 	}
 	allMatches := GetAllMatchesFromTournament(c, t)
-	phases := MatchesGroupByPhase(allMatches)
+	phases := MatchesGroupByPhase(t, allMatches)
 
 	for _, m := range matches {
 		log.Infof(c, "%s Trigger current match: %v", desc, m.Id)
@@ -220,22 +220,25 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 		UpdateGroup(c, g)
 	}
 
-	allMatches := GetAllMatchesFromTournament(c, t)
-	phases := MatchesGroupByPhase(allMatches)
-	if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
-		log.Infof(c, "%s -------------------------------------------------->", desc)
-		log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
-		log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
-		if int(phaseId+1) < len(phases) {
-			UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
-		}
-		log.Infof(c, "%s -------------------------------------------------->", desc)
-		// update flag first phase complete.
-		if phaseId == 0 {
-			t.IsFirstStageComplete = true
-			t.Update(c)
+	if t.TwoLegged == false {
+		allMatches := GetAllMatchesFromTournament(c, t)
+		phases := MatchesGroupByPhase(t, allMatches)
+		if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
+			log.Infof(c, "%s -------------------------------------------------->", desc)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
+			if int(phaseId+1) < len(phases) {
+				UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
+			}
+			log.Infof(c, "%s -------------------------------------------------->", desc)
+			// update flag first phase complete.
+			if phaseId == 0 {
+				t.IsFirstStageComplete = true
+				t.Update(c)
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -256,7 +259,8 @@ func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []
 // Get all matches of a specific phase.
 func getMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
 
-	limits := MapOfPhaseIntervals()
+	tb := GetTournamentBuilder(t)
+	limits := tb.MapOfPhaseIntervals()
 
 	low := limits[phaseName][0]
 	high := limits[phaseName][1]
@@ -273,9 +277,12 @@ func getMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*
 }
 
 // Get all matches grouped by phases. Returns an array of phases.
-func MatchesGroupByPhase(matches []*Tmatch) []Tphase {
-	limits := MapOfPhaseIntervals()
-	phaseNames := ArrayOfPhases()
+func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
+
+	tb := GetTournamentBuilder(t)
+
+	limits := tb.MapOfPhaseIntervals()
+	phaseNames := tb.ArrayOfPhases()
 
 	phases := make([]Tphase, len(limits))
 	for i, _ := range phases {

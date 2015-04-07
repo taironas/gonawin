@@ -44,29 +44,15 @@ func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 	return &t, nil
 }
 
-// From tournament entity build map of teams.
-func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
-
-	var mapIdTeams map[int64]string
-	mapIdTeams = make(map[int64]string)
-
-	groups := Groups(c, tournament.GroupIds)
-	for _, g := range groups {
-		for _, t := range g.Teams {
-			mapIdTeams[t.Id] = t.Name
-		}
-	}
-	return mapIdTeams
-}
-
 // Update tournament team.
 // From a phase an old name and a new, update the next phases of the tournament.
 func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldName, newName string) error {
+	log.Infof(c, "UpdateTournamentTeam : phaseName = %s, oldName = %s, newName = %s", phaseName, oldName, newName)
 
-	matches2ndPhase := Matches(c, t.Matches2ndStage)
-	mapIdTeams := MapOfIdTeams(c, t)
+	tb := GetTournamentBuilder(t)
 
-	limits := MapOfPhaseIntervals()
+	mapIdTeams := tb.MapOfIdTeams(c, t)
+	limits := tb.MapOfPhaseIntervals()
 
 	oldTeamId := int64(0)
 	newTeamId := int64(0)
@@ -82,44 +68,80 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		}
 	}
 
-	// low limit, all matches above this limit should be updated.
-	low := limits[phaseName][0]
-	for _, m := range matches2ndPhase {
-		if m.IdNumber < low {
-			continue
-		}
-		updateMatch := false
-		// update teams
-		if m.TeamId1 == oldTeamId {
-			updateMatch = true
-			m.TeamId1 = newTeamId
-		}
-		if m.TeamId2 == oldTeamId {
-			updateMatch = true
-			m.TeamId2 = newTeamId
-		}
-		// update rules if needed.
-		rule := strings.Split(m.Rule, " ")
-		if len(rule) == 2 {
-			update := false
+	log.Infof(c, "UpdateTournamentTeam : oldTeamId = %d, newTeamId = %d", oldTeamId, newTeamId)
+
+	// special treatment when old name is prefixed by "TBD"
+	if strings.Contains(oldName, "TBD") {
+		// get matches of phase
+		matches := getMatchesByPhase(c, t, phaseName)
+
+		for _, m := range matches {
+			updateMatch := false
+			rule := strings.Split(m.Rule, " ")
+
+			log.Infof(c, "UpdateTournamentTeam : rule = %v", rule)
+
 			if rule[0] == oldName {
 				rule[0] = newName
-				update = true
-			}
-			if rule[1] == oldName {
-				rule[1] = newName
-				update = true
-			}
-			if update {
-				m.Rule = fmt.Sprintf("%s %s", rule[0], rule[1])
+				m.TeamId1 = newTeamId
+				updateMatch = true
+			} else if rule[len(rule)-1] == oldName {
+				rule[len(rule)-1] = newName
+				m.TeamId2 = newTeamId
 				updateMatch = true
 			}
+
+			if updateMatch {
+				m.Rule = fmt.Sprintf("%s", strings.Join(append(rule[:0], rule...), " "))
+				log.Infof(c, "UpdateTournamentTeam : updateMatch, match = %v", m)
+				if err := UpdateMatch(c, m); err != nil {
+					return err
+				}
+			}
 		}
-		if updateMatch {
-			if err := UpdateMatch(c, m); err != nil {
-				return err
+
+	} else {
+		matches2ndPhase := Matches(c, t.Matches2ndStage)
+		// low limit, all matches above this limit should be updated.
+		low := limits[phaseName][0]
+		for _, m := range matches2ndPhase {
+			if m.IdNumber < low {
+				continue
+			}
+			updateMatch := false
+			// update teams
+			if m.TeamId1 == oldTeamId {
+				updateMatch = true
+				m.TeamId1 = newTeamId
+			}
+			if m.TeamId2 == oldTeamId {
+				updateMatch = true
+				m.TeamId2 = newTeamId
+			}
+			// update rules if needed.
+			rule := strings.Split(m.Rule, " ")
+			if len(rule) == 2 {
+				update := false
+				if rule[0] == oldName {
+					rule[0] = newName
+					update = true
+				}
+				if rule[1] == oldName {
+					rule[1] = newName
+					update = true
+				}
+				if update {
+					m.Rule = fmt.Sprintf("%s %s", rule[0], rule[1])
+					updateMatch = true
+				}
+			}
+			if updateMatch {
+				if err := UpdateMatch(c, m); err != nil {
+					return err
+				}
 			}
 		}
 	}
+
 	return nil
 }

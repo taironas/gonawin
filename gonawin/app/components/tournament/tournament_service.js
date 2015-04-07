@@ -50,6 +50,8 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'},
        addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
        removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'},
-       syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'}
-     })
+       syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'},
+       saveChampionsLeague: {method: 'POST', url: 'j/tournaments/newcl'},
+       getChampionsLeage: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
+     });
 });

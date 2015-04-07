@@ -63,7 +63,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 		phase := r.FormValue("phase")
 		allMatches := mdl.GetAllMatchesFromTournament(c, t)
-		phases := mdl.MatchesGroupByPhase(allMatches)
+		phases := mdl.MatchesGroupByPhase(t, allMatches)
 
 		mapIdTeams := mdl.MapOfIdTeams(c, t)
 		phaseId := -1
@@ -112,7 +112,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		if phaseId >= 0 {
 			// only return update phase
 			matchesJson := buildMatchesFromTournament(c, t, u)
-			phasesJson := matchesGroupByPhase(matchesJson)
+			phasesJson := matchesGroupByPhase(t, matchesJson)
 
 			data := struct {
 				Phase PhaseJson

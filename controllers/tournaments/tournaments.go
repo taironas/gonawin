@@ -666,7 +666,8 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		msg := ""
-		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
+		tb := mdl.GetTournamentBuilder(tournament)
+		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 		var p *mdl.Predict
 		if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
 			log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)

@@ -36,8 +36,11 @@ const (
 	cFinals        = "Finals"
 )
 
+type WorldCupTournament struct {
+}
+
 // Map of groups, key: group name, value: string array of teams.
-func MapOfGroups() map[string][]string {
+func (wct WorldCupTournament) MapOfGroups() map[string][]string {
 	var mapWCGroups map[string][]string
 	mapWCGroups = make(map[string][]string)
 	mapWCGroups["A"] = []string{"Brazil", "Croatia", "Mexico", "Cameroon"}
@@ -54,7 +57,7 @@ func MapOfGroups() map[string][]string {
 
 // Map of country codes, key: team name, value: ISO code
 // example: Brazil: BR
-func MapOfCountryCodes() map[string]string {
+func (wct WorldCupTournament) MapOfTeamCodes() map[string]string {
 
 	var codes map[string]string
 	codes = make(map[string]string)
@@ -100,7 +103,7 @@ func MapOfCountryCodes() map[string]string {
 // Example:
 //
 // 	Group A:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
-func MapOfGroupMatches() map[string][][]string {
+func (wct WorldCupTournament) MapOfGroupMatches() map[string][][]string {
 
 	mapGroupMatches := make(map[string][][]string)
 
@@ -205,7 +208,7 @@ func MapOfGroupMatches() map[string][][]string {
 //
 //	round 16:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
 //
-func MapOf2ndRoundMatches() map[string][][]string {
+func (wct WorldCupTournament) MapOf2ndRoundMatches() map[string][][]string {
 
 	// Round of 16
 	m2nd1 := []string{"49", "Jun/28/2014", "1A", "2B", "Belo Horizonte"}
@@ -252,7 +255,7 @@ func MapOf2ndRoundMatches() map[string][][]string {
 }
 
 // Return an array of the phases names of world cup tournament: (FirstStage, RoundOf16, QuarterFinals, SemiFinals, ThirdPlace, Finals)
-func ArrayOfPhases() []string {
+func (wct WorldCupTournament) ArrayOfPhases() []string {
 	return []string{cFirstStage, cRoundOf16, cQuarterFinals, cSemiFinals, cThirdPlace, cFinals}
 }
 
@@ -264,7 +267,7 @@ func ArrayOfPhases() []string {
 // Semi-finals: matches 61 to 62
 // Thrid Place: match 63
 // Finals: match 64
-func MapOfPhaseIntervals() map[string][]int64 {
+func (wct WorldCupTournament) MapOfPhaseIntervals() map[string][]int64 {
 
 	limits := make(map[string][]int64)
 	limits[cFirstStage] = []int64{1, 48}
@@ -281,21 +284,18 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	// create new tournament
 	log.Infof(c, "World Cup: start")
 
-	// build map of groups
-	var mapWCGroups map[string][]string
-	mapWCGroups = MapOfGroups()
+	wct := WorldCupTournament{}
 
-	var mapCountryCodes map[string]string
-	mapCountryCodes = MapOfCountryCodes()
-	// build map of matches
-	var mapTeamId map[string]int64
-	mapTeamId = make(map[string]int64)
+	mapWCGroups := wct.MapOfGroups()
+	mapCountryCodes := wct.MapOfTeamCodes()
+	mapTeamId := make(map[string]int64)
 
 	// mapGroupMatches is a map where the key is a string which represent the group
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
 	// map[string][][]string
 	// example: {"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}
-	mapGroupMatches := MapOfGroupMatches()
+	mapGroupMatches := wct.MapOfGroupMatches()
+
 	const (
 		cMatchId       = 0
 		cMatchDate     = 1
@@ -438,7 +438,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
 	// mapMatches2ndRound is a map[string][][]string
 	// example: {"64", "Jul/13/2014", "W61", "W62", "Rio de Janeiro"}
-	mapMatches2ndRound := MapOf2ndRoundMatches()
+	mapMatches2ndRound := wct.MapOf2ndRoundMatches()
 
 	// build matches 2nd phase
 	for roundNumber, roundMatches := range mapMatches2ndRound {
@@ -512,4 +512,18 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	log.Infof(c, "World Cup: instance of tournament ready")
 
 	return tournament, nil
+}
+
+// From tournament entity build map of teams.
+func (wct WorldCupTournament) MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+
+	mapIdTeams := make(map[int64]string)
+
+	groups := Groups(c, tournament.GroupIds)
+	for _, g := range groups {
+		for _, t := range g.Teams {
+			mapIdTeams[t.Id] = t.Name
+		}
+	}
+	return mapIdTeams
 }

@@ -86,7 +86,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if groupby == "phase" {
 			log.Infof(c, "%s ready to build a team array", desc)
 			matchesJson := buildMatchesFromTournament(c, t, u)
-			teamsByPhases := teamsGroupByPhase(matchesJson)
+			teamsByPhases := teamsGroupByPhase(t, matchesJson)
 
 			data := struct {
 				Phases []teamsByPhase
@@ -102,9 +102,11 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // From an array of Matches, create an array of Phases where the teams are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func teamsGroupByPhase(matches []MatchJson) []teamsByPhase {
-	limits := mdl.MapOfPhaseIntervals()
-	phaseNames := mdl.ArrayOfPhases()
+func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
+	tb := mdl.GetTournamentBuilder(t)
+
+	limits := tb.MapOfPhaseIntervals()
+	phaseNames := tb.ArrayOfPhases()
 
 	phases := make([]teamsByPhase, len(limits))
 	for i, _ := range phases {
@@ -162,7 +164,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
-		
+
 		var t *mdl.Tournament
 		t, err = mdl.TournamentById(c, tournamentId)
 		if err != nil {
@@ -195,7 +197,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 
 		matchesJson := buildMatchesFromTournament(c, t, u)
-		teamsByPhases := teamsGroupByPhase(matchesJson)
+		teamsByPhases := teamsGroupByPhase(t, matchesJson)
 
 		data := struct {
 			Phases []teamsByPhase

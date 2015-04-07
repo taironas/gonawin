@@ -45,6 +45,7 @@ type Tournament struct {
 	Matches2ndStage      []int64
 	UserIds              []int64
 	TeamIds              []int64
+	TwoLegged            bool
 	IsFirstStageComplete bool
 	Official             bool
 }
@@ -63,8 +64,19 @@ type TournamentJson struct {
 	Matches2ndStage      *[]int64   `json:",omitempty"`
 	UserIds              *[]int64   `json:",omitempty"`
 	TeamIds              *[]int64   `json:",omitempty"`
+	TwoLegged            *bool      `json:",omitempty"`
 	IsFirstStageComplete *bool      `json:",omitempty"`
 	Official             *bool      `json:",omitempty"`
+}
+
+type TournamentBuilder interface {
+	MapOfTeamCodes() map[string]string
+	ArrayOfPhases() []string
+	MapOfGroups() map[string][]string
+	MapOfGroupMatches() map[string][][]string
+	MapOf2ndRoundMatches() map[string][][]string
+	MapOfPhaseIntervals() map[string][]int64
+	MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string
 }
 
 // Create tournament entity given a name and description.
@@ -81,9 +93,10 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	emptyArray := make([]int64, 0)
 	admins := make([]int64, 1)
 	admins[0] = adminId
+	twoLegged := false
 	official := false
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, false, official}
+	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, twoLegged, false, official}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
@@ -364,7 +377,9 @@ func (t *Tournament) Reset(c appengine.Context) error {
 		}
 	}
 	// reset all match rules
-	mapMatches2ndRound := MapOf2ndRoundMatches()
+	tb := GetTournamentBuilder(t)
+
+	mapMatches2ndRound := tb.MapOf2ndRoundMatches()
 
 	const (
 		cMatchId       = 0
@@ -599,4 +614,23 @@ func (t *Tournament) Progress(c appengine.Context) float64 {
 	dt := t.Start.Sub(t.End)
 	log.Infof(c, "ratio: %v", d.Seconds()/dt.Seconds())
 	return d.Seconds() / dt.Seconds()
+}
+
+func GetTournamentBuilder(t *Tournament) TournamentBuilder {
+	var tb TournamentBuilder
+	if t.Name == "2014 FIFA World Cup" {
+		wct := WorldCupTournament{}
+		tb = wct
+	} else {
+		clt := ChampionsLeagueTournament{}
+		tb = clt
+	}
+
+	return tb
+}
+
+func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+	tb := GetTournamentBuilder(tournament)
+
+	return tb.MapOfIdTeams(c, tournament)
 }
