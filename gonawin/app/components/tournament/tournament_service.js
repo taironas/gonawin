@@ -52,6 +52,6 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'},
        syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'},
        saveChampionsLeague: {method: 'POST', url: 'j/tournaments/newcl'},
-       getChampionsLeage: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
+       getChampionsLeague: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
      });
 });
