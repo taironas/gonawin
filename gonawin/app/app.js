@@ -40,7 +40,7 @@ angular.module('gonawingApp', [
   'tournamentService'
 ]);
 
-angular.module('gonawingApp').factory('notFoundInterceptor', ['$q', '$location', function($q, $location){
+angular.module('gonawingApp').factory('notFoundInterceptor', ['$q', '$location', function($q, $location) {
   return {
     response: function(response) {
       return response || $q.when(response);
@@ -61,7 +61,6 @@ angular.module('gonawingApp').config(['$routeProvider', '$httpProvider',
       when('/welcome', { templateUrl: 'components/home/welcome.html', requireLogin: false }).
       when('/getting-started', { templateUrl: 'components/home/getting-started.html', requireLogin: false }).
       when('/', { templateUrl:  'components/home/home.html', controller: 'RootCtrl', requireLogin: true }).
-      when('/signin', { templateUrl: 'components/home/signin.html', requireLogin: false }).
       when('/about', { templateUrl: 'shared/about.html', requireLogin: false }).
       when('/search', { templateUrl: 'components/search/search.html', controller: 'SearchCtrl', requireLogin: true }).
 
@@ -148,7 +147,7 @@ angular.module('gonawingApp').run(['$rootScope', '$location', '$window', '$cooki
     } else {
       // Everytime the route in our app changes check authentication status.
       // Get current user only if we are logged in.
-      if( $rootScope.isLoggedIn && (undefined == $rootScope.currentUser) ) {
+      if( $rootScope.isLoggedIn && (undefined === $rootScope.currentUser) ) {
         $rootScope.currentUser = User.get({ id:sAuth.getUserID(), including: "Teams TeamRequests Invitations" });
         console.log('routeChangeStart, current user = ', $rootScope.currentUser);
       }
@@ -158,7 +157,7 @@ angular.module('gonawingApp').run(['$rootScope', '$location', '$window', '$cooki
         $location.path('/');
       }
       // Redidrect to welcome if route requires to be logged in and user is not logged in.
-      if ( next.requireLogin && ((undefined == $rootScope.currentUser) || !$rootScope.isLoggedIn) ) {
+      if ( next.requireLogin && ((undefined === $rootScope.currentUser) || !$rootScope.isLoggedIn) ) {
         console.log('routeChangeStart, redirect to welcome');
         $location.path('/welcome');
       }
@@ -190,15 +189,13 @@ angular.module('gonawingApp').run(['$rootScope', '$location', '$window', '$cooki
   });
 
   // search function:
-  function setPageTitle(){
+  function setPageTitle() {
     if( $location.$$url == '/welcome') {
       $rootScope.title = 'gonawin';
-    } else if($location.$$url == '/signin'){
-      $rootScope.title = 'gonawin - Sign In';
-    } else if($location.$$url == '/about'){
+    } else if($location.$$url == '/about') {
       $rootScope.title = 'gonawin - About';
     } else if($location.$$url == '/getting-started') {
       $rootScope.title = 'gonawin - Getting Started';
     }
-  };
+  }
 }]);

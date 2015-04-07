@@ -189,7 +189,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
+		tb := mdl.GetTournamentBuilder(tournament)
+		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
 			mjson.Team1 = rule[0]
@@ -279,7 +280,8 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		mapIdTeams := mdl.MapOfIdTeams(c, tournament)
+		tb := mdl.GetTournamentBuilder(tournament)
+		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
 			mjson.Team1 = rule[0]
@@ -308,8 +310,9 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 	var predicts mdl.Predicts
 	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
-	mapIdTeams := mdl.MapOfIdTeams(c, t)
-	mapCountryCodes := mdl.MapOfCountryCodes()
+	tb := mdl.GetTournamentBuilder(t)
+	mapIdTeams := tb.MapOfIdTeams(c, t)
+	mapTeamCodes := tb.MapOfTeamCodes()
 
 	matchesJson := make([]MatchJson, len(matches))
 	for i, m := range matches {
@@ -318,8 +321,8 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		matchesJson[i].Date = m.Date
 		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
 		matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
-		matchesJson[i].Iso1 = mapCountryCodes[matchesJson[i].Team1]
-		matchesJson[i].Iso2 = mapCountryCodes[matchesJson[i].Team2]
+		matchesJson[i].Iso1 = mapTeamCodes[matchesJson[i].Team1]
+		matchesJson[i].Iso2 = mapTeamCodes[matchesJson[i].Team2]
 
 		matchesJson[i].Location = m.Location
 		matchesJson[i].Result1 = m.Result1
@@ -345,17 +348,27 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 		if len(rule) == 2 {
 			matchJson2ndPhase.Team1 = rule[0]
 			matchJson2ndPhase.Team2 = rule[1]
-			if _, ok := mapCountryCodes[rule[0]]; ok {
-				matchJson2ndPhase.Iso1 = mapCountryCodes[rule[0]]
+			if _, ok := mapTeamCodes[rule[0]]; ok {
+				matchJson2ndPhase.Iso1 = mapTeamCodes[rule[0]]
 			}
-			if _, ok := mapCountryCodes[rule[1]]; ok {
-				matchJson2ndPhase.Iso2 = mapCountryCodes[rule[1]]
+			if _, ok := mapTeamCodes[rule[1]]; ok {
+				matchJson2ndPhase.Iso2 = mapTeamCodes[rule[1]]
 			}
 		} else {
-			matchJson2ndPhase.Team1 = mapIdTeams[m.TeamId1]
-			matchJson2ndPhase.Team2 = mapIdTeams[m.TeamId2]
-			matchJson2ndPhase.Iso1 = mapCountryCodes[mapIdTeams[m.TeamId1]]
-			matchJson2ndPhase.Iso2 = mapCountryCodes[mapIdTeams[m.TeamId2]]
+			if m.TeamId1 > 0 {
+				matchJson2ndPhase.Team1 = mapIdTeams[m.TeamId1]
+			} else {
+				matchJson2ndPhase.Team1 = rule[0]
+			}
+
+			if m.TeamId2 > 0 {
+				matchJson2ndPhase.Team2 = mapIdTeams[m.TeamId2]
+			} else {
+				matchJson2ndPhase.Team2 = rule[len(rule)-1]
+			}
+
+			matchJson2ndPhase.Iso1 = mapTeamCodes[mapIdTeams[m.TeamId1]]
+			matchJson2ndPhase.Iso2 = mapTeamCodes[mapIdTeams[m.TeamId2]]
 
 		}
 

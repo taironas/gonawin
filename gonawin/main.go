@@ -19,6 +19,7 @@ package gonawin
 import (
 	"net/http"
 
+	// use to do backup/restore of the production database
 	_ "appengine/remote_api"
 
 	"github.com/taironas/route"
@@ -110,6 +111,12 @@ func init() {
 	// tournament world cup
 	r.HandleFunc("/j/tournaments/newwc", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.NewWorldCup)))
 	r.HandleFunc("/j/tournaments/getwc", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GetWorldCup)))
+
+	// tournament champions league
+	r.HandleFunc("/j/tournaments/newcl", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.NewChampionsLeague)))
+	r.HandleFunc("/j/tournaments/getcl", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.GetChampionsLeague)))
+
+	// tournament
 	r.HandleFunc("/j/tournaments/:tournamentId/groups", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Groups)))
 	r.HandleFunc("/j/tournaments/:tournamentId/calendar", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.Calendar)))
 	r.HandleFunc("/j/tournaments/:tournamentId/:teamId/calendarwithprediction", handlers.ErrorHandler(handlers.Authorized(tournamentsctrl.CalendarWithPrediction)))

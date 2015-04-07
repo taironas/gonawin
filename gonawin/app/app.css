@@ -18,7 +18,7 @@ a:hover {
 .btn-primary {
   color: #ffffff;
   background-color: #fa8072;
-  border-color: #00a093;
+  border-color: #fa8072;
 }
 .btn-primary:hover,
 .btn-primary:focus,
@@ -50,7 +50,7 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
   background-color: #fa8072;
-  border-color: #00a093;
+  border-color: #fa8072;
 }
 .btn-primary .badge {
   color: #fa8072;
@@ -660,4 +660,42 @@ body {
 }
 
 /* End Dahsboard styles
+-------------------------------------------------- */
+
+/* Team Icon styles
+-------------------------------------------------- */
+
+.flag-icon-JUV {
+  background: url(/app/assets/img/logo_club/juv.png) no-repeat;
+}
+
+.flag-icon-ASM {
+  background: url(/app/assets/img/logo_club/asm.png) no-repeat;
+}
+
+.flag-icon-POR {
+  background: url(/app/assets/img/logo_club/por.png) no-repeat;
+}
+
+.flag-icon-BYM {
+  background: url(/app/assets/img/logo_club/bym.png) no-repeat;
+}
+
+.flag-icon-PSG {
+  background: url(/app/assets/img/logo_club/psg.png) no-repeat;
+}
+
+.flag-icon-FCB {
+  background: url(/app/assets/img/logo_club/fcb.png) no-repeat;
+}
+
+.flag-icon-ATM {
+  background: url(/app/assets/img/logo_club/atm.png) no-repeat;
+}
+
+.flag-icon-RLM {
+  background: url(/app/assets/img/logo_club/rlm.png) no-repeat;
+}
+
+/* Team Icon styles
 -------------------------------------------------- */
