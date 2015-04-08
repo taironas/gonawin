@@ -105,11 +105,27 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		if len(teams) == 0 {
 			return templateshlp.RenderEmptyJsonArray(w, c)
 		}
-		teamsJson := make([]mdl.TeamJson, len(teams))
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "Accuracy", "MembersCount"}
-		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 
-		return templateshlp.RenderJson(w, c, teamsJson)
+		type team struct {
+			Id           int64  `json:",omitempty"`
+			Name         string `json:",omitempty"`
+			AdminIds     []int64
+			Private      bool
+			Accuracy     float64
+			MembersCount int64
+			ImageURL     string
+		}
+		ts := make([]team, len(teams))
+		for i, t := range teams {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].Private = t.Private
+			ts[i].Accuracy = t.Accuracy
+			ts[i].MembersCount = t.MembersCount
+			ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+		}
+
+		return templateshlp.RenderJson(w, c, ts)
 
 	} else {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -219,9 +235,21 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// build players json
 		players := team.Players(c)
-		fieldsToKeepForPlayer := []string{"Id", "Username", "Alias", "Score"}
-		playersJson := make([]mdl.UserJson, len(players))
-		helpers.TransformFromArrayOfPointers(&players, &playersJson, fieldsToKeepForPlayer)
+		type player struct {
+			Id       int64  `json:",omitempty"`
+			Username string `json:",omitempty"`
+			Alias    string
+			Score    int64
+			ImageURL string
+		}
+		ps := make([]player, len(players))
+		for i, p := range players {
+			ps[i].Id = p.Id
+			ps[i].Username = p.Username
+			ps[i].Alias = p.Alias
+			ps[i].Score = p.Score
+			ps[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+		}
 
 		// build tournaments json
 		tournaments := team.Tournaments(c)
@@ -231,6 +259,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ParticipantsCount int
 			TeamsCount        int
 			Progress          float64
+			ImageURL          string
 		}
 		ts := make([]tournament, len(tournaments))
 		for i, t := range tournaments {
@@ -239,20 +268,23 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ts[i].ParticipantsCount = len(t.UserIds)
 			ts[i].TeamsCount = len(t.TeamIds)
 			ts[i].Progress = t.Progress(c)
+			ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 		}
 
 		teamData := struct {
 			Team        mdl.TeamJson
 			Joined      bool
 			RequestSent bool
-			Players     []mdl.UserJson
+			Players     []player
 			Tournaments []tournament
+			ImageURL    string
 		}{
 			tJson,
 			team.Joined(c, u),
 			mdl.WasTeamRequestSent(c, teamId, u.Id),
-			playersJson,
+			ps,
 			ts,
+			helpers.TeamImageURL(team.Name, team.Id),
 		}
 		return templateshlp.RenderJson(w, c, teamData)
 	}
@@ -691,14 +723,32 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private", "Accuracy", "MembersCount"}
-		teamsJson := make([]mdl.TeamJson, len(teams))
-		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
+		type team struct {
+			Id           int64
+			Name         string
+			AdminIds     []int64
+			Private      bool
+			Accuracy     float64
+			MembersCount int64
+			ImageURL     string
+		}
+
+		ts := make([]team, len(teams))
+		for i, t := range teams {
+			ts[i].Id = t.Id
+			ts[i].Name = t.Name
+			ts[i].AdminIds = t.AdminIds
+			ts[i].Private = t.Private
+			ts[i].Accuracy = t.Accuracy
+			ts[i].MembersCount = t.MembersCount
+			ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+		}
+
 		// we should not directly return an array. so we add an extra layer.
 		data := struct {
-			Teams []mdl.TeamJson `json:",omitempty"`
+			Teams []team `json:",omitempty"`
 		}{
-			teamsJson,
+			ts,
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}

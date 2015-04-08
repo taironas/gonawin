@@ -118,17 +118,12 @@ userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParam
 }]);
 
 // UserCardCtrl: handles team card
-userControllers.controller('UserCardCtrl', ['$rootScope', '$scope', '$q', 'User', 'ThemeSelector',
-  function($rootScope, $scope, $q, User, ThemeSelector) {
+userControllers.controller('UserCardCtrl', ['$rootScope', '$scope', '$q', 'User',
+  function($rootScope, $scope, $q, User) {
     console.log('User Card controller: user = ', $scope.user);
 
     $scope.userData = User.get({ id:$scope.user.Id });
 
-    // This function returns the theme for the tinygraph
-    $scope.userData.$promise.then(function(userResult) {
-      $scope.theme = ThemeSelector.theme(userResult.User.Id);
-      $scope.numColors = ThemeSelector.numColors(userResult.User.Id);
-    });
 }]);
 
 // User edit controller. Use this controller to edit the current user data.

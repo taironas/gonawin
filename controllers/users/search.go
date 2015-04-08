@@ -65,13 +65,27 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return templateshlp.RenderJson(w, c, data)
 		}
 		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-		usersJson := make([]mdl.UserJson, len(users))
-		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+		type user struct {
+			Id       int64
+			Username string
+			Alias    string
+			Score    int64
+			ImageURL string
+		}
+
+		us := make([]user, len(users))
+		for i, u := range users {
+			us[i].Id = u.Id
+			us[i].Username = u.Username
+			us[i].Alias = u.Alias
+			us[i].Score = u.Score
+			us[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+		}
+
 		data := struct {
-			Users []mdl.UserJson `json:",omitempty"`
+			Users []user `json:",omitempty"`
 		}{
-			usersJson,
+			us,
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
