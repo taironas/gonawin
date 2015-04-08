@@ -151,6 +151,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// build tournaments stats json
 		type TournamentStats struct {
 			Id                int64
+			Name              string
 			ParticipantsCount int
 			TeamsCount        int
 			Progress          float64
@@ -158,6 +159,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		stats := make([]TournamentStats, len(tournaments))
 		for i, t := range tournaments {
 			stats[i].Id = t.Id
+			stats[i].Name = t.Name
 			stats[i].ParticipantsCount = len(t.UserIds)
 			stats[i].TeamsCount = len(t.TeamIds)
 			stats[i].Progress = t.Progress(c)

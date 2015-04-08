@@ -37,7 +37,8 @@ angular.module('gonawingApp', [
   'activitiesService',
   'inviteService',
   'teamService',
-  'tournamentService'
+  'tournamentService',
+  'themeSelectorService'
 ]);
 
 angular.module('gonawingApp').factory('notFoundInterceptor', ['$q', '$location', function($q, $location) {

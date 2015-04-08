@@ -1,6 +1,6 @@
 <div class="panel panel-default" ng-controller="DashboardCtrl">
   <div class="panel-heading gw-dashboard-panel-heading text-center">
-     <img src="https://sigil.cupcake.io/{{dashboard.id}}.png?inverted=1" height="80" width="80" class="img-circle gw-border">
+     <img src="{{baseURL}}/{{name}}?theme={{theme}}&numcolors={{numColors}}" height="80" width="80" class="img-circle">
     <h4><strong>{{dashboard.name}}</strong></h4>
   </div>
   <div class="panel-body text-center">

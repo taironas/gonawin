@@ -73,8 +73,8 @@ teamControllers.controller('TeamListCtrl', ['$rootScope', '$scope', 'Team', 'Use
 }]);
 
 // TeamCardCtrl: handles team card
-teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team',
-  function($rootScope, $scope, $q, Team) {
+teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team', 'ThemeSelector',
+  function($rootScope, $scope, $q, Team, ThemeSelector) {
     console.log('Team Card controller: team = ', $scope.team);
 
     $scope.teamData = Team.get({ id:$scope.team.Id });
@@ -163,6 +163,12 @@ teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team'
       return deferred.promise;
     }).then(function(result) {
       $scope.joinButtonMethod = result;
+    });
+
+    // This function returns the theme for the tinygraph
+    $scope.teamData.$promise.then(function(teamResult) {
+      $scope.theme = ThemeSelector.theme(teamResult.Team.Id);
+      $scope.numColors = ThemeSelector.numColors(teamResult.Team.Id);
     });
 }]);
 
