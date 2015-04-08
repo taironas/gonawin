@@ -21,19 +21,19 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 #### Third Parties Installation
 
     go get github.com/garyburd/go-oauth/oauth
-    
+
 #### Third Parties
 * [Google App Engine for Go](https://developers.google.com/appengine/docs/go/)
 * [Boostrap v3](http://getbootstrap.com/)
 * [Angularjs](http://angularjs.org/)
 * [go-oauth](http://github.com/garyburd/go-oauth)
 * [flags](https://github.com/lipis/flag-icon-css)
-* [avatars](https://github.com/cupcake/sigil)
+* [avatars](https://http://www.tinygraphs.com)
 * [Social Buttons for Bootstrap](http://lipis.github.io/bootstrap-social/)
 * icons
   * [font-awesome](http://fortawesome.github.io/Font-Awesome/icons/)
   * [glyphicons](http://glyphicons.com/)
-    
+
 #### Installation
 
 * install [go](http://golang.org/doc/install)
@@ -51,18 +51,18 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 
     > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
     > goapp serve
-    
+
 #### Run App with production datastore backup
 
 Create datastore backup
-    
+
     > go_appengine\appcfg.py download_data --url=http://www.gonawin.com/_ah/remote_api --filename=bck_gonawin_mmddyyyy
-    
+
 Run local server
 
     > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
     > goapp serve
-    
+
 Connect datastore backup to the local server
 
     > go_appengine\appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=bck_gonawin_mmddyyyy
@@ -75,7 +75,7 @@ Get your ip in this case `192.168.1.X`
     ...
     inet 192.168.1.X netmask 0xffffff00 broadcast 192.168.1.255
     ...
-    
+
 Run the app with the `-host` parameter
 
     > goapp serve -host=0.0.0.0
@@ -86,7 +86,7 @@ Run the app with the `-host` parameter
     INFO     2014-04-26 10:25:33,307 admin_server.py:117] Starting admin server at: http://localhost:8000
 
 access from your smartphone on `http://192.168.1.X:8080/ng`
-    
+
 #### Formatting
 
     go fmt ..\gonawin\...
@@ -94,19 +94,19 @@ access from your smartphone on `http://192.168.1.X:8080/ng`
 #### Deployment
 
     goapp deploy
-    
-    
+
+
 __Note:__ If deployment hangs rollback it by doing:
 
 #####On OSX:
 
     appcfg rollback ..
-    
+
 #####On Windows:
 
     python appcfg.py rollback $GOPATH\src\github.com\santiaago\gonawin\gonawin
 
-    
+
 #### Documentation
 
     godoc -http=:6060

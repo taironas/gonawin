@@ -9,8 +9,8 @@
         </div>
         <div class="row">
           <p>
-            <h4 ng-show="user.Alias.length > 0"><a href="/#/users/{{user.Id}}">{{user.Alias}}</a></h4>
-            <h4 ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}">{{user.Username}}</a></h4>
+            <p ng-show="user.Alias.length > 0"><a href="/#/users/{{user.Id}}"><strong>{{user.Alias}}</strong></a></p>
+            <p ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}"><strong>{{user.Username}}</strong></a></p>
           </p>
         </div>
       </div>
