@@ -1,16 +1,16 @@
 <div class="col-md-3">
-  <div class="panel panel-default text-center">
+  <div class="panel panel-default text-center" ng-controller="UserCardCtrl" ng-model="user">
     <div class="panel-body">
       <div class="container-fluid">
         <div class="row">
           <div class="col-md-12">
-            <p><img class="center-block img-circle img-responsive" src="https://sigil.cupcake.io/{{user.Id}}.png?inverted=1" height="80" width="80"></p>
+            <p><img class="center-block img-circle img-responsive" src="http://www.tinygraphs.com/spaceinvaders/{{user.Username}}?theme={{theme}}&numcolors={{numColors}}" height="80" width="80"></p>
           </div>
         </div>
         <div class="row">
           <p>
-            <h4 ng-show="user.Alias.length > 0"><a href="/#/users/{{user.Id}}">{{user.Alias}}</a></h4>
-            <h4 ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}">{{user.Username}}</a></h4>
+            <p ng-show="user.Alias.length > 0"><a href="/#/users/{{user.Id}}"><strong>{{user.Alias}}</strong></a></p>
+            <p ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}"><strong>{{user.Username}}</strong></a></p>
           </p>
         </div>
       </div>
