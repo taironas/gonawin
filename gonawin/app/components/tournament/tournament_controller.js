@@ -70,17 +70,11 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
 }]);
 
 // TournamentCardCtrl: handles team card
-tournamentControllers.controller('TournamentCardCtrl', ['$rootScope', '$scope', '$q', 'Tournament', 'ThemeSelector',
-  function($rootScope, $scope, $q, Tournament, ThemeSelector) {
+tournamentControllers.controller('TournamentCardCtrl', ['$rootScope', '$scope', '$q', 'Tournament',
+  function($rootScope, $scope, $q, Tournament) {
     console.log('Tournament Card controller: tournament = ', $scope.tournament);
 
     $scope.tournamentData = Tournament.get({ id:$scope.tournament.Id });
-
-    // This function returns the theme for the tinygraph
-    $scope.tournamentData.$promise.then(function(tournamentResult) {
-      $scope.theme = ThemeSelector.theme(tournamentResult.Tournament.Id);
-      $scope.numColors = ThemeSelector.numColors(tournamentResult.Tournament.Id);
-    });
 }]);
 
 // TournamentNewCtrl: use this controller to create a new tournament.

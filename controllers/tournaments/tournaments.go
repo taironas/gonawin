@@ -80,6 +80,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ParticipantsCount int
 			TeamsCount        int
 			Progress          float64
+			ImageURL          string
 		}
 		ts := make([]tournament, len(tournaments))
 		for i, t := range tournaments {
@@ -88,9 +89,10 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ts[i].ParticipantsCount = len(t.UserIds)
 			ts[i].TeamsCount = len(t.TeamIds)
 			ts[i].Progress = t.Progress(c)
+			ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 		}
 
-		return templateshlp.RenderJson(w, c, ts) //tournamentsJson)
+		return templateshlp.RenderJson(w, c, ts)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -196,6 +198,8 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		end := tournament.End.Format(layout)
 		// remaining days
 		remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
+		// imageURL
+		imageURL := helpers.TournamentImageURL(tournament.Name, tournament.Id)
 		// data
 		data := struct {
 			Tournament    mdl.TournamentJson
@@ -206,6 +210,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			Start         string
 			End           string
 			RemainingDays int64
+			ImageURL      string
 		}{
 			tournamentJson,
 			tournament.Joined(c, u),
@@ -215,6 +220,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			start,
 			end,
 			remainingDays,
+			imageURL,
 		}
 
 		return templateshlp.RenderJson(w, c, data)
@@ -425,6 +431,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ParticipantsCount int
 			TeamsCount        int
 			Progress          float64
+			ImageURL          string
 		}
 		ts := make([]tournament, len(tournaments))
 		for i, t := range tournaments {
@@ -433,6 +440,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			ts[i].ParticipantsCount = len(t.UserIds)
 			ts[i].TeamsCount = len(t.TeamIds)
 			ts[i].Progress = t.Progress(c)
+			ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 		}
 
 		// we should not directly return an array. so we add an extra layer.

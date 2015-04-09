@@ -3,8 +3,8 @@
 // Dashboard controllers update the dashboard information depending on the user location.
 var dashboardControllers = angular.module('dashboardControllers', []);
 
-dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$routeParams', '$location', '$cookieStore', 'Session', 'sAuth', 'User', 'Team', 'Tournament', 'ThemeSelector', '$route',
-  function ($scope, $rootScope, $routeParams, $location, $cookieStore, Session, sAuth, User, Team, Tournament, ThemeSelector, $route) {
+dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$routeParams', '$location', '$cookieStore', 'Session', 'sAuth', 'User', 'Team', 'Tournament', '$route',
+  function ($scope, $rootScope, $routeParams, $location, $cookieStore, Session, sAuth, User, Team, Tournament, $route) {
     console.log('Dashboard module');
     console.log('DashboardCtrl, current user = ', $rootScope.currentUser);
     console.log('DashboardCtrl, isLoggedIn = ', $rootScope.isLoggedIn);
@@ -72,10 +72,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.id = tournamentResult.Tournament.Id;
           $scope.dashboard.name = tournamentResult.Tournament.Name;
 
-          $scope.theme = ThemeSelector.theme(tournamentResult.Tournament.Id);
-          $scope.numColors = ThemeSelector.numColors(tournamentResult.Tournament.Id);
-          $scope.name = tournamentResult.Tournament.Name;
-          $scope.baseURL = "http://www.tinygraphs.com/labs/isogrids/hexa";
+          $scope.imageURL = tournamentResult.ImageURL;
 
           if(tournamentResult.Participants){
             $scope.dashboard.nparticipants = tournamentResult.Participants.length;
@@ -119,14 +116,12 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
 
         $rootScope.currentUser.$promise.then(function(currentUser){
           $scope.dashboard.user = currentUser.displayName();
-	        $scope.dashboard.name = currentUser.displayName();
+	  $scope.dashboard.name = currentUser.displayName();
           $scope.dashboard.userid = currentUser.User.Id;
           $scope.dashboard.id = currentUser.User.Id;
 
-          $scope.theme = ThemeSelector.theme(currentUser.User.Id);
-          $scope.numColors = ThemeSelector.numColors(currentUser.User.Id);
-          $scope.name = currentUser.User.Username;
-          $scope.baseURL = "http://www.tinygraphs.com/spaceinvaders";
+          $scope.imageURL = currentUser.ImageURL;
+	  
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
@@ -181,11 +176,8 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.teamid = teamResult.Team.Id;
           $scope.dashboard.id = teamResult.Team.Id;
           $scope.dashboard.name = teamResult.Team.Name;
-
-          $scope.theme = ThemeSelector.theme(teamResult.Team.Id);
-          $scope.numColors = ThemeSelector.numColors(teamResult.Team.Id);
-          $scope.name = teamResult.Team.Name;
-          $scope.baseURL = "http://www.tinygraphs.com/labs/isogrids/hexa16";
+          
+	  $scope.imageURL = teamResult.ImageURL;
 
           if(teamResult.Team.TournamentIds){
             $scope.dashboard.ntournaments = teamResult.Team.TournamentIds.length;
@@ -224,10 +216,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.userid = currentUser.User.Id;
           $scope.dashboard.id = currentUser.User.Id;
 
-          $scope.theme = ThemeSelector.theme(currentUser.User.Id);
-          $scope.numColors = ThemeSelector.numColors(currentUser.User.Id);
-          $scope.name = currentUser.User.Username;
-          $scope.baseURL = "http://www.tinygraphs.com/spaceinvaders";
+	  $scope.imageURL = currentUser.ImageURL;
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
@@ -267,10 +256,7 @@ dashboardControllers.controller('DashboardCtrl', ['$scope', '$rootScope', '$rout
           $scope.dashboard.userid = currentUser.User.Id;
           $scope.dashboard.id = currentUser.User.Id;
 
-          $scope.theme = ThemeSelector.theme(currentUser.User.Id);
-          $scope.numColors = ThemeSelector.numColors(currentUser.User.Id);
-          $scope.name = currentUser.User.Username;
-          $scope.baseURL = "http://www.tinygraphs.com/spaceinvaders";
+	  $scope.imageURL = currentUser.ImageURL;
 
           if (currentUser.User.TournamentIds){
             $scope.dashboard.ntournaments = currentUser.User.TournamentIds.length;
