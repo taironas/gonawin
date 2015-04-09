@@ -1,9 +1,11 @@
 <div class="players container-fluid">
-  <div class="row">
-    <div class="col-md-12">
-      <div ng-repeat="user in teamData.Players">
-        <div ng-include src="'shared/user_card.html'"></div>
-      </div>
+  <span ng-repeat="gettingParentIndex in teamData.Players">
+    <div class="row" ng-if="$index<teamData.Players.length/4+1">
+      <span ng-repeat="user in teamData.Players">
+        <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+          <div ng-include src="'shared/user_card.html'"></div>
+        </div>
+      </span>
     </div>
-  </div>
+  </span>
 </div>

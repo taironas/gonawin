@@ -20,9 +20,15 @@
       <h3>Tournaments</h3>
       <div class="row center-block">
         <div class="col-md-12">
-          <div ng-repeat="tournament in tournaments">
-            <div ng-include src="'shared/tournament_card.html'"></div>
-          </div>
+          <span ng-repeat="gettingParentIndex in tournaments">
+            <div class="row" ng-if="$index<tournaments.length/4+1">
+              <span ng-repeat="tournament in tournaments">
+                <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                  <div ng-include src="'shared/tournament_card.html'"></div>
+                </div>
+              </span>
+            </div>
+          </span>
           <small><h3 style="text-align: center">{{noTournamentsMessage}}</h3></small>
         </div>
       </div>
@@ -31,9 +37,15 @@
       <h3>Teams</h3>
       <div class="row center-block">
         <div class="col-md-12">
-          <div ng-repeat="team in teams">
-            <div ng-include src="'shared/team_card.html'"></div>
-          </div>
+          <span ng-repeat="gettingParentIndex in teams">
+            <div class="row" ng-if="$index<teams.length/4+1">
+              <span ng-repeat="team in teams">
+                <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                  <div ng-include src="'shared/team_card.html'"></div>
+                </div>
+              </span>
+            </div>
+          </span>
           <small><h3 style="text-align: center">{{noTeamsMessage}}</h3></small>
         </div>
       </div>
@@ -42,9 +54,15 @@
       <h3>Users</h3>
       <div class="row center-block">
         <div class="col-md-12">
-          <div ng-repeat="user in users">
-            <div ng-include src="'shared/user_card.html'"></div>
-          </div>
+          <span ng-repeat="gettingParentIndex in users">
+            <div class="row" ng-if="$index<users.length/4+1">
+              <span ng-repeat="user in users">
+                <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                  <div ng-include src="'shared/user_card.html'"></div>
+                </div>
+              </span>
+            </div>
+          </span>
           <small><h3 style="text-align: center">{{noUsersMessage}}</h3></small>
         </div>
       </div>

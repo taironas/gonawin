@@ -39,9 +39,15 @@
   <div class="panel-body">
     <div class="container-fluid">
       <div class="row">
-        <div ng-repeat="team in teams">
-          <div ng-include src="'shared/team_card.html'"></div>
-        </div>
+        <span ng-repeat="gettingParentIndex in teams">
+          <div class="row" ng-if="$index<teams.length/4+1">
+            <span ng-repeat="team in teams">
+              <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                <div ng-include src="'shared/team_card.html'"></div>
+              </div>
+            </span>
+          </div>
+        </span>
         <h3 style="text-align: center">{{noTeamsMessage}}</h3>
       </div>
       <div class="row">

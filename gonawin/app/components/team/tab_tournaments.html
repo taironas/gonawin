@@ -1,9 +1,15 @@
 <div class="tournaments container-fluid">
   <div class="row">
     <div class="col-md-12">
-      <div ng-repeat="tournament in teamData.Tournaments">
-        <div ng-include src="'shared/tournament_card.html'"></div>
-      </div>
+      <span ng-repeat="gettingParentIndex in teamData.Tournaments">
+        <div class="row" ng-if="$index<teamData.Tournaments.length/4+1">
+          <span ng-repeat="tournament in teamData.Tournaments">
+            <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+              <div ng-include src="'shared/tournament_card.html'"></div>
+            </div>
+          </span>
+        </div>
+      </span>
       <h4 ng-if="teamData.Tournaments == undefined">No Tournament has been joined</h4>
     </div>
   </div>
