@@ -1,46 +1,42 @@
 <div class="dashboard-tournament gw-dashboard-container container-fluid" ng-show="dashboard.context == 'tournament'">
-  <div class="row">
-    <div class="col-md-6">
-      <span class="fa-stack fa-2x">
-        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-        <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
-      </span>
+  <div class="row gw-row">
+    <table class="table table-condensed">
+      <tr>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-users fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+        <td class="gw-td-borderless">
+          <span class="fa-stack fa-2x">
+            <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
+            <i class="fa fa-user fa-stack-1x gw-dashboard-icon"></i>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-number">{{dashboard.nteams}}</td>
+        <td class="gw-td-borderless gw-dashboard-number">{{dashboard.nparticipants}}</td>
+      </tr>
+      <tr>
+        <td class="gw-td-borderless gw-dashboard-subtitle">TEAMS</strong></td>
+        <td class="gw-td-borderless gw-dashboard-subtitle">PARTICIPANTS</strong></td>
+      </tr>
+    </table>
+    <br>
+    <div class="btn-group">
+      <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersOnClick()"><strong>Users</strong></a>
+      <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsOnClick()"><strong>Teams</strong></a>
     </div>
-    <div class="col-md-6">
-      <span class="fa-stack fa-2x">
-        <i class="fa fa-circle fa-stack-2x gw-dashboard-icon-background"></i>
-        <i class="fa fa-user fa-stack-1x gw-dashboard-icon"></i>
-      </span>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <p class="gw-td-borderless gw-dashboard-number">{{dashboard.nteams}}</p>
-    </div>
-    <div class="col-md-6">
-      <p class="gw-td-borderless gw-dashboard-number">{{dashboard.nparticipants}}</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <p class="gw-td-borderless gw-dashboard-subtitle">TEAMS</strong></p>
-    </div>
-    <div class="col-md-6">
-      <p class="gw-td-borderless gw-dashboard-subtitle">PARTICIPANTS</strong></p>
-    </div>
-  </div>
-  <br>
-  <div class="btn-group">
-    <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersOnClick()"><strong>Users</strong></a>
-    <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsOnClick()"><strong>Teams</strong></a>
-  </div>
-  <br><br>
-  <div ng-switch on="rankBy">
-    <div ng-switch-when="users">
-      <div ng-include src="'app/components/dashboard/dashboard_rankusers.html'"></div>
-    </div>
-    <div ng-switch-when="teams">
-      <div ng-include src="'app/components/dashboard/dashboard_rankteams.html'"></div>
+    <br><br>
+    <div ng-switch on="rankBy">
+      <div ng-switch-when="users">
+        <div ng-include src="'app/components/dashboard/dashboard_rankusers.html'"></div>
+      </div>
+      <div ng-switch-when="teams">
+        <div ng-include src="'app/components/dashboard/dashboard_rankteams.html'"></div>
+      </div>
     </div>
   </div>
 </div>
