@@ -18,9 +18,15 @@
       <hr>
       <div class="row center-block">
         <div class="col-md-12">
-          <div ng-repeat="user in users">
-            <div ng-include src="'shared/user_card.html'"></div>
-          </div>
+          <span ng-repeat="gettingParentIndex in users">
+            <div class="row" ng-if="$index<users.length/4+1">
+              <span ng-repeat="user in users">
+                <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                  <div ng-include src="'shared/user_card.html'"></div>
+                </div>
+              </span>
+            </div>
+          </span>
           <small><h3 style="text-align: center">{{noUsersMessage}}</h3></small>
         </div>
       </div> <!-- / users row -->
@@ -29,9 +35,15 @@
       <div class="row center-block">
         <div class="col-md-12">
           <h3>Invitations sent:</h3>
-          <div ng-repeat="user in invitedUsers">
-            <div ng-include src="'shared/user_card.html'"></div>
-          </div>
+          <span ng-repeat="gettingParentIndex in invitedUsers">
+            <div class="row" ng-if="$index<invitedUsers.length/4+1">
+              <span ng-repeat="user in invitedUsers">
+                <div ng-if="$index>=4*$parent.$index && $index <= 4*($parent.$index+1)-1">
+                  <div ng-include src="'shared/user_card.html'"></div>
+                </div>
+              </span>
+            </div>
+          </span>
           <small><h3 style="text-align: center">{{noInvitationsMessage}}</h3></small>
         </div>
       </div> <!-- / invitations sent row -->
