@@ -12,7 +12,7 @@
         </div>
         <div class="row">
           <div class="col-md-12">
-            <div ng-if="!isTeamAdmin && !team.Joined">
+            <div ng-if="!isTeamAdmin && !teamData.Joined">
               <div ng-if="team.Private">
                 <div ng-if="team.RequestSent">
                   <input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Request sent..." />
