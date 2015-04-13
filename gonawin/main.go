@@ -132,6 +132,7 @@ func init() {
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/add/:userId", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.AddAdmin)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/remove/:userId", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.RemoveAdmin)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/syncscores", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.SyncScores)))
+	r.HandleFunc("/j/tournaments/:tournamentId/admin/activatephase", handlers.ErrorHandler(handlers.AdminAuthorized(tournamentsctrl.ActivatePhase)))
 
 	// activities
 	r.HandleFunc("/j/activities", handlers.ErrorHandler(handlers.Authorized(activitiesctrl.Index)))
