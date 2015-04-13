@@ -73,7 +73,7 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 	// special treatment when old name is prefixed by "TBD"
 	if strings.Contains(oldName, "TBD") {
 		// get matches of phase
-		matches := getMatchesByPhase(c, t, phaseName)
+		matches := GetMatchesByPhase(c, t, phaseName)
 
 		for _, m := range matches {
 			updateMatch := false
