@@ -48,6 +48,7 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        ranking: {method: 'GET', url: 'j/tournaments/:id/ranking?rankby=:rankby&limit=:limit' },
        teams: {method: 'GET', url: 'j/tournaments/:id/teams?rankby=:rankby' },
        updateTeamInPhase: {method: 'POST', url: 'j/tournaments/:id/admin/updateteam?phase=:phaseName&old=:oldName&new=:newName'},
+       activatePhase: {method: 'POST', url: 'j/tournaments/:id/admin/activatephase?phase=:phaseName'},
        addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
        removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'},
        syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'},
