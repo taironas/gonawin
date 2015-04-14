@@ -92,7 +92,7 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			return nil
 		}
 
-		currentmatches := getMatchesByPhase(c, t, currentphase.Name)
+		currentmatches := GetMatchesByPhase(c, t, currentphase.Name)
 		if currentphase.Name != cSemiFinals {
 			log.Infof(c, "Update Next phase: current %v", currentphase.Name)
 			log.Infof(c, "Update Next phase: next %v", nextphase.Name)
@@ -141,7 +141,7 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 
 	// update phase (matches) with new teams
 	for _, ph := range phases {
-		matches := getMatchesByPhase(c, t, ph.Name)
+		matches := GetMatchesByPhase(c, t, ph.Name)
 		for i, m := range matches {
 			log.Infof(c, "Update Next phase: current rule: %v", m.Rule)
 			rule := strings.Split(m.Rule, " ")

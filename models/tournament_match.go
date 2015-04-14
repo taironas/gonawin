@@ -257,7 +257,7 @@ func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []
 }
 
 // Get all matches of a specific phase.
-func getMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
+func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
 
 	tb := GetTournamentBuilder(t)
 	limits := tb.MapOfPhaseIntervals()

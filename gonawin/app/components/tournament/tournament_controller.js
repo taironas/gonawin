@@ -692,6 +692,37 @@ tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routePar
           $scope.messageDanger = err.data;
         });
     };
+
+    Tournament.calendar({id:$routeParams.id, groupby:"phase"},
+      function(result) {
+        $scope.isActivated = function(phaseindex, phaseName) {
+          // get all the matches of the given phase
+          var phase = result.Phases[phaseindex];
+          // true if all the matches are not ready otherwise false
+          for(var i = 0; i < phase.Days.length; i++) {
+            var day = phase.Days[i];
+            for(var j = 0; j < day.Matches.length; j++) {
+              var match = day.Matches[j];
+              if(match.Ready === false) {
+                return false;
+              }
+            }
+          }
+          return true;
+        };
+      }, function(err) {
+        return false;
+      });
+
+    $scope.activate = function(phaseName) {
+      Tournament.activatePhase({id:$routeParams.id, phaseName:phaseName},
+          function(result) {
+            console.log('success activating phase');
+          }, function(err) {
+            console.log('failure activating phase ', err.data);
+            $scope.messageDanger = err.data;
+          });
+    };
 }]);
 
 
