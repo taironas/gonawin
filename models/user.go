@@ -206,7 +206,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 
 	queryValue := ""
 	if queryName == "Email" {
-		queryValue = email
+		queryValue = strings.ToLower(email)
 	} else if queryName == "Username" {
 		queryValue = username
 	} else {
