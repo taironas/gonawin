@@ -15,22 +15,18 @@
 <!-- / modal manage admins -->
 
 <div class="row">
-  <div class="col-md-10">
+  <div class="col-md-9">
     <h1 class="gw-h1">
       {{tournamentData.Tournament.Name}}
       <small class="gw-small">{{tournamentData.Tournament.Description}}</small>
     </h1>
   </div>
   <!-- actions -->
-  <div class="col-md-2 pull-right">
-    <form class="form-horizontal">
-      <div class="form-group">
-        <div class="btn-group">
-          <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
-          <button class="btn btn-default btn-sm" type="button" data-toggle="modal" data-target=".addTeamModal"><strong>Add Team</strong></button>
-        </div>
-      </div>
-    </form>
+  <div class="col-md-3">
+    <div class="btn-group pull-right">
+      <joinbutton action="joinButtonMethod()" name="joinButtonName"/>
+      <button class="btn btn-default btn-sm" type="button" data-toggle="modal" data-target=".addTeamModal"><strong>Add Team</strong></button>
+    </div>
   </div>
   <!-- / actions -->
 </div>

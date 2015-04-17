@@ -110,7 +110,7 @@ teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team'
     $scope.joinTeam = function() {
       Team.join({ id:$scope.team.Id }).$promise.then(function(response) {
         console.log('joinTeam response = ', response);
-        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonName = 'Leave Team';
         $scope.joinButtonMethod = $scope.leaveTeam;
         $scope.messageInfo = response.MessageInfo;
         Team.get({ id:$scope.team.Id }).$promise.then(function(teamDataResult) {
@@ -142,7 +142,7 @@ teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team'
     $scope.teamData.$promise.then(function(teamResult) {
       var deferred = $q.defer();
     	if (teamResult.Joined) {
-        deferred.resolve('Leave');
+        deferred.resolve('Leave Team');
     	}
     	else {
         deferred.resolve('Join');
@@ -309,7 +309,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.joinTeam = function(){
       Team.join({ id:$routeParams.id }).$promise.then(function(response){
         console.log('joinTeam response = ', response);
-        $scope.joinButtonName = 'Leave';
+        $scope.joinButtonName = 'Leave Team';
         $scope.joinButtonMethod = $scope.leaveTeam;
         $scope.messageInfo = response.MessageInfo;
         Team.get({ id:$routeParams.id }).$promise.then(function(teamDataResult){
@@ -341,7 +341,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     $scope.teamData.$promise.then(function(teamResult){
 	var deferred = $q.defer();
 	if (teamResult.Joined) {
-	    deferred.resolve('Leave');
+	    deferred.resolve('Leave Team');
 	}
 	else {
 	    deferred.resolve('Join');

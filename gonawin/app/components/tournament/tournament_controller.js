@@ -152,7 +152,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     $scope.joinTournament = function(){
       Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
-          $scope.joinButtonName = 'Leave';
+          $scope.joinButtonName = 'Leave Tournament';
           $scope.joinButtonMethod = $scope.leaveTournament;
           $scope.messageInfo = response.MessageInfo;
           $scope.$broadcast('setUpdatedTournamentData');
@@ -174,7 +174,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
     $scope.joinTournamentAsTeam = function(teamId){
     	Tournament.joinAsTeam({id:$routeParams.id, teamId:teamId}).$promise.then(function(response){
-    	    $scope.joinAsTeamButtonName[teamId] = 'Leave';
+    	    $scope.joinAsTeamButtonName[teamId] = 'Leave Tournament';
     	    $scope.joinAsTeamButtonMethod[teamId] = $scope.leaveTournamentAsTeam;
     	    $scope.messageInfo = response.MessageInfo;
     	    $scope.$broadcast('setUpdatedTournamentData');
@@ -225,7 +225,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $scope.tournamentData.$promise.then(function(tournamentResult){
     	var deferred = $q.defer();
     	if (tournamentResult.Joined) {
-        deferred.resolve('Leave');
+        deferred.resolve('Leave Tournament');
     	}
     	else {
         deferred.resolve('Join');
