@@ -17,8 +17,8 @@ a:hover {
 
 .btn-primary {
   color: #ffffff;
-  background-color: #ffa07a;
-  border-color: #ffa07a;
+  background-color: #fa8072;
+  border-color: #fa8072;
 }
 .btn-primary:hover,
 .btn-primary:focus,
@@ -26,8 +26,8 @@ a:hover {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
   color: #ffffff;
-  background-color: #fa8072;
-  border-color: #fa8072;
+  background-color: #009085;
+  border-color: #00625b;
 }
 .btn-primary:active,
 .btn-primary.active,
@@ -59,8 +59,8 @@ fieldset[disabled] .btn-primary.active {
 
 .btn-warning {
   color: #ffffff;
-  background-color: #fa8072;
-  border-color: #fa8072;
+  background-color: #ffa07a;
+  border-color: #ff9f22;
 }
 .btn-warning:hover,
 .btn-warning:focus,
@@ -68,8 +68,8 @@ fieldset[disabled] .btn-primary.active {
 .btn-warning.active,
 .open .dropdown-toggle.btn-warning {
   color: #ffffff;
-  background-color: #ffa07a;
-  border-color: #ffa07a;
+  background-color: #ff9813;
+  border-color: #e48100;
 }
 .btn-warning:active,
 .btn-warning.active,
@@ -215,12 +215,7 @@ fieldset[disabled] .btn-warning.active {
 .navbar-default .navbar-nav>li>a:focus .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus .gw-badge {
-  background-color: #fa8072;
-}
-
-.gw-row {
-  margin-right: 0px;
-  margin-left: 0px;
+  background-color: #f5f7f4;
 }
 
 /* End Navbar styles
@@ -243,65 +238,48 @@ fieldset[disabled] .btn-warning.active {
 
 .header-welcome h1 {
   font-size: 45pt;
-  text-shadow: #ffa07a 2px 2px 0px, #ffa07a -2px 2px 0px, #ffa07a -2px -2px 0px, #ffa07a 2px -2px 0px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+
+.header-welcome h3 {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
 .header-signin {
-  margin-top: 150px;
+  margin-top: 270px;
   color: #fff;
   position:absolute;
   width: 100%;
 }
 
-.header-signin .container-fluid {
-  background-color: transparent;
-}
-
-.header-signin h3 {
-  font-size: 20pt;
-  margin-bottom: 30px;
-  color: #ffa07a;
-}
-
 .header-signin .btn {
-  font-size: 13px;
   margin-bottom: 10px;
 }
 
-.header h5 {
-	font-weight: 700;
-	text-align: left;
-}
-
-.header p {
-  color: #267F79;
-}
-
-.table-centered
-{
-  margin: 0 auto !important;
-  float: none !important;
+.header-signin-background {
+  background: rgba(255,255,255,0.5);
+  padding: 10px 25px 0px;
+  border-radius: 5px;
 }
 
 /* intro Wrap */
 
 .intro {
   color: #ffa07a;
-  margin-top: 500px;
+  margin-top: 550px;
 }
 
 .intro img {
   margin-top: 20px;
 }
 
-.intro h3 {
-  font-weight: 700;
-  font-size: 20pt;
+.intro h3,
+.intro h4 {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
 }
 
-.intro p {
+.intro h3 {
   color: #fff;
-  font-size: 15pt;
 }
 
 /* Sticky footer styles
@@ -351,11 +329,7 @@ body {
 -------------------------------------------------- */
 
 .cover {
-  background: linear-gradient(
-      rgba(0, 0, 0, 0.30),
-      rgba(0, 0, 0, 0.30)
-    ), url(/app/assets/img/stadium.jpg) no-repeat center fixed;
-  background-color: rgba(0, 0, 0, 1.0);
+  background: url(/app/assets/img/stadium.jpg) no-repeat;
   background-size: cover;
 }
 
@@ -580,6 +554,7 @@ body {
 -------------------------------------------------- */
 
 .panel-default .gw-dashboard-panel-heading {
+  height: 153px;
   padding-top: 25px;
 }
 .gw-dashboard-container {
