@@ -45,9 +45,9 @@
   </head>
   <body>
     <div id="wrap" ng-class="{false: 'cover'}[isLoggedIn]">
-      <div ng-include src="'app/components/navigation/navigation.html'"></div>
       <div ng-switch on="isLoggedIn && isLoginRequired">
         <div ng-switch-when="true">
+          <div ng-include src="'app/components/navigation/navigation.html'"></div>
           <div class="container-fluid gw-container">
             <ng-include src="'shared/main.html'"></ng-include>
           </div>
@@ -65,6 +65,7 @@
               </div>
             </div>
             <div ng-switch-default>
+              <div ng-include src="'app/components/navigation/navigation.html'"></div>
               <div class="container gw-container">
                 <ng-view><ng-view>
               </div>
