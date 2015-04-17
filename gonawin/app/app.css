@@ -221,6 +221,11 @@ fieldset[disabled] .btn-warning.active {
 /* End Navbar styles
 -------------------------------------------------- */
 
+.gw-row {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
 .panel-default .panel-heading {
   background-color: #f5f7f4;
 }
