@@ -377,7 +377,11 @@ func (t *Tournament) Reset(c appengine.Context) error {
 		}
 	}
 	// reset all match rules
-	tb := GetTournamentBuilder(t)
+	var tb TournamentBuilder
+	if tb = GetTournamentBuilder(t); tb == nil {
+		log.Errorf(c, "TournamentBuilder not found")
+		return fmt.Errorf("TournamentBuilder not found")
+	}
 
 	mapMatches2ndRound := tb.MapOf2ndRoundMatches()
 
@@ -621,7 +625,7 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	if t.Name == "2014 FIFA World Cup" {
 		wct := WorldCupTournament{}
 		tb = wct
-	} else {
+	} else if t.Name == "2014-2015 UEFA Champions League" {
 		clt := ChampionsLeagueTournament{}
 		tb = clt
 	}
@@ -630,7 +634,11 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 }
 
 func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
-	tb := GetTournamentBuilder(tournament)
 
+	var tb TournamentBuilder
+
+	if tb = GetTournamentBuilder(tournament); tb == nil {
+		return nil
+	}
 	return tb.MapOfIdTeams(c, tournament)
 }

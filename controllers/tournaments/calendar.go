@@ -262,7 +262,11 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 // From an array of Matches, create an array of Phases where the matches are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
 func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJson) []PhaseJson {
-	tb := mdl.GetTournamentBuilder(t)
+
+	var tb mdl.TournamentBuilder
+	if tb = mdl.GetTournamentBuilder(t); tb == nil {
+		return []PhaseJson{}
+	}
 
 	limits := tb.MapOfPhaseIntervals()
 	phaseNames := tb.ArrayOfPhases()

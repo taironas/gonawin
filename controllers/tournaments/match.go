@@ -189,7 +189,11 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		tb := mdl.GetTournamentBuilder(tournament)
+		var tb mdl.TournamentBuilder
+		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+			log.Errorf(c, "%s TournamentBuilder not found", desc)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
 		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
@@ -280,7 +284,13 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		mjson.Date = match.Date
 		rule := strings.Split(match.Rule, " ")
 
-		tb := mdl.GetTournamentBuilder(tournament)
+		var tb mdl.TournamentBuilder
+
+		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+			log.Errorf(c, "%s TournamentBuilder not found", desc)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
+
 		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 
 		if len(rule) > 1 {
@@ -319,7 +329,11 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 	var predicts mdl.Predicts
 	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
-	tb := mdl.GetTournamentBuilder(t)
+	var tb mdl.TournamentBuilder
+	if tb = mdl.GetTournamentBuilder(t); tb == nil {
+		return []MatchJson{}
+	}
+
 	mapIdTeams := tb.MapOfIdTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 
@@ -359,7 +373,11 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 	var predicts mdl.Predicts
 	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
-	tb := mdl.GetTournamentBuilder(t)
+	var tb mdl.TournamentBuilder
+	if tb = mdl.GetTournamentBuilder(t); tb == nil {
+		return []MatchJson{}
+	}
+
 	mapIdTeams := tb.MapOfIdTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 

@@ -49,7 +49,10 @@ func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldName, newName string) error {
 	log.Infof(c, "UpdateTournamentTeam : phaseName = %s, oldName = %s, newName = %s", phaseName, oldName, newName)
 
-	tb := GetTournamentBuilder(t)
+	var tb TournamentBuilder
+	if tb = GetTournamentBuilder(t); tb == nil {
+		return fmt.Errorf("TournamentBuilder not found")
+	}
 
 	mapIdTeams := tb.MapOfIdTeams(c, t)
 	limits := tb.MapOfPhaseIntervals()

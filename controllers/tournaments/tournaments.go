@@ -674,7 +674,11 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 		msg := ""
-		tb := mdl.GetTournamentBuilder(tournament)
+		var tb mdl.TournamentBuilder
+		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+			log.Errorf(c, "%s TournamentBuilder not found")
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
 		mapIdTeams := tb.MapOfIdTeams(c, tournament)
 		var p *mdl.Predict
 		if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
