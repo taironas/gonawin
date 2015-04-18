@@ -46,24 +46,24 @@ type addAdmin struct {
 // tournament returns a tournament instance.
 // It gets the 'tournamentId' from the request and queries the datastore to get
 // the tournament.
-func (at addAdmin) tournament() (*mdl.Tournament, error) {
+func (aa addAdmin) tournament() (*mdl.Tournament, error) {
 
-	strTournamentId, err := route.Context.Get(at.r, "tournamentId")
+	strTournamentId, err := route.Context.Get(aa.r, "tournamentId")
 	if err != nil {
-		log.Errorf(at.c, "%s error getting tournament id, err:%v", at.desc, err)
+		log.Errorf(aa.c, "%s error getting tournament id, err:%v", aa.desc, err)
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var tournamentId int64
 	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
 	if err != nil {
-		log.Errorf(at.c, "%s error converting tournament id from string to int64, err:%v", at.desc, err)
+		log.Errorf(aa.c, "%s error converting tournament id from string to int64, err:%v", aa.desc, err)
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var tournament *mdl.Tournament
-	if tournament, err = mdl.TournamentById(at.c, tournamentId); err != nil {
-		log.Errorf(at.c, "%s tournament not found: %v", at.desc, err)
+	if tournament, err = mdl.TournamentById(aa.c, tournamentId); err != nil {
+		log.Errorf(aa.c, "%s tournament not found: %v", aa.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 	return tournament, nil
@@ -71,18 +71,18 @@ func (at addAdmin) tournament() (*mdl.Tournament, error) {
 
 // userId returns a userId.
 // It gets the 'userId' from the request and parses it to int64
-func (at addAdmin) userId() (int64, error) {
+func (aa addAdmin) userId() (int64, error) {
 
-	strUserId, err := route.Context.Get(at.r, "userId")
+	strUserId, err := route.Context.Get(aa.r, "userId")
 	if err != nil {
-		log.Errorf(at.c, "%s error getting user id, err:%v", at.desc, err)
+		log.Errorf(aa.c, "%s error getting user id, err:%v", aa.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 
 	var userId int64
 	userId, err = strconv.ParseInt(strUserId, 0, 64)
 	if err != nil {
-		log.Errorf(at.c, "%s error converting user id from string to int64, err:%v", at.desc, err)
+		log.Errorf(aa.c, "%s error converting user id from string to int64, err:%v", aa.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 	return userId, nil
@@ -90,12 +90,12 @@ func (at addAdmin) userId() (int64, error) {
 
 // admin returns a admin mdl.User object with respect to the
 // userId passed as param.
-func (at addAdmin) admin(userId int64) (*mdl.User, error) {
+func (aa addAdmin) admin(userId int64) (*mdl.User, error) {
 
-	newAdmin, err := mdl.UserById(at.c, userId)
-	log.Infof(at.c, "%s User: %v", at.desc, newAdmin)
+	newAdmin, err := mdl.UserById(aa.c, userId)
+	log.Infof(aa.c, "%s User: %v", aa.desc, newAdmin)
 	if err != nil {
-		log.Errorf(at.c, "%s user not found", at.desc)
+		log.Errorf(aa.c, "%s user not found", aa.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 	return newAdmin, nil
