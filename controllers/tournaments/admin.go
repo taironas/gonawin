@@ -36,7 +36,7 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// addAmin type holds the information needed read the request and log any errors.
+// addAdmin type holds the information needed read the request and log any errors.
 type addAdmin struct {
 	c    appengine.Context // appengine context
 	desc string            // handler description
@@ -155,7 +155,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Tournament remove admin handler:
+// RemoveAdmin handler lets you remove an admin from a tournament.
 //
 // Use this handler to remove a user as admin of the current tournament.
 //	GET	/j/tournaments/[0-9]+/admin/remove/
@@ -164,68 +164,70 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament remove admin Handler:"
 
-	if r.Method == "POST" {
-		// get tournament id and user id
-		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
-		if err1 != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
-		if err1 != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		strUserId, err2 := route.Context.Get(r, "userId")
-		if err2 != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var userId int64
-		userId, err2 = strconv.ParseInt(strUserId, 0, 64)
-		if err2 != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
-			log.Errorf(c, "%s tournament not found: %v.", desc, err1)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var oldAdmin *mdl.User
-		oldAdmin, err := mdl.UserById(c, userId)
-		log.Infof(c, "%s User: %v.", desc, oldAdmin)
-		if err != nil {
-			log.Errorf(c, "%s user not found.", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		if err = tournament.RemoveAdmin(c, oldAdmin.Id); err != nil {
-			log.Errorf(c, "%s error on RemoveAdmin to tournament: %v.", desc, err)
-			return &helpers.InternalServerError{Err: err}
-		}
-
-		var tJson mdl.TournamentJson
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-		msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Tournament  mdl.TournamentJson
-		}{
-			msg,
-			tJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return nil
+
+	// get tournament id and user id
+	strTournamentId, err1 := route.Context.Get(r, "tournamentId")
+	if err1 != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournamentId int64
+	tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
+	if err1 != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	strUserId, err2 := route.Context.Get(r, "userId")
+	if err2 != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var userId int64
+	userId, err2 = strconv.ParseInt(strUserId, 0, 64)
+	if err2 != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
+		log.Errorf(c, "%s tournament not found: %v.", desc, err1)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var oldAdmin *mdl.User
+	oldAdmin, err := mdl.UserById(c, userId)
+	log.Infof(c, "%s User: %v.", desc, oldAdmin)
+	if err != nil {
+		log.Errorf(c, "%s user not found.", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	if err = tournament.RemoveAdmin(c, oldAdmin.Id); err != nil {
+		log.Errorf(c, "%s error on RemoveAdmin to tournament: %v.", desc, err)
+		return &helpers.InternalServerError{Err: err}
+	}
+
+	var tJson mdl.TournamentJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+
+	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Tournament  mdl.TournamentJson
+	}{
+		msg,
+		tJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
+
 }
 
 // Tournament sync scores handler:
