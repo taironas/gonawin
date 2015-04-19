@@ -209,12 +209,13 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// Tournament sync scores handler:
+// SyncScores handler lets you syncronize scores in tournament.
 //
 // Use this handler to run taks to sync scores of all users in tournament.
 //	GET	/j/tournaments/[0-9]+/admin/syncscores/
 //
 func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
@@ -260,46 +261,49 @@ func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// Tournament activate phase handler:
+// ActivatePhase handler let you  activate phase of tournament.
 //
 // Use this handler to activate all the matches of given phase in tournament.
 //	GET	/j/tournaments/[0-9]+/admin/activatephase/
 //
 func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament activate phase handler:"
 	log.Infof(c, "%v", desc)
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "%s tournament not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		phaseName := r.FormValue("phaseName")
-
-		matches := mdl.GetMatchesByPhase(c, tournament, phaseName)
-
-		for _, match := range matches {
-			match.Ready = true
-		}
-
-		return mdl.UpdateMatches(c, matches)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+		log.Errorf(c, "%s tournament not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	phaseName := r.FormValue("phaseName")
+
+	matches := mdl.GetMatchesByPhase(c, tournament, phaseName)
+
+	for _, match := range matches {
+		match.Ready = true
+	}
+
+	return mdl.UpdateMatches(c, matches)
+
 }
