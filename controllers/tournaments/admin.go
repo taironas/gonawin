@@ -36,8 +36,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// addAdmin type holds the information needed read the request and log any errors.
-type addAdmin struct {
+// requestContext type holds the information needed read the request and log any errors.
+type requestContext struct {
 	c    appengine.Context // appengine context
 	desc string            // handler description
 	r    *http.Request     // the HTTP request
@@ -46,24 +46,24 @@ type addAdmin struct {
 // tournament returns a tournament instance.
 // It gets the 'tournamentId' from the request and queries the datastore to get
 // the tournament.
-func (aa addAdmin) tournament() (*mdl.Tournament, error) {
+func (rc requestContext) tournament() (*mdl.Tournament, error) {
 
-	strTournamentId, err := route.Context.Get(aa.r, "tournamentId")
+	strTournamentId, err := route.Context.Get(rc.r, "tournamentId")
 	if err != nil {
-		log.Errorf(aa.c, "%s error getting tournament id, err:%v", aa.desc, err)
+		log.Errorf(rc.c, "%s error getting tournament id, err:%v", rc.desc, err)
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var tournamentId int64
 	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
 	if err != nil {
-		log.Errorf(aa.c, "%s error converting tournament id from string to int64, err:%v", aa.desc, err)
+		log.Errorf(rc.c, "%s error converting tournament id from string to int64, err:%v", rc.desc, err)
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var tournament *mdl.Tournament
-	if tournament, err = mdl.TournamentById(aa.c, tournamentId); err != nil {
-		log.Errorf(aa.c, "%s tournament not found: %v", aa.desc, err)
+	if tournament, err = mdl.TournamentById(rc.c, tournamentId); err != nil {
+		log.Errorf(rc.c, "%s tournament not found: %v", rc.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 	return tournament, nil
@@ -71,18 +71,18 @@ func (aa addAdmin) tournament() (*mdl.Tournament, error) {
 
 // userId returns a userId.
 // It gets the 'userId' from the request and parses it to int64
-func (aa addAdmin) userId() (int64, error) {
+func (rc requestContext) userId() (int64, error) {
 
-	strUserId, err := route.Context.Get(aa.r, "userId")
+	strUserId, err := route.Context.Get(rc.r, "userId")
 	if err != nil {
-		log.Errorf(aa.c, "%s error getting user id, err:%v", aa.desc, err)
+		log.Errorf(rc.c, "%s error getting user id, err:%v", rc.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 
 	var userId int64
 	userId, err = strconv.ParseInt(strUserId, 0, 64)
 	if err != nil {
-		log.Errorf(aa.c, "%s error converting user id from string to int64, err:%v", aa.desc, err)
+		log.Errorf(rc.c, "%s error converting user id from string to int64, err:%v", rc.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 	return userId, nil
@@ -90,12 +90,12 @@ func (aa addAdmin) userId() (int64, error) {
 
 // admin returns a admin mdl.User object with respect to the
 // userId passed as param.
-func (aa addAdmin) admin(userId int64) (*mdl.User, error) {
+func (rc requestContext) admin(userId int64) (*mdl.User, error) {
 
-	newAdmin, err := mdl.UserById(aa.c, userId)
-	log.Infof(aa.c, "%s User: %v", aa.desc, newAdmin)
+	newAdmin, err := mdl.UserById(rc.c, userId)
+	log.Infof(rc.c, "%s User: %v", rc.desc, newAdmin)
 	if err != nil {
-		log.Errorf(aa.c, "%s user not found", aa.desc)
+		log.Errorf(rc.c, "%s user not found", rc.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 	return newAdmin, nil
@@ -113,22 +113,22 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament add admin Handler:"
 
-	aa := addAdmin{c, desc, r}
+	rc := requestContext{c, desc, r}
 
 	var tournament *mdl.Tournament
 	var err error
 
-	if tournament, err = aa.tournament(); err != nil {
+	if tournament, err = rc.tournament(); err != nil {
 		return err
 	}
 
 	var userId int64
-	if userId, err = aa.userId(); err != nil {
+	if userId, err = rc.userId(); err != nil {
 		return err
 	}
 
 	var newAdmin *mdl.User
-	if newAdmin, err = aa.admin(userId); err != nil {
+	if newAdmin, err = rc.admin(userId); err != nil {
 		return err
 	}
 
@@ -161,12 +161,13 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 //	GET	/j/tournaments/[0-9]+/admin/remove/
 //
 func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "Tournament remove admin Handler:"
 
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Tournament remove admin Handler:"
 
 	// get tournament id and user id
 	strTournamentId, err1 := route.Context.Get(r, "tournamentId")
@@ -182,6 +183,12 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
+	var tournament *mdl.Tournament
+	if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
+		log.Errorf(c, "%s tournament not found: %v.", desc, err1)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
 	strUserId, err2 := route.Context.Get(r, "userId")
 	if err2 != nil {
 		log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
@@ -193,12 +200,6 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if err2 != nil {
 		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var tournament *mdl.Tournament
-	if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
-		log.Errorf(c, "%s tournament not found: %v.", desc, err1)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var oldAdmin *mdl.User
