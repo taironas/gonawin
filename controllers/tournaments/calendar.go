@@ -21,12 +21,9 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"appengine"
-
-	"github.com/taironas/route"
 
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
@@ -143,46 +140,27 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	c := appengine.NewContext(r)
 	desc := "Tournament Calendar with prediction Handler:"
 
-	// get tournament id and user id
-	strTournamentId, err1 := route.Context.Get(r, "tournamentId")
-	if err1 != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
-	var tournamentId int64
-	tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
-	if err1 != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	var err error
+	var t *mdl.Tournament
 
-	strTeamId, err2 := route.Context.Get(r, "teamId")
-	if err2 != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	if t, err = rc.tournament(); err != nil {
+		return err
 	}
 
 	var teamId int64
-	teamId, err2 = strconv.ParseInt(strTeamId, 0, 64)
-	if err2 != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	var t *mdl.Tournament
-	t, err1 = mdl.TournamentById(c, tournamentId)
-	if err1 != nil {
-		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err1)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	if teamId, err = rc.teamId(); err != nil {
+		return err
 	}
 
 	var team *mdl.Team
-	team, err2 = mdl.TeamById(c, teamId)
-	if err2 != nil {
-		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err2)
+	team, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
+
 	players := team.Players(c)
 
 	predictsByPlayer := make([]mdl.Predicts, len(players))
@@ -234,19 +212,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 		return templateshlp.RenderJson(w, c, data)
 
 	} else if groupby == "phase" {
-		//
 		// @santiaago: right now not supported.
-		//
-		// log.Infof(c, "%s ready to build phase array", desc)
-		// matchesJson := buildMatchesFromTournament(c, t, u)
-		// phases := matchesGroupByPhase(matchesJson)
-
-		// data := struct {
-		// 	Phases []PhaseJson
-		// }{
-		// 	phases,
-		// }
-		// return templateshlp.RenderJson(w, c, data)
 	}
 
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
