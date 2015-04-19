@@ -92,13 +92,13 @@ func (rc requestContext) userId() (int64, error) {
 // userId passed as param.
 func (rc requestContext) admin(userId int64) (*mdl.User, error) {
 
-	newAdmin, err := mdl.UserById(rc.c, userId)
-	log.Infof(rc.c, "%s User: %v", rc.desc, newAdmin)
+	a, err := mdl.UserById(rc.c, userId)
+	log.Infof(rc.c, "%s User: %v", rc.desc, a)
 	if err != nil {
 		log.Errorf(rc.c, "%s user not found", rc.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
-	return newAdmin, nil
+	return a, nil
 }
 
 // AddAdmin let you add an admin to a tournament.
@@ -169,45 +169,23 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament remove admin Handler:"
 
-	// get tournament id and user id
-	strTournamentId, err1 := route.Context.Get(r, "tournamentId")
-	if err1 != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	var tournamentId int64
-	tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
-	if err1 != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var tournament *mdl.Tournament
-	if tournament, err1 = mdl.TournamentById(c, tournamentId); err1 != nil {
-		log.Errorf(c, "%s tournament not found: %v.", desc, err1)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	var err error
 
-	strUserId, err2 := route.Context.Get(r, "userId")
-	if err2 != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	if tournament, err = rc.tournament(); err != nil {
+		return err
 	}
 
 	var userId int64
-	userId, err2 = strconv.ParseInt(strUserId, 0, 64)
-	if err2 != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	if userId, err = rc.userId(); err != nil {
+		return err
 	}
 
 	var oldAdmin *mdl.User
-	oldAdmin, err := mdl.UserById(c, userId)
-	log.Infof(c, "%s User: %v.", desc, oldAdmin)
-	if err != nil {
-		log.Errorf(c, "%s user not found.", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	if oldAdmin, err = rc.admin(userId); err != nil {
+		return err
 	}
 
 	if err = tournament.RemoveAdmin(c, oldAdmin.Id); err != nil {
