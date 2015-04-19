@@ -259,7 +259,10 @@ func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []
 // Get all matches of a specific phase.
 func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
 
-	tb := GetTournamentBuilder(t)
+	var tb TournamentBuilder
+	if tb = GetTournamentBuilder(t); tb == nil {
+		return []*Tmatch{}
+	}
 	limits := tb.MapOfPhaseIntervals()
 
 	low := limits[phaseName][0]
@@ -279,7 +282,10 @@ func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*
 // Get all matches grouped by phases. Returns an array of phases.
 func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
 
-	tb := GetTournamentBuilder(t)
+	var tb TournamentBuilder
+	if tb = GetTournamentBuilder(t); tb == nil {
+		return []Tphase{}
+	}
 
 	limits := tb.MapOfPhaseIntervals()
 	phaseNames := tb.ArrayOfPhases()
