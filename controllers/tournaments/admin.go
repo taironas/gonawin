@@ -206,7 +206,6 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJson,
 	}
 	return templateshlp.RenderJson(w, c, data)
-
 }
 
 // SyncScores handler lets you syncronize scores in tournament.
@@ -258,7 +257,6 @@ func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
-
 }
 
 // ActivatePhase handler let you  activate phase of tournament.
@@ -294,5 +292,4 @@ func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return mdl.UpdateMatches(c, matches)
-
 }
