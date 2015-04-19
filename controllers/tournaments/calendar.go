@@ -77,62 +77,64 @@ type PhaseJson struct {
 // You can also specify the 'groupby' parameter to be 'day' or 'phase' in which case you would have an array of phases,
 // each of which would have an array of days who would have an array of matches.
 func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Calendar Handler:"
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var t *mdl.Tournament
+	t, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	groupby := r.FormValue("groupby")
+	// if wrong data we set groupby to "day"
+	if groupby != "day" && groupby != "phase" {
+		groupby = "day"
+	}
+
+	if groupby == "day" {
+		log.Infof(c, "%s ready to build days array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+
+		days := matchesGroupByDay(t, matchesJson)
+
+		data := struct {
+			Days []DayJson
+		}{
+			days,
 		}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return templateshlp.RenderJson(w, c, data)
+
+	} else if groupby == "phase" {
+		log.Infof(c, "%s ready to build phase array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+		phases := matchesGroupByPhase(t, matchesJson)
+		data := struct {
+			Phases []PhaseJson
+		}{
+			phases,
 		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		groupby := r.FormValue("groupby")
-		// if wrong data we set groupby to "day"
-		if groupby != "day" && groupby != "phase" {
-			groupby = "day"
-		}
-
-		if groupby == "day" {
-			log.Infof(c, "%s ready to build days array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-
-			days := matchesGroupByDay(t, matchesJson)
-
-			data := struct {
-				Days []DayJson
-			}{
-				days,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-
-		} else if groupby == "phase" {
-			log.Infof(c, "%s ready to build phase array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-			phases := matchesGroupByPhase(t, matchesJson)
-			data := struct {
-				Phases []PhaseJson
-			}{
-				phases,
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
