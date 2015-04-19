@@ -19,14 +19,10 @@ package tournaments
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
 	mdl "github.com/santiaago/gonawin/models"
@@ -49,7 +45,7 @@ type TeamJson struct {
 	Iso    string
 }
 
-// json tournament groups handler
+// Groups handelr sends the JSON tournament groups data.
 // use this handler to get groups of a tournament.
 func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -59,25 +55,11 @@ func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Group Handler:"
 
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
-	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
+	rc := requestContext{c, desc, r}
+	var err error
 	var tournament *mdl.Tournament
-	tournament, err = mdl.TournamentById(c, tournamentId)
-	if err != nil {
-		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	if tournament, err = rc.tournament(); err != nil {
+		return err
 	}
 
 	groups := mdl.Groups(c, tournament.GroupIds)
