@@ -67,25 +67,12 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Tournament Matches Handler:"
 
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
-	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
+	rc := requestContext{c, desc, r}
+	var err error
 	var t *mdl.Tournament
-	t, err = mdl.TournamentById(c, tournamentId)
-	if err != nil {
-		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+
+	if t, err = rc.tournament(); err != nil {
+		return err
 	}
 
 	filter := r.FormValue("filter")
