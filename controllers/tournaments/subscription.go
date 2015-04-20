@@ -81,58 +81,59 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // Leave handler for tournament relationships
 func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave Handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "%s tournament not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		if err := tournament.Leave(c, u); err != nil {
-			log.Errorf(c, "%s error on Leave team: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-
-		// return the left tournament
-		var tJson mdl.TournamentJson
-		fieldsToKeep := []string{"Id", "Name"}
-		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-		// publish new activity
-		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-			log.Errorf(c, "User not found %v", u.Id)
-		} else {
-			updatedUser.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
-		}
-
-		msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Tournament  mdl.TournamentJson
-		}{
-			msg,
-			tJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+		log.Errorf(c, "%s tournament not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	if err := tournament.Leave(c, u); err != nil {
+		log.Errorf(c, "%s error on Leave team: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	// return the left tournament
+	var tJson mdl.TournamentJson
+	fieldsToKeep := []string{"Id", "Name"}
+	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+
+	// publish new activity
+	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
+	} else {
+		updatedUser.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
+	}
+
+	msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Tournament  mdl.TournamentJson
+	}{
+		msg,
+		tJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Join as Team handler for tournament teams realtionship.
