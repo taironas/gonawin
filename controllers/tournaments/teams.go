@@ -138,64 +138,65 @@ func teamContains(teams []teamJson, name string) bool {
 
 // Update team handler. replaces a team for the second phase of the tournament.
 func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Update Team handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-		phaseName := r.FormValue("phase")
-		// if wrong data exit
-		if len(phaseName) == 0 {
-			log.Errorf(c, "%s phase name is missing.", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-		}
-
-		oldName := r.FormValue("old")
-		// if wrong data exit
-		if len(oldName) == 0 {
-			log.Errorf(c, "%s old name is missing.", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-		}
-
-		newName := r.FormValue("new")
-		// if wrong data exit
-		if len(newName) == 0 {
-			log.Errorf(c, "%s new name is missing.", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-		}
-		if err := t.UpdateTournamentTeam(c, phaseName, oldName, newName); err != nil {
-			log.Errorf(c, "%s something when wrong while updating a team in the tournament %v. %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-		}
-
-		matchesJson := buildMatchesFromTournament(c, t, u)
-		teamsByPhases := teamsGroupByPhase(t, matchesJson)
-
-		data := struct {
-			Phases []teamsByPhase
-		}{
-			teamsByPhases,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var t *mdl.Tournament
+	t, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+	phaseName := r.FormValue("phase")
+	// if wrong data exit
+	if len(phaseName) == 0 {
+		log.Errorf(c, "%s phase name is missing.", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
+	oldName := r.FormValue("old")
+	// if wrong data exit
+	if len(oldName) == 0 {
+		log.Errorf(c, "%s old name is missing.", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
+	newName := r.FormValue("new")
+	// if wrong data exit
+	if len(newName) == 0 {
+		log.Errorf(c, "%s new name is missing.", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+	if err := t.UpdateTournamentTeam(c, phaseName, oldName, newName); err != nil {
+		log.Errorf(c, "%s something when wrong while updating a team in the tournament %v. %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
+	matchesJson := buildMatchesFromTournament(c, t, u)
+	teamsByPhases := teamsGroupByPhase(t, matchesJson)
+
+	data := struct {
+		Phases []teamsByPhase
+	}{
+		teamsByPhases,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
