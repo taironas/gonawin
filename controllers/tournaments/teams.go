@@ -52,50 +52,50 @@ type teamJson struct {
 // The response is an array of teams group by phase.
 //
 func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Teams Handler:"
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var t *mdl.Tournament
+	t, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	groupby := r.FormValue("groupby")
+	// if wrong data, we set rankby to "phase"
+	if groupby != "phase" {
+		groupby = "phase"
+	} else if groupby == "phase" {
+		log.Infof(c, "%s ready to build a team array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+		teamsByPhases := teamsGroupByPhase(t, matchesJson)
+
+		data := struct {
+			Phases []teamsByPhase
+		}{
+			teamsByPhases,
 		}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		groupby := r.FormValue("groupby")
-		// if wrong data, we set rankby to "phase"
-		if groupby != "phase" {
-			groupby = "phase"
-		}
-
-		if groupby == "phase" {
-			log.Infof(c, "%s ready to build a team array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-			teamsByPhases := teamsGroupByPhase(t, matchesJson)
-
-			data := struct {
-				Phases []teamsByPhase
-			}{
-				teamsByPhases,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

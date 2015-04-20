@@ -236,5 +236,4 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
-
 }
