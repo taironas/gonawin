@@ -64,6 +64,16 @@ func (p *Predict) Destroy(c appengine.Context) error {
 	}
 }
 
+// DestroyPredicts destroys a list of predicts.
+func DestroyPredicts(c appengine.Context, predictIds []int64) error {
+	var keys []*datastore.Key
+	for _, id := range predictIds {
+		keys = append(keys, datastore.NewKey(c, "Predict", "", id, nil))
+	}
+
+	return datastore.DeleteMulti(c, keys)
+}
+
 // Search for all Predict entities with respect to a filter and a value.
 func FindPredicts(c appengine.Context, filter string, value interface{}) []*Predict {
 
