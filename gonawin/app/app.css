@@ -27,8 +27,8 @@ a:hover {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
   color: #ffffff;
-  background-color: #009085;
-  border-color: #00625b;
+  background-color: #ffa07a;
+  border-color: #ffa07a;
 }
 .btn-primary:active,
 .btn-primary.active,
@@ -61,7 +61,7 @@ fieldset[disabled] .btn-primary.active {
 .btn-warning {
   color: #ffffff;
   background-color: #ffa07a;
-  border-color: #ff9f22;
+  border-color: #ffa07a;
 }
 .btn-warning:hover,
 .btn-warning:focus,
@@ -69,8 +69,8 @@ fieldset[disabled] .btn-primary.active {
 .btn-warning.active,
 .open .dropdown-toggle.btn-warning {
   color: #ffffff;
-  background-color: #ff9813;
-  border-color: #e48100;
+  background-color: #fa8072;
+  border-color: #fa8072;
 }
 .btn-warning:active,
 .btn-warning.active,
