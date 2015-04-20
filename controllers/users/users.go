@@ -329,24 +329,6 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
 		}
 
-		// send task to delete activities of the user.
-		log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
-
-		bactivityIds, err1 := json.Marshal(u.ActivityIds)
-		if err1 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, err1)
-		}
-
-		task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
-			"activity_ids": []string{string(bactivityIds)},
-		})
-
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-
 		// user
 		var user *mdl.User
 		user, err = mdl.UserById(c, userId)
@@ -391,6 +373,25 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				}
 			}
 		}
+
+		// send task to delete activities of the user.
+		log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
+
+		bactivityIds, err1 := json.Marshal(u.ActivityIds)
+		if err1 != nil {
+			log.Errorf(c, "%s Error marshaling", desc, err1)
+		}
+
+		task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
+			"activity_ids": []string{string(bactivityIds)},
+		})
+
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		} else {
+			log.Infof(c, "%s add task to taskqueue successfully", desc)
+		}
+
 		// delete the user
 		user.Destroy(c)
 
