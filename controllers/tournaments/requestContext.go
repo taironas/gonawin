@@ -95,3 +95,26 @@ func (rc requestContext) admin(userId int64) (*mdl.User, error) {
 	}
 	return a, nil
 }
+
+func (rc requestContext) match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
+
+	strmatchIdNumber, err := route.Context.Get(rc.r, "matchId")
+	if err != nil {
+		log.Errorf(rc.c, "%s error getting match id, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	var matchIdNumber int64
+	matchIdNumber, err = strconv.ParseInt(strmatchIdNumber, 0, 64)
+	if err != nil {
+		log.Errorf(rc.c, "%s error converting match id from string to int64, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	match := mdl.GetMatchByIdNumber(rc.c, *tournament, matchIdNumber)
+	if match == nil {
+		log.Errorf(rc.c, "%s unable to get match with id number :%v", rc.desc, matchIdNumber)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
+	}
+	return match, nil
+}

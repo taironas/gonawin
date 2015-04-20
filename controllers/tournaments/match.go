@@ -96,7 +96,6 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
-
 }
 
 // Update Match handler.
@@ -118,24 +117,9 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		return err
 	}
 
-	// get match id number
-	strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
-	if err2 != nil {
-		log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-	}
-
-	var matchIdNumber int64
-	matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
-	if err2 != nil {
-		log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-	}
-
-	match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
-	if match == nil {
-		log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
+	var match *mdl.Tmatch
+	if match, err = rc.match(tournament); err != nil {
+		return err
 	}
 
 	result := r.FormValue("result")
@@ -159,7 +143,6 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
 		log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IdNumber, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-
 	}
 
 	// return the updated match
@@ -201,7 +184,6 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	tournament.Publish(c, "match", verb, object, target)
 
 	return templateshlp.RenderJson(w, c, mjson)
-
 }
 
 // Block Match prediction handler.
