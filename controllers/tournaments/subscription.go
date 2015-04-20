@@ -35,58 +35,48 @@ import (
 
 // Join handler for tournament.
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Join Handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
+	rc := requestContext{c, desc, r}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
+	var err error
+	var tournament *mdl.Tournament
 
-		var tournament *mdl.Tournament
-		if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-			log.Errorf(c, "%s tournament not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		if err := tournament.Join(c, u); err != nil {
-			log.Errorf(c, "%s error on Join tournament: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-
-		var tJson mdl.TournamentJson
-		fieldsToKeep := []string{"Id", "Name"}
-		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-		// publish new activity
-		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-			log.Errorf(c, "User not found %v", u.Id)
-		} else {
-			updatedUser.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
-		}
-
-		msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Tournament  mdl.TournamentJson
-		}{
-			msg,
-			tJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	if tournament, err = rc.tournament(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	if err := tournament.Join(c, u); err != nil {
+		log.Errorf(c, "%s error on Join tournament: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	var tJson mdl.TournamentJson
+	fieldsToKeep := []string{"Id", "Name"}
+	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+
+	// publish new activity
+	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
+	} else {
+		updatedUser.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
+	}
+
+	msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Tournament  mdl.TournamentJson
+	}{
+		msg,
+		tJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Leave handler for tournament relationships
