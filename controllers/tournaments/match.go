@@ -60,54 +60,56 @@ type MatchJson struct {
 // if filter is equal to 'first' you wil get matches of the first phase of the tournament.
 // if filter is equal to 'second' you will get the matches of the second phase of the tournament.
 func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Matches Handler:"
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		filter := r.FormValue("filter")
-		// if wrong data we set groupby to "first"
-		if filter != "first" && filter != "second" {
-			filter = "first"
-		}
-
-		log.Infof(c, "%s ready to build days array", desc)
-		var matchesJson []MatchJson
-
-		if filter == "first" {
-			matchesJson = buildFirstPhaseMatches(c, t, u)
-		} else if filter == "second" {
-			matchesJson = buildSecondPhaseMatches(c, t, u)
-		}
-		data := struct {
-			Matches []MatchJson
-		}{
-			matchesJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var t *mdl.Tournament
+	t, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	filter := r.FormValue("filter")
+	// if wrong data we set groupby to "first"
+	if filter != "first" && filter != "second" {
+		filter = "first"
+	}
+
+	log.Infof(c, "%s ready to build days array", desc)
+	var matchesJson []MatchJson
+
+	if filter == "first" {
+		matchesJson = buildFirstPhaseMatches(c, t, u)
+	} else if filter == "second" {
+		matchesJson = buildSecondPhaseMatches(c, t, u)
+	}
+	data := struct {
+		Matches []MatchJson
+	}{
+		matchesJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
+
 }
 
 // Update Match handler.
