@@ -377,13 +377,31 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		// send task to delete activities of the user.
 		log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
 
-		bactivityIds, err1 := json.Marshal(u.ActivityIds)
+		activityIds, err1 := json.Marshal(u.ActivityIds)
 		if err1 != nil {
 			log.Errorf(c, "%s Error marshaling", desc, err1)
 		}
 
 		task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
-			"activity_ids": []string{string(bactivityIds)},
+			"activity_ids": []string{string(activityIds)},
+		})
+
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		} else {
+			log.Infof(c, "%s add task to taskqueue successfully", desc)
+		}
+
+		// send task to delete predicts of the user.
+		log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
+
+		predictsIds, err1 := json.Marshal(u.PredictIds)
+		if err1 != nil {
+			log.Errorf(c, "%s Error marshaling", desc, err1)
+		}
+
+		task = taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
+			"predict_ids": []string{string(predictsIds)},
 		})
 
 		if _, err := taskqueue.Add(c, task, ""); err != nil {

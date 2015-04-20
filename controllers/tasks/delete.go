@@ -28,7 +28,7 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Invite task.
+// DeleteUserActivities handles the deletion of activities for a given user
 func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - DeleteUsersActivities Handler:"
@@ -39,13 +39,40 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 		activityIdsBlob := []byte(r.FormValue("activity_ids"))
 
 		var activityIds []int64
-		err1 := json.Unmarshal(activityIdsBlob, &activityIds)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err1)
+		err := json.Unmarshal(activityIdsBlob, &activityIds)
+		if err != nil {
+			log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err)
 		}
 
-		if err1 = mdl.DestroyActivities(c, activityIds); err1 != nil {
-			log.Errorf(c, "%s activities have not been deleted. %v", desc, err1)
+		if err = mdl.DestroyActivities(c, activityIds); err != nil {
+			log.Errorf(c, "%s activities have not been deleted. %v", desc, err)
+		}
+
+		log.Infof(c, "%s task done!", desc)
+		return nil
+	}
+	log.Infof(c, "%s something went wrong...")
+	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+// DeleteUserPredicts handles the deletion of predicts for a given user
+func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
+	c := appengine.NewContext(r)
+	desc := "Task queue - DeleteUserPredicts Handler:"
+	log.Infof(c, "%s processing...", desc)
+
+	if r.Method == "POST" {
+		log.Infof(c, "%s reading data...", desc)
+		predictIdsBlob := []byte(r.FormValue("predict_ids"))
+
+		var predictIds []int64
+		err := json.Unmarshal(predictIdsBlob, &predictIds)
+		if err != nil {
+			log.Errorf(c, "%s unable to extract predictIds from data, %v", desc, err)
+		}
+
+		if err = mdl.DestroyPredicts(c, predictIds); err != nil {
+			log.Errorf(c, "%s predicts have not been deleted. %v", desc, err)
 		}
 
 		log.Infof(c, "%s task done!", desc)
