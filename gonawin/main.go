@@ -149,6 +149,7 @@ func init() {
 	r.HandleFunc("/a/add/scoreentities/score", checkErrors(tasksctrl.AddScoreToScoreEntities))
 	r.HandleFunc("/a/invite", checkErrors(tasksctrl.Invite))
 	r.HandleFunc("/a/sync/scores/", checkErrors(tasksctrl.SyncScores))
+	r.HandleFunc("/a/publish/users/deletepredicts", checkErrors(tasksctrl.DeleteUserPredicts))
 
 	http.Handle("/", r)
 }
