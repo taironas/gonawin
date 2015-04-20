@@ -89,11 +89,15 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 		}
 
+		// imageURL
+		imageURL := helpers.UserImageURL(user.Username, user.Id)
 		// return user
 		userData := struct {
-			User *mdl.User
+			User     *mdl.User
+			ImageURL string
 		}{
 			user,
+			imageURL,
 		}
 
 		return templateshlp.RenderJson(w, c, userData)
@@ -216,11 +220,15 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 		}
 
+		// imageURL
+		imageURL := helpers.UserImageURL(user.Username, user.Id)
 		// return user
 		userData := struct {
-			User *mdl.User
+			User     *mdl.User
+			ImageURL string
 		}{
 			user,
+			imageURL,
 		}
 
 		return templateshlp.RenderJson(w, c, userData)
@@ -294,11 +302,15 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 		}
 
+		// imageURL
+		imageURL := helpers.UserImageURL(user.Username, user.Id)
 		// return user
 		userData := struct {
-			User *mdl.User
+			User     *mdl.User
+			ImageURL string
 		}{
 			user,
+			imageURL,
 		}
 
 		return templateshlp.RenderJson(w, c, userData)
