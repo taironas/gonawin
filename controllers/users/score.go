@@ -31,6 +31,37 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
+type requestContext struct {
+	c    appengine.Context
+	desc string
+	r    *http.Request
+}
+
+func (rc requestContext) user() (*mdl.User, error) {
+
+	// get user id
+	strUserId, err := route.Context.Get(rc.r, "userId")
+	if err != nil {
+		log.Errorf(rc.c, "%s error getting user id, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(rc.c, "%s error converting user id from string to int64, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var user *mdl.User
+	user, err = mdl.UserById(rc.c, userId)
+	if err != nil {
+		log.Errorf(rc.c, "%s user not found", rc.desc)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+	return user, nil
+}
+
 // User score user handler.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -40,28 +71,14 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
+	rc := requestContext{c, desc, r}
 	var user *mdl.User
-	user, err = mdl.UserById(c, userId)
-	if err != nil {
-		log.Errorf(c, "%s user not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	var err error
+
+	if user, err = rc.user(); err != nil {
+		return err
 	}
 
-	//scores := user.Scores(c)
 	scores := user.TournamentsScores(c)
 	// data
 	data := struct {
