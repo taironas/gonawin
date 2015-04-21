@@ -19,48 +19,13 @@ package users
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 	mdl "github.com/santiaago/gonawin/models"
 )
-
-type requestContext struct {
-	c    appengine.Context
-	desc string
-	r    *http.Request
-}
-
-func (rc requestContext) user() (*mdl.User, error) {
-
-	// get user id
-	strUserId, err := route.Context.Get(rc.r, "userId")
-	if err != nil {
-		log.Errorf(rc.c, "%s error getting user id, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(rc.c, "%s error converting user id from string to int64, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var user *mdl.User
-	user, err = mdl.UserById(rc.c, userId)
-	if err != nil {
-		log.Errorf(rc.c, "%s user not found", rc.desc)
-		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-	return user, nil
-}
 
 // User score user handler.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
