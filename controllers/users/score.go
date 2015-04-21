@@ -33,41 +33,42 @@ import (
 
 // User score user handler.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var user *mdl.User
-		user, err = mdl.UserById(c, userId)
-		if err != nil {
-			log.Errorf(c, "%s user not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		//scores := user.Scores(c)
-		scores := user.TournamentsScores(c)
-		// data
-		data := struct {
-			Scores []*mdl.ScoreOverall
-		}{
-			scores,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var user *mdl.User
+	user, err = mdl.UserById(c, userId)
+	if err != nil {
+		log.Errorf(c, "%s user not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	//scores := user.Scores(c)
+	scores := user.TournamentsScores(c)
+	// data
+	data := struct {
+		Scores []*mdl.ScoreOverall
+	}{
+		scores,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
