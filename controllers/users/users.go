@@ -49,18 +49,19 @@ type userData struct {
 
 // User index  handler.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
-		users := mdl.FindAllUsers(c)
+	users := mdl.FindAllUsers(c)
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
-		usersJson := make([]mdl.UserJson, len(users))
-		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
+	usersJson := make([]mdl.UserJson, len(users))
+	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
 
-		return templateshlp.RenderJson(w, c, usersJson)
-	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	return templateshlp.RenderJson(w, c, usersJson)
 }
 
 // User show handler.

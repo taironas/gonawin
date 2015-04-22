@@ -54,10 +54,13 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
+
 	result := mdl.UserScore(c, keywords, ids)
 	log.Infof(c, "%s result from UserScore: %v", desc, result)
+
 	users := mdl.UsersByIds(c, result)
 	log.Infof(c, "%s ByIds result %v", desc, users)
+
 	if len(users) == 0 {
 		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "user")
 		data := struct {
@@ -65,9 +68,9 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			msg,
 		}
-
 		return templateshlp.RenderJson(w, c, data)
 	}
+
 	// filter team information to return in json api
 	type user struct {
 		Id       int64
