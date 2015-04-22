@@ -533,61 +533,50 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	c := appengine.NewContext(r)
 	desc := "User allow invitation handler:"
 
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	// check team
 	var team *mdl.Team
-	team, err = mdl.TeamById(c, teamId)
-	if err != nil {
-		log.Errorf(c, "%s team not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	var err error
+	if team, err = rc.team(); err != nil {
+		return err
 	}
 
-	ur := mdl.FindUserRequestByTeamAndUser(c, teamId, u.Id)
-	if ur != nil {
-		// add user as member of team.
-		if errj := team.Join(c, u); errj != nil {
-			log.Errorf(c, "Team Join Handler: error on Join team: %v", errj)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-		// destroy user request.
-		if errd := ur.Destroy(c); errd != nil {
-			log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
-		}
-
-		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-		// publish new activity
-		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-			log.Errorf(c, "User not found %v", u.Id)
-		} else {
-			updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
-		}
-
-		msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Team        mdl.TeamJson
-		}{
-			msg,
-			tJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	ur := mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id)
+	if ur == nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-	return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+
+	// add user as member of team.
+	if errj := team.Join(c, u); errj != nil {
+		log.Errorf(c, "Team Join Handler: error on Join team: %v", errj)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	// destroy user request.
+	if errd := ur.Destroy(c); errd != nil {
+		log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
+	}
+
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+	// publish new activity
+	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
+	} else {
+		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+	}
+
+	msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Team        mdl.TeamJson
+	}{
+		msg,
+		tJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {

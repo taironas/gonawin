@@ -68,3 +68,28 @@ func (rc requestContext) user() (*mdl.User, error) {
 	}
 	return user, nil
 }
+
+func (rc requestContext) team() (*mdl.Team, error) {
+
+	strTeamId, err := route.Context.Get(rc.r, "teamId")
+	if err != nil {
+		log.Errorf(rc.c, "%s error getting team id, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(rc.c, "%s error converting team id from string to int64, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	var team *mdl.Team
+	team, err = mdl.TeamById(rc.c, teamId)
+	if err != nil {
+		log.Errorf(rc.c, "%s team not found", rc.desc)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	return team, nil
+}
