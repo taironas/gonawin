@@ -36,20 +36,28 @@ type requestContext struct {
 	r    *http.Request
 }
 
-func (rc requestContext) user() (*mdl.User, error) {
+func (rc requestContext) userId() (int64, error) {
 
-	// get user id
 	strUserId, err := route.Context.Get(rc.r, "userId")
 	if err != nil {
 		log.Errorf(rc.c, "%s error getting user id, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
 	}
 
 	var userId int64
 	userId, err = strconv.ParseInt(strUserId, 0, 64)
 	if err != nil {
 		log.Errorf(rc.c, "%s error converting user id from string to int64, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+	}
+	return userId, nil
+}
+
+func (rc requestContext) user() (*mdl.User, error) {
+
+	userId, err := rc.userId()
+	if err != nil {
+		return nil, err
 	}
 
 	var user *mdl.User

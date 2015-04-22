@@ -236,18 +236,12 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User update handler:"
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
-	}
-
+	rc := requestContext{c, desc, r}
 	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+	var err error
+
+	if userId, err = rc.userId(); err != nil {
+		return err
 	}
 
 	if userId != u.Id {
