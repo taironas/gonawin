@@ -547,14 +547,14 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 
 	// add user as member of team.
-	if errj := team.Join(c, u); errj != nil {
-		log.Errorf(c, "Team Join Handler: error on Join team: %v", errj)
+	if err = team.Join(c, u); err != nil {
+		log.Errorf(c, "Team Join Handler: error on Join team: %v", err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	// destroy user request.
-	if errd := ur.Destroy(c); errd != nil {
-		log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
+	if err = ur.Destroy(c); err != nil {
+		log.Errorf(c, "%s error when destroying user request. Error: %v", err)
 	}
 
 	var tJson mdl.TeamJson
@@ -562,11 +562,11 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+	var updatedUser *mdl.User
+	if updatedUser, err = mdl.UserById(c, u.Id); err != nil {
 		log.Errorf(c, "User not found %v", u.Id)
-	} else {
-		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
+	updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 
 	msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
 	data := struct {
