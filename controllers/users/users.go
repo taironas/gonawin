@@ -299,128 +299,129 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// User destroy handler
+// Destroy hander, use this to remove a user from the datastore.
 //	POST	/j/user/destroy/[0-9]+/		Destroys the user with the given id.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "User Destroy Handler:"
-	if r.Method == "POST" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-		}
-
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-		}
-
-		if userId != u.Id {
-			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-		}
-
-		// user
-		var user *mdl.User
-		user, err = mdl.UserById(c, userId)
-		if err != nil {
-			log.Errorf(c, "%s user not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		// delete all team-user relationships
-		for _, teamId := range user.TeamIds {
-			if mdl.IsTeamAdmin(c, teamId, u.Id) {
-				var team *mdl.Team
-				if team, err = mdl.TeamById(c, teamId); err != nil {
-					log.Errorf(c, "%s team %d not found", desc, teamId)
-					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-				}
-				if err = team.RemoveAdmin(c, userId); err != nil {
-					log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
-				}
-			} else {
-				if err := user.RemoveTeamId(c, teamId); err != nil {
-					log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-				}
-			}
-		}
-		// delete all tournament-user relationships
-		for _, tournamentId := range user.TournamentIds {
-			if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
-				var tournament *mdl.Tournament
-				if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-					log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
-					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-				}
-				if err = tournament.RemoveAdmin(c, userId); err != nil {
-					log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
-				}
-			} else {
-				if err := user.RemoveTournamentId(c, tournamentId); err != nil {
-					log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
-				}
-			}
-		}
-
-		// send task to delete activities of the user.
-		log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
-
-		activityIds, err1 := json.Marshal(u.ActivityIds)
-		if err1 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, err1)
-		}
-
-		task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
-			"activity_ids": []string{string(activityIds)},
-		})
-
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-
-		// send task to delete predicts of the user.
-		log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
-
-		predictsIds, err1 := json.Marshal(u.PredictIds)
-		if err1 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, err1)
-		}
-
-		task = taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
-			"predict_ids": []string{string(predictsIds)},
-		})
-
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-
-		// delete the user
-		user.Destroy(c)
-
-		msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-
-		// return destroyed status
-		return templateshlp.RenderJson(w, c, data)
-	} else {
+	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "User Destroy Handler:"
+
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
+	}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
+	}
+
+	if userId != u.Id {
+		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
+	}
+
+	// user
+	var user *mdl.User
+	user, err = mdl.UserById(c, userId)
+	if err != nil {
+		log.Errorf(c, "%s user not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	// delete all team-user relationships
+	for _, teamId := range user.TeamIds {
+		if mdl.IsTeamAdmin(c, teamId, u.Id) {
+			var team *mdl.Team
+			if team, err = mdl.TeamById(c, teamId); err != nil {
+				log.Errorf(c, "%s team %d not found", desc, teamId)
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+			}
+			if err = team.RemoveAdmin(c, userId); err != nil {
+				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
+			}
+		} else {
+			if err := user.RemoveTeamId(c, teamId); err != nil {
+				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+			}
+		}
+	}
+	// delete all tournament-user relationships
+	for _, tournamentId := range user.TournamentIds {
+		if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+			var tournament *mdl.Tournament
+			if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+			}
+			if err = tournament.RemoveAdmin(c, userId); err != nil {
+				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
+			}
+		} else {
+			if err := user.RemoveTournamentId(c, tournamentId); err != nil {
+				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
+			}
+		}
+	}
+
+	// send task to delete activities of the user.
+	log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
+
+	activityIds, err1 := json.Marshal(u.ActivityIds)
+	if err1 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, err1)
+	}
+
+	task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
+		"activity_ids": []string{string(activityIds)},
+	})
+
+	if _, err := taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+
+	// send task to delete predicts of the user.
+	log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
+
+	predictsIds, err1 := json.Marshal(u.PredictIds)
+	if err1 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, err1)
+	}
+
+	task = taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
+		"predict_ids": []string{string(predictsIds)},
+	})
+
+	if _, err := taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+
+	// delete the user
+	user.Destroy(c)
+
+	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+
+	// return destroyed status
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // User teams  handler.
