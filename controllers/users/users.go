@@ -405,77 +405,78 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// User teams  handler.
+// Teams handler, use this to retreive the JSON data of the user teams.
 // count parameter: default 12
 // page parameter: default 1
 func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "User joined teams handler:"
 
-	if r.Method == "GET" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		// user
-		var user *mdl.User
-		user, err = mdl.UserById(c, userId)
-		log.Infof(c, "User: %v", user)
-		log.Infof(c, "User: %v", user.TeamIds)
-		if err != nil {
-			log.Errorf(c, "%s user not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		// get with param:
-		var teams []*mdl.Team
-		// get count parameter, if not present count is set to 20
-		strcount := r.FormValue("count")
-		count := int64(25)
-		if len(strcount) > 0 {
-			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-			} else {
-				count = n
-			}
-		}
-		// get page parameter, if not present set page to the first one.
-		strpage := r.FormValue("page")
-		page := int64(1)
-		if len(strpage) > 0 {
-			if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-				log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-				page = 1
-			} else {
-				page = p
-			}
-		}
-		teams = user.TeamsByPage(c, count, page)
-
-		// teams
-		teamsFieldsToKeep := []string{"Id", "Name"}
-		teamsJson := make([]mdl.TeamJson, len(teams))
-		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
-
-		// data
-		data := struct {
-			Teams []mdl.TeamJson `json:",omitempty"`
-		}{
-			teamsJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	// user
+	var user *mdl.User
+	user, err = mdl.UserById(c, userId)
+	log.Infof(c, "User: %v", user)
+	log.Infof(c, "User: %v", user.TeamIds)
+	if err != nil {
+		log.Errorf(c, "%s user not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	// get with param:
+	var teams []*mdl.Team
+	// get count parameter, if not present count is set to 20
+	strcount := r.FormValue("count")
+	count := int64(25)
+	if len(strcount) > 0 {
+		if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
+			log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+		} else {
+			count = n
+		}
+	}
+	// get page parameter, if not present set page to the first one.
+	strpage := r.FormValue("page")
+	page := int64(1)
+	if len(strpage) > 0 {
+		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
+			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+			page = 1
+		} else {
+			page = p
+		}
+	}
+	teams = user.TeamsByPage(c, count, page)
+
+	// teams
+	teamsFieldsToKeep := []string{"Id", "Name"}
+	teamsJson := make([]mdl.TeamJson, len(teams))
+	helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
+
+	// data
+	data := struct {
+		Teams []mdl.TeamJson `json:",omitempty"`
+	}{
+		teamsJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // User tournaments  handler.
