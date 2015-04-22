@@ -76,31 +76,19 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User show handler:"
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	// user
+	rc := requestContext{c, desc, r}
 	var user *mdl.User
-	user, err = mdl.UserById(c, userId)
+	var err error
+
+	if user, err = rc.user(); err != nil {
+		return err
+	}
+
 	log.Infof(c, "User: %v", user)
 	log.Infof(c, "User: %v", user.TeamIds)
-	if err != nil {
-		log.Errorf(c, "%s user not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
 
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+
 	var uJson mdl.UserJson
 	helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
 	log.Infof(c, "%s User: %v", desc, uJson)
@@ -108,6 +96,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// get with param:
 	with := r.FormValue("including")
 	params := helpers.SetOfStrings(with)
+
 	var teams []*mdl.Team
 	var teamRequests []*mdl.TeamRequest
 	var tournaments []*mdl.Tournament
@@ -156,6 +145,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Private      bool
 		ImageURL     string
 	}
+
 	ts := make([]team, len(teams))
 	for i, t := range teams {
 		ts[i].Id = t.Id
@@ -164,6 +154,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ts[i].Private = t.Private
 		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
+
 	// build tournaments stats json
 	type TournamentStats struct {
 		Id                int64
@@ -173,6 +164,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Progress          float64
 		ImageURL          string
 	}
+
 	stats := make([]TournamentStats, len(tournaments))
 	for i, t := range tournaments {
 		stats[i].Id = t.Id
@@ -182,6 +174,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		stats[i].Progress = t.Progress(c)
 		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
+
 	// tournaments
 	type tournament struct {
 		Id       int64
@@ -190,6 +183,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		TeamIds  []int64
 		ImageURL string
 	}
+
 	tournaments2 := make([]tournament, len(tournaments))
 	for i, t := range tournaments {
 		tournaments2[i].Id = t.Id
@@ -197,14 +191,17 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournaments2[i].TeamIds = t.TeamIds
 		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
+
 	// team requests
 	teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
 	trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
+
 	// invitations
 	invitationsFieldsToKeep := []string{"Id", "Name"}
 	invitationsJson := make([]mdl.TeamJson, len(invitations))
 	helpers.TransformFromArrayOfPointers(&invitations, &invitationsJson, invitationsFieldsToKeep)
+
 	// imageURL
 	imageURL := helpers.UserImageURL(user.Username, user.Id)
 
