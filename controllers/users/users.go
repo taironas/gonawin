@@ -229,78 +229,80 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // User update handler.
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "User update handler:"
-	if r.Method == "POST" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
-		}
 
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
-		}
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+	}
 
-		if userId != u.Id {
-			log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
-		}
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+	}
 
-		// only work on name other values should not be editable
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s Error when reading request body err: %v.", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
-		}
+	if userId != u.Id {
+		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+	}
 
-		var updatedData userData
-		err = json.Unmarshal(body, &updatedData)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body err: %v.", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
-		}
-		update := false
-		if helpers.IsEmailValid(updatedData.User.Email) && updatedData.User.Email != u.Email {
-			u.Email = updatedData.User.Email
-			update = true
-		}
+	// only work on name other values should not be editable
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s Error when reading request body err: %v.", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+	}
 
-		if helpers.IsStringValid(updatedData.User.Alias) && updatedData.User.Alias != u.Alias {
-			u.Alias = updatedData.User.Alias
-			update = true
-		}
+	var updatedData userData
+	err = json.Unmarshal(body, &updatedData)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body err: %v.", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+	}
+	update := false
+	if helpers.IsEmailValid(updatedData.User.Email) && updatedData.User.Email != u.Email {
+		u.Email = updatedData.User.Email
+		update = true
+	}
 
-		if update {
-			u.Update(c)
-		} else {
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-			}{
-				"Nothing to update.",
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
+	if helpers.IsStringValid(updatedData.User.Alias) && updatedData.User.Alias != u.Alias {
+		u.Alias = updatedData.User.Alias
+		update = true
+	}
 
-		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
-		var uJson mdl.UserJson
-		helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
-
+	if update {
+		u.Update(c)
+	} else {
 		data := struct {
 			MessageInfo string `json:",omitempty"`
-			User        mdl.UserJson
 		}{
-			"User was correctly updated.",
-			uJson,
+			"Nothing to update.",
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
+	var uJson mdl.UserJson
+	helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
+
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		User        mdl.UserJson
+	}{
+		"User was correctly updated.",
+		uJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // User destroy handler
