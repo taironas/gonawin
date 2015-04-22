@@ -64,168 +64,170 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, usersJson)
 }
 
-// User show handler.
+// Show User handler, use it to get the user JSON data.
 // including parameter: {teams, tournaments, teamrequests}
 // count parameter: default 12
 // page parameter: default 1
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "User show handler:"
-	if r.Method == "GET" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
 
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		// user
-		var user *mdl.User
-		user, err = mdl.UserById(c, userId)
-		log.Infof(c, "User: %v", user)
-		log.Infof(c, "User: %v", user.TeamIds)
-		if err != nil {
-			log.Errorf(c, "%s user not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
-		var uJson mdl.UserJson
-		helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-		log.Infof(c, "%s User: %v", desc, uJson)
-
-		// get with param:
-		with := r.FormValue("including")
-		params := helpers.SetOfStrings(with)
-		var teams []*mdl.Team
-		var teamRequests []*mdl.TeamRequest
-		var tournaments []*mdl.Tournament
-		var invitations []*mdl.Team
-
-		for _, param := range params {
-			switch param {
-			case "teams":
-				// get count parameter, if not present count is set to 20
-				strcount := r.FormValue("count")
-				count := int64(25)
-				if len(strcount) > 0 {
-					if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-						log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-					} else {
-						count = n
-					}
-				}
-				// get page parameter, if not present set page to the first one.
-				strpage := r.FormValue("page")
-				page := int64(1)
-				if len(strpage) > 0 {
-					if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-						log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-						page = 1
-					} else {
-						page = p
-					}
-				}
-				teams = user.TeamsByPage(c, count, page)
-			case "teamrequests":
-				teamRequests = mdl.TeamsRequests(c, teams)
-			case "tournaments":
-				tournaments = user.Tournaments(c)
-			case "invitations":
-				invitations = user.Invitations(c)
-			}
-		}
-
-		// teams
-		type team struct {
-			Id           int64
-			Name         string
-			Accuracy     float64
-			MembersCount int64
-			Private      bool
-			ImageURL     string
-		}
-		ts := make([]team, len(teams))
-		for i, t := range teams {
-			ts[i].Id = t.Id
-			ts[i].Name = t.Name
-			ts[i].MembersCount = t.MembersCount
-			ts[i].Private = t.Private
-			ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-		}
-		// build tournaments stats json
-		type TournamentStats struct {
-			Id                int64
-			Name              string
-			ParticipantsCount int
-			TeamsCount        int
-			Progress          float64
-			ImageURL          string
-		}
-		stats := make([]TournamentStats, len(tournaments))
-		for i, t := range tournaments {
-			stats[i].Id = t.Id
-			stats[i].Name = t.Name
-			stats[i].ParticipantsCount = len(t.UserIds)
-			stats[i].TeamsCount = len(t.TeamIds)
-			stats[i].Progress = t.Progress(c)
-			stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-		}
-		// tournaments
-		type tournament struct {
-			Id       int64
-			Name     string
-			UserIds  []int64
-			TeamIds  []int64
-			ImageURL string
-		}
-		tournaments2 := make([]tournament, len(tournaments))
-		for i, t := range tournaments {
-			tournaments2[i].Id = t.Id
-			tournaments2[i].UserIds = t.UserIds
-			tournaments2[i].TeamIds = t.TeamIds
-			tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-		}
-		// team requests
-		teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
-		trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
-		helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
-		// invitations
-		invitationsFieldsToKeep := []string{"Id", "Name"}
-		invitationsJson := make([]mdl.TeamJson, len(invitations))
-		helpers.TransformFromArrayOfPointers(&invitations, &invitationsJson, invitationsFieldsToKeep)
-		// imageURL
-		imageURL := helpers.UserImageURL(user.Username, user.Id)
-
-		// data
-		data := struct {
-			User            mdl.UserJson          `json:",omitempty"`
-			Teams           []team                `json:",omitempty"`
-			TeamRequests    []mdl.TeamRequestJson `json:",omitempty"`
-			Tournaments     []tournament          `json:",omitempty"`
-			TournamentStats []TournamentStats     `json:",omitempty"`
-			Invitations     []mdl.TeamJson        `json:",omitempty"`
-			ImageURL        string                `json:",omitempty"`
-		}{
-			uJson,
-			ts,
-			trsJson,
-			tournaments2,
-			stats,
-			invitationsJson,
-			imageURL,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	// user
+	var user *mdl.User
+	user, err = mdl.UserById(c, userId)
+	log.Infof(c, "User: %v", user)
+	log.Infof(c, "User: %v", user.TeamIds)
+	if err != nil {
+		log.Errorf(c, "%s user not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+	var uJson mdl.UserJson
+	helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
+	log.Infof(c, "%s User: %v", desc, uJson)
+
+	// get with param:
+	with := r.FormValue("including")
+	params := helpers.SetOfStrings(with)
+	var teams []*mdl.Team
+	var teamRequests []*mdl.TeamRequest
+	var tournaments []*mdl.Tournament
+	var invitations []*mdl.Team
+
+	for _, param := range params {
+		switch param {
+		case "teams":
+			// get count parameter, if not present count is set to 20
+			strcount := r.FormValue("count")
+			count := int64(25)
+			if len(strcount) > 0 {
+				if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
+					log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+				} else {
+					count = n
+				}
+			}
+			// get page parameter, if not present set page to the first one.
+			strpage := r.FormValue("page")
+			page := int64(1)
+			if len(strpage) > 0 {
+				if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
+					log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+					page = 1
+				} else {
+					page = p
+				}
+			}
+			teams = user.TeamsByPage(c, count, page)
+		case "teamrequests":
+			teamRequests = mdl.TeamsRequests(c, teams)
+		case "tournaments":
+			tournaments = user.Tournaments(c)
+		case "invitations":
+			invitations = user.Invitations(c)
+		}
+	}
+
+	// teams
+	type team struct {
+		Id           int64
+		Name         string
+		Accuracy     float64
+		MembersCount int64
+		Private      bool
+		ImageURL     string
+	}
+	ts := make([]team, len(teams))
+	for i, t := range teams {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].MembersCount = t.MembersCount
+		ts[i].Private = t.Private
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
+	// build tournaments stats json
+	type TournamentStats struct {
+		Id                int64
+		Name              string
+		ParticipantsCount int
+		TeamsCount        int
+		Progress          float64
+		ImageURL          string
+	}
+	stats := make([]TournamentStats, len(tournaments))
+	for i, t := range tournaments {
+		stats[i].Id = t.Id
+		stats[i].Name = t.Name
+		stats[i].ParticipantsCount = len(t.UserIds)
+		stats[i].TeamsCount = len(t.TeamIds)
+		stats[i].Progress = t.Progress(c)
+		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+	// tournaments
+	type tournament struct {
+		Id       int64
+		Name     string
+		UserIds  []int64
+		TeamIds  []int64
+		ImageURL string
+	}
+	tournaments2 := make([]tournament, len(tournaments))
+	for i, t := range tournaments {
+		tournaments2[i].Id = t.Id
+		tournaments2[i].UserIds = t.UserIds
+		tournaments2[i].TeamIds = t.TeamIds
+		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+	// team requests
+	teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
+	trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
+	helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
+	// invitations
+	invitationsFieldsToKeep := []string{"Id", "Name"}
+	invitationsJson := make([]mdl.TeamJson, len(invitations))
+	helpers.TransformFromArrayOfPointers(&invitations, &invitationsJson, invitationsFieldsToKeep)
+	// imageURL
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
+
+	// data
+	data := struct {
+		User            mdl.UserJson          `json:",omitempty"`
+		Teams           []team                `json:",omitempty"`
+		TeamRequests    []mdl.TeamRequestJson `json:",omitempty"`
+		Tournaments     []tournament          `json:",omitempty"`
+		TournamentStats []TournamentStats     `json:",omitempty"`
+		Invitations     []mdl.TeamJson        `json:",omitempty"`
+		ImageURL        string                `json:",omitempty"`
+	}{
+		uJson,
+		ts,
+		trsJson,
+		tournaments2,
+		stats,
+		invitationsJson,
+		imageURL,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // User update handler.
