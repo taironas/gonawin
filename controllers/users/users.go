@@ -463,7 +463,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// User tournaments  handler.
+// Tournaments user handler, use this to retrieve the JSON data of the tournaments of the user.
 // count parameter: default 25
 // page parameter: default 1
 func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -475,28 +475,12 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User joined teams handler:"
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	// user
 	var user *mdl.User
-	user, err = mdl.UserById(c, userId)
-	log.Infof(c, "User: %v", user)
-	log.Infof(c, "User: %v", user.TeamIds)
-	if err != nil {
-		log.Errorf(c, "%s user not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	var err error
+	if user, err = rc.user(); err != nil {
+		return err
 	}
 
 	// get with param:
@@ -511,6 +495,7 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			count = n
 		}
 	}
+
 	// get page parameter, if not present set page to the first one.
 	strpage := r.FormValue("page")
 	page := int64(1)
