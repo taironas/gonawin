@@ -310,31 +310,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "User Destroy Handler:"
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-	}
-
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-	}
-
-	if userId != u.Id {
-		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotDelete)}
-	}
-
-	// user
+	rc := requestContext{c, desc, r}
 	var user *mdl.User
-	user, err = mdl.UserById(c, userId)
-	if err != nil {
-		log.Errorf(c, "%s user not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	var err error
+	if user, err = rc.user(); err != nil {
+		return err
 	}
 
 	// delete all team-user relationships
@@ -345,7 +325,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "%s team %d not found", desc, teamId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 			}
-			if err = team.RemoveAdmin(c, userId); err != nil {
+			if err = team.RemoveAdmin(c, user.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
 			}
@@ -355,6 +335,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			}
 		}
 	}
+
 	// delete all tournament-user relationships
 	for _, tournamentId := range user.TournamentIds {
 		if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
@@ -363,7 +344,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
-			if err = tournament.RemoveAdmin(c, userId); err != nil {
+			if err = tournament.RemoveAdmin(c, user.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
 			}
@@ -413,6 +394,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// delete the user
 	user.Destroy(c)
 
+	// return destroyed status
 	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
@@ -420,7 +402,6 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg,
 	}
 
-	// return destroyed status
 	return templateshlp.RenderJson(w, c, data)
 }
 
