@@ -27,7 +27,7 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// User score user handler.
+// User score handler, returns the JSON data of the requested user.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -45,7 +45,7 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	scores := user.TournamentsScores(c)
-	// data
+
 	data := struct {
 		Scores []*mdl.ScoreOverall
 	}{
