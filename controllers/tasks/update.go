@@ -33,7 +33,7 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// update score  handler:
+// UpdateScores handler, use it to update the scores.
 //
 // Use this handler to ...
 //	GET	/a/update/scores/	Description..
@@ -43,153 +43,155 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Scores Handler:"
 
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...")
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	// err := datastore.RunInTransaction(c, func(c appengine.Context) error {
 	// unable to have a transaction in this task...
 	// 2014/03/20 21:03:42 ERROR: pw:  Predict.ByIds, error occurred during ByIds call: API error 1 (datastore_v3: BAD_REQUEST): operating on too many entity groups in a single transaction.
 	// 2014/03/20 21:03:42 ERROR: pw: predict not found : API error 1 (datastore_v3: BAD_REQUEST): operating on too many entity groups in a single transaction.
 	log.Infof(c, "%s processing...", desc)
-	if r.Method == "POST" {
-		tournamentBlob := []byte(r.FormValue("tournament"))
-		matchBlob := []byte(r.FormValue("match"))
 
-		var t mdl.Tournament
-		err1 := json.Unmarshal(tournamentBlob, &t)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract tournament from data, %v", desc, err1)
-		}
+	tournamentBlob := []byte(r.FormValue("tournament"))
+	matchBlob := []byte(r.FormValue("match"))
 
-		var m mdl.Tmatch
-		err2 := json.Unmarshal(matchBlob, &m)
-		if err2 != nil {
-			log.Errorf(c, "%s unable to extract match from data, %v", desc, err2)
-		}
-
-		log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
-		log.Infof(c, "%s value of match id: %v", desc, m.Id)
-
-		users := t.Participants(c)
-
-		// prepare data.
-		log.Infof(c, "%s preparing data...", desc)
-
-		scores := make([]int64, 0)
-		userIds := make([]int64, 0)
-		userIdsToCreateSE := make([]int64, 0)
-		tournamentId := t.Id
-
-		for _, u := range users {
-			if score, err := u.ScoreForMatch(c, &m); err != nil {
-				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
-			} else {
-				scores = append(scores, score)
-				userIds = append(userIds, u.Id)
-			}
-			if scoreEntity, _ := u.TournamentScore(c, &t); scoreEntity == nil {
-				userIdsToCreateSE = append(userIdsToCreateSE, u.Id)
-			}
-		}
-		log.Infof(c, "%s the data is ready.", desc)
-
-		// task queue for updating scores of users.
-		log.Infof(c, "%s task queue for updating scores of users: -->", desc)
-
-		bscores, errm11 := json.Marshal(scores)
-		if errm11 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm11)
-		}
-		buserIds, errm12 := json.Marshal(userIds)
-		if errm12 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm12)
-		}
-		btournamentId, errm13 := json.Marshal(tournamentId)
-		if errm13 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm13)
-		}
-		task1 := taskqueue.NewPOSTTask("/a/update/users/scores/", url.Values{
-			"userIds":      []string{string(buserIds)},
-			"scores":       []string{string(bscores)},
-			"tournamentId": []string{string(btournamentId)},
-		})
-
-		if _, err := taskqueue.Add(c, task1, "gw-queue"); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-		log.Infof(c, "%s task queue for updating scores of users: <--", desc)
-
-		// task queue for adding necessary score entities.
-		log.Infof(c, "%s task queue for adding necessary score entities.: -->", desc)
-
-		buserIdsToCreateSE, errm21 := json.Marshal(userIdsToCreateSE)
-		if errm21 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm21)
-		}
-		bscores, errm22 := json.Marshal(scores)
-		if errm22 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm22)
-		}
-
-		task2 := taskqueue.NewPOSTTask("/a/create/scoreentities/", url.Values{
-			"userIds":      []string{string(buserIdsToCreateSE)},
-			"scores":       []string{string(bscores)},
-			"tournamentId": []string{string(btournamentId)},
-		})
-
-		if _, err := taskqueue.Add(c, task2, "gw-queue"); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-		log.Infof(c, "%s task queue for adding necessary score entities.: <--", desc)
-
-		// task queue for adding the score to the score entity.
-		log.Infof(c, "%s task queue for adding the score to the score entity: -->", desc)
-
-		bscores, errm31 := json.Marshal(scores)
-		if errm31 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm31)
-		}
-		buserIds, errm2 := json.Marshal(userIds)
-		if errm2 != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm2)
-		}
-		task3 := taskqueue.NewPOSTTask("/a/add/scoreentities/score/", url.Values{
-			"userIds":    []string{string(buserIds)},
-			"scores":     []string{string(bscores)},
-			"tournament": []string{string(tournamentBlob)},
-		})
-
-		if _, err := taskqueue.Add(c, task3, "gw-queue"); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-		log.Infof(c, "%s task queue for adding the score to the score entity: <--", desc)
-
-		// task queue for updating scores of users.
-		log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
-
-		task4 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
-			"userIds": []string{string(buserIds)},
-		})
-
-		if _, err := taskqueue.Add(c, task4, "gw-queue"); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-		log.Infof(c, "%s task queue for publishing user score activities: <--", desc)
-
-		log.Infof(c, "%s task done!", desc)
-		return nil
+	var t mdl.Tournament
+	err1 := json.Unmarshal(tournamentBlob, &t)
+	if err1 != nil {
+		log.Errorf(c, "%s unable to extract tournament from data, %v", desc, err1)
 	}
-	log.Infof(c, "%s something went wrong...")
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var m mdl.Tmatch
+	err2 := json.Unmarshal(matchBlob, &m)
+	if err2 != nil {
+		log.Errorf(c, "%s unable to extract match from data, %v", desc, err2)
+	}
+
+	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
+	log.Infof(c, "%s value of match id: %v", desc, m.Id)
+
+	users := t.Participants(c)
+
+	// prepare data.
+	log.Infof(c, "%s preparing data...", desc)
+
+	scores := make([]int64, 0)
+	userIds := make([]int64, 0)
+	userIdsToCreateSE := make([]int64, 0)
+	tournamentId := t.Id
+
+	for _, u := range users {
+		if score, err := u.ScoreForMatch(c, &m); err != nil {
+			log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
+		} else {
+			scores = append(scores, score)
+			userIds = append(userIds, u.Id)
+		}
+		if scoreEntity, _ := u.TournamentScore(c, &t); scoreEntity == nil {
+			userIdsToCreateSE = append(userIdsToCreateSE, u.Id)
+		}
+	}
+	log.Infof(c, "%s the data is ready.", desc)
+
+	// task queue for updating scores of users.
+	log.Infof(c, "%s task queue for updating scores of users: -->", desc)
+
+	bscores, errm11 := json.Marshal(scores)
+	if errm11 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm11)
+	}
+	buserIds, errm12 := json.Marshal(userIds)
+	if errm12 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm12)
+	}
+	btournamentId, errm13 := json.Marshal(tournamentId)
+	if errm13 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm13)
+	}
+	task1 := taskqueue.NewPOSTTask("/a/update/users/scores/", url.Values{
+		"userIds":      []string{string(buserIds)},
+		"scores":       []string{string(bscores)},
+		"tournamentId": []string{string(btournamentId)},
+	})
+
+	if _, err := taskqueue.Add(c, task1, "gw-queue"); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		return err
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+	log.Infof(c, "%s task queue for updating scores of users: <--", desc)
+
+	// task queue for adding necessary score entities.
+	log.Infof(c, "%s task queue for adding necessary score entities.: -->", desc)
+
+	buserIdsToCreateSE, errm21 := json.Marshal(userIdsToCreateSE)
+	if errm21 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm21)
+	}
+	bscores, errm22 := json.Marshal(scores)
+	if errm22 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm22)
+	}
+
+	task2 := taskqueue.NewPOSTTask("/a/create/scoreentities/", url.Values{
+		"userIds":      []string{string(buserIdsToCreateSE)},
+		"scores":       []string{string(bscores)},
+		"tournamentId": []string{string(btournamentId)},
+	})
+
+	if _, err := taskqueue.Add(c, task2, "gw-queue"); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		return err
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+	log.Infof(c, "%s task queue for adding necessary score entities.: <--", desc)
+
+	// task queue for adding the score to the score entity.
+	log.Infof(c, "%s task queue for adding the score to the score entity: -->", desc)
+
+	bscores, errm31 := json.Marshal(scores)
+	if errm31 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm31)
+	}
+	buserIds, errm2 := json.Marshal(userIds)
+	if errm2 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm2)
+	}
+	task3 := taskqueue.NewPOSTTask("/a/add/scoreentities/score/", url.Values{
+		"userIds":    []string{string(buserIds)},
+		"scores":     []string{string(bscores)},
+		"tournament": []string{string(tournamentBlob)},
+	})
+
+	if _, err := taskqueue.Add(c, task3, "gw-queue"); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		return err
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+	log.Infof(c, "%s task queue for adding the score to the score entity: <--", desc)
+
+	// task queue for updating scores of users.
+	log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
+
+	task4 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
+		"userIds": []string{string(buserIds)},
+	})
+
+	if _, err := taskqueue.Add(c, task4, "gw-queue"); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+		return err
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+	log.Infof(c, "%s task queue for publishing user score activities: <--", desc)
+
+	log.Infof(c, "%s task done!", desc)
+	return nil
 }
 
 // Update users scores.
