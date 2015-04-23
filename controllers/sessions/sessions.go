@@ -158,87 +158,89 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// Twitter Authentication Callback
+// TwitterUser handler, use it to get the Twitter user data.
 func TwitterUser(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Twitter User handler:"
-	if r.Method == "GET" {
 
-		var user *mdl.User
+	var user *mdl.User
 
-		log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
-		log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
+	log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
+	log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
 
-		// get the request token
-		requestToken := r.FormValue("oauth_token")
-		// update credentials with request token and 'secret cookie value'
-		var cred oauth.Credentials
-		cred.Token = requestToken
-		if secret, err := memcache.Get(c, "secret"); secret != nil {
-			cred.Secret = string(secret.([]byte))
-		} else {
-			log.Errorf(c, "%s cannot get secret value from memcache: %v", desc, err)
-			// try to get secret from datastore
-			q := datastore.NewQuery("Secret")
-			var secrets []string
-			if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
-				secret = secrets[0]
+	// get the request token
+	requestToken := r.FormValue("oauth_token")
 
-				// delete secret from datastore
-				if err = datastore.Delete(c, keys[0]); err != nil {
-					log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
-				}
+	// update credentials with request token and 'secret cookie value'
+	var cred oauth.Credentials
+	cred.Token = requestToken
+	if secret, err := memcache.Get(c, "secret"); secret != nil {
+		cred.Secret = string(secret.([]byte))
+	} else {
+		log.Errorf(c, "%s cannot get secret value from memcache: %v", desc, err)
+		// try to get secret from datastore
+		q := datastore.NewQuery("Secret")
+		var secrets []string
+		if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
+			secret = secrets[0]
 
-			} else if err != nil || len(secrets) == 0 {
-				log.Errorf(c, "%s cannot get secret value from Datastore: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
+			// delete secret from datastore
+			if err = datastore.Delete(c, keys[0]); err != nil {
+				log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
 			}
-		}
 
-		if err := memcache.Delete(c, "secret"); err != nil {
-			log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
+		} else if err != nil || len(secrets) == 0 {
+			log.Errorf(c, "%s cannot get secret value from Datastore: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetSecretValue)}
 		}
-
-		token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
-		if err != nil {
-			log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
-		}
-
-		// get user info
-		urlValues := url.Values{}
-		urlValues.Set("user_id", values.Get("user_id"))
-		resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
-		if err != nil {
-			log.Errorf(c, "%s Cannot get user info from twitter. %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
-		}
-
-		userInfo, err := authhlp.FetchTwitterUserInfo(resp)
-		if err != nil {
-			log.Errorf(c, "%s Cannot get user info by fetching twitter response. %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
-		}
-
-		if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
-			log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-		}
-
-		// imageURL
-		imageURL := helpers.UserImageURL(user.Username, user.Id)
-		// return user
-		userData := struct {
-			User     *mdl.User
-			ImageURL string
-		}{
-			user,
-			imageURL,
-		}
-
-		return templateshlp.RenderJson(w, c, userData)
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	if err := memcache.Delete(c, "secret"); err != nil {
+		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
+	}
+
+	token, values, err := twitterConfig.RequestToken(urlfetch.Client(c), &cred, r.FormValue("oauth_verifier"))
+	if err != nil {
+		log.Errorf(c, "%s Error when trying to delete memcached 'secret' key: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetRequestToken)}
+	}
+
+	// get user info
+	urlValues := url.Values{}
+	urlValues.Set("user_id", values.Get("user_id"))
+	resp, err := twitterConfig.Get(urlfetch.Client(c), token, "https://api.twitter.com/1.1/users/show.json", urlValues)
+	if err != nil {
+		log.Errorf(c, "%s Cannot get user info from twitter. %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+	}
+
+	userInfo, err := authhlp.FetchTwitterUserInfo(resp)
+	if err != nil {
+		log.Errorf(c, "%s Cannot get user info by fetching twitter response. %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
+	}
+
+	if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+		log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+	}
+
+	// imageURL
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	// return user
+	userData := struct {
+		User     *mdl.User
+		ImageURL string
+	}{
+		user,
+		imageURL,
+	}
+
+	return templateshlp.RenderJson(w, c, userData)
 }
 
 // JSON handler to get Google accounts login URL.
