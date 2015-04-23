@@ -66,43 +66,45 @@ func init() {
 	facebookVerifyTokenURL = "https://graph.facebook.com/me?access_token"
 }
 
-// JSON authentication handler
+// Authenticate handler, use it to authenticate a user.
+// It returns the JSON data of the requested user.
 func Authenticate(w http.ResponseWriter, r *http.Request) error {
-	c := appengine.NewContext(r)
-	if r.Method == "GET" {
-		userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
-
-		var verifyURL string
-		if r.FormValue("provider") == "google" {
-			verifyURL = googleVerifyTokenURL
-		} else if r.FormValue("provider") == "facebook" {
-			verifyURL = facebookVerifyTokenURL
-		}
-
-		if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
-		}
-
-		var user *mdl.User
-		var err error
-		if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-		}
-
-		// imageURL
-		imageURL := helpers.UserImageURL(user.Username, user.Id)
-		// return user
-		userData := struct {
-			User     *mdl.User
-			ImageURL string
-		}{
-			user,
-			imageURL,
-		}
-
-		return templateshlp.RenderJson(w, c, userData)
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	c := appengine.NewContext(r)
+
+	userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
+
+	var verifyURL string
+	if r.FormValue("provider") == "google" {
+		verifyURL = googleVerifyTokenURL
+	} else if r.FormValue("provider") == "facebook" {
+		verifyURL = facebookVerifyTokenURL
+	}
+
+	if !authhlp.CheckUserValidity(r, verifyURL, r.FormValue("access_token")) {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+	}
+
+	var user *mdl.User
+	var err error
+	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+	}
+
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
+
+	userData := struct {
+		User     *mdl.User
+		ImageURL string
+	}{
+		user,
+		imageURL,
+	}
+
+	return templateshlp.RenderJson(w, c, userData)
 }
 
 // JSON authentication for Twitter.
