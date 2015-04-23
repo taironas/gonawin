@@ -30,13 +30,15 @@ import (
 
 // DeleteUserActivities handler, use it to delete user activities.
 func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...")
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
 
 	c := appengine.NewContext(r)
 	desc := "Task queue - DeleteUsersActivities Handler:"
+
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	log.Infof(c, "%s processing...", desc)
 
 	log.Infof(c, "%s reading data...", desc)
@@ -58,13 +60,15 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 
 // DeleteUserPredicts handler, use it to delete the predictions of a given user.
 func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...")
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
 
 	c := appengine.NewContext(r)
 	desc := "Task queue - DeleteUserPredicts Handler:"
+
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	log.Infof(c, "%s processing...", desc)
 
 	log.Infof(c, "%s reading data...", desc)
