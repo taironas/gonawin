@@ -328,20 +328,22 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// JSON handler to delete cookie created by Google account
+// GoogleDeleteCookie handler, use it to delete cookie created by Google account.
 func GoogleDeleteCookie(w http.ResponseWriter, r *http.Request) error {
-	c := appengine.NewContext(r)
-	if r.Method == "GET" {
-		cookieName := "ACSID"
-		if appengine.IsDevAppServer() {
-			cookieName = "dev_appserver_login"
-		}
-		cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
-		http.SetCookie(w, &cookie)
-
-		return templateshlp.RenderJson(w, c, "Google user has been logged out")
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	c := appengine.NewContext(r)
+
+	cookieName := "ACSID"
+	if appengine.IsDevAppServer() {
+		cookieName = "dev_appserver_login"
+	}
+	cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
+	http.SetCookie(w, &cookie)
+
+	return templateshlp.RenderJson(w, c, "Google user has been logged out")
 }
 
 func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
