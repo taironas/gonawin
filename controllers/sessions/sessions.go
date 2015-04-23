@@ -148,13 +148,14 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, oAuthToken)
 }
 
-// Twitter Authentication Callback
+// TwitterAuthCallback handler, use it to make a callback for Twitter Authentication.
 func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		http.Redirect(w, r, "http://"+r.Host+"/#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
-		return nil
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	http.Redirect(w, r, "http://"+r.Host+"/#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
+	return nil
 }
 
 // Twitter Authentication Callback
