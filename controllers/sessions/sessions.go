@@ -346,18 +346,19 @@ func GoogleDeleteCookie(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, "Google user has been logged out")
 }
 
+// AuthServiceIds handler, use it to get the identifiers of Gonawin
 func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
-		data := struct {
-			GooglePlusClientId string
-			FacebookAppId      string
-		}{
-			config.GooglePlus.ClientId,
-			config.Facebook.AppId,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	data := struct {
+		GooglePlusClientId string
+		FacebookAppId      string
+	}{
+		config.GooglePlus.ClientId,
+		config.Facebook.AppId,
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	return templateshlp.RenderJson(w, c, data)
 }
