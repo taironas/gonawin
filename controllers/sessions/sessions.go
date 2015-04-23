@@ -107,43 +107,45 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// JSON authentication for Twitter.
+// TwitterAuth handler, use it to authenticate via twitter.
 func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Twitter Auth handler:"
-	if r.Method == "GET" {
-		credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
-		if err != nil {
-			c.Errorf("JsonTwitterAuth, error = %v", err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
-		}
 
-		if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
-			// store secret in datastore
-			secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
-			if err != nil {
-				log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
-			}
-
-			key := datastore.NewKey(c, "Secret", "", secretId, nil)
-
-			_, err = datastore.Put(c, key, credentials.Secret)
-			if err != nil {
-				log.Errorf(c, "%s Cannot put secret in Datastore. %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotSetSecretValue)}
-			}
-		}
-
-		// return OAuth token
-		oAuthToken := struct {
-			OAuthToken string
-		}{
-			credentials.Token,
-		}
-
-		return templateshlp.RenderJson(w, c, oAuthToken)
+	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
+	if err != nil {
+		c.Errorf("JsonTwitterAuth, error = %v", err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
+		// store secret in datastore
+		secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
+		if err != nil {
+			log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
+		}
+
+		key := datastore.NewKey(c, "Secret", "", secretId, nil)
+
+		_, err = datastore.Put(c, key, credentials.Secret)
+		if err != nil {
+			log.Errorf(c, "%s Cannot put secret in Datastore. %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotSetSecretValue)}
+		}
+	}
+
+	// return OAuth token
+	oAuthToken := struct {
+		OAuthToken string
+	}{
+		credentials.Token,
+	}
+
+	return templateshlp.RenderJson(w, c, oAuthToken)
 }
 
 // Twitter Authentication Callback
