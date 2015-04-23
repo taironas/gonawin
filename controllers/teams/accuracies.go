@@ -32,49 +32,51 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Team accuracies handler:
+// Accuracies handler, use it to get the accuracies of a team.
 //
 // Use this handler to get the accuracies of a team.
 //	GET	/j/teams/:teamId/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
 func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies Handler:"
 
-	if r.Method == "GET" {
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var t *mdl.Team
-		t, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		log.Infof(c, "%s ready to build a acc array", desc)
-		accs := t.AccuraciesGroupByTournament(c, 5)
-
-		data := struct {
-			Accuracies *[]mdl.AccuracyOverall
-		}{
-			accs,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	var t *mdl.Team
+	t, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	log.Infof(c, "%s ready to build a acc array", desc)
+	accs := t.AccuraciesGroupByTournament(c, 5)
+
+	data := struct {
+		Accuracies *[]mdl.AccuracyOverall
+	}{
+		accs,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Team accuracies by tournament handler:
