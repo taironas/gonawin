@@ -29,9 +29,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// sync scores  handler:
+// SyncScores handler, use it to synchronize all the scores.
 //
-// Use this handler to synchronize scores of each user.
 //	GET	/a/sync/scores/", Description..
 //
 // Go though all particiants of tournament passed by HTTP POST request.
@@ -40,43 +39,45 @@ func SyncScores(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Sync Scores Handler:"
 
-	log.Infof(c, "%s processing...", desc)
-	if r.Method == "POST" {
-		tournamentBlob := []byte(r.FormValue("tournament"))
-
-		var t mdl.Tournament
-		err1 := json.Unmarshal(tournamentBlob, &t)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract tournament from data, %v.", desc, err1)
-			return err1
-		}
-
-		log.Infof(c, "%s value of tournament id: %v.", desc, t.Id)
-		log.Infof(c, "%s get tournament participants.", desc)
-
-		users := t.Participants(c)
-
-		// prepare data.
-		log.Infof(c, "%s preparing data...", desc)
-		log.Infof(c, "%s go through each participant and compute global scores.", desc)
-		for _, u := range users {
-			// update global score of user
-			globalScore := int64(0)
-			for _, tid := range u.TournamentIds {
-				score := u.ScoreByTournament(c, tid)
-				globalScore = globalScore + score
-			}
-			u.Score = globalScore
-			if err := u.Update(c); err != nil {
-				log.Errorf(c, "%s unable to update user %v with global score. %v", desc, u.Id, err)
-				continue
-			}
-		}
-		log.Infof(c, "%s task done!", desc)
-		return nil
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	log.Infof(c, "%s something went wrong...")
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	log.Infof(c, "%s processing...", desc)
+
+	tournamentBlob := []byte(r.FormValue("tournament"))
+
+	var t mdl.Tournament
+	err1 := json.Unmarshal(tournamentBlob, &t)
+	if err1 != nil {
+		log.Errorf(c, "%s unable to extract tournament from data, %v.", desc, err1)
+		return err1
+	}
+
+	log.Infof(c, "%s value of tournament id: %v.", desc, t.Id)
+	log.Infof(c, "%s get tournament participants.", desc)
+
+	users := t.Participants(c)
+
+	// prepare data.
+	log.Infof(c, "%s preparing data...", desc)
+	log.Infof(c, "%s go through each participant and compute global scores.", desc)
+	for _, u := range users {
+		// update global score of user
+		globalScore := int64(0)
+		for _, tid := range u.TournamentIds {
+			score := u.ScoreByTournament(c, tid)
+			globalScore = globalScore + score
+		}
+		u.Score = globalScore
+		if err := u.Update(c); err != nil {
+			log.Errorf(c, "%s unable to update user %v with global score. %v", desc, u.Id, err)
+			continue
+		}
+	}
+	log.Infof(c, "%s task done!", desc)
+	return nil
 }
 
 // sync results  handler:
