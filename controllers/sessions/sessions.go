@@ -287,44 +287,45 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// JSON handler to get Google accounts user.
+// GoogleUser handler, use it to get Google accounts user.
 func GoogleUser(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Google Accounts User Handler:"
-	if r.Method == "GET" {
-		u := user.Current(c)
-		if u == nil {
-			log.Errorf(c, "%s user cannot be nil", desc)
-			return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
-		}
 
-		if u.ID != r.FormValue("auth_token") {
-			log.Errorf(c, "%s Auth token doesn't match user ID", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
-		}
-
-		userInfo := authhlp.GetUserGoogleInfo(u)
-
-		var user *mdl.User
-		var err error
-		if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
-		}
-
-		// imageURL
-		imageURL := helpers.UserImageURL(user.Username, user.Id)
-		// return user
-		userData := struct {
-			User     *mdl.User
-			ImageURL string
-		}{
-			user,
-			imageURL,
-		}
-
-		return templateshlp.RenderJson(w, c, userData)
+	u := user.Current(c)
+	if u == nil {
+		log.Errorf(c, "%s user cannot be nil", desc)
+		return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	if u.ID != r.FormValue("auth_token") {
+		log.Errorf(c, "%s Auth token doesn't match user ID", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
+	}
+
+	userInfo := authhlp.GetUserGoogleInfo(u)
+
+	var user *mdl.User
+	var err error
+	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
+	}
+
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
+
+	userData := struct {
+		User     *mdl.User
+		ImageURL string
+	}{
+		user,
+		imageURL,
+	}
+
+	return templateshlp.RenderJson(w, c, userData)
 }
 
 // JSON handler to delete cookie created by Google account
