@@ -383,69 +383,71 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// Publish score activities for array of users.
+// PublishUsersScoreActivities handler, use it to publish the score activities for an array of users.
 func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Task queue - Publish Users Score Activities Handler:"
-	log.Infof(c, "%s processing...", desc)
-	if r.Method == "POST" {
-		log.Infof(c, "%s reading data...", desc)
 
-		userIdsBlob := []byte(r.FormValue("userIds"))
-
-		var userIds []int64
-		err1 := json.Unmarshal(userIdsBlob, &userIds)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-		}
-
-		log.Infof(c, "%s value of user ids: %v", desc, userIds)
-
-		log.Infof(c, "%s crunching data...", desc)
-		users := make([]*mdl.User, len(userIds))
-
-		log.Infof(c, "%s get users", desc)
-		for i, id := range userIds {
-			if u, err := mdl.UserById(c, id); err != nil {
-				log.Errorf(c, "%s cannot find user with id=%v", desc, id)
-			} else {
-				users[i] = u
-			}
-		}
-
-		log.Infof(c, "%s build activities", desc)
-		activities := make([]*mdl.Activity, len(users))
-		for i, _ := range users {
-			if users[i] != nil {
-				verb := fmt.Sprintf("'s score is now %d", users[i].Score)
-				if a := users[i].BuildActivity(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{}); a != nil {
-					activities[i] = a
-				} else {
-					c.Errorf("%s error when building activity.", desc)
-				}
-			}
-		}
-
-		log.Infof(c, "%s save activities %v", desc, activities)
-		if err := mdl.SaveActivities(c, activities); err != nil {
-			c.Errorf("%s something went wrong when saving all activities: error: %v", desc, err)
-		}
-
-		log.Infof(c, "%s add activity ids", desc)
-		for i, _ := range activities {
-			if activities[i] != nil && users[i] != nil {
-				activities[i].AddNewActivityId(c, users[i])
-			}
-		}
-
-		log.Infof(c, "%s update users", desc)
-		if err := mdl.UpdateUsers(c, users); err != nil {
-			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUsersCannotUpdate)}
-		}
-		log.Infof(c, "%s tasks done!", desc)
-		return nil
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...")
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	log.Infof(c, "%s something went wrong...")
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	log.Infof(c, "%s processing...", desc)
+	log.Infof(c, "%s reading data...", desc)
+
+	userIdsBlob := []byte(r.FormValue("userIds"))
+
+	var userIds []int64
+	err1 := json.Unmarshal(userIdsBlob, &userIds)
+	if err1 != nil {
+		log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+	}
+
+	log.Infof(c, "%s value of user ids: %v", desc, userIds)
+
+	log.Infof(c, "%s crunching data...", desc)
+	users := make([]*mdl.User, len(userIds))
+
+	log.Infof(c, "%s get users", desc)
+	for i, id := range userIds {
+		if u, err := mdl.UserById(c, id); err != nil {
+			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+		} else {
+			users[i] = u
+		}
+	}
+
+	log.Infof(c, "%s build activities", desc)
+	activities := make([]*mdl.Activity, len(users))
+	for i, _ := range users {
+		if users[i] != nil {
+			verb := fmt.Sprintf("'s score is now %d", users[i].Score)
+			if a := users[i].BuildActivity(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{}); a != nil {
+				activities[i] = a
+			} else {
+				c.Errorf("%s error when building activity.", desc)
+			}
+		}
+	}
+
+	log.Infof(c, "%s save activities %v", desc, activities)
+	if err := mdl.SaveActivities(c, activities); err != nil {
+		c.Errorf("%s something went wrong when saving all activities: error: %v", desc, err)
+	}
+
+	log.Infof(c, "%s add activity ids", desc)
+	for i, _ := range activities {
+		if activities[i] != nil && users[i] != nil {
+			activities[i].AddNewActivityId(c, users[i])
+		}
+	}
+
+	log.Infof(c, "%s update users", desc)
+	if err := mdl.UpdateUsers(c, users); err != nil {
+		log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUsersCannotUpdate)}
+	}
+	log.Infof(c, "%s tasks done!", desc)
+	return nil
 }
