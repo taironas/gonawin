@@ -49,70 +49,72 @@ Your friends @ Gonawin
 
 `
 
-// invite json handler
+// Invite handler, use it to invite users to use gonawin.
 func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "invite handler:"
 	c := appengine.NewContext(r)
 
-	if r.Method == "POST" {
-		emailsList := r.FormValue("emails")
+	emailsList := r.FormValue("emails")
 
-		if len(emailsList) <= 0 {
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
-		}
-		splitemails := strings.Split(emailsList, ",")
-		// remove leading and trailing spaces from each email.
-		emails := make([]string, 0)
-		for _, e := range splitemails {
-			emails = append(emails, strings.Trim(e, " "))
-		}
-
-		// validate emails
-		if !helpers.AreEmailsValid(emails) {
-			log.Errorf(c, "%s emails not valid dude!", desc, emails)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
-		}
-
-		currenturl := fmt.Sprintf("http://%s/#", r.Host)
-		body := fmt.Sprintf(inviteMessage, currenturl)
-
-		bname, errname := json.Marshal(u.Name)
-		if errname != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errname)
-		}
-
-		bbody, errbody := json.Marshal(body)
-		if errbody != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errbody)
-		}
-
-		for _, email := range emails {
-
-			bemail, errm := json.Marshal(email)
-			if errm != nil {
-				log.Errorf(c, "%s Error marshaling", desc, errm)
-			}
-
-			task := taskqueue.NewPOSTTask("/a/invite/", url.Values{
-				"email": []string{string(bemail)},
-				"name":  []string{string(bname)},
-				"body":  []string{string(bbody)},
-			})
-			if _, err := taskqueue.Add(c, task, ""); err != nil {
-				log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-				return err
-			} else {
-				log.Infof(c, "%s add task to taskqueue successfully", desc)
-			}
-		}
-		msg := fmt.Sprintf("Email invitations have been successfully sent.")
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	if len(emailsList) <= 0 {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	splitemails := strings.Split(emailsList, ",")
+
+	// remove leading and trailing spaces from each email.
+	emails := make([]string, 0)
+	for _, e := range splitemails {
+		emails = append(emails, strings.Trim(e, " "))
+	}
+
+	// validate emails
+	if !helpers.AreEmailsValid(emails) {
+		log.Errorf(c, "%s emails not valid dude!", desc, emails)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
+	}
+
+	currenturl := fmt.Sprintf("http://%s/#", r.Host)
+	body := fmt.Sprintf(inviteMessage, currenturl)
+
+	bname, errname := json.Marshal(u.Name)
+	if errname != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errname)
+	}
+
+	bbody, errbody := json.Marshal(body)
+	if errbody != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errbody)
+	}
+
+	for _, email := range emails {
+
+		bemail, errm := json.Marshal(email)
+		if errm != nil {
+			log.Errorf(c, "%s Error marshaling", desc, errm)
+		}
+
+		task := taskqueue.NewPOSTTask("/a/invite/", url.Values{
+			"email": []string{string(bemail)},
+			"name":  []string{string(bname)},
+			"body":  []string{string(bbody)},
+		})
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+			return err
+		} else {
+			log.Infof(c, "%s add task to taskqueue successfully", desc)
+		}
+	}
+	msg := fmt.Sprintf("Email invitations have been successfully sent.")
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
