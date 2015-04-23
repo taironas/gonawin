@@ -29,8 +29,6 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
-	"github.com/taironas/route"
-
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -579,47 +577,38 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	return templateshlp.RenderJson(w, c, data)
 }
 
+// DenyInvitation user handler, use it to deny an invitation to a team.
 func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "User deny invitation handler:"
 
-	if r.Method == "POST" {
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
+	rc := requestContext{c, desc, r}
 
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
+	var team *mdl.Team
+	var err error
 
-		// check team
-		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
+	if team, err = rc.team(); err != nil {
+		return err
+	}
 
-		ur := mdl.FindUserRequestByTeamAndUser(c, teamId, u.Id)
-		if ur != nil {
-			// destroy user request.
-			if errd := ur.Destroy(c); errd != nil {
-				log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
-			}
-			msg := fmt.Sprintf("You denied an invitation to team %s.", team.Name)
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-			}{
-				msg,
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
+	ur := mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id)
+	if ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	// destroy user request.
+	if errd := ur.Destroy(c); errd != nil {
+		log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
+	}
+	msg := fmt.Sprintf("You denied an invitation to team %s.", team.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
