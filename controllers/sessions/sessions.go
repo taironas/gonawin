@@ -229,9 +229,8 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	// imageURL
 	imageURL := helpers.UserImageURL(user.Username, user.Id)
-	// return user
+
 	userData := struct {
 		User     *mdl.User
 		ImageURL string
@@ -243,29 +242,30 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, userData)
 }
 
-// JSON handler to get Google accounts login URL.
+// GoogleAccountsLoginURL handler, use it to get Google accounts login URL.
 func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Google Accounts Login URL Handler:"
-	if r.Method == "GET" {
-		var url string
-		var err error
-		url, err = user.LoginURL(c, "/j/auth/google/callback/")
-		if err != nil {
-			log.Errorf(c, "%s error when getting Google accounts login URL", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
-		}
 
-		// return user
-		loginData := struct {
-			Url string
-		}{
-			url,
-		}
-
-		return templateshlp.RenderJson(w, c, loginData)
+	var url string
+	var err error
+	url, err = user.LoginURL(c, "/j/auth/google/callback/")
+	if err != nil {
+		log.Errorf(c, "%s error when getting Google accounts login URL", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	loginData := struct {
+		Url string
+	}{
+		url,
+	}
+
+	return templateshlp.RenderJson(w, c, loginData)
 }
 
 // Google Authentication Callback
