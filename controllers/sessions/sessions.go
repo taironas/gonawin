@@ -268,21 +268,23 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	return templateshlp.RenderJson(w, c, loginData)
 }
 
-// Google Authentication Callback
+// GoogleAuthCallback handler, use it to make a callback for Google Authentication.
 func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Google Accounts Auth Callback Handler:"
-	if r.Method == "GET" {
-		u := user.Current(c)
-		if u == nil {
-			log.Errorf(c, "%s user cannot be nil", desc)
-			return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
-		}
 
-		http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
-		return nil
+	u := user.Current(c)
+	if u == nil {
+		log.Errorf(c, "%s user cannot be nil", desc)
+		return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
+	return nil
 }
 
 // JSON handler to get Google accounts user.
