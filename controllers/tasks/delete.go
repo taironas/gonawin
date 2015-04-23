@@ -56,29 +56,30 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// DeleteUserPredicts handles the deletion of predicts for a given user
+// DeleteUserPredicts handler, use it to delete the predictions of a given user.
 func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...")
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Task queue - DeleteUserPredicts Handler:"
 	log.Infof(c, "%s processing...", desc)
 
-	if r.Method == "POST" {
-		log.Infof(c, "%s reading data...", desc)
-		predictIdsBlob := []byte(r.FormValue("predict_ids"))
+	log.Infof(c, "%s reading data...", desc)
+	predictIdsBlob := []byte(r.FormValue("predict_ids"))
 
-		var predictIds []int64
-		err := json.Unmarshal(predictIdsBlob, &predictIds)
-		if err != nil {
-			log.Errorf(c, "%s unable to extract predictIds from data, %v", desc, err)
-		}
-
-		if err = mdl.DestroyPredicts(c, predictIds); err != nil {
-			log.Errorf(c, "%s predicts have not been deleted. %v", desc, err)
-		}
-
-		log.Infof(c, "%s task done!", desc)
-		return nil
+	var predictIds []int64
+	err := json.Unmarshal(predictIdsBlob, &predictIds)
+	if err != nil {
+		log.Errorf(c, "%s unable to extract predictIds from data, %v", desc, err)
 	}
-	log.Infof(c, "%s something went wrong...")
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	if err = mdl.DestroyPredicts(c, predictIds); err != nil {
+		log.Errorf(c, "%s predicts have not been deleted. %v", desc, err)
+	}
+
+	log.Infof(c, "%s task done!", desc)
+	return nil
 }
