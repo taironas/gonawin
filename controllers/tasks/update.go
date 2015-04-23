@@ -194,54 +194,56 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	return nil
 }
 
-// Update users scores.
+// UpdateUsersScores handler, use it to update users scores.
 func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
+
 	c := appengine.NewContext(r)
 	desc := "Task queue - Update Users Scores Handler:"
-	log.Infof(c, "%s processing...", desc)
 
-	if r.Method == "POST" {
-		log.Infof(c, "%s reading data...", desc)
-
-		userIdsBlob := []byte(r.FormValue("userIds"))
-		scoresBlob := []byte(r.FormValue("scores"))
-
-		var userIds []int64
-		err1 := json.Unmarshal(userIdsBlob, &userIds)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
-		}
-
-		var scores []int64
-		err2 := json.Unmarshal(scoresBlob, &scores)
-		if err2 != nil {
-			log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
-		}
-
-		log.Infof(c, "%s value of user ids: %v", desc, userIds)
-		log.Infof(c, "%s value of scores: %v", desc, scores)
-
-		log.Infof(c, "%s crunching data...", desc)
-		log.Infof(c, "%s get users", desc)
-		usersToUpdate := make([]*mdl.User, 0)
-		for i, id := range userIds {
-			if u, err := mdl.UserById(c, id); err != nil {
-				log.Errorf(c, "%s cannot find user with id=%v", desc, id)
-			} else {
-				u.Score += scores[i]
-				usersToUpdate = append(usersToUpdate, u)
-			}
-		}
-		log.Infof(c, "%s update users", desc)
-		if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
-			log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
-			return errors.New(helpers.ErrorCodeUsersCannotUpdate)
-		}
-		log.Infof(c, "%s task done!", desc)
-		return nil
+	if r.Method != "POST" {
+		log.Infof(c, "%s something went wrong...", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	log.Infof(c, "%s something went wrong...", desc)
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	log.Infof(c, "%s processing...", desc)
+	log.Infof(c, "%s reading data...", desc)
+
+	userIdsBlob := []byte(r.FormValue("userIds"))
+	scoresBlob := []byte(r.FormValue("scores"))
+
+	var userIds []int64
+	err1 := json.Unmarshal(userIdsBlob, &userIds)
+	if err1 != nil {
+		log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+	}
+
+	var scores []int64
+	err2 := json.Unmarshal(scoresBlob, &scores)
+	if err2 != nil {
+		log.Errorf(c, "%s unable to extract scores from data, %v", desc, err2)
+	}
+
+	log.Infof(c, "%s value of user ids: %v", desc, userIds)
+	log.Infof(c, "%s value of scores: %v", desc, scores)
+
+	log.Infof(c, "%s crunching data...", desc)
+	log.Infof(c, "%s get users", desc)
+	usersToUpdate := make([]*mdl.User, 0)
+	for i, id := range userIds {
+		if u, err := mdl.UserById(c, id); err != nil {
+			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+		} else {
+			u.Score += scores[i]
+			usersToUpdate = append(usersToUpdate, u)
+		}
+	}
+	log.Infof(c, "%s update users", desc)
+	if err := mdl.UpdateUsers(c, usersToUpdate); err != nil {
+		log.Errorf(c, "%s unable udpate users scores: %v", desc, err)
+		return errors.New(helpers.ErrorCodeUsersCannotUpdate)
+	}
+	log.Infof(c, "%s task done!", desc)
+	return nil
 }
 
 // Create the score entities.
