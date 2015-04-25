@@ -20,11 +20,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"appengine"
-
-	"github.com/taironas/route"
 
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
@@ -90,33 +87,22 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	desc := "Team Leave Handler:"
 	c := appengine.NewContext(r)
+	desc := "Team Leave Handler:"
+	rc := requestContext{c, desc, r}
 
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
+	var team *mdl.Team
+	var err error
+	team, err = rc.team()
 	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		return err
 	}
 
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	if mdl.IsTeamAdmin(c, teamId, u.Id) {
+	if mdl.IsTeamAdmin(c, team.Id, u.Id) {
 		log.Errorf(c, "%s Team administrator cannot leave the team", desc)
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 	}
 
-	var team *mdl.Team
-	if team, err = mdl.TeamById(c, teamId); err != nil {
-		log.Errorf(c, "%s team not found: %v", desc, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
 	if err := team.Leave(c, u); err != nil {
 		log.Errorf(c, "%s error on Leave team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
