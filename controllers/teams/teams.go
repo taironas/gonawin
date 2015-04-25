@@ -576,36 +576,36 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // use this handler to deny a request send by a user on a team.
 // the user will not be able to be part of the team
 func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "Team Deny Request Handler:"
-	if r.Method == "POST" {
-		// get request id
-		strRequestId, err := route.Context.Get(r, "requestId")
-		if err != nil {
-			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-
-		var requestId int64
-		requestId, err = strconv.ParseInt(strRequestId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-
-		if teamRequest, err := mdl.TeamRequestById(c, requestId); err != nil {
-			log.Errorf(c, "%s teams.DenyRequest, team request not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		} else {
-			// request is no more needed so clear it from datastore
-			teamRequest.Destroy(c)
-		}
-
-		return templateshlp.RenderJson(w, c, "team request was handled")
-
-	} else {
+	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Team Deny Request Handler:"
+
+	// get request id
+	strRequestId, err := route.Context.Get(r, "requestId")
+	if err != nil {
+		log.Errorf(c, "%s error getting request id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	var requestId int64
+	requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	if teamRequest, err := mdl.TeamRequestById(c, requestId); err != nil {
+		log.Errorf(c, "%s teams.DenyRequest, team request not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	} else {
+		// request is no more needed so clear it from datastore
+		teamRequest.Destroy(c)
+	}
+
+	return templateshlp.RenderJson(w, c, "team request was handled")
 }
 
 // Team search handler.
