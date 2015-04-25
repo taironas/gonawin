@@ -546,28 +546,28 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if teamRequest, err := mdl.TeamRequestById(c, requestId); err == nil {
-		// join user to the team
-		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamRequest.TeamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-		user, err := mdl.UserById(c, teamRequest.UserId)
-		if err != nil {
-			log.Errorf(c, "%s user not found, err: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		team.Join(c, user)
-		// request is no more needed so clear it from datastore
-		teamRequest.Destroy(c)
-
-	} else {
+	var teamRequest *mdl.TeamRequest
+	if teamRequest, err = mdl.TeamRequestById(c, requestId); err != nil {
 		log.Errorf(c, "%s cannot find team request with id=%d", desc, requestId)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
+
+	// join user to the team
+	var team *mdl.Team
+	team, err = mdl.TeamById(c, teamRequest.TeamId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+	user, err := mdl.UserById(c, teamRequest.UserId)
+	if err != nil {
+		log.Errorf(c, "%s user not found, err: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	team.Join(c, user)
+	// request is no more needed so clear it from datastore
+	teamRequest.Destroy(c)
 
 	return templateshlp.RenderJson(w, c, "team request was handled")
 }
@@ -582,28 +582,23 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Deny Request Handler:"
-
-	// get request id
-	strRequestId, err := route.Context.Get(r, "requestId")
-	if err != nil {
-		log.Errorf(c, "%s error getting request id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var requestId int64
-	requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+	var err error
+	requestId, err = rc.requestId()
 	if err != nil {
-		log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		return err
 	}
 
-	if teamRequest, err := mdl.TeamRequestById(c, requestId); err != nil {
+	var teamRequest *mdl.TeamRequest
+	if teamRequest, err = mdl.TeamRequestById(c, requestId); err != nil {
 		log.Errorf(c, "%s teams.DenyRequest, team request not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-	} else {
-		// request is no more needed so clear it from datastore
-		teamRequest.Destroy(c)
 	}
+
+	// request is no more needed so clear it from datastore
+	teamRequest.Destroy(c)
 
 	return templateshlp.RenderJson(w, c, "team request was handled")
 }
