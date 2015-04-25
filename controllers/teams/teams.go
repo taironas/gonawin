@@ -131,71 +131,72 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, ts)
 }
 
-// team new handler.
+// New handler, use it to create a new team.
 //	POST	/j/teams/new/				Creates a new team.
 //
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	desc := "Team New Handler:"
+
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
 
 	c := appengine.NewContext(r)
+	desc := "Team New Handler:"
 
-	if r.Method == "POST" {
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
-		}
-
-		var data TeamData
-		err = json.Unmarshal(body, &data)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
-		}
-
-		if len(data.Name) <= 0 {
-			log.Errorf(c, "%s 'Name' field cannot be empty", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
-		} else if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
-			log.Errorf(c, "%s That team name already exists.", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
-		} else {
-			team, err := mdl.CreateTeam(c, data.Name, data.Description, u.Id, data.Visibility == "Private")
-			if err != nil {
-				log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
-			}
-			// join the team
-			if err = team.Join(c, u); err != nil {
-				log.Errorf(c, "%s error when trying to create a team relationship: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
-			}
-			// publish new activity
-			if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-				log.Errorf(c, "User not found %v", u.Id)
-			} else {
-				updatedUser.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
-			}
-
-			// return the newly created team
-			var tJson mdl.TeamJson
-			fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-			msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-				Team        mdl.TeamJson
-			}{
-				msg,
-				tJson,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-		}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var data TeamData
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
+	}
+
+	if len(data.Name) <= 0 {
+		log.Errorf(c, "%s 'Name' field cannot be empty", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
+	} else if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
+		log.Errorf(c, "%s That team name already exists.", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
+	} else {
+		team, err := mdl.CreateTeam(c, data.Name, data.Description, u.Id, data.Visibility == "Private")
+		if err != nil {
+			log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
+		}
+		// join the team
+		if err = team.Join(c, u); err != nil {
+			log.Errorf(c, "%s error when trying to create a team relationship: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
+		}
+		// publish new activity
+		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+			log.Errorf(c, "User not found %v", u.Id)
+		} else {
+			updatedUser.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
+		}
+
+		// return the newly created team
+		var tJson mdl.TeamJson
+		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+		msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+			Team        mdl.TeamJson
+		}{
+			msg,
+			tJson,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
 }
 
 // team show handler
