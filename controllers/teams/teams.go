@@ -78,7 +78,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	desc := "teams index handler: "
+	desc := "teams index handler:"
 
 	// get count parameter, if not present count is set to 20
 	strcount := r.FormValue("count")
