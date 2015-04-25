@@ -47,8 +47,6 @@ import (
 
 	"appengine"
 
-	"github.com/taironas/route"
-
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -774,40 +772,19 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team update price Handler:"
-
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var t *mdl.Team
-	t, err = mdl.TeamById(c, teamId)
+	var err error
+	t, err = rc.team()
 	if err != nil {
-		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
-	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return err
 	}
 
 	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	tournamentId, err = rc.tournamentId()
 	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return err
 	}
 
 	log.Infof(c, "%s ready to get price", desc)
