@@ -670,26 +670,12 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Members Handler:"
-
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
-	}
-
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
-	}
-
+	rc := requestContext{c, desc, r}
 	var team *mdl.Team
-	team, err = mdl.TeamById(c, teamId)
+	var err error
+	team, err = rc.team()
 	if err != nil {
-		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+		return err
 	}
 
 	// build members json
