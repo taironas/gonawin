@@ -282,99 +282,100 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// team update handler
+// Update handler, use it to update a team from a given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
 //
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	desc := "Team Update Handler:"
-	c := appengine.NewContext(r)
-
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-		}
-
-		if !mdl.IsTeamAdmin(c, teamId, u.Id) {
-			log.Errorf(c, "%s user is not admin", desc)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
-		}
-
-		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-		}
-		// only work on name and private. Other values should not be editable
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		var updatedData TeamData
-		err = json.Unmarshal(body, &updatedData)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		updatedPrivate := updatedData.Visibility == "private"
-		log.Errorf(c, "%s %v. %v", desc, team.Name, team.Private)
-		log.Errorf(c, "%s %v. %v", desc, updatedData.Name, updatedPrivate)
-		log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
-		log.Errorf(c, "%s updateddata %v.", desc, updatedData)
-
-		if helpers.IsStringValid(updatedData.Name) &&
-			(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
-			if updatedData.Name != team.Name {
-				// be sure that a team with that name does not exist in datastore.
-				if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
-					log.Errorf(c, "%s That team name already exists.", desc)
-					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
-				}
-				// update data
-				team.Name = updatedData.Name
-			}
-			team.Description = updatedData.Description
-			team.Private = updatedPrivate
-			team.Update(c)
-		} else {
-			log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
-			log.Errorf(c, "%s Update name = %s", desc, updatedData.Name)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		// publish new activity
-		u.Publish(c, "team", "updated team", team.Entity(), mdl.ActivityEntity{})
-
-		// keep only needed fields for json api
-		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-		msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Team        mdl.TeamJson
-		}{
-			msg,
-			tJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	c := appengine.NewContext(r)
+	desc := "Team Update Handler:"
+
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+	}
+
+	if !mdl.IsTeamAdmin(c, teamId, u.Id) {
+		log.Errorf(c, "%s user is not admin", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
+	}
+
+	var team *mdl.Team
+	team, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+	}
+	// only work on name and private. Other values should not be editable
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	var updatedData TeamData
+	err = json.Unmarshal(body, &updatedData)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	updatedPrivate := updatedData.Visibility == "private"
+	log.Errorf(c, "%s %v. %v", desc, team.Name, team.Private)
+	log.Errorf(c, "%s %v. %v", desc, updatedData.Name, updatedPrivate)
+	log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
+	log.Errorf(c, "%s updateddata %v.", desc, updatedData)
+
+	if helpers.IsStringValid(updatedData.Name) &&
+		(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
+		if updatedData.Name != team.Name {
+			// be sure that a team with that name does not exist in datastore.
+			if t := mdl.FindTeams(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
+				log.Errorf(c, "%s That team name already exists.", desc)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
+			}
+			// update data
+			team.Name = updatedData.Name
+		}
+		team.Description = updatedData.Description
+		team.Private = updatedPrivate
+		team.Update(c)
+	} else {
+		log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
+		log.Errorf(c, "%s Update name = %s", desc, updatedData.Name)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	// publish new activity
+	u.Publish(c, "team", "updated team", team.Entity(), mdl.ActivityEntity{})
+
+	// keep only needed fields for json api
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Team        mdl.TeamJson
+	}{
+		msg,
+		tJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Team destroy handler
