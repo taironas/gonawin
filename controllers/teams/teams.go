@@ -201,96 +201,98 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// team show handler
+// Show handler, use it to get the team data to show.
 //	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
 //
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "Team Show Handler:"
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var team *mdl.Team
-		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "%s team not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-		// get data for json team
-
-		// build team json
-		var tJson mdl.TeamJson
-		fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
-		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-		// build players json
-		players := team.Players(c)
-		type player struct {
-			Id       int64  `json:",omitempty"`
-			Username string `json:",omitempty"`
-			Alias    string
-			Score    int64
-			ImageURL string
-		}
-		ps := make([]player, len(players))
-		for i, p := range players {
-			ps[i].Id = p.Id
-			ps[i].Username = p.Username
-			ps[i].Alias = p.Alias
-			ps[i].Score = p.Score
-			ps[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
-		}
-
-		// build tournaments json
-		tournaments := team.Tournaments(c)
-		type tournament struct {
-			Id                int64  `json:",omitempty"`
-			Name              string `json:",omitempty"`
-			ParticipantsCount int
-			TeamsCount        int
-			Progress          float64
-			ImageURL          string
-		}
-		ts := make([]tournament, len(tournaments))
-		for i, t := range tournaments {
-			ts[i].Id = t.Id
-			ts[i].Name = t.Name
-			ts[i].ParticipantsCount = len(t.UserIds)
-			ts[i].TeamsCount = len(t.TeamIds)
-			ts[i].Progress = t.Progress(c)
-			ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-		}
-
-		teamData := struct {
-			Team        mdl.TeamJson
-			Joined      bool
-			RequestSent bool
-			Players     []player
-			Tournaments []tournament
-			ImageURL    string
-		}{
-			tJson,
-			team.Joined(c, u),
-			mdl.WasTeamRequestSent(c, teamId, u.Id),
-			ps,
-			ts,
-			helpers.TeamImageURL(team.Name, team.Id),
-		}
-		return templateshlp.RenderJson(w, c, teamData)
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	var team *mdl.Team
+	if team, err = mdl.TeamById(c, teamId); err != nil {
+		log.Errorf(c, "%s team not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+	// get data for json team
+
+	// build team json
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
+	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+
+	// build players json
+	players := team.Players(c)
+	type player struct {
+		Id       int64  `json:",omitempty"`
+		Username string `json:",omitempty"`
+		Alias    string
+		Score    int64
+		ImageURL string
+	}
+	ps := make([]player, len(players))
+	for i, p := range players {
+		ps[i].Id = p.Id
+		ps[i].Username = p.Username
+		ps[i].Alias = p.Alias
+		ps[i].Score = p.Score
+		ps[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+	}
+
+	// build tournaments json
+	tournaments := team.Tournaments(c)
+	type tournament struct {
+		Id                int64  `json:",omitempty"`
+		Name              string `json:",omitempty"`
+		ParticipantsCount int
+		TeamsCount        int
+		Progress          float64
+		ImageURL          string
+	}
+	ts := make([]tournament, len(tournaments))
+	for i, t := range tournaments {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].ParticipantsCount = len(t.UserIds)
+		ts[i].TeamsCount = len(t.TeamIds)
+		ts[i].Progress = t.Progress(c)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+
+	teamData := struct {
+		Team        mdl.TeamJson
+		Joined      bool
+		RequestSent bool
+		Players     []player
+		Tournaments []tournament
+		ImageURL    string
+	}{
+		tJson,
+		team.Joined(c, u),
+		mdl.WasTeamRequestSent(c, teamId, u.Id),
+		ps,
+		ts,
+		helpers.TeamImageURL(team.Name, team.Id),
+	}
+	return templateshlp.RenderJson(w, c, teamData)
+
 }
 
 // team update handler
