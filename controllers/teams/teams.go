@@ -66,70 +66,69 @@ type PriceData struct {
 	Description string
 }
 
-// team Index handler.
+// Index handler, use it to get the team data.
 //      GET     /j/teams/?			List users not joined by user.
 // Parameters:
 //   'page' a int indicating the page number.
 //   'count' a int indicating the number of teams per page number. default value is 25
 // Reponse: array of JSON formatted teams.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "teams index handler: "
 
-	if r.Method == "GET" {
-		// get count parameter, if not present count is set to 20
-		strcount := r.FormValue("count")
-		count := int64(25)
-		if len(strcount) > 0 {
-			if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-				log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-			} else {
-				count = n
-			}
+	// get count parameter, if not present count is set to 20
+	strcount := r.FormValue("count")
+	count := int64(25)
+	if len(strcount) > 0 {
+		if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
+			log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+		} else {
+			count = n
 		}
-
-		// get page parameter, if not present set page to the first one.
-		strpage := r.FormValue("page")
-		page := int64(1)
-		if len(strpage) > 0 {
-			if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-				log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-				page = 1
-			} else {
-				page = p
-			}
-		}
-		// fetch teams
-		teams := mdl.GetNotJoinedTeams(c, u, count, page)
-
-		if len(teams) == 0 {
-			return templateshlp.RenderEmptyJsonArray(w, c)
-		}
-
-		type team struct {
-			Id           int64  `json:",omitempty"`
-			Name         string `json:",omitempty"`
-			AdminIds     []int64
-			Private      bool
-			Accuracy     float64
-			MembersCount int64
-			ImageURL     string
-		}
-		ts := make([]team, len(teams))
-		for i, t := range teams {
-			ts[i].Id = t.Id
-			ts[i].Name = t.Name
-			ts[i].Private = t.Private
-			ts[i].Accuracy = t.Accuracy
-			ts[i].MembersCount = t.MembersCount
-			ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-		}
-
-		return templateshlp.RenderJson(w, c, ts)
-
-	} else {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	// get page parameter, if not present set page to the first one.
+	strpage := r.FormValue("page")
+	page := int64(1)
+	if len(strpage) > 0 {
+		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
+			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+			page = 1
+		} else {
+			page = p
+		}
+	}
+	// fetch teams
+	teams := mdl.GetNotJoinedTeams(c, u, count, page)
+
+	if len(teams) == 0 {
+		return templateshlp.RenderEmptyJsonArray(w, c)
+	}
+
+	type team struct {
+		Id           int64  `json:",omitempty"`
+		Name         string `json:",omitempty"`
+		AdminIds     []int64
+		Private      bool
+		Accuracy     float64
+		MembersCount int64
+		ImageURL     string
+	}
+	ts := make([]team, len(teams))
+	for i, t := range teams {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].Private = t.Private
+		ts[i].Accuracy = t.Accuracy
+		ts[i].MembersCount = t.MembersCount
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
+
+	return templateshlp.RenderJson(w, c, ts)
 }
 
 // team new handler.
