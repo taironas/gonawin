@@ -453,65 +453,66 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "team request was created")
 }
 
-// Send Invite handler.
+// SendInvite handler, use it to send an invitation to gonawin.
 // A team sends a user an invitation with tuple (user, team) to join a team.
 func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	desc := "Team Send User Invitation Handler:"
-	c := appengine.NewContext(r)
-
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
-		}
-
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
-		}
-
-		// check that ids exist in datastore.
-		team, err := mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-		}
-
-		user, err := mdl.UserById(c, userId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
-		}
-
-		if _, err := mdl.CreateUserRequest(c, teamId, userId); err != nil {
-			log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-		}
-
-		// publish new activity
-		user.Publish(c, "invitation", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
-
-		return templateshlp.RenderJson(w, c, "user request was created")
+	if r.Method != "POST" {
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	c := appengine.NewContext(r)
+	desc := "Team Send User Invitation Handler:"
+
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	}
+
+	// get user id
+	strUserId, err := route.Context.Get(r, "userId")
+	if err != nil {
+		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
+	}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
+	}
+
+	// check that ids exist in datastore.
+	team, err := mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+	}
+
+	user, err := mdl.UserById(c, userId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
+	}
+
+	if _, err := mdl.CreateUserRequest(c, teamId, userId); err != nil {
+		log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
+	}
+
+	// publish new activity
+	user.Publish(c, "invitation", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
+
+	return templateshlp.RenderJson(w, c, "user request was created")
 }
 
 // Invited handler.
