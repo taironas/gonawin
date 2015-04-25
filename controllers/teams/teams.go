@@ -527,55 +527,55 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Allow handler.
+// AllowRequest handler, use it to allow a user to join a team.
 // use this handler to allow a request send by a user on a team.
 // after this, the user that send the request will be part of the team
 func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "Team Allow Request Handler:"
-	if r.Method == "POST" {
-		// get request id
-		strRequestId, err := route.Context.Get(r, "requestId")
-		if err != nil {
-			log.Errorf(c, "%s error getting request id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-
-		var requestId int64
-		requestId, err = strconv.ParseInt(strRequestId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-
-		if teamRequest, err := mdl.TeamRequestById(c, requestId); err == nil {
-			// join user to the team
-			var team *mdl.Team
-			team, err = mdl.TeamById(c, teamRequest.TeamId)
-			if err != nil {
-				log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
-				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-			}
-			user, err := mdl.UserById(c, teamRequest.UserId)
-			if err != nil {
-				log.Errorf(c, "%s user not found, err: %v", desc, err)
-				return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-			}
-
-			team.Join(c, user)
-			// request is no more needed so clear it from datastore
-			teamRequest.Destroy(c)
-
-		} else {
-			log.Errorf(c, "%s cannot find team request with id=%d", desc, requestId)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-		}
-
-		return templateshlp.RenderJson(w, c, "team request was handled")
-
-	} else {
+	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Team Allow Request Handler:"
+
+	// get request id
+	strRequestId, err := route.Context.Get(r, "requestId")
+	if err != nil {
+		log.Errorf(c, "%s error getting request id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	var requestId int64
+	requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	if teamRequest, err := mdl.TeamRequestById(c, requestId); err == nil {
+		// join user to the team
+		var team *mdl.Team
+		team, err = mdl.TeamById(c, teamRequest.TeamId)
+		if err != nil {
+			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		}
+		user, err := mdl.UserById(c, teamRequest.UserId)
+		if err != nil {
+			log.Errorf(c, "%s user not found, err: %v", desc, err)
+			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		}
+
+		team.Join(c, user)
+		// request is no more needed so clear it from datastore
+		teamRequest.Destroy(c)
+
+	} else {
+		log.Errorf(c, "%s cannot find team request with id=%d", desc, requestId)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	return templateshlp.RenderJson(w, c, "team request was handled")
 }
 
 // Deny handler.
