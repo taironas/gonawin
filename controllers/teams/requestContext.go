@@ -81,6 +81,24 @@ func (rc requestContext) team() (*mdl.Team, error) {
 	return t, nil
 }
 
+// requestId returns a the requestId from the HTTP request.
+func (rc requestContext) requestId() (int64, error) {
+
+	strRequestId, err := route.Context.Get(rc.r, "requestId")
+	if err != nil {
+		log.Errorf(rc.c, "%s error getting request id, err:%v", rc.desc, err)
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+
+	var requestId int64
+	requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+	if err != nil {
+		log.Errorf(rc.c, "%s error converting request id from string to int64, err:%v", rc.desc, err)
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+	return requestId, nil
+}
+
 // tournament returns a tournament instance.
 // It gets the 'tournamentId' from the request and queries the datastore to get
 // the tournament.

@@ -537,19 +537,13 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Allow Request Handler:"
-
-	// get request id
-	strRequestId, err := route.Context.Get(r, "requestId")
-	if err != nil {
-		log.Errorf(c, "%s error getting request id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var requestId int64
-	requestId, err = strconv.ParseInt(strRequestId, 0, 64)
+	var err error
+	requestId, err = rc.requestId()
 	if err != nil {
-		log.Errorf(c, "%s error converting request id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+		return err
 	}
 
 	if teamRequest, err := mdl.TeamRequestById(c, requestId); err == nil {
