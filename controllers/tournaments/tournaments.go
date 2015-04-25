@@ -232,30 +232,19 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Destroy Handler:"
+	rc := requestContext{c, desc, r}
 
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	var tournament *mdl.Tournament
+	var err error
+
+	tournament, err = rc.tournament()
 	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return err
 	}
 
-	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	if !mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+	if !mdl.IsTournamentAdmin(c, tournament.Id, u.Id) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
-	}
-	var tournament *mdl.Tournament
-	tournament, err = mdl.TournamentById(c, tournamentId)
-	if err != nil {
-		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	// delete all tournament-user relationships
@@ -269,20 +258,24 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			u = participant
 		}
 	}
+
 	// delete all tournament-team relationships
 	for _, team := range tournament.Teams(c) {
 		if err := tournament.TeamLeave(c, team); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 		}
 	}
+
 	// delete matches of first stage
 	if err := mdl.DestroyMatches(c, tournament.Matches1stStage); err != nil {
 		log.Errorf(c, "%s error when trying to destroy tournament's matches of first stage: %v", desc, err)
 	}
+
 	// delete matches of second stage
 	if err := mdl.DestroyMatches(c, tournament.Matches2ndStage); err != nil {
 		log.Errorf(c, "%s error when trying to destroy tournament's matches of second stage: %v", desc, err)
 	}
+
 	// delete groups
 	if err := mdl.DestroyGroups(c, tournament.GroupIds); err != nil {
 		log.Errorf(c, "%s error when trying to destroy tournament's groups: %v", desc, err)
