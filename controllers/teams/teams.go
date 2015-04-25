@@ -762,86 +762,86 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Team update price by tournament handler:
+// UpdatePrice handler, use it to update the price of a team for a specific tournament.
 //
 // Use this handler to get the price of a team for a specific tournament.
 //	GET	/j/teams/[0-9]+/prices/update/[0-9]+/	Update Retreives price of a team with the given id for the specified tournament.
 //
 func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Team update price Handler:"
 
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var t *mdl.Team
-		t, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		log.Infof(c, "%s ready to get price", desc)
-		p := t.PriceByTournament(c, tournamentId)
-
-		// only work on name and private. Other values should not be editable
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		var priceData PriceData
-		err = json.Unmarshal(body, &priceData)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		if helpers.IsStringValid(priceData.Description) && (p.Description != priceData.Description) {
-			// update data
-			p.Description = priceData.Description
-			p.Update(c)
-		} else {
-			log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
-			log.Errorf(c, "%s Update description = %s", desc, priceData.Description)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-		}
-
-		data := struct {
-			Price *mdl.Price
-		}{
-			p,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	var t *mdl.Team
+	t, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	log.Infof(c, "%s ready to get price", desc)
+	p := t.PriceByTournament(c, tournamentId)
+
+	// only work on name and private. Other values should not be editable
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	var priceData PriceData
+	err = json.Unmarshal(body, &priceData)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	if helpers.IsStringValid(priceData.Description) && (p.Description != priceData.Description) {
+		// update data
+		p.Description = priceData.Description
+		p.Update(c)
+	} else {
+		log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
+		log.Errorf(c, "%s Update description = %s", desc, priceData.Description)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
+	}
+
+	data := struct {
+		Price *mdl.Price
+	}{
+		p,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
