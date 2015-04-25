@@ -81,66 +81,67 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// leave handler for team relations.
+// Leave handler, use it to make a user leave a team.
 // Use this handler to leave a team.
 //	POST	/j/teams/leave/[0-9]+/?			Make a user leave a team with the given id.
 //
 func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "Team Leave Handler:"
 	c := appengine.NewContext(r)
 
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		if mdl.IsTeamAdmin(c, teamId, u.Id) {
-			log.Errorf(c, "%s Team administrator cannot leave the team", desc)
-			return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
-		}
-
-		var team *mdl.Team
-		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "%s team not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-		if err := team.Leave(c, u); err != nil {
-			log.Errorf(c, "%s error on Leave team: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-
-		var tJson mdl.TeamJson
-		helpers.CopyToPointerStructure(team, &tJson)
-		fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-		helpers.KeepFields(&tJson, fieldsToKeep)
-
-		// publish new activity
-		if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-			log.Errorf(c, "User not found %v", u.Id)
-		} else {
-			updatedUser.Publish(c, "team", "left team", team.Entity(), mdl.ActivityEntity{})
-		}
-
-		msg := fmt.Sprintf("You left team %s.", team.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Team        mdl.TeamJson
-		}{
-			msg,
-			tJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	if mdl.IsTeamAdmin(c, teamId, u.Id) {
+		log.Errorf(c, "%s Team administrator cannot leave the team", desc)
+		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
+	}
+
+	var team *mdl.Team
+	if team, err = mdl.TeamById(c, teamId); err != nil {
+		log.Errorf(c, "%s team not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+	if err := team.Leave(c, u); err != nil {
+		log.Errorf(c, "%s error on Leave team: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	var tJson mdl.TeamJson
+	helpers.CopyToPointerStructure(team, &tJson)
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.KeepFields(&tJson, fieldsToKeep)
+
+	// publish new activity
+	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
+	} else {
+		updatedUser.Publish(c, "team", "left team", team.Entity(), mdl.ActivityEntity{})
+	}
+
+	msg := fmt.Sprintf("You left team %s.", team.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Team        mdl.TeamJson
+	}{
+		msg,
+		tJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
