@@ -224,84 +224,85 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// tournament destroy handler.
+// Destrou handler, use it to detroy a tournament.
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Destroy Handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		if !mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
-			log.Errorf(c, "%s user is not admin", desc)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
-		}
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		// delete all tournament-user relationships
-		for _, participant := range tournament.Participants(c) {
-			if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
-				log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
-			} else if u.Id == participant.Id {
-				// Be sure that current user has the latest data,
-				// as the u.Publish method will update again the user,
-				// we don't want to override the tournament ID removal.
-				u = participant
-			}
-		}
-		// delete all tournament-team relationships
-		for _, team := range tournament.Teams(c) {
-			if err := tournament.TeamLeave(c, team); err != nil {
-				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-			}
-		}
-		// delete matches of first stage
-		if err := mdl.DestroyMatches(c, tournament.Matches1stStage); err != nil {
-			log.Errorf(c, "%s error when trying to destroy tournament's matches of first stage: %v", desc, err)
-		}
-		// delete matches of second stage
-		if err := mdl.DestroyMatches(c, tournament.Matches2ndStage); err != nil {
-			log.Errorf(c, "%s error when trying to destroy tournament's matches of second stage: %v", desc, err)
-		}
-		// delete groups
-		if err := mdl.DestroyGroups(c, tournament.GroupIds); err != nil {
-			log.Errorf(c, "%s error when trying to destroy tournament's groups: %v", desc, err)
-		}
-
-		// delete the tournament
-		tournament.Destroy(c)
-
-		// publish new activity
-		u.Publish(c, "tournament", "deleted tournament", tournament.Entity(), mdl.ActivityEntity{})
-
-		msg := fmt.Sprintf("The tournament %s has been destroyed!", tournament.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-
-		// return destroyed status
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	if !mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+		log.Errorf(c, "%s user is not admin", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
+	}
+	var tournament *mdl.Tournament
+	tournament, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	// delete all tournament-user relationships
+	for _, participant := range tournament.Participants(c) {
+		if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
+			log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
+		} else if u.Id == participant.Id {
+			// Be sure that current user has the latest data,
+			// as the u.Publish method will update again the user,
+			// we don't want to override the tournament ID removal.
+			u = participant
+		}
+	}
+	// delete all tournament-team relationships
+	for _, team := range tournament.Teams(c) {
+		if err := tournament.TeamLeave(c, team); err != nil {
+			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+		}
+	}
+	// delete matches of first stage
+	if err := mdl.DestroyMatches(c, tournament.Matches1stStage); err != nil {
+		log.Errorf(c, "%s error when trying to destroy tournament's matches of first stage: %v", desc, err)
+	}
+	// delete matches of second stage
+	if err := mdl.DestroyMatches(c, tournament.Matches2ndStage); err != nil {
+		log.Errorf(c, "%s error when trying to destroy tournament's matches of second stage: %v", desc, err)
+	}
+	// delete groups
+	if err := mdl.DestroyGroups(c, tournament.GroupIds); err != nil {
+		log.Errorf(c, "%s error when trying to destroy tournament's groups: %v", desc, err)
+	}
+
+	// delete the tournament
+	tournament.Destroy(c)
+
+	// publish new activity
+	u.Publish(c, "tournament", "deleted tournament", tournament.Entity(), mdl.ActivityEntity{})
+
+	msg := fmt.Sprintf("The tournament %s has been destroyed!", tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+
+	// return destroyed status
+	return templateshlp.RenderJson(w, c, data)
 }
 
 //  Update tournament handler.
