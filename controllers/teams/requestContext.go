@@ -115,22 +115,30 @@ func (rc requestContext) teamRequest() (*mdl.TeamRequest, error) {
 	return teamRequest, nil
 }
 
-// tournament returns a tournament instance.
-// It gets the 'tournamentId' from the request and queries the datastore to get
-// the tournament.
-func (rc requestContext) tournament() (*mdl.Tournament, error) {
-
+func (rc requestContext) tournamentId() (int64, error) {
 	strTournamentId, err := route.Context.Get(rc.r, "tournamentId")
 	if err != nil {
 		log.Errorf(rc.c, "%s error getting tournament id, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
 	var tournamentId int64
 	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
 	if err != nil {
 		log.Errorf(rc.c, "%s error converting tournament id from string to int64, err:%v", rc.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+	return tournamentId, nil
+}
+
+// tournament returns a tournament instance.
+// It gets the 'tournamentId' from the request and queries the datastore to get
+// the tournament.
+func (rc requestContext) tournament() (*mdl.Tournament, error) {
+
+	tournamentId, err := rc.tournamentId()
+	if err != nil {
+		return nil, err
 	}
 
 	var tournament *mdl.Tournament
