@@ -20,6 +20,32 @@ type requestContext struct {
 	r    *http.Request     // the HTTP request
 }
 
+func (rc requestContext) user() (*mdl.User, error) {
+
+	strUserId, err := route.Context.Get(rc.r, "userId")
+	if err != nil {
+		log.Errorf(rc.c, "%s error getting user id, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var userId int64
+	userId, err = strconv.ParseInt(strUserId, 0, 64)
+	if err != nil {
+		log.Errorf(rc.c, "%s error converting user id from string to int64, err:%v", rc.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	var u *mdl.User
+	u, err = mdl.UserById(rc.c, userId)
+	log.Infof(rc.c, "%s User: %v", rc.desc, u)
+	if err != nil {
+		log.Errorf(rc.c, "%s user not found", rc.desc)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+
+	return u, nil
+}
+
 // teamId returns the team identifier.
 // It gets the 'teamId' from the request and parses it to int64
 func (rc requestContext) teamId() (int64, error) {

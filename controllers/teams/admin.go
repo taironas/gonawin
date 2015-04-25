@@ -45,46 +45,19 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team add admin Handler:"
-
-	// get team id and user id
-	strTeamId, err1 := route.Context.Get(r, "teamId")
-	if err1 != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	var teamId int64
-	teamId, err1 = strconv.ParseInt(strTeamId, 0, 64)
-	if err1 != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err1)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	strUserId, err2 := route.Context.Get(r, "userId")
-	if err2 != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	var userId int64
-	userId, err2 = strconv.ParseInt(strUserId, 0, 64)
-	if err2 != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err2)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var team *mdl.Team
-	if team, err1 = mdl.TeamById(c, teamId); err1 != nil {
-		log.Errorf(c, "%s team not found: %v", desc, err1)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	var err error
+	team, err = rc.team()
+	if err != nil {
+		return err
 	}
 
 	var newAdmin *mdl.User
-	newAdmin, err := mdl.UserById(c, userId)
-	log.Infof(c, "%s User: %v", desc, newAdmin)
+	newAdmin, err = rc.user()
 	if err != nil {
-		log.Errorf(c, "%s user not found", desc)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		return err
 	}
 
 	if err = team.AddAdmin(c, newAdmin.Id); err != nil {
@@ -106,7 +79,6 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
-	return nil
 }
 
 // Team remove admin handler:
