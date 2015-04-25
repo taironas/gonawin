@@ -660,49 +660,50 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Team members handler.
+// Members handler, use it to get all members of a team.
 //	/j/teams/[0-9]+/members/	GET			use this handler to get members of a team.
 //
 func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "Team Members Handler:"
-	if r.Method == "GET" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
-		}
-
-		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
-		}
-
-		// build members json
-		members := team.Players(c)
-		fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
-		membersJson := make([]mdl.UserJson, len(members))
-		helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
-
-		data := struct {
-			Members []mdl.UserJson
-		}{
-			membersJson,
-		}
-		return templateshlp.RenderJson(w, c, data)
-	} else {
+	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Team Members Handler:"
+
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+	}
+
+	var team *mdl.Team
+	team, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamMemberNotFound)}
+	}
+
+	// build members json
+	members := team.Players(c)
+	fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
+	membersJson := make([]mdl.UserJson, len(members))
+	helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
+
+	data := struct {
+		Members []mdl.UserJson
+	}{
+		membersJson,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // team Prices handler.
