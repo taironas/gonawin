@@ -156,82 +156,85 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 }
 
-// Show tournament handler.
+// Show handler, use it to get the data of a specific tournament.
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Show Handler:"
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		participants := tournament.Participants(c)
-		teams := tournament.Teams(c)
-
-		// tournament
-		fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
-		var tournamentJson mdl.TournamentJson
-		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
-		// participant
-		participantFieldsToKeep := []string{"Id", "Username", "Alias"}
-		participantsJson := make([]mdl.UserJson, len(participants))
-		helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
-		// teams
-		teamsJson := make([]mdl.TeamJson, len(teams))
-		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
-		// progress
-		progress := tournament.Progress(c)
-		// formatted start and end
-		const layout = "2 January 2006"
-		start := tournament.Start.Format(layout)
-		end := tournament.End.Format(layout)
-		// remaining days
-		remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
-		// imageURL
-		imageURL := helpers.TournamentImageURL(tournament.Name, tournament.Id)
-		// data
-		data := struct {
-			Tournament    mdl.TournamentJson
-			Joined        bool
-			Participants  []mdl.UserJson
-			Teams         []mdl.TeamJson
-			Progress      float64
-			Start         string
-			End           string
-			RemainingDays int64
-			ImageURL      string
-		}{
-			tournamentJson,
-			tournament.Joined(c, u),
-			participantsJson,
-			teamsJson,
-			progress,
-			start,
-			end,
-			remainingDays,
-			imageURL,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	tournament, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	participants := tournament.Participants(c)
+	teams := tournament.Teams(c)
+
+	// tournament
+	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
+	var tournamentJson mdl.TournamentJson
+	helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
+	// participant
+	participantFieldsToKeep := []string{"Id", "Username", "Alias"}
+	participantsJson := make([]mdl.UserJson, len(participants))
+	helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
+	// teams
+	teamsJson := make([]mdl.TeamJson, len(teams))
+	helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
+	// progress
+	progress := tournament.Progress(c)
+	// formatted start and end
+	const layout = "2 January 2006"
+	start := tournament.Start.Format(layout)
+	end := tournament.End.Format(layout)
+	// remaining days
+	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
+	// imageURL
+	imageURL := helpers.TournamentImageURL(tournament.Name, tournament.Id)
+	// data
+	data := struct {
+		Tournament    mdl.TournamentJson
+		Joined        bool
+		Participants  []mdl.UserJson
+		Teams         []mdl.TeamJson
+		Progress      float64
+		Start         string
+		End           string
+		RemainingDays int64
+		ImageURL      string
+	}{
+		tournamentJson,
+		tournament.Joined(c, u),
+		participantsJson,
+		teamsJson,
+		progress,
+		start,
+		end,
+		remainingDays,
+		imageURL,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
+
 }
 
 // tournament destroy handler.
