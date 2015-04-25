@@ -298,93 +298,93 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-//  Update tournament handler.
+//  Update hanlder, use it to update a tournament.
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Update handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		if !mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
-			log.Errorf(c, "%s user is not admin", desc)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament not found. id: %v, err: %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
-		}
-
-		// only work on name other values should not be editable
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s error when reading request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
-		}
-
-		var updatedData TournamentData
-		err = json.Unmarshal(body, &updatedData)
-		if err != nil {
-			log.Errorf(c, "%s error when decoding request body err: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
-		}
-
-		if helpers.IsStringValid(updatedData.Name) &&
-			(updatedData.Name != tournament.Name || updatedData.Description != tournament.Description) {
-			if updatedData.Name != tournament.Name {
-				// be sure that team with that name does not exist in datastore
-				if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
-					log.Errorf(c, "%s that tournament name already exists.", desc)
-					return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
-				}
-				// update data
-				tournament.Name = updatedData.Name
-			}
-			tournament.Description = updatedData.Description
-			tournament.Update(c)
-		} else {
-			log.Errorf(c, "%s cannot update because updated data is not valid.", desc)
-			log.Errorf(c, "%s update name = %s", desc, updatedData.Name)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
-		}
-
-		// publish new activity
-		u.Publish(c, "tournament", "updated tournament", tournament.Entity(), mdl.ActivityEntity{})
-
-		// return the updated tournament
-		fieldsToKeep := []string{"Id", "Name"}
-		var tJson mdl.TournamentJson
-		helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-		msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Tournament  mdl.TournamentJson
-		}{
-			msg,
-			tJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	if !mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+		log.Errorf(c, "%s user is not admin", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
+	}
+
+	var tournament *mdl.Tournament
+	tournament, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament not found. id: %v, err: %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFoundCannotUpdate)}
+	}
+
+	// only work on name other values should not be editable
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s error when reading request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+	}
+
+	var updatedData TournamentData
+	err = json.Unmarshal(body, &updatedData)
+	if err != nil {
+		log.Errorf(c, "%s error when decoding request body err: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+	}
+
+	if helpers.IsStringValid(updatedData.Name) &&
+		(updatedData.Name != tournament.Name || updatedData.Description != tournament.Description) {
+		if updatedData.Name != tournament.Name {
+			// be sure that team with that name does not exist in datastore
+			if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(updatedData.Name)); t != nil {
+				log.Errorf(c, "%s that tournament name already exists.", desc)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
+			}
+			// update data
+			tournament.Name = updatedData.Name
+		}
+		tournament.Description = updatedData.Description
+		tournament.Update(c)
+	} else {
+		log.Errorf(c, "%s cannot update because updated data is not valid.", desc)
+		log.Errorf(c, "%s update name = %s", desc, updatedData.Name)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotUpdate)}
+	}
+
+	// publish new activity
+	u.Publish(c, "tournament", "updated tournament", tournament.Entity(), mdl.ActivityEntity{})
+
+	// return the updated tournament
+	fieldsToKeep := []string{"Id", "Name"}
+	var tJson mdl.TournamentJson
+	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+
+	msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Tournament  mdl.TournamentJson
+	}{
+		msg,
+		tJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Search tournaments handler.
