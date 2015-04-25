@@ -436,70 +436,71 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// team candidates for a specific tournament.
+// CandidateTeams handler, use it to get the list of teams that you can add to a tournament.
 func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Candidate Teams handler:"
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament not found err:%v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-		// query teams
-		var teams []*mdl.Team
-		for _, teamId := range u.TeamIds {
-			if team, err1 := mdl.TeamById(c, teamId); err1 == nil {
-				for _, aId := range team.AdminIds {
-					if aId == u.Id {
-						teams = append(teams, team)
-					}
-				}
-			} else {
-				log.Errorf(c, "%v", err1)
-			}
-		}
-
-		type canditateType struct {
-			Team   mdl.TeamJson
-			Joined bool
-		}
-		fieldsToKeep := []string{"Id", "Name"}
-		candidatesData := make([]canditateType, len(teams))
-
-		for counterCandidate, team := range teams {
-			var tJson mdl.TeamJson
-			helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-			var canditate canditateType
-			canditate.Team = tJson
-			canditate.Joined = tournament.TeamJoined(c, team)
-			candidatesData[counterCandidate] = canditate
-		}
-		// we should not directly return an array. so we add an extra layer.
-		data := struct {
-			Candidates []canditateType `json:",omitempty"`
-		}{
-			candidatesData,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	tournament, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament not found err:%v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+	// query teams
+	var teams []*mdl.Team
+	for _, teamId := range u.TeamIds {
+		if team, err1 := mdl.TeamById(c, teamId); err1 == nil {
+			for _, aId := range team.AdminIds {
+				if aId == u.Id {
+					teams = append(teams, team)
+				}
+			}
+		} else {
+			log.Errorf(c, "%v", err1)
+		}
+	}
+
+	type canditateType struct {
+		Team   mdl.TeamJson
+		Joined bool
+	}
+	fieldsToKeep := []string{"Id", "Name"}
+	candidatesData := make([]canditateType, len(teams))
+
+	for counterCandidate, team := range teams {
+		var tJson mdl.TeamJson
+		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+		var canditate canditateType
+		canditate.Team = tJson
+		canditate.Joined = tournament.TeamJoined(c, team)
+		candidatesData[counterCandidate] = canditate
+	}
+	// we should not directly return an array. so we add an extra layer.
+	data := struct {
+		Candidates []canditateType `json:",omitempty"`
+	}{
+		candidatesData,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // json tournament participants handler
