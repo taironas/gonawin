@@ -375,61 +375,65 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Search tournaments handler.
+// Search handler, use it to get all the tournaments that match the query.
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+
+	keywords := r.FormValue("q")
+
+	if r.Method != "GET" || len(keywords) == 0 {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Search handler:"
 
-	keywords := r.FormValue("q")
-	if r.Method == "GET" && (len(keywords) > 0) {
+	words := helpers.SetOfStrings(keywords)
+	ids, err := mdl.GetTournamentInvertedIndexes(c, words)
+	if err != nil {
+		log.Errorf(c, "%s tournaments.Index, error occurred when getting indexes of words: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotSearch)}
+	}
 
-		words := helpers.SetOfStrings(keywords)
-		ids, err := mdl.GetTournamentInvertedIndexes(c, words)
-		if err != nil {
-			log.Errorf(c, "%s tournaments.Index, error occurred when getting indexes of words: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotSearch)}
-		}
-		result := mdl.TournamentScore(c, keywords, ids)
-		log.Infof(c, "%s result from TournamentScore: %v", desc, result)
-		tournaments := mdl.TournamentsByIds(c, result)
-		log.Infof(c, "%s ByIds result %v", desc, tournaments)
-		if len(tournaments) == 0 {
-			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-			}{
-				msg,
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
+	result := mdl.TournamentScore(c, keywords, ids)
+	log.Infof(c, "%s result from TournamentScore: %v", desc, result)
+	tournaments := mdl.TournamentsByIds(c, result)
+	log.Infof(c, "%s ByIds result %v", desc, tournaments)
 
-		type tournament struct {
-			Id                int64  `json:",omitempty"`
-			Name              string `json:",omitempty"`
-			ParticipantsCount int
-			TeamsCount        int
-			Progress          float64
-			ImageURL          string
-		}
-		ts := make([]tournament, len(tournaments))
-		for i, t := range tournaments {
-			ts[i].Id = t.Id
-			ts[i].Name = t.Name
-			ts[i].ParticipantsCount = len(t.UserIds)
-			ts[i].TeamsCount = len(t.TeamIds)
-			ts[i].Progress = t.Progress(c)
-			ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-		}
-
-		// we should not directly return an array. so we add an extra layer.
+	if len(tournaments) == 0 {
+		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
 		data := struct {
-			Tournaments []tournament `json:",omitempty"`
+			MessageInfo string `json:",omitempty"`
 		}{
-			ts,
+			msg,
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	type tournament struct {
+		Id                int64  `json:",omitempty"`
+		Name              string `json:",omitempty"`
+		ParticipantsCount int
+		TeamsCount        int
+		Progress          float64
+		ImageURL          string
+	}
+	ts := make([]tournament, len(tournaments))
+	for i, t := range tournaments {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].ParticipantsCount = len(t.UserIds)
+		ts[i].TeamsCount = len(t.TeamIds)
+		ts[i].Progress = t.Progress(c)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+
+	// we should not directly return an array. so we add an extra layer.
+	data := struct {
+		Tournaments []tournament `json:",omitempty"`
+	}{
+		ts,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // team candidates for a specific tournament.
