@@ -534,31 +534,20 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Reset handler:"
-
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
-	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var t *mdl.Tournament
-	t, err = mdl.TournamentById(c, tournamentId)
+	var err error
+	t, err = rc.tournament()
 	if err != nil {
-		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return err
 	}
+
 	if err = t.Reset(c); err != nil {
-		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, tournamentId, err)
+		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, t.Id, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
+
 	groups := mdl.Groups(c, t.GroupIds)
 	groupsJson := formatGroupsJson(groups)
 
