@@ -496,19 +496,13 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	desc := "Team Invited Handler:"
 	c := appengine.NewContext(r)
-
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	var err error
+	teamId, err = rc.teamId()
 	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		return err
 	}
 
 	urs := mdl.FindUserRequests(c, "TeamId", teamId)
