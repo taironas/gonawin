@@ -444,27 +444,15 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Candidate Teams handler:"
-
-	// get tournament id
-	strTournamentId, err := route.Context.Get(r, "tournamentId")
-	if err != nil {
-		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
-
-	var tournamentId int64
-	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var tournament *mdl.Tournament
-	tournament, err = mdl.TournamentById(c, tournamentId)
+	var err error
+	tournament, err = rc.tournament()
 	if err != nil {
-		log.Errorf(c, "%s tournament not found err:%v", desc, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return err
 	}
+
 	// query teams
 	var teams []*mdl.Team
 	for _, teamId := range u.TeamIds {
@@ -483,6 +471,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Team   mdl.TeamJson
 		Joined bool
 	}
+
 	fieldsToKeep := []string{"Id", "Name"}
 	candidatesData := make([]canditateType, len(teams))
 
@@ -494,6 +483,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		canditate.Joined = tournament.TeamJoined(c, team)
 		candidatesData[counterCandidate] = canditate
 	}
+
 	// we should not directly return an array. so we add an extra layer.
 	data := struct {
 		Candidates []canditateType `json:",omitempty"`
