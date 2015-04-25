@@ -46,25 +46,13 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies Handler:"
-
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
+	rc := requestContext{c, desc, r}
 
 	var t *mdl.Team
-	t, err = mdl.TeamById(c, teamId)
+	var err error
+	t, err = rc.team()
 	if err != nil {
-		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+		return err
 	}
 
 	log.Infof(c, "%s ready to build a acc array", desc)
