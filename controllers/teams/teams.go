@@ -462,49 +462,22 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Send User Invitation Handler:"
+	rc := requestContext{c, desc, r}
 
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
+	var team *mdl.Team
+	var err error
+	team, err = rc.team()
 	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		return err
 	}
 
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	var user *mdl.User
+	user, err = rc.user()
 	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+		return err
 	}
 
-	// get user id
-	strUserId, err := route.Context.Get(r, "userId")
-	if err != nil {
-		log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
-	}
-
-	var userId int64
-	userId, err = strconv.ParseInt(strUserId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotInvite)}
-	}
-
-	// check that ids exist in datastore.
-	team, err := mdl.TeamById(c, teamId)
-	if err != nil {
-		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-	}
-
-	user, err := mdl.UserById(c, userId)
-	if err != nil {
-		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, userId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFoundCannotUpdate)}
-	}
-
-	if _, err := mdl.CreateUserRequest(c, teamId, userId); err != nil {
+	if _, err := mdl.CreateUserRequest(c, team.Id, user.Id); err != nil {
 		log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
 	}
