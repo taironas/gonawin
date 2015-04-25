@@ -562,116 +562,118 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Set a Predict entity of a specific match for the current User.
+// Predict handler, use it to set the predictions of a match to the current user.
 func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Predict Handler:"
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		// check if user joined the tournament
-		if !tournament.Joined(c, u) {
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotAllowedToSetPrediction)}
-		}
-
-		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
-		if err2 != nil {
-			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
-		}
-
-		var matchIdNumber int64
-		matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
-		if err2 != nil {
-			log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
-		}
-
-		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
-		if match == nil {
-			log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
-		}
-		result1 := r.FormValue("result1")
-		result2 := r.FormValue("result2")
-		var r1, r2 int
-		if r1, err = strconv.Atoi(result1); err != nil {
-			log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
-		}
-		if r2, err = strconv.Atoi(result2); err != nil {
-			log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
-		}
-		msg := ""
-		var tb mdl.TournamentBuilder
-		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
-			log.Errorf(c, "%s TournamentBuilder not found")
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-		mapIdTeams := tb.MapOfIdTeams(c, tournament)
-		var p *mdl.Predict
-		if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
-			log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
-			if predict, err1 := mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
-				log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
-				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
-			} else {
-				// add p.Id to User predict table.
-				if err = u.AddPredictId(c, predict.Id); err != nil {
-					log.Errorf(c, "%s unable to add predict id in user entity: error: %v", desc, err)
-					return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
-				}
-				p = predict
-			}
-			msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
-
-		} else {
-			// predict already exist so just update resulst.
-			p.Result1 = int64(r1)
-			p.Result2 = int64(r2)
-			if err := p.Update(c); err != nil {
-				log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
-				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
-			}
-			msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
-		}
-
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-			Predict     *mdl.Predict
-		}{
-			msg,
-			p,
-		}
-
-		// publish activity
-		verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
-		object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
-		u.Publish(c, "predict", verb, object, tournament.Entity())
-
-		return templateshlp.RenderJson(w, c, data)
+	// get tournament id
+	strTournamentId, err := route.Context.Get(r, "tournamentId")
+	if err != nil {
+		log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	var tournament *mdl.Tournament
+	tournament, err = mdl.TournamentById(c, tournamentId)
+	if err != nil {
+		log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	}
+
+	// check if user joined the tournament
+	if !tournament.Joined(c, u) {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotAllowedToSetPrediction)}
+	}
+
+	// get match id number
+	strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
+	if err2 != nil {
+		log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+	}
+
+	var matchIdNumber int64
+	matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
+	if err2 != nil {
+		log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+	}
+
+	match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
+	if match == nil {
+		log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
+	}
+	result1 := r.FormValue("result1")
+	result2 := r.FormValue("result2")
+	var r1, r2 int
+	if r1, err = strconv.Atoi(result1); err != nil {
+		log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+	}
+	if r2, err = strconv.Atoi(result2); err != nil {
+		log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+	}
+	msg := ""
+	var tb mdl.TournamentBuilder
+	if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+		log.Errorf(c, "%s TournamentBuilder not found")
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+	mapIdTeams := tb.MapOfIdTeams(c, tournament)
+	var p *mdl.Predict
+	if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
+		log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
+		if predict, err1 := mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
+			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+		} else {
+			// add p.Id to User predict table.
+			if err = u.AddPredictId(c, predict.Id); err != nil {
+				log.Errorf(c, "%s unable to add predict id in user entity: error: %v", desc, err)
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+			}
+			p = predict
+		}
+		msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
+
+	} else {
+		// predict already exist so just update resulst.
+		p.Result1 = int64(r1)
+		p.Result2 = int64(r2)
+		if err := p.Update(c); err != nil {
+			log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
+			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
+		}
+		msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIdTeams[match.TeamId1], p.Result1, p.Result2, mapIdTeams[match.TeamId2])
+	}
+
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Predict     *mdl.Predict
+	}{
+		msg,
+		p,
+	}
+
+	// publish activity
+	verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
+	object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIdTeams[match.TeamId1] + "-" + mapIdTeams[match.TeamId2]}
+	u.Publish(c, "predict", verb, object, tournament.Entity())
+
+	return templateshlp.RenderJson(w, c, data)
+
 }
