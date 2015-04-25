@@ -488,49 +488,49 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "user request was created")
 }
 
-// Invited handler.
-// List all sent invitations of team.
+// Invited handler, use it to get all the users who were invited to a team.
 func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "Team Invited Handler:"
 	c := appengine.NewContext(r)
 
-	if r.Method == "GET" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-
-		urs := mdl.FindUserRequests(c, "TeamId", teamId)
-		var ids []int64
-		for _, ur := range urs {
-			ids = append(ids, ur.UserId)
-		}
-
-		users := mdl.UsersByIds(c, ids)
-
-		// filter team information to return in json api
-		fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-		usersJson := make([]mdl.UserJson, len(users))
-		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
-
-		data := struct {
-			Users []mdl.UserJson
-		}{
-			usersJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
 	}
-	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	}
+
+	urs := mdl.FindUserRequests(c, "TeamId", teamId)
+	var ids []int64
+	for _, ur := range urs {
+		ids = append(ids, ur.UserId)
+	}
+
+	users := mdl.UsersByIds(c, ids)
+
+	// filter team information to return in json api
+	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
+	usersJson := make([]mdl.UserJson, len(users))
+	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+
+	data := struct {
+		Users []mdl.UserJson
+	}{
+		usersJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Allow handler.
