@@ -365,73 +365,74 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Team destroy handler
+// Destroy handler, use to to destroy a team.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	c := appengine.NewContext(r)
-	desc := "Team Destroy Handler:"
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
-		}
-
-		if !mdl.IsTeamAdmin(c, teamId, u.Id) {
-			log.Errorf(c, "%s user is not admin", desc)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
-		}
-		var team *mdl.Team
-		team, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
-		}
-
-		// delete all team-user relationships
-		for _, player := range team.Players(c) {
-			if err := player.RemoveTeamId(c, team.Id); err != nil {
-				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-			} else if u.Id == player.Id {
-				// Be sure that current user has the latest data,
-				// as the u.Publish method will update again the user,
-				// we don't want to override the team ID removal.
-				u = player
-			}
-		}
-		// delete all tournament-team relationships
-		for _, tournament := range team.Tournaments(c) {
-			if err := tournament.RemoveTeamId(c, team.Id); err != nil {
-				log.Errorf(c, "%serror when trying to destroy tournament relationship: %v", desc, err)
-			}
-		}
-		// delete the team
-		team.Destroy(c)
-
-		// publish new activity
-		u.Publish(c, "team", "deleted team", team.Entity(), mdl.ActivityEntity{})
-
-		msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-
-		// return destroyed status
-		return templateshlp.RenderJson(w, c, data)
-	} else {
+	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Team Destroy Handler:"
+
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotDelete)}
+	}
+
+	if !mdl.IsTeamAdmin(c, teamId, u.Id) {
+		log.Errorf(c, "%s user is not admin", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
+	}
+	var team *mdl.Team
+	team, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotUpdate)}
+	}
+
+	// delete all team-user relationships
+	for _, player := range team.Players(c) {
+		if err := player.RemoveTeamId(c, team.Id); err != nil {
+			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+		} else if u.Id == player.Id {
+			// Be sure that current user has the latest data,
+			// as the u.Publish method will update again the user,
+			// we don't want to override the team ID removal.
+			u = player
+		}
+	}
+	// delete all tournament-team relationships
+	for _, tournament := range team.Tournaments(c) {
+		if err := tournament.RemoveTeamId(c, team.Id); err != nil {
+			log.Errorf(c, "%serror when trying to destroy tournament relationship: %v", desc, err)
+		}
+	}
+	// delete the team
+	team.Destroy(c)
+
+	// publish new activity
+	u.Publish(c, "team", "deleted team", team.Entity(), mdl.ActivityEntity{})
+
+	msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+
+	// return destroyed status
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Request Invite handler.
