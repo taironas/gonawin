@@ -99,6 +99,22 @@ func (rc requestContext) requestId() (int64, error) {
 	return requestId, nil
 }
 
+// teamRequest returns a a request to join a team from an HTTP request
+func (rc requestContext) teamRequest() (*mdl.TeamRequest, error) {
+
+	requestId, err := rc.requestId()
+	if err != nil {
+		return nil, err
+	}
+
+	var teamRequest *mdl.TeamRequest
+	if teamRequest, err = mdl.TeamRequestById(rc.c, requestId); err != nil {
+		log.Errorf(rc.c, "%s teams.DenyRequest, team request not found: %v", rc.desc, err)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
+	}
+	return teamRequest, nil
+}
+
 // tournament returns a tournament instance.
 // It gets the 'tournamentId' from the request and queries the datastore to get
 // the tournament.

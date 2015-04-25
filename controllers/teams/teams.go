@@ -539,17 +539,11 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Allow Request Handler:"
 	rc := requestContext{c, desc, r}
 
-	var requestId int64
+	var teamRequest *mdl.TeamRequest
 	var err error
-	requestId, err = rc.requestId()
+	teamRequest, err = rc.teamRequest()
 	if err != nil {
 		return err
-	}
-
-	var teamRequest *mdl.TeamRequest
-	if teamRequest, err = mdl.TeamRequestById(c, requestId); err != nil {
-		log.Errorf(c, "%s cannot find team request with id=%d", desc, requestId)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
 
 	// join user to the team
@@ -584,17 +578,12 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Deny Request Handler:"
 	rc := requestContext{c, desc, r}
 
-	var requestId int64
 	var err error
-	requestId, err = rc.requestId()
+	var teamRequest *mdl.TeamRequest
+
+	teamRequest, err = rc.teamRequest()
 	if err != nil {
 		return err
-	}
-
-	var teamRequest *mdl.TeamRequest
-	if teamRequest, err = mdl.TeamRequestById(c, requestId); err != nil {
-		log.Errorf(c, "%s teams.DenyRequest, team request not found: %v", desc, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
 
 	// request is no more needed so clear it from datastore
@@ -603,72 +592,72 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "team request was handled")
 }
 
-// Team search handler.
-// Use this handler to search for a team.
+// Search handler, use it to get all teams that match the search.
 //	GET	/j/teams/search/			Search for all teams respecting the query "q"
 //
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	keywords := r.FormValue("q")
+	if r.Method != "GET" || len(keywords) == 0 {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Team Search Handler:"
-	keywords := r.FormValue("q")
-	if r.Method == "GET" && (len(keywords) > 0) {
 
-		words := helpers.SetOfStrings(keywords)
-		ids, err := mdl.GetTeamInvertedIndexes(c, words)
-		if err != nil {
-			log.Errorf(c, "%s teams.Index, error occurred when getting indexes of words: %v", desc, err)
-			data := struct {
-				MessageDanger string `json:",omitempty"`
-			}{
-				"Oops! something went wrong, we are unable to perform search query.",
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
-		result := mdl.TeamScore(c, keywords, ids)
-		log.Infof(c, "%s result from TeamScore: %v", desc, result)
-		teams := mdl.TeamsByIds(c, result)
-		log.Infof(c, "%s ByIds result %v", desc, teams)
-		if len(teams) == 0 {
-			msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-			}{
-				msg,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-		}
-		// filter team information to return in json api
-		type team struct {
-			Id           int64
-			Name         string
-			AdminIds     []int64
-			Private      bool
-			Accuracy     float64
-			MembersCount int64
-			ImageURL     string
-		}
-
-		ts := make([]team, len(teams))
-		for i, t := range teams {
-			ts[i].Id = t.Id
-			ts[i].Name = t.Name
-			ts[i].AdminIds = t.AdminIds
-			ts[i].Private = t.Private
-			ts[i].Accuracy = t.Accuracy
-			ts[i].MembersCount = t.MembersCount
-			ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-		}
-
-		// we should not directly return an array. so we add an extra layer.
+	words := helpers.SetOfStrings(keywords)
+	ids, err := mdl.GetTeamInvertedIndexes(c, words)
+	if err != nil {
+		log.Errorf(c, "%s teams.Index, error occurred when getting indexes of words: %v", desc, err)
 		data := struct {
-			Teams []team `json:",omitempty"`
+			MessageDanger string `json:",omitempty"`
 		}{
-			ts,
+			"Oops! something went wrong, we are unable to perform search query.",
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	result := mdl.TeamScore(c, keywords, ids)
+	log.Infof(c, "%s result from TeamScore: %v", desc, result)
+	teams := mdl.TeamsByIds(c, result)
+	log.Infof(c, "%s ByIds result %v", desc, teams)
+	if len(teams) == 0 {
+		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
+		data := struct {
+			MessageInfo string `json:",omitempty"`
+		}{
+			msg,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+	}
+	// filter team information to return in json api
+	type team struct {
+		Id           int64
+		Name         string
+		AdminIds     []int64
+		Private      bool
+		Accuracy     float64
+		MembersCount int64
+		ImageURL     string
+	}
+
+	ts := make([]team, len(teams))
+	for i, t := range teams {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].AdminIds = t.AdminIds
+		ts[i].Private = t.Private
+		ts[i].Accuracy = t.Accuracy
+		ts[i].MembersCount = t.MembersCount
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
+
+	// we should not directly return an array. so we add an extra layer.
+	data := struct {
+		Teams []team `json:",omitempty"`
+	}{
+		ts,
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Team members handler.
