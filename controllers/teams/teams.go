@@ -209,30 +209,17 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	desc := "Team Show Handler:"
 	c := appengine.NewContext(r)
-
-	// get team id
-	strTeamId, err := route.Context.Get(r, "teamId")
-	if err != nil {
-		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
-	var teamId int64
-	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	}
-
+	desc := "Team Show Handler:"
+	rc := requestContext{c, desc, r}
 	var team *mdl.Team
-	if team, err = mdl.TeamById(c, teamId); err != nil {
-		log.Errorf(c, "%s team not found: %v", desc, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	var err error
+	team, err = rc.team()
+	if err != nil {
+		return err
 	}
-	// get data for json team
 
+	// get data for json team
 	// build team json
 	var tJson mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
@@ -286,7 +273,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}{
 		tJson,
 		team.Joined(c, u),
-		mdl.WasTeamRequestSent(c, teamId, u.Id),
+		mdl.WasTeamRequestSent(c, team.Id, u.Id),
 		ps,
 		ts,
 		helpers.TeamImageURL(team.Name, team.Id),
