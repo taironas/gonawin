@@ -99,57 +99,61 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, ts)
 }
 
-// new tournament handler.
+// New handler, use it to create a new tournament.
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
 	c := appengine.NewContext(r)
 	desc := "Tournament New Handler:"
-	if r.Method == "POST" {
-		defer r.Body.Close()
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
-		}
 
-		var data TournamentData
-		err = json.Unmarshal(body, &data)
-		if err != nil {
-			log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
-		}
-
-		if len(data.Name) <= 0 {
-			log.Errorf(c, "%s 'Name' field cannot be empty", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
-		} else if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(data.Name)); t != nil {
-			log.Errorf(c, "%s That tournament name already exists.", desc)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
-		} else {
-			tournament, err := mdl.CreateTournament(c, data.Name, data.Description, time.Now(), time.Now(), u.Id)
-			if err != nil {
-				log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
-			}
-			// return the newly created tournament
-			fieldsToKeep := []string{"Id", "Name"}
-			var tJson mdl.TournamentJson
-			helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-			u.Publish(c, "tournament", "created a tournament", tournament.Entity(), mdl.ActivityEntity{})
-
-			msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
-			data := struct {
-				MessageInfo string `json:",omitempty"`
-				Tournament  mdl.TournamentJson
-			}{
-				msg,
-				tJson,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-		}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var tData TournamentData
+	err = json.Unmarshal(body, &tData)
+	if err != nil {
+		log.Errorf(c, "%s Error when decoding request body: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+	}
+
+	if len(tData.Name) <= 0 {
+		log.Errorf(c, "%s 'Name' field cannot be empty", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeNameCannotBeEmpty)}
+	}
+
+	if t := mdl.FindTournaments(c, "KeyName", helpers.TrimLower(tData.Name)); t != nil {
+		log.Errorf(c, "%s That tournament name already exists.", desc)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentAlreadyExists)}
+	}
+
+	tournament, err := mdl.CreateTournament(c, tData.Name, tData.Description, time.Now(), time.Now(), u.Id)
+	if err != nil {
+		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
+	}
+	// return the newly created tournament
+	fieldsToKeep := []string{"Id", "Name"}
+	var tJson mdl.TournamentJson
+	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+
+	u.Publish(c, "tournament", "created a tournament", tournament.Entity(), mdl.ActivityEntity{})
+
+	msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Tournament  mdl.TournamentJson
+	}{
+		msg,
+		tJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
+
 }
 
 // Show tournament handler.
