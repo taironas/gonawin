@@ -64,7 +64,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Team accuracies by tournament handler:
+// AccuracyByTournament handler, use it to get the team accuracies by tournament:
 //
 // Use this handler to get the accuracies of a team for a specific tournament.
 //	GET	/j/teams/:teamId/accuracies/:tournamentId	retrieves accuracies of a team with the given id for the specified tournament.
