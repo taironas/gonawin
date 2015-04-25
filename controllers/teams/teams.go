@@ -424,43 +424,44 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Request Invite handler.
+// RequestInvite handler, use it to request an invitation to a team.
 // A user sends a team a request to join a team if team is private.
 // use this handler when you wish to request an invitation to a team.
 // this is done when the team in set as 'private' and the user wishes to join it.
 func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	desc := "Team Request Invite Handler:"
-	c := appengine.NewContext(r)
-
-	if r.Method == "POST" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
-		}
-		// check if team id exist.
-		var team *mdl.Team
-		if team, err = mdl.TeamById(c, teamId); err != nil {
-			log.Errorf(c, "%s team not found: %v", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		if _, err := mdl.CreateTeamRequest(c, team.Id, team.Name, u.Id, u.Username); err != nil {
-			log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
-			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-		}
-		// return destroyed status
-		return templateshlp.RenderJson(w, c, "team request was created")
+	if r.Method != "POST" {
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-	return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	c := appengine.NewContext(r)
+	desc := "Team Request Invite Handler:"
+
+	// get team id
+	strTeamId, err := route.Context.Get(r, "teamId")
+	if err != nil {
+		log.Errorf(c, "%s error getting team id, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	}
+
+	var teamId int64
+	teamId, err = strconv.ParseInt(strTeamId, 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFoundCannotInvite)}
+	}
+	// check if team id exist.
+	var team *mdl.Team
+	if team, err = mdl.TeamById(c, teamId); err != nil {
+		log.Errorf(c, "%s team not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	if _, err := mdl.CreateTeamRequest(c, team.Id, team.Name, u.Id, u.Username); err != nil {
+		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
+	}
+	// return destroyed status
+	return templateshlp.RenderJson(w, c, "team request was created")
 }
 
 // Send Invite handler.
