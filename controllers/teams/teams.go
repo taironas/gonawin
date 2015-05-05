@@ -47,6 +47,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -70,6 +71,7 @@ type PriceData struct {
 //   'page' a int indicating the page number.
 //   'count' a int indicating the number of teams per page number. default value is 25
 // Reponse: array of JSON formatted teams.
+//
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -209,10 +211,11 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Show Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
+
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -290,10 +293,10 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Update Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -373,11 +376,10 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Destroy Handler:"
-	rc := requestContext{c, desc, r}
-
+	extract := extract.NewContext(c, desc, r)
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -433,11 +435,11 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Request Invite Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -460,17 +462,17 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Send User Invitation Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var user *mdl.User
-	user, err = rc.user()
+	user, err = extract.User()
 	if err != nil {
 		return err
 	}
@@ -494,11 +496,11 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	desc := "Team Invited Handler:"
 	c := appengine.NewContext(r)
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var teamId int64
 	var err error
-	teamId, err = rc.teamId()
+	teamId, err = extract.TeamId()
 	if err != nil {
 		return err
 	}
@@ -535,11 +537,11 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Allow Request Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var teamRequest *mdl.TeamRequest
 	var err error
-	teamRequest, err = rc.teamRequest()
+	teamRequest, err = extract.TeamRequest()
 	if err != nil {
 		return err
 	}
@@ -574,12 +576,12 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Deny Request Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var teamRequest *mdl.TeamRequest
 
-	teamRequest, err = rc.teamRequest()
+	teamRequest, err = extract.TeamRequest()
 	if err != nil {
 		return err
 	}
@@ -668,12 +670,12 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Members Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
 
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -700,12 +702,12 @@ func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Prices Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
 
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -734,17 +736,17 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 	c := appengine.NewContext(r)
 	desc := "Team Prices by tournament Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Team
 	var err error
-	t, err = rc.team()
+	t, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var tournamentId int64
-	tournamentId, err = rc.tournamentId()
+	tournamentId, err = extract.TournamentId()
 	if err != nil {
 		return err
 	}
@@ -772,17 +774,17 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team update price Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Team
 	var err error
-	t, err = rc.team()
+	t, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var tournamentId int64
-	tournamentId, err = rc.tournamentId()
+	tournamentId, err = extract.TournamentId()
 	if err != nil {
 		return err
 	}

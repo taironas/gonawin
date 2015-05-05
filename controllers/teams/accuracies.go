@@ -22,6 +22,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -35,6 +36,7 @@ import (
 //	GET	/j/teams/:teamId/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
+//
 func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "GET" {
@@ -43,11 +45,11 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Team
 	var err error
-	t, err = rc.team()
+	t, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -70,6 +72,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 //	GET	/j/teams/:teamId/accuracies/:tournamentId	retrieves accuracies of a team with the given id for the specified tournament.
 //
 // The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
+//
 func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -77,17 +80,17 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 
 	c := appengine.NewContext(r)
 	desc := "Team Accuracies by tournament Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Team
 	var err error
-	t, err = rc.team()
+	t, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var tour *mdl.Tournament
-	tour, err = rc.tournament()
+	tour, err = extract.Tournament()
 	if err != nil {
 		return err
 	}

@@ -23,6 +23,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -42,17 +43,17 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team add admin Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var newAdmin *mdl.User
-	newAdmin, err = rc.user()
+	newAdmin, err = extract.User()
 	if err != nil {
 		return err
 	}
@@ -90,17 +91,17 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team remove admin Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
 
 	var oldAdmin *mdl.User
-	oldAdmin, err = rc.user()
+	oldAdmin, err = extract.User()
 	if err != nil {
 		return err
 	}

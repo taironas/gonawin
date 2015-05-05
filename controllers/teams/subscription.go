@@ -23,6 +23,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -34,6 +35,7 @@ import (
 // New user activity will be pushlished
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 // Reponse: a JSON formatted team.
+//
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -41,11 +43,11 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Join Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
@@ -89,11 +91,11 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Team Leave Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	team, err = rc.team()
+	team, err = extract.Team()
 	if err != nil {
 		return err
 	}
