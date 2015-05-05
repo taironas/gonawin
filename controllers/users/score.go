@@ -22,6 +22,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 	mdl "github.com/santiaago/gonawin/models"
@@ -35,12 +36,11 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var user *mdl.User
 	var err error
-
-	if user, err = rc.user(); err != nil {
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 

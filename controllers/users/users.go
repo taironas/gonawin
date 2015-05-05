@@ -29,6 +29,7 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -73,12 +74,11 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User show handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var user *mdl.User
 	var err error
-
-	if user, err = rc.user(); err != nil {
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 
@@ -233,12 +233,12 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User update handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var userId int64
 	var err error
 
-	if userId, err = rc.userId(); err != nil {
+	if userId, err = extract.UserId(); err != nil {
 		return err
 	}
 
@@ -307,11 +307,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User Destroy Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var user *mdl.User
 	var err error
-	if user, err = rc.user(); err != nil {
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 
@@ -413,12 +413,11 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User joined teams handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var user *mdl.User
 	var err error
-	if user, err = rc.user(); err != nil {
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 
@@ -472,12 +471,11 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User joined teams handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var user *mdl.User
 	var err error
-	if user, err = rc.user(); err != nil {
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 
@@ -530,12 +528,11 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	c := appengine.NewContext(r)
 	desc := "User allow invitation handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
-	if team, err = rc.team(); err != nil {
+	if team, err = extract.Team(); err != nil {
 		return err
 	}
 
@@ -585,13 +582,12 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "User deny invitation handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team
 	var err error
 
-	if team, err = rc.team(); err != nil {
+	if team, err = extract.Team(); err != nil {
 		return err
 	}
 
