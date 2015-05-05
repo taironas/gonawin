@@ -22,6 +22,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -54,11 +55,11 @@ func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Group Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var err error
 	var tournament *mdl.Tournament
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 

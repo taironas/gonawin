@@ -24,6 +24,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -38,12 +39,12 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 	c := appengine.NewContext(r)
 	desc := "Tournament Simulate Matches Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var err error
 	var t *mdl.Tournament
 
-	if t, err = rc.tournament(); err != nil {
+	if t, err = extract.Tournament(); err != nil {
 		return err
 	}
 

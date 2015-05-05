@@ -30,6 +30,7 @@ import (
 
 	"github.com/taironas/route"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -164,11 +165,11 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Show Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -232,12 +233,12 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Destroy Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
 
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -306,12 +307,12 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Update handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
 
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -444,11 +445,11 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Candidate Teams handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -502,11 +503,11 @@ func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Participants handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -534,11 +535,11 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Reset handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Tournament
 	var err error
-	t, err = rc.tournament()
+	t, err = extract.Tournament()
 	if err != nil {
 		return err
 	}
@@ -570,11 +571,11 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Predict Handler:"
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
-	tournament, err = rc.tournament()
+	tournament, err = extract.Tournament()
 	if err != nil {
 		return err
 	}

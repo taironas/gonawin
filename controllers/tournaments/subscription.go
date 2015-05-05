@@ -23,6 +23,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -38,13 +39,12 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Join Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
@@ -84,13 +84,12 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
@@ -130,18 +129,17 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Join as a Team Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var teamId int64
-	if teamId, err = rc.teamId(); err != nil {
+	if teamId, err = extract.TeamId(); err != nil {
 		return err
 	}
 
@@ -188,18 +186,17 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Leave as a Team Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var teamId int64
-	if teamId, err = rc.teamId(); err != nil {
+	if teamId, err = extract.TeamId(); err != nil {
 		return err
 	}
 

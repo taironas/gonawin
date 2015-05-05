@@ -26,6 +26,7 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -44,23 +45,22 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament add admin Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var userId int64
-	if userId, err = rc.userId(); err != nil {
+	if userId, err = extract.UserId(); err != nil {
 		return err
 	}
 
 	var newAdmin *mdl.User
-	if newAdmin, err = rc.admin(userId); err != nil {
+	if newAdmin, err = extract.Admin(userId); err != nil {
 		return err
 	}
 
@@ -100,23 +100,22 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament remove admin Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var tournament *mdl.Tournament
 	var err error
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var userId int64
-	if userId, err = rc.userId(); err != nil {
+	if userId, err = extract.UserId(); err != nil {
 		return err
 	}
 
 	var oldAdmin *mdl.User
-	if oldAdmin, err = rc.admin(userId); err != nil {
+	if oldAdmin, err = extract.Admin(userId); err != nil {
 		return err
 	}
 
@@ -153,14 +152,14 @@ func SyncScores(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament sync scores Handler:"
-	log.Infof(c, "%v", desc)
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
+	log.Infof(c, "%v", desc)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
@@ -204,14 +203,14 @@ func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament activate phase handler:"
-	log.Infof(c, "%v", desc)
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
+	log.Infof(c, "%v", desc)
 
 	var err error
 	var tournament *mdl.Tournament
 
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 

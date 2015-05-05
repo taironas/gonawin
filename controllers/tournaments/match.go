@@ -26,6 +26,7 @@ import (
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -64,12 +65,12 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Matches Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	rc := requestContext{c, desc, r}
 	var err error
 	var t *mdl.Tournament
 
-	if t, err = rc.tournament(); err != nil {
+	if t, err = extract.Tournament(); err != nil {
 		return err
 	}
 
@@ -106,17 +107,16 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 	c := appengine.NewContext(r)
 	desc := "Tournament Update Match Result Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var match *mdl.Tmatch
-	if match, err = rc.match(tournament); err != nil {
+	if match, err = extract.Match(tournament); err != nil {
 		return err
 	}
 
@@ -193,17 +193,16 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 
 	c := appengine.NewContext(r)
 	desc := "Tournament block match prediction Handler:"
-
-	rc := requestContext{c, desc, r}
+	extract := extract.NewContext(c, desc, r)
 
 	var err error
 	var tournament *mdl.Tournament
-	if tournament, err = rc.tournament(); err != nil {
+	if tournament, err = extract.Tournament(); err != nil {
 		return err
 	}
 
 	var match *mdl.Tmatch
-	if match, err = rc.match(tournament); err != nil {
+	if match, err = extract.Match(tournament); err != nil {
 		return err
 	}
 

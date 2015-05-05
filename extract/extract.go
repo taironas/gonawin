@@ -25,21 +25,33 @@ func NewContext(c appengine.Context, desc string, r *http.Request) Context {
 	return Context{c, desc, r}
 }
 
-// User returns a User object from the request passed in the context.
+// UserId returns a userId.
+// It gets the 'userId' from the request and parses it to int64
 //
-func (c Context) User() (*mdl.User, error) {
+func (c Context) UserId() (int64, error) {
 
 	strUserId, err := route.Context.Get(c.r, "userId")
 	if err != nil {
 		log.Errorf(c.c, "%s error getting user id, err:%v", c.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
 
 	var userId int64
 	userId, err = strconv.ParseInt(strUserId, 0, 64)
 	if err != nil {
 		log.Errorf(c.c, "%s error converting user id from string to int64, err:%v", c.desc, err)
-		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+	return userId, nil
+}
+
+// User returns a User object from the request passed in the context.
+//
+func (c Context) User() (*mdl.User, error) {
+
+	userId, err := c.UserId()
+	if err != nil {
+		return nil, err
 	}
 
 	var u *mdl.User
@@ -51,6 +63,20 @@ func (c Context) User() (*mdl.User, error) {
 	}
 
 	return u, nil
+}
+
+// Admin returns a admin mdl.User object with respect to the
+// userId passed as param.
+//
+func (c Context) Admin(userId int64) (*mdl.User, error) {
+
+	a, err := mdl.UserById(c.c, userId)
+	log.Infof(c.c, "%s User: %v", c.desc, a)
+	if err != nil {
+		log.Errorf(c.c, "%s user not found", c.desc)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
+	}
+	return a, nil
 }
 
 // TeamId returns the team identifier.
@@ -161,4 +187,27 @@ func (c Context) Tournament() (*mdl.Tournament, error) {
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 	return tournament, nil
+}
+
+func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
+
+	strmatchIdNumber, err := route.Context.Get(c.r, "matchId")
+	if err != nil {
+		log.Errorf(c.c, "%s error getting match id, err:%v", c.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	var matchIdNumber int64
+	matchIdNumber, err = strconv.ParseInt(strmatchIdNumber, 0, 64)
+	if err != nil {
+		log.Errorf(c.c, "%s error converting match id from string to int64, err:%v", c.desc, err)
+		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	match := mdl.GetMatchByIdNumber(c.c, *tournament, matchIdNumber)
+	if match == nil {
+		log.Errorf(c.c, "%s unable to get match with id number :%v", c.desc, matchIdNumber)
+		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
+	}
+	return match, nil
 }
