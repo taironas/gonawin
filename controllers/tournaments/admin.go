@@ -271,8 +271,7 @@ func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 		}
 
-		phaseName := r.FormValue("phaseName")
-
+		phaseName := r.FormValue("phase")
 		matches := mdl.GetMatchesByPhase(c, tournament, phaseName)
 
 		for _, match := range matches {
