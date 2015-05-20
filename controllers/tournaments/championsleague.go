@@ -30,7 +30,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Json new champions league tournament handler.
+// NewChampionsLeague creates a champions league tournament.
+//
 func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "POST" {
@@ -49,8 +50,10 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	return templateshlp.RenderJson(w, c, tournament)
 }
 
-// Json get champions league tournament handler.
+// GetChampionsLeague returns the json data of the champions league tournament.
+//
 func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
