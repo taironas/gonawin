@@ -213,9 +213,8 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			if val, ok := mapOfTeams[rule[1]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamId2 = val.Id
-			} else if len(rule[0]) == 3 {
+			} else if len(rule[1]) == 3 {
 				// try of get rule 3AD <=> the best between the 3A and 3D
-
 				r1 := fmt.Sprintf("%s%s", rule[1][0], rule[1][1])
 				r2 := fmt.Sprintf("%s%s", rule[1][0], rule[1][2])
 				val1, ok1 := mapOfTeams[r1]
@@ -225,9 +224,39 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 					// compare the two teams.
 					groups := Groups(c, t.GroupIds)
 					maxVal := getMaxTeam(groups, *val1, *val2)
-					if maxVal != nil {
+					if maxVal != nil && maxVal.Id == val1.Id {
 						log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
 						matches[i].TeamId1 = maxVal.Id
+					} else if rule[1][1] == 'B' && maxVal.Id == val2.Id {
+						r3 := fmt.Sprintf("%s%s", rule[1][0], "A")
+						val3, ok3 := mapOfTeams[r3]
+						if ok3 {
+							maxVal2 := getMaxTeam(groups, *val1, *val3)
+							if maxVal2 != nil && maxVal2.Id == val1.Id {
+								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
+								matches[i].TeamId1 = val1.Id
+							} else if maxVal2.Id == val3.Id {
+								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
+								matches[i].TeamId1 = maxVal.Id
+							} else {
+								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+							}
+						}
+					} else if rule[1][1] == 'A' && maxVal == val2 {
+						r3 := fmt.Sprintf("%s%s", rule[1][0], "B")
+						val3, ok3 := mapOfTeams[r3]
+						if ok3 {
+							maxVal2 := getMaxTeam(groups, *val1, *val3)
+							if maxVal2 != nil && maxVal2.Id == val1.Id {
+								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
+								matches[i].TeamId1 = val1.Id
+							} else if maxVal2.Id == val3.Id {
+								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
+								matches[i].TeamId1 = maxVal.Id
+							} else {
+								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+							}
+						}
 					} else {
 						return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
 					}
