@@ -67,6 +67,20 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
         $scope.messageDanger = err.data;
       });
     };
+
+    // start copa america create action
+    $scope.createCopaAmerica = function() {
+      console.log('Creating copa america');
+      Tournament.saveCopaAmerica($scope.tournament, function(tournament) {
+        console.log('Copa America Tournament: ', tournament);
+        $location.path('/tournaments/' + tournament.Id);
+      }, function(err) {
+        console.log('save failed: ', err.data);
+        $scope.messageDanger = err.data;
+      });
+    };
+
+
 }]);
 
 // TournamentCardCtrl: handles team card

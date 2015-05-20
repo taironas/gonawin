@@ -119,6 +119,10 @@ func init() {
 	r.HandleFunc("/j/tournaments/newcl", checkErrors(adminAuthorized(tournamentsctrl.NewChampionsLeague)))
 	r.HandleFunc("/j/tournaments/getcl", checkErrors(authorized(tournamentsctrl.GetChampionsLeague)))
 
+	// tournament champions league
+	r.HandleFunc("/j/tournaments/newca", checkErrors(adminAuthorized(tournamentsctrl.NewCopaAmerica)))
+	r.HandleFunc("/j/tournaments/getca", checkErrors(authorized(tournamentsctrl.GetCopaAmerica)))
+
 	// tournament
 	r.HandleFunc("/j/tournaments/:tournamentId/groups", checkErrors(authorized(tournamentsctrl.Groups)))
 	r.HandleFunc("/j/tournaments/:tournamentId/calendar", checkErrors(authorized(tournamentsctrl.Calendar)))
