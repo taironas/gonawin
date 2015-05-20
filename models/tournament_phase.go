@@ -63,7 +63,8 @@ func lastMatchOfPhase(c appengine.Context, m *Tmatch, phases *[]Tphase) (bool, i
 	return false, int64(-1)
 }
 
-// Update next phase in tournament.
+// UpdateNextPhase updates next phase in tournament.
+//
 func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, nextphase *Tphase) error {
 
 	// the array of phases that will be update.

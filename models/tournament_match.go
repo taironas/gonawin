@@ -128,7 +128,8 @@ func DestroyMatches(c appengine.Context, matchIds []int64) error {
 	return nil
 }
 
-// Set results in an array of matches and triggers a match update and group update.
+// SetResults sets results on an array of matches and triggers a match update and group update.
+//
 func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, results2 []int64, t *Tournament) error {
 	desc := "Set Results:"
 	if len(matches) != len(results1) || len(matches) != len(results2) {
@@ -189,8 +190,10 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 	return nil
 }
 
-// Set result in match entity and triggers a match update in datastore and score updates.
+// SetResult sets the result of a match entity and triggers a match update in datastore and score updates.
+//
 func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *Tournament) error {
+
 	desc := "Set Result:"
 	if result1 < 0 || result2 < 0 {
 		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.Id)
@@ -199,6 +202,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	m.Result1 = result1
 	m.Result2 = result2
 	m.Finished = true
+
 	if err := UpdateMatch(c, m); err != nil {
 		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id, err)
 		return err
