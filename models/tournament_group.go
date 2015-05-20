@@ -18,6 +18,7 @@ package models
 
 import (
 	"math/rand"
+	"sort"
 
 	"appengine"
 	"appengine/datastore"
@@ -147,6 +148,7 @@ func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgro
 
 // Get team with highest rank in group based on group points, goals for and goals against.
 func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
+
 	points := make([]int64, len(g.Points))
 	copy(points, g.Points)
 
@@ -214,4 +216,80 @@ func getSecondTeamInGroup(c appengine.Context, g *Tgroup, indexOfFirst int) (*Tt
 	} else {
 		return &g.Teams[argmax1], argmax1
 	}
+}
+
+func getNthTeamInGroup(c appengine.Context, g *Tgroup, n int64) (*Tteam, int) {
+
+	var stats []stat
+	for i, _ := range g.Teams {
+		s := stat{i, g.Points[i], g.GoalsF[i] - g.GoalsA[i], g.GoalsF[i], g.GoalsA[i]}
+		stats = append(stats, s)
+	}
+
+	sort.Sort(ByStats(stats))
+	id := stats[n].id
+	return &g.Teams[id], id
+}
+
+func getMaxTeam(groups []*Tgroup, t1 Tteam, t2 Tteam) *Tteam {
+	// get groups of each team, compare stats.
+	var s1, s2 *stat
+	for i, g := range groups {
+		for _, t := range g.Teams {
+			if t.Id == t1.Id {
+				s1 = &stat{i, g.Points[i], g.GoalsF[i] - g.GoalsA[i], g.GoalsF[i], g.GoalsA[i]}
+			} else if t.Id == t2.Id {
+				s2 = &stat{i, g.Points[i], g.GoalsF[i] - g.GoalsA[i], g.GoalsF[i], g.GoalsA[i]}
+			}
+		}
+	}
+
+	if s1 != nil && s2 != nil {
+		stats := ByStats{*s1, *s2}
+		if stats.Less(0, 1) {
+			return &t2
+		}
+		return &t1
+	}
+	return nil
+}
+
+type stat struct {
+	id     int
+	point  int64
+	diff   int64
+	goalsF int64
+	goalsA int64
+}
+
+type ByStats []stat
+
+func (a ByStats) Len() int      { return len(a) }
+func (a ByStats) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByStats) Less(i, j int) bool {
+
+	v1 := a[i]
+	v2 := a[j]
+
+	if v1.point < v2.point {
+		return true
+	} else if v1.point > v2.point {
+		return false
+	}
+
+	// points are equal try by difference
+	if v1.diff < v2.diff {
+		return true
+	} else if v1.diff > v2.diff {
+		return false
+	}
+
+	// difference are equal try by greates number of goals scored
+	if v1.goalsF < v2.goalsF {
+		return true
+	} else if v1.goalsF > v2.goalsF {
+		return false
+	}
+
+	return false
 }
