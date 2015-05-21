@@ -221,7 +221,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	// where we allocate IDs of the Tmatches entities
 	// we will store them in the tournament entity for easy retreival later on.
 	matchesA := mapGroupMatches["A"]
-	matches1stStageIds := make([]int64, 8*len(matchesA))
+	matches1stStageIds := make([]int64, len(mapGroupMatches)*len(matchesA))
 
 	log.Infof(c, "%s: maps ready", desc)
 
@@ -335,8 +335,8 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	}
 
 	// build array of group ids
-	groupIds := make([]int64, 8)
-	for i, _ := range groupIds {
+	groupIds := make([]int64, len(groups))
+	for i := range groupIds {
 		groupIds[i] = groups[i].Id
 	}
 

@@ -624,7 +624,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	mapIdTeams := tb.MapOfIdTeams(c, tournament)
 	var p *mdl.Predict
 	if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
-		log.Infof(c, "%s predict enity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
+		log.Infof(c, "%s predict entity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
 		if predict, err1 := mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
 			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
