@@ -97,20 +97,20 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 
 		currentmatches := GetMatchesByPhase(c, t, currentphase.Name)
 		if currentphase.Name != cSemiFinals {
-			log.Infof(c, "Update Next phase: current %v", currentphase.Name)
-			log.Infof(c, "Update Next phase: next %v", nextphase.Name)
+			log.Infof(c, "Not SemiFinals Update Next phase: current %v", currentphase.Name)
+			log.Infof(c, "Not SemiFinals Update Next phase: next %v", nextphase.Name)
 
 			for _, m := range currentmatches {
 				// ToDo: handle penalties
 				if m.Result1 >= m.Result2 {
 					team1, _ := TTeamById(c, m.TeamId1)
 					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team1
-					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
 
 				} else if m.Result1 < m.Result2 {
 					team2, _ := TTeamById(c, m.TeamId2)
 					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team2
-					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
 				}
 			}
 		} else {
@@ -155,114 +155,12 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			if val, ok := mapOfTeams[rule[0]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamId1 = val.Id
-			} else if len(rule[0]) == 3 {
-				// try of get rule 3AD <=> the best between the 3A and 3D
-
-				r1 := fmt.Sprintf("%s%s", rule[0][0], rule[0][1])
-				r2 := fmt.Sprintf("%s%s", rule[0][0], rule[0][2])
-				val1, ok1 := mapOfTeams[r1]
-				val2, ok2 := mapOfTeams[r2]
-
-				if ok1 && ok2 {
-					// compare the two teams.
-					groups := Groups(c, t.GroupIds)
-					maxVal := getMaxTeam(groups, *val1, *val2)
-					if maxVal != nil && maxVal.Id == val1.Id {
-						log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-						matches[i].TeamId1 = maxVal.Id
-					} else if rule[0][1] == 'B' && maxVal.Id == val2.Id {
-						r3 := fmt.Sprintf("%s%s", rule[0][0], "A")
-						val3, ok3 := mapOfTeams[r3]
-						if ok3 {
-							maxVal2 := getMaxTeam(groups, *val1, *val3)
-							if maxVal2 != nil && maxVal2.Id == val1.Id {
-								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
-								matches[i].TeamId1 = val1.Id
-							} else if maxVal2.Id == val3.Id {
-								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-								matches[i].TeamId1 = maxVal.Id
-							} else {
-								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-							}
-						}
-					} else if rule[0][1] == 'A' && maxVal == val2 {
-						r3 := fmt.Sprintf("%s%s", rule[0][0], "B")
-						val3, ok3 := mapOfTeams[r3]
-						if ok3 {
-							maxVal2 := getMaxTeam(groups, *val1, *val3)
-							if maxVal2 != nil && maxVal2.Id == val1.Id {
-								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
-								matches[i].TeamId1 = val1.Id
-							} else if maxVal2.Id == val3.Id {
-								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-								matches[i].TeamId1 = maxVal.Id
-							} else {
-								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-							}
-						}
-					} else {
-						return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-					}
-				} else {
-					return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-				}
-
 			} else {
 				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
 			}
 			if val, ok := mapOfTeams[rule[1]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamId2 = val.Id
-			} else if len(rule[1]) == 3 {
-				// try of get rule 3AD <=> the best between the 3A and 3D
-				r1 := fmt.Sprintf("%s%s", rule[1][0], rule[1][1])
-				r2 := fmt.Sprintf("%s%s", rule[1][0], rule[1][2])
-				val1, ok1 := mapOfTeams[r1]
-				val2, ok2 := mapOfTeams[r2]
-
-				if ok1 && ok2 {
-					// compare the two teams.
-					groups := Groups(c, t.GroupIds)
-					maxVal := getMaxTeam(groups, *val1, *val2)
-					if maxVal != nil && maxVal.Id == val1.Id {
-						log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-						matches[i].TeamId1 = maxVal.Id
-					} else if rule[1][1] == 'B' && maxVal.Id == val2.Id {
-						r3 := fmt.Sprintf("%s%s", rule[1][0], "A")
-						val3, ok3 := mapOfTeams[r3]
-						if ok3 {
-							maxVal2 := getMaxTeam(groups, *val1, *val3)
-							if maxVal2 != nil && maxVal2.Id == val1.Id {
-								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
-								matches[i].TeamId1 = val1.Id
-							} else if maxVal2.Id == val3.Id {
-								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-								matches[i].TeamId1 = maxVal.Id
-							} else {
-								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-							}
-						}
-					} else if rule[1][1] == 'A' && maxVal == val2 {
-						r3 := fmt.Sprintf("%s%s", rule[1][0], "B")
-						val3, ok3 := mapOfTeams[r3]
-						if ok3 {
-							maxVal2 := getMaxTeam(groups, *val1, *val3)
-							if maxVal2 != nil && maxVal2.Id == val1.Id {
-								log.Infof(c, "Update Next phase: match found: %v", val1.Name)
-								matches[i].TeamId1 = val1.Id
-							} else if maxVal2.Id == val3.Id {
-								log.Infof(c, "Update Next phase: match found: %v", maxVal.Name)
-								matches[i].TeamId1 = maxVal.Id
-							} else {
-								return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-							}
-						}
-					} else {
-						return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-					}
-				} else {
-					return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
-				}
 			} else {
 				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
 			}
