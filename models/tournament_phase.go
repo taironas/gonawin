@@ -83,10 +83,8 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 		for _, g := range groups {
 			team1, argTeam1 := getFirstTeamInGroup(c, g)
 			team2, _ := getSecondTeamInGroup(c, g, argTeam1)
-			team3, _ := getNthTeamInGroup(c, g, 3)
 			mapOfTeams["1"+g.Name] = team1
 			mapOfTeams["2"+g.Name] = team2
-			mapOfTeams["3"+g.Name] = team3
 		}
 	} else {
 		// compute ranking just by match winners
