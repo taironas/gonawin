@@ -393,6 +393,23 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $scope.currentTab = tab.url;
   };
 
+  $scope.isCopaAmerica = false;
+  $scope.tournamentData.$promise.then(function(response){
+      $scope.isCopaAmerica = response.Tournament.Name == '2015 Copa America';
+  });
+
+  $scope.tournamentHasGroups = false;
+  Tournament.groups({id:$routeParams.id}).$promise.then(function(response){
+      $scope.tournamentHasGroups = (response.Groups.length > 0)
+  });
+
+  $scope.showStageTab = function(){
+      if($scope.isCopaAmerica){
+          return false;
+      }
+      return $scope.tournamentHasGroups;
+  };
+
   // $locationChangeSuccess event is triggered when url changes.
   // note: this event is not triggered when page is refreshed.
   $scope.$on('$locationChangeSuccess', function(event) {
@@ -738,7 +755,6 @@ tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routePar
           });
     };
 }]);
-
 
 // TournamentFirstStageCtrl: fetch first stage data of a specific tournament.
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
