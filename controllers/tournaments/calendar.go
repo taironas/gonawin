@@ -21,13 +21,11 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -67,7 +65,7 @@ type PhaseJson struct {
 	Completed bool
 }
 
-// Json tournament calendar handler:
+// Calendar handler gets you the calendar data of a specific tournament.
 // Use this handler to get the calendar of a tournament.
 // The calendar structure is an array of the tournament matches with the following information:
 // * the location
@@ -77,67 +75,57 @@ type PhaseJson struct {
 // You can also specify the 'groupby' parameter to be 'day' or 'phase' in which case you would have an array of phases,
 // each of which would have an array of days who would have an array of matches.
 func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Calendar Handler:"
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+	extract := extract.NewContext(c, desc, r)
+
+	var err error
+	var t *mdl.Tournament
+
+	if t, err = extract.Tournament(); err != nil {
+		return err
+	}
+
+	groupby := r.FormValue("groupby")
+	// if wrong data we set groupby to "day"
+	if groupby != "day" && groupby != "phase" {
+		groupby = "day"
+	}
+
+	if groupby == "day" {
+		log.Infof(c, "%s ready to build days array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+
+		days := matchesGroupByDay(t, matchesJson)
+
+		data := struct {
+			Days []DayJson
+		}{
+			days,
 		}
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+		return templateshlp.RenderJson(w, c, data)
+
+	} else if groupby == "phase" {
+		log.Infof(c, "%s ready to build phase array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+		phases := matchesGroupByPhase(t, matchesJson)
+		data := struct {
+			Phases []PhaseJson
+		}{
+			phases,
 		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		groupby := r.FormValue("groupby")
-		// if wrong data we set groupby to "day"
-		if groupby != "day" && groupby != "phase" {
-			groupby = "day"
-		}
-
-		if groupby == "day" {
-			log.Infof(c, "%s ready to build days array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-
-			days := matchesGroupByDay(t, matchesJson)
-
-			data := struct {
-				Days []DayJson
-			}{
-				days,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-
-		} else if groupby == "phase" {
-			log.Infof(c, "%s ready to build phase array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-			phases := matchesGroupByPhase(t, matchesJson)
-			data := struct {
-				Phases []PhaseJson
-			}{
-				phases,
-			}
-			return templateshlp.RenderJson(w, c, data)
-		}
+		return templateshlp.RenderJson(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json tournament calendar with predictions handler:
+// CalendarWithPrediction handler give you a JSON tournament calendar with the user predictions.
 // Use this handler to get the calendar of a tournament with the predictions of the players in a specific team.
 // The calendar structure is an array of the tournament matches with the following information:
 // * the location
@@ -146,116 +134,87 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // by default the data returned is grouped by days.This means we will return an array of days, each of which can have an array of matches.
 // the 'groupby' parameter does not support 'phases' yet.
 func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Calendar with prediction Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "GET" {
-		// get tournament id and user id
-		strTournamentId, err1 := route.Context.Get(r, "tournamentId")
-		if err1 != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err1)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
+	var err error
+	var t *mdl.Tournament
 
-		var tournamentId int64
-		tournamentId, err1 = strconv.ParseInt(strTournamentId, 0, 64)
-		if err1 != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err1)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		strTeamId, err2 := route.Context.Get(r, "teamId")
-		if err2 != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err2 = strconv.ParseInt(strTeamId, 0, 64)
-		if err2 != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var t *mdl.Tournament
-		t, err1 = mdl.TournamentById(c, tournamentId)
-		if err1 != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err1)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var team *mdl.Team
-		team, err2 = mdl.TeamById(c, teamId)
-		if err2 != nil {
-			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err2)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-		players := team.Players(c)
-
-		predictsByPlayer := make([]mdl.Predicts, len(players))
-		for i, p := range players {
-			predicts := mdl.PredictsByIds(c, p.PredictIds)
-			predictsByPlayer[i] = predicts
-		}
-
-		groupby := r.FormValue("groupby")
-		// if wrong data we set groupby to "day"
-		if groupby != "day" && groupby != "phase" {
-			groupby = "day"
-		}
-
-		if groupby == "day" {
-			log.Infof(c, "%s ready to build days array", desc)
-			matchesJson := buildMatchesFromTournament(c, t, u)
-
-			days := matchesGroupByDay(t, matchesJson)
-			dayswp := make([]DayWithPredictionJson, len(days))
-			for i, d := range days {
-				dayswp[i].Date = d.Date
-				matcheswp := make([]MatchWithPredictionJson, len(d.Matches))
-				for j, m := range d.Matches {
-					matcheswp[j].Match = m
-					uwp := make([]UserPredictionJson, len(players))
-					for k, p := range players {
-						// get player prediction
-						uwp[k].Id = p.Id
-						uwp[k].Username = p.Username
-						uwp[k].Alias = p.Alias
-						if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
-							uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
-						} else {
-							uwp[k].Predict = "-"
-						}
-					}
-					matcheswp[j].Participants = uwp
-				}
-				dayswp[i].Matches = matcheswp
-			}
-
-			data := struct {
-				Days []DayWithPredictionJson
-			}{
-				dayswp,
-			}
-
-			return templateshlp.RenderJson(w, c, data)
-
-		} else if groupby == "phase" {
-			//
-			// @santiaago: right now not supported.
-			//
-			// log.Infof(c, "%s ready to build phase array", desc)
-			// matchesJson := buildMatchesFromTournament(c, t, u)
-			// phases := matchesGroupByPhase(matchesJson)
-
-			// data := struct {
-			// 	Phases []PhaseJson
-			// }{
-			// 	phases,
-			// }
-			// return templateshlp.RenderJson(w, c, data)
-		}
+	if t, err = extract.Tournament(); err != nil {
+		return err
 	}
+
+	var teamId int64
+	if teamId, err = extract.TeamId(); err != nil {
+		return err
+	}
+
+	var team *mdl.Team
+	team, err = mdl.TeamById(c, teamId)
+	if err != nil {
+		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	}
+
+	players := team.Players(c)
+
+	predictsByPlayer := make([]mdl.Predicts, len(players))
+	for i, p := range players {
+		predicts := mdl.PredictsByIds(c, p.PredictIds)
+		predictsByPlayer[i] = predicts
+	}
+
+	groupby := r.FormValue("groupby")
+	// if wrong data we set groupby to "day"
+	if groupby != "day" && groupby != "phase" {
+		groupby = "day"
+	}
+
+	if groupby == "day" {
+		log.Infof(c, "%s ready to build days array", desc)
+		matchesJson := buildMatchesFromTournament(c, t, u)
+
+		days := matchesGroupByDay(t, matchesJson)
+		dayswp := make([]DayWithPredictionJson, len(days))
+		for i, d := range days {
+			dayswp[i].Date = d.Date
+			matcheswp := make([]MatchWithPredictionJson, len(d.Matches))
+			for j, m := range d.Matches {
+				matcheswp[j].Match = m
+				uwp := make([]UserPredictionJson, len(players))
+				for k, p := range players {
+					// get player prediction
+					uwp[k].Id = p.Id
+					uwp[k].Username = p.Username
+					uwp[k].Alias = p.Alias
+					if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
+						uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
+					} else {
+						uwp[k].Predict = "-"
+					}
+				}
+				matcheswp[j].Participants = uwp
+			}
+			dayswp[i].Matches = matcheswp
+		}
+
+		data := struct {
+			Days []DayWithPredictionJson
+		}{
+			dayswp,
+		}
+
+		return templateshlp.RenderJson(w, c, data)
+
+	} else if groupby == "phase" {
+		// @santiaago: right now not supported.
+	}
+
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 

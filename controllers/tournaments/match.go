@@ -26,8 +26,7 @@ import (
 
 	"appengine"
 
-	"github.com/taironas/route"
-
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -60,254 +59,186 @@ type MatchJson struct {
 // if filter is equal to 'first' you wil get matches of the first phase of the tournament.
 // if filter is equal to 'second' you will get the matches of the second phase of the tournament.
 func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Matches Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
+	var err error
+	var t *mdl.Tournament
 
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var t *mdl.Tournament
-		t, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		filter := r.FormValue("filter")
-		// if wrong data we set groupby to "first"
-		if filter != "first" && filter != "second" {
-			filter = "first"
-		}
-
-		log.Infof(c, "%s ready to build days array", desc)
-		var matchesJson []MatchJson
-
-		if filter == "first" {
-			matchesJson = buildFirstPhaseMatches(c, t, u)
-		} else if filter == "second" {
-			matchesJson = buildSecondPhaseMatches(c, t, u)
-		}
-		data := struct {
-			Matches []MatchJson
-		}{
-			matchesJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	if t, err = extract.Tournament(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	filter := r.FormValue("filter")
+	// if wrong data we set groupby to "first"
+	if filter != "first" && filter != "second" {
+		filter = "first"
+	}
+
+	log.Infof(c, "%s ready to build days array", desc)
+	var matchesJson []MatchJson
+
+	if filter == "first" {
+		matchesJson = buildFirstPhaseMatches(c, t, u)
+	} else if filter == "second" {
+		matchesJson = buildSecondPhaseMatches(c, t, u)
+	}
+	data := struct {
+		Matches []MatchJson
+	}{
+		matchesJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Update Match handler.
 // Update match of tournament with results information.
 // from parameter 'result' with format 'result1 result2' the match information is updated accordingly.
 func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Update Match Result Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
-		if err2 != nil {
-			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-
-		var matchIdNumber int64
-		matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
-		if err2 != nil {
-			log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-
-		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
-		if match == nil {
-			log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
-		}
-
-		result := r.FormValue("result")
-		// is result well formated?
-		results := strings.Split(result, " ")
-		r1 := 0
-		r2 := 0
-		if len(results) != 2 {
-			log.Errorf(c, "%s unable to get results, lenght not right: %v", desc, results)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-		if r1, err = strconv.Atoi(results[0]); err != nil {
-			log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-		if r2, err = strconv.Atoi(results[1]); err != nil {
-			log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-
-		if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
-			log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IdNumber, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-
-		}
-
-		// return the updated match
-		var mjson MatchJson
-		mjson.IdNumber = match.IdNumber
-		mjson.Date = match.Date
-		rule := strings.Split(match.Rule, " ")
-
-		var tb mdl.TournamentBuilder
-		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
-			log.Errorf(c, "%s TournamentBuilder not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-		mapIdTeams := tb.MapOfIdTeams(c, tournament)
-
-		if len(rule) > 1 {
-			mjson.Team1 = rule[0]
-			mjson.Team2 = rule[1]
-		} else {
-			mjson.Team1 = mapIdTeams[match.TeamId1]
-			mjson.Team2 = mapIdTeams[match.TeamId2]
-		}
-		mjson.Location = match.Location
-
-		mjson.Result1 = match.Result1
-		mjson.Result2 = match.Result2
-
-		// publish new activity
-		object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIdTeams[match.TeamId1]}
-		target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
-		verb := ""
-		if match.Result1 > match.Result2 {
-			verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
-		} else if match.Result1 < match.Result2 {
-			verb = fmt.Sprintf("lost %d-%d against", match.Result1, match.Result2)
-		} else {
-			verb = fmt.Sprintf("tied %d-%d against", match.Result1, match.Result2)
-		}
-		tournament.Publish(c, "match", verb, object, target)
-
-		return templateshlp.RenderJson(w, c, mjson)
+	var err error
+	var tournament *mdl.Tournament
+	if tournament, err = extract.Tournament(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var match *mdl.Tmatch
+	if match, err = extract.Match(tournament); err != nil {
+		return err
+	}
+
+	result := r.FormValue("result")
+	// is result well formated?
+	results := strings.Split(result, " ")
+	r1 := 0
+	r2 := 0
+	if len(results) != 2 {
+		log.Errorf(c, "%s unable to get results, lenght not right: %v", desc, results)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+	if r1, err = strconv.Atoi(results[0]); err != nil {
+		log.Errorf(c, "%s unable to get results, error: %v not number 1", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+	if r2, err = strconv.Atoi(results[1]); err != nil {
+		log.Errorf(c, "%s unable to get results, error: %v not number 2", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
+		log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IdNumber, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
+	}
+
+	// return the updated match
+	var mjson MatchJson
+	mjson.IdNumber = match.IdNumber
+	mjson.Date = match.Date
+	rule := strings.Split(match.Rule, " ")
+
+	var tb mdl.TournamentBuilder
+	if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+		log.Errorf(c, "%s TournamentBuilder not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+	mapIdTeams := tb.MapOfIdTeams(c, tournament)
+
+	if len(rule) > 1 {
+		mjson.Team1 = rule[0]
+		mjson.Team2 = rule[1]
+	} else {
+		mjson.Team1 = mapIdTeams[match.TeamId1]
+		mjson.Team2 = mapIdTeams[match.TeamId2]
+	}
+	mjson.Location = match.Location
+
+	mjson.Result1 = match.Result1
+	mjson.Result2 = match.Result2
+
+	// publish new activity
+	object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIdTeams[match.TeamId1]}
+	target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
+	verb := ""
+	if match.Result1 > match.Result2 {
+		verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
+	} else if match.Result1 < match.Result2 {
+		verb = fmt.Sprintf("lost %d-%d against", match.Result1, match.Result2)
+	} else {
+		verb = fmt.Sprintf("tied %d-%d against", match.Result1, match.Result2)
+	}
+	tournament.Publish(c, "match", verb, object, target)
+
+	return templateshlp.RenderJson(w, c, mjson)
 }
 
 // Block Match prediction handler.
 // Block prediction for match of tournament.
 func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament block match prediction Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "POST" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		// get match id number
-		strmatchIdNumber, err2 := route.Context.Get(r, "matchId")
-		if err2 != nil {
-			log.Errorf(c, "%s error getting match id, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-
-		var matchIdNumber int64
-		matchIdNumber, err2 = strconv.ParseInt(strmatchIdNumber, 0, 64)
-		if err2 != nil {
-			log.Errorf(c, "%s error converting match id from string to int64, err:%v", desc, err2)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
-		}
-
-		match := mdl.GetMatchByIdNumber(c, *tournament, matchIdNumber)
-		if match == nil {
-			log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIdNumber)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
-		}
-		match.CanPredict = false
-		if err := mdl.UpdateMatch(c, match); err != nil {
-			log.Errorf(c, "%s unable to update match with id :%v", desc, matchIdNumber)
-		}
-
-		// return the updated match
-		var mjson MatchJson
-		mjson.IdNumber = match.IdNumber
-		mjson.Date = match.Date
-		rule := strings.Split(match.Rule, " ")
-
-		var tb mdl.TournamentBuilder
-
-		if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
-			log.Errorf(c, "%s TournamentBuilder not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
-		}
-
-		mapIdTeams := tb.MapOfIdTeams(c, tournament)
-
-		if len(rule) > 1 {
-			mjson.Team1 = rule[0]
-			mjson.Team2 = rule[1]
-		} else {
-			mjson.Team1 = mapIdTeams[match.TeamId1]
-			mjson.Team2 = mapIdTeams[match.TeamId2]
-		}
-		mjson.Location = match.Location
-
-		mjson.Result1 = match.Result1
-		mjson.Result2 = match.Result2
-
-		return templateshlp.RenderJson(w, c, mjson)
+	var err error
+	var tournament *mdl.Tournament
+	if tournament, err = extract.Tournament(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	var match *mdl.Tmatch
+	if match, err = extract.Match(tournament); err != nil {
+		return err
+	}
+
+	match.CanPredict = false
+	if err := mdl.UpdateMatch(c, match); err != nil {
+		log.Errorf(c, "%s unable to update match with id :%v", desc, match.IdNumber)
+	}
+
+	// return the updated match
+	var mjson MatchJson
+	mjson.IdNumber = match.IdNumber
+	mjson.Date = match.Date
+	rule := strings.Split(match.Rule, " ")
+
+	var tb mdl.TournamentBuilder
+
+	if tb = mdl.GetTournamentBuilder(tournament); tb == nil {
+		log.Errorf(c, "%s TournamentBuilder not found", desc)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	mapIdTeams := tb.MapOfIdTeams(c, tournament)
+
+	if len(rule) > 1 {
+		mjson.Team1 = rule[0]
+		mjson.Team2 = rule[1]
+	} else {
+		mjson.Team1 = mapIdTeams[match.TeamId1]
+		mjson.Team2 = mapIdTeams[match.TeamId2]
+	}
+	mjson.Location = match.Location
+
+	mjson.Result1 = match.Result1
+	mjson.Result2 = match.Result2
+
+	return templateshlp.RenderJson(w, c, mjson)
 }
 
 // From a tournament entity return an array of MatchJson data structure.

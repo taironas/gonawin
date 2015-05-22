@@ -19,14 +19,11 @@ package tournaments
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
 	mdl "github.com/santiaago/gonawin/models"
@@ -49,46 +46,33 @@ type TeamJson struct {
 	Iso    string
 }
 
-// json tournament groups handler
+// Groups handelr sends the JSON tournament groups data.
 // use this handler to get groups of a tournament.
 func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Tournament Group Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "GET" {
-		// get tournament id
-		strTournamentId, err := route.Context.Get(r, "tournamentId")
-		if err != nil {
-			log.Errorf(c, "%s error getting tournament id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournamentId int64
-		tournamentId, err = strconv.ParseInt(strTournamentId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting tournament id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		var tournament *mdl.Tournament
-		tournament, err = mdl.TournamentById(c, tournamentId)
-		if err != nil {
-			log.Errorf(c, "%s tournament with id:%v was not found %v", desc, tournamentId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-		}
-
-		groups := mdl.Groups(c, tournament.GroupIds)
-		groupsJson := formatGroupsJson(groups)
-
-		data := struct {
-			Groups []GroupJson
-		}{
-			groupsJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	var err error
+	var tournament *mdl.Tournament
+	if tournament, err = extract.Tournament(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	groups := mdl.Groups(c, tournament.GroupIds)
+	groupsJson := formatGroupsJson(groups)
+
+	data := struct {
+		Groups []GroupJson
+	}{
+		groupsJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Format a TGroup array into a GroupJson array.

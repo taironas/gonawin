@@ -19,55 +19,38 @@ package users
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// User score user handler.
+// User score handler, returns the JSON data of the requested user.
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "GET" {
-		// get user id
-		strUserId, err := route.Context.Get(r, "userId")
-		if err != nil {
-			log.Errorf(c, "%s error getting user id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var userId int64
-		userId, err = strconv.ParseInt(strUserId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting user id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		var user *mdl.User
-		user, err = mdl.UserById(c, userId)
-		if err != nil {
-			log.Errorf(c, "%s user not found", desc)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-		}
-
-		//scores := user.Scores(c)
-		scores := user.TournamentsScores(c)
-		// data
-		data := struct {
-			Scores []*mdl.ScoreOverall
-		}{
-			scores,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	var user *mdl.User
+	var err error
+	if user, err = extract.User(); err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	scores := user.TournamentsScores(c)
+
+	data := struct {
+		Scores []*mdl.ScoreOverall
+	}{
+		scores,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }

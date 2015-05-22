@@ -31,30 +31,32 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Index activity handler.
+// Index activity handler, use it to get the activities of a user.
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Index activity handler:"
-	if r.Method == "GET" {
-		count, err := strconv.ParseInt(r.FormValue("count"), 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-			count = 20 // set count to default value
-		}
-		page, err := strconv.ParseInt(r.FormValue("page"), 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-			page = 1
-		}
-		// fetch user activities
-		activities := mdl.FindActivities(c, u, count, page)
-		log.Infof(c, "%s activities = %v", desc, activities)
 
-		fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
-		activitiesJson := make([]mdl.ActivityJson, len(activities))
-		helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
-
-		return templateshlp.RenderJson(w, c, activitiesJson)
+	count, err := strconv.ParseInt(r.FormValue("count"), 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
+		count = 20 // set count to default value
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	page, err := strconv.ParseInt(r.FormValue("page"), 0, 64)
+	if err != nil {
+		log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
+		page = 1
+	}
+	// fetch user activities
+	activities := mdl.FindActivities(c, u, count, page)
+	log.Infof(c, "%s activities = %v", desc, activities)
+
+	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
+	activitiesJson := make([]mdl.ActivityJson, len(activities))
+	helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
+
+	return templateshlp.RenderJson(w, c, activitiesJson)
 }

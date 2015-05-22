@@ -19,12 +19,10 @@ package teams
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
-	"github.com/taironas/route"
-
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
@@ -32,51 +30,40 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Team ranking handler:
+// Ranking handler, use it to retrieve the team ranking.
 // Use this handler to get the ranking of a team.
 // The ranking is an array of users (members of the team),
 //	GET	/j/teams/[0-9]+/ranking/
 //
 func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "GET" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
 	c := appengine.NewContext(r)
 	desc := "Team Ranking Handler:"
+	extract := extract.NewContext(c, desc, r)
 
-	if r.Method == "GET" {
-		// get team id
-		strTeamId, err := route.Context.Get(r, "teamId")
-		if err != nil {
-			log.Errorf(c, "%s error getting team id, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var teamId int64
-		teamId, err = strconv.ParseInt(strTeamId, 0, 64)
-		if err != nil {
-			log.Errorf(c, "%s error converting team id from string to int64, err:%v", desc, err)
-			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		var t *mdl.Team
-		t, err = mdl.TeamById(c, teamId)
-		if err != nil {
-			log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-			return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-		}
-
-		log.Infof(c, "%s ready to build a user array", desc)
-		users := t.RankingByUser(c, 50)
-
-		fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-		usersJson := make([]mdl.UserJson, len(users))
-		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
-
-		data := struct {
-			Users []mdl.UserJson
-		}{
-			usersJson,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+	var t *mdl.Team
+	var err error
+	t, err = extract.Team()
+	if err != nil {
+		return err
 	}
-	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+
+	log.Infof(c, "%s ready to build a user array", desc)
+	users := t.RankingByUser(c, 50)
+
+	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
+	usersJson := make([]mdl.UserJson, len(users))
+	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+
+	data := struct {
+		Users []mdl.UserJson
+	}{
+		usersJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
+
 }
