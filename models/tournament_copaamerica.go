@@ -400,8 +400,8 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 		}
 	}
 
-	tstart, _ := time.Parse(shortForm, "Jun/11/2014")
-	tend, _ := time.Parse(shortForm, "Jul/4/2014")
+	tstart, _ := time.Parse(shortForm, "Jun/11/2015")
+	tend, _ := time.Parse(shortForm, "Jul/04/2015")
 	adminIds := make([]int64, 1)
 	adminIds[0] = adminId
 	name := "2015 Copa America"
