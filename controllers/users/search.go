@@ -57,7 +57,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	var ids []int64
 	var err error
 	if ids, err = mdl.GetUserInvertedIndexes(c, words); err != nil {
-		return unableToPerformSearch(c, w, err)
+		return unableToPerformSearch(c, w, desc, err)
 	}
 
 	result := mdl.UserScore(c, keywords, ids)
@@ -103,7 +103,7 @@ func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error
 
 }
 
-func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, err error) error {
+func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
 	log.Errorf(c, "%s users.Index, error occurred when getting indexes of words: %v", desc, err)
 	data := struct {
 		MessageDanger string `json:",omitempty"`
