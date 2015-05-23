@@ -29,6 +29,14 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
+type userViewModel struct {
+	Id       int64
+	Username string
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
 // User search handler.
 // Use this handler to search for a user.
 //	GET	/j/user/search/			Search for all users respecting the query "q"
@@ -71,28 +79,24 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return templateshlp.RenderJson(w, c, data)
 	}
 
-	// filter team information to return in json api
-	type user struct {
-		Id       int64
-		Username string
-		Alias    string
-		Score    int64
-		ImageURL string
-	}
-
-	us := make([]user, len(users))
-	for i, u := range users {
-		us[i].Id = u.Id
-		us[i].Username = u.Username
-		us[i].Alias = u.Alias
-		us[i].Score = u.Score
-		us[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
-	}
+	uvm := build(users)
 
 	data := struct {
-		Users []user `json:",omitempty"`
+		Users []userViewModel `json:",omitempty"`
 	}{
-		us,
+		uvm,
 	}
 	return templateshlp.RenderJson(w, c, data)
+}
+
+func build(users []*mdl.User) []userViewModel {
+	uvm := make([]userViewModel, len(users))
+	for i, u := range users {
+		uvm[i].Id = u.Id
+		uvm[i].Username = u.Username
+		uvm[i].Alias = u.Alias
+		uvm[i].Score = u.Score
+		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+	}
+	return uvm
 }
