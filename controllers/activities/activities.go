@@ -44,13 +44,17 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	count := extract.Count()
 	page := extract.Page()
 
-	// fetch user activities
 	activities := mdl.FindActivities(c, u, count, page)
 	log.Infof(c, "%s activities = %v", desc, activities)
 
-	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
-	activitiesJson := make([]mdl.ActivityJson, len(activities))
-	helpers.TransformFromArrayOfPointers(&activities, &activitiesJson, fieldsToKeep)
+	json := activitiesToJSON(activities)
 
-	return templateshlp.RenderJson(w, c, activitiesJson)
+	return templateshlp.RenderJson(w, c, json)
+}
+
+func activitiesToJSON(activities []*mdl.Activity) []mdl.ActivityJson {
+	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
+	json := make([]mdl.ActivityJson, len(activities))
+	helpers.TransformFromArrayOfPointers(&activities, &json, fieldsToKeep)
+	return json
 }
