@@ -14,31 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// Package templates provides a set of functions to encode data
-// in a http.ResponseWriter.
+// Package tasks provides a set of handlers to perform
+// long running tasks in gonawin app.
 //
-package templates
-
-import (
-	"encoding/json"
-	"net/http"
-
-	"appengine"
-)
-
-// renders data to json and writes it to response writer
-func RenderJson(w http.ResponseWriter, c appengine.Context, data interface{}) error {
-	return json.NewEncoder(w).Encode(data)
-}
-
-// renders empty data to json and writes it to response writer
-func RenderEmptyJson(w http.ResponseWriter, c appengine.Context) error {
-	type EmptyStruct struct{}
-	return json.NewEncoder(w).Encode(EmptyStruct{})
-}
-
-// renders empty data to json and writes it to response writer
-func RenderEmptyJsonArray(w http.ResponseWriter, c appengine.Context) error {
-	var data [0]string
-	return json.NewEncoder(w).Encode(data)
-}
+package tasks

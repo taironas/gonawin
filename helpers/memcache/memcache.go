@@ -14,12 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package memcache provides a set of functions to use memcache in gonawin.
+//
 package memcache
 
 import (
+	"fmt"
+
 	"appengine"
 	"appengine/memcache"
-	"fmt"
 
 	"github.com/santiaago/gonawin/helpers/log"
 )

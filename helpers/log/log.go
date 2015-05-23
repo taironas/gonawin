@@ -14,6 +14,8 @@
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package log provide a set of function to log in gonawin app.
+//
 package log
 
 import (
