@@ -66,18 +66,13 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	result := mdl.UserScore(c, keywords, ids)
 	log.Infof(c, "%s result from UserScore: %v", desc, result)
 
-	users := mdl.UsersByIds(c, result)
-	log.Infof(c, "%s ByIds result %v", desc, users)
+	var users []*mdl.User
 
-	if len(users) == 0 {
-		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "user")
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-		return templateshlp.RenderJson(w, c, data)
+	if users = mdl.UsersByIds(c, result); len(users) == 0 {
+		return notFound(c, w, keywords)
 	}
+
+	log.Infof(c, "%s ByIds result %v", desc, users)
 
 	uvm := build(users)
 
@@ -99,4 +94,15 @@ func build(users []*mdl.User) []userViewModel {
 		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
 	}
 	return uvm
+}
+
+func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error {
+	msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "user")
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+	return templateshlp.RenderJson(w, c, data)
+
 }
