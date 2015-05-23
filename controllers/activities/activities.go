@@ -20,10 +20,10 @@ package activities
 import (
 	"errors"
 	"net/http"
-	"strconv"
 
 	"appengine"
 
+	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
@@ -37,19 +37,13 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	c := appengine.NewContext(r)
 	desc := "Index activity handler:"
+	c := appengine.NewContext(r)
+	extract := extract.NewContext(c, desc, r)
 
-	count, err := strconv.ParseInt(r.FormValue("count"), 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-		count = 20 // set count to default value
-	}
-	page, err := strconv.ParseInt(r.FormValue("page"), 0, 64)
-	if err != nil {
-		log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-		page = 1
-	}
+	count := extract.Count()
+	page := extract.Page()
+
 	// fetch user activities
 	activities := mdl.FindActivities(c, u, count, page)
 	log.Infof(c, "%s activities = %v", desc, activities)
