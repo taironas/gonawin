@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package auth provides the functions needed to get a user information.
+//
 package auth
 
 import (

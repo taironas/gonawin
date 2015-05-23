@@ -14,6 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package gonawin provides starts a the gonawin web application.
+//
 package gonawin
 
 import (
