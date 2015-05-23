@@ -32,6 +32,10 @@ import (
 )
 
 // Index activity handler, use it to get the activities of a user.
+// You can pass a 'count' and a 'page' param to the http.Request to
+// filter the activities that you want. default values are 20 and 1
+// respectively.
+//
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
