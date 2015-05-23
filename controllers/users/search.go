@@ -37,8 +37,9 @@ type userViewModel struct {
 	ImageURL string
 }
 
-// User search handler.
-// Use this handler to search for a user.
+// Search handler returns the result of a user search in a JSON format.
+// It uses parameter 'q' to make the query.
+//
 //	GET	/j/user/search/			Search for all users respecting the query "q"
 //
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -52,29 +53,24 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Search Handler:"
 
 	words := helpers.SetOfStrings(keywords)
-	ids, err := mdl.GetUserInvertedIndexes(c, words)
-	if err != nil {
-		log.Errorf(c, "%s users.Index, error occurred when getting indexes of words: %v", desc, err)
-		data := struct {
-			MessageDanger string `json:",omitempty"`
-		}{
-			"Oops! something went wrong, we are unable to perform search query.",
-		}
-		return templateshlp.RenderJson(w, c, data)
+
+	var ids []int64
+	var err error
+	if ids, err = mdl.GetUserInvertedIndexes(c, words); err != nil {
+		return unableToPerformSearch(c, w, err)
 	}
 
 	result := mdl.UserScore(c, keywords, ids)
 	log.Infof(c, "%s result from UserScore: %v", desc, result)
 
 	var users []*mdl.User
-
 	if users = mdl.UsersByIds(c, result); len(users) == 0 {
 		return notFound(c, w, keywords)
 	}
 
 	log.Infof(c, "%s ByIds result %v", desc, users)
 
-	uvm := build(users)
+	uvm := buildUserViewModel(users)
 
 	data := struct {
 		Users []userViewModel `json:",omitempty"`
@@ -84,7 +80,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-func build(users []*mdl.User) []userViewModel {
+func buildUserViewModel(users []*mdl.User) []userViewModel {
 	uvm := make([]userViewModel, len(users))
 	for i, u := range users {
 		uvm[i].Id = u.Id
@@ -105,4 +101,14 @@ func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error
 	}
 	return templateshlp.RenderJson(w, c, data)
 
+}
+
+func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, err error) error {
+	log.Errorf(c, "%s users.Index, error occurred when getting indexes of words: %v", desc, err)
+	data := struct {
+		MessageDanger string `json:",omitempty"`
+	}{
+		"Oops! something went wrong, we are unable to perform search query.",
+	}
+	return templateshlp.RenderJson(w, c, data)
 }
