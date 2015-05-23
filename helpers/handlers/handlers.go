@@ -14,6 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// Package handlers provides a set of functions to manipulate http.HandlerFunc
+// at a route level. cf github.com/santiaago/gonawin/gonawin/main.go for details
+// on how to use it.
+//
 package handlers
 
 import (
