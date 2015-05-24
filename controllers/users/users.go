@@ -107,22 +107,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	ts := buildShowTeamViewModel(teams)
 	stats := buildShowTournamentStatsViewModel(c, tournaments)
 
-	// tournaments
-	type tournament struct {
-		Id       int64
-		Name     string
-		UserIds  []int64
-		TeamIds  []int64
-		ImageURL string
-	}
-
-	tournaments2 := make([]tournament, len(tournaments))
-	for i, t := range tournaments {
-		tournaments2[i].Id = t.Id
-		tournaments2[i].UserIds = t.UserIds
-		tournaments2[i].TeamIds = t.TeamIds
-		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-	}
+	tournaments2 := buildShowTournamentViewModel(tournaments)
 
 	// team requests
 	teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
@@ -142,7 +127,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		User            mdl.UserJson                   `json:",omitempty"`
 		Teams           []showTeamViewModel            `json:",omitempty"`
 		TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
-		Tournaments     []tournament                   `json:",omitempty"`
+		Tournaments     []showTournamentViewModel      `json:",omitempty"`
 		TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
 		Invitations     []mdl.TeamJson                 `json:",omitempty"`
 		ImageURL        string                         `json:",omitempty"`
@@ -258,6 +243,26 @@ func buildShowTournamentStatsViewModel(c appengine.Context, tournaments []*mdl.T
 		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
 	return stats
+}
+
+type showTournamentViewModel struct {
+	Id       int64
+	Name     string
+	UserIds  []int64
+	TeamIds  []int64
+	ImageURL string
+}
+
+func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamentViewModel {
+
+	tournaments2 := make([]showTournamentViewModel, len(tournaments))
+	for i, t := range tournaments {
+		tournaments2[i].Id = t.Id
+		tournaments2[i].UserIds = t.UserIds
+		tournaments2[i].TeamIds = t.TeamIds
+		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+	return tournaments2
 }
 
 // User update handler.
