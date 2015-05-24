@@ -34,13 +34,11 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	desc := "User Score Handler:"
 	c := appengine.NewContext(r)
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "User Score Handler:", r)
 
-	var user *mdl.User
-	var err error
-	if user, err = extract.User(); err != nil {
+	user, err := extract.User()
+	if err != nil {
 		return err
 	}
 
