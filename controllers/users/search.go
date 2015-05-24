@@ -29,7 +29,7 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-type userViewModel struct {
+type searchUserViewModel struct {
 	Id       int64
 	Username string
 	Alias    string
@@ -70,18 +70,18 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	log.Infof(c, "%s ByIds result %v", desc, users)
 
-	uvm := buildUserViewModel(users)
+	uvm := buildSearchUserViewModel(users)
 
 	data := struct {
-		Users []userViewModel `json:",omitempty"`
+		Users []searchUserViewModel `json:",omitempty"`
 	}{
 		uvm,
 	}
 	return templateshlp.RenderJson(w, c, data)
 }
 
-func buildUserViewModel(users []*mdl.User) []userViewModel {
-	uvm := make([]userViewModel, len(users))
+func buildSearchUserViewModel(users []*mdl.User) []searchUserViewModel {
+	uvm := make([]searchUserViewModel, len(users))
 	for i, u := range users {
 		uvm[i].Id = u.Id
 		uvm[i].Username = u.Username
