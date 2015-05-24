@@ -29,8 +29,17 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// User search handler.
-// Use this handler to search for a user.
+type searchUserViewModel struct {
+	Id       int64
+	Username string
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
+// Search handler returns the result of a user search in a JSON format.
+// It uses parameter 'q' to make the query.
+//
 //	GET	/j/user/search/			Search for all users respecting the query "q"
 //
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -44,55 +53,62 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "User Search Handler:"
 
 	words := helpers.SetOfStrings(keywords)
-	ids, err := mdl.GetUserInvertedIndexes(c, words)
-	if err != nil {
-		log.Errorf(c, "%s users.Index, error occurred when getting indexes of words: %v", desc, err)
-		data := struct {
-			MessageDanger string `json:",omitempty"`
-		}{
-			"Oops! something went wrong, we are unable to perform search query.",
-		}
-		return templateshlp.RenderJson(w, c, data)
+
+	var ids []int64
+	var err error
+	if ids, err = mdl.GetUserInvertedIndexes(c, words); err != nil {
+		return unableToPerformSearch(c, w, desc, err)
 	}
 
 	result := mdl.UserScore(c, keywords, ids)
 	log.Infof(c, "%s result from UserScore: %v", desc, result)
 
-	users := mdl.UsersByIds(c, result)
+	var users []*mdl.User
+	if users = mdl.UsersByIds(c, result); len(users) == 0 {
+		return notFound(c, w, keywords)
+	}
+
 	log.Infof(c, "%s ByIds result %v", desc, users)
 
-	if len(users) == 0 {
-		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "user")
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-		return templateshlp.RenderJson(w, c, data)
-	}
-
-	// filter team information to return in json api
-	type user struct {
-		Id       int64
-		Username string
-		Alias    string
-		Score    int64
-		ImageURL string
-	}
-
-	us := make([]user, len(users))
-	for i, u := range users {
-		us[i].Id = u.Id
-		us[i].Username = u.Username
-		us[i].Alias = u.Alias
-		us[i].Score = u.Score
-		us[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
-	}
+	uvm := buildSearchUserViewModel(users)
 
 	data := struct {
-		Users []user `json:",omitempty"`
+		Users []searchUserViewModel `json:",omitempty"`
 	}{
-		us,
+		uvm,
+	}
+	return templateshlp.RenderJson(w, c, data)
+}
+
+func buildSearchUserViewModel(users []*mdl.User) []searchUserViewModel {
+	uvm := make([]searchUserViewModel, len(users))
+	for i, u := range users {
+		uvm[i].Id = u.Id
+		uvm[i].Username = u.Username
+		uvm[i].Alias = u.Alias
+		uvm[i].Score = u.Score
+		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+	}
+	return uvm
+}
+
+func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error {
+	msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "user")
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+	return templateshlp.RenderJson(w, c, data)
+
+}
+
+func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
+	log.Errorf(c, "%s users.Index, error occurred when getting indexes of words: %v", desc, err)
+	data := struct {
+		MessageDanger string `json:",omitempty"`
+	}{
+		"Oops! something went wrong, we are unable to perform search query.",
 	}
 	return templateshlp.RenderJson(w, c, data)
 }
