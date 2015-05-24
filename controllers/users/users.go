@@ -46,7 +46,9 @@ type userData struct {
 	}
 }
 
-// User index  handler.
+// Index user handler, returns an http response with the information of the
+// current user.
+//
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -56,11 +58,16 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	users := mdl.FindAllUsers(c)
 
+	vm := buildIndexUserViewModel(users)
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+func buildIndexUserViewModel(users []*mdl.User) []mdl.UserJson {
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
 	usersJson := make([]mdl.UserJson, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
-
-	return templateshlp.RenderJson(w, c, usersJson)
+	return usersJson
 }
 
 // Show User handler, use it to get the user JSON data.
