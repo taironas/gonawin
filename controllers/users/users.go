@@ -106,13 +106,8 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	ts := buildShowTeamViewModel(teams)
 	stats := buildShowTournamentStatsViewModel(c, tournaments)
-
 	tournaments2 := buildShowTournamentViewModel(tournaments)
-
-	// team requests
-	teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
-	trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
-	helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
+	trsJson := buildShowTeamRequestsViewModel(teamRequests)
 
 	// invitations
 	invitationsFieldsToKeep := []string{"Id", "Name"}
@@ -263,6 +258,14 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
 	return tournaments2
+}
+
+func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJson {
+
+	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
+	trs := make([]mdl.TeamRequestJson, len(teamRequests))
+	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
+	return trs
 }
 
 // User update handler.
