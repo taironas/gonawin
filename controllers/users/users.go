@@ -58,12 +58,12 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	users := mdl.FindAllUsers(c)
 
-	vm := buildIndexUserViewModel(users)
+	vm := buildIndexUsersViewModel(users)
 
 	return templateshlp.RenderJson(w, c, vm)
 }
 
-func buildIndexUserViewModel(users []*mdl.User) []mdl.UserJson {
+func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJson {
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
 	usersJson := make([]mdl.UserJson, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
@@ -72,8 +72,9 @@ func buildIndexUserViewModel(users []*mdl.User) []mdl.UserJson {
 
 // Show User handler, use it to get the user JSON data.
 // including parameter: {teams, tournaments, teamrequests}
-// count parameter: default 12
-// page parameter: default 1
+// 'count' parameter: default 25
+// 'page' parameter: default 1
+//
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -92,54 +93,16 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	log.Infof(c, "User: %v", user)
 	log.Infof(c, "User: %v", user.TeamIds)
 
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
-
-	var uJson mdl.UserJson
-	helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-	log.Infof(c, "%s User: %v", desc, uJson)
+	uJson := buildShowUserViewModel(user)
 
 	// get with param:
 	with := r.FormValue("including")
 	params := helpers.SetOfStrings(with)
 
-	var teams []*mdl.Team
-	var teamRequests []*mdl.TeamRequest
-	var tournaments []*mdl.Tournament
-	var invitations []*mdl.Team
-
-	for _, param := range params {
-		switch param {
-		case "teams":
-			// get count parameter, if not present count is set to 20
-			strcount := r.FormValue("count")
-			count := int64(25)
-			if len(strcount) > 0 {
-				if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-					log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-				} else {
-					count = n
-				}
-			}
-			// get page parameter, if not present set page to the first one.
-			strpage := r.FormValue("page")
-			page := int64(1)
-			if len(strpage) > 0 {
-				if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-					log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-					page = 1
-				} else {
-					page = p
-				}
-			}
-			teams = user.TeamsByPage(c, count, page)
-		case "teamrequests":
-			teamRequests = mdl.TeamsRequests(c, teams)
-		case "tournaments":
-			tournaments = user.Tournaments(c)
-		case "invitations":
-			invitations = user.Invitations(c)
-		}
-	}
+	teams := extractTeams(c, extract, user, params)
+	teamRequests := extractTeamRequests(c, teams, params)
+	tournaments := extractTournaments(c, user, params)
+	invitations := extractInvitations(c, user, params)
 
 	// teams
 	type team struct {
@@ -230,6 +193,63 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
+}
+
+func buildShowUserViewModel(user *mdl.User) (u mdl.UserJson) {
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+
+	helpers.InitPointerStructure(user, &u, fieldsToKeep)
+	return
+}
+
+func extractTeams(c appengine.Context, extract extract.Context, user *mdl.User, params []string) (teams []*mdl.Team) {
+
+	for _, param := range params {
+		if param != "teams" {
+			continue
+		}
+		count := extract.CountOrDefault(25)
+		page := extract.Page()
+		teams = user.TeamsByPage(c, count, page)
+		break
+	}
+	return
+}
+
+func extractTeamRequests(c appengine.Context, teams []*mdl.Team, params []string) (teamRequests []*mdl.TeamRequest) {
+
+	for _, param := range params {
+		if param != "teamrequests" {
+			continue
+		}
+		teamRequests = mdl.TeamsRequests(c, teams)
+		break
+	}
+	return
+}
+
+func extractTournaments(c appengine.Context, user *mdl.User, params []string) (tournaments []*mdl.Tournament) {
+
+	for _, param := range params {
+		if param != "tournaments" {
+			continue
+		}
+		tournaments = user.Tournaments(c)
+		break
+	}
+	return
+}
+
+func extractInvitations(c appengine.Context, user *mdl.User, params []string) (invitations []*mdl.Team) {
+
+	for _, param := range params {
+		if param != "invitations" {
+			continue
+		}
+		invitations = user.Invitations(c)
+		break
+	}
+	return
 }
 
 // User update handler.
