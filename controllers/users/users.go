@@ -104,24 +104,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	tournaments := extractTournaments(c, user, params)
 	invitations := extractInvitations(c, user, params)
 
-	// teams
-	type team struct {
-		Id           int64
-		Name         string
-		Accuracy     float64
-		MembersCount int64
-		Private      bool
-		ImageURL     string
-	}
-
-	ts := make([]team, len(teams))
-	for i, t := range teams {
-		ts[i].Id = t.Id
-		ts[i].Name = t.Name
-		ts[i].MembersCount = t.MembersCount
-		ts[i].Private = t.Private
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-	}
+	ts := buildShowTeamViewModel(teams)
 
 	// build tournaments stats json
 	type TournamentStats struct {
@@ -176,7 +159,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// data
 	data := struct {
 		User            mdl.UserJson          `json:",omitempty"`
-		Teams           []team                `json:",omitempty"`
+		Teams           []showTeamViewModel   `json:",omitempty"`
 		TeamRequests    []mdl.TeamRequestJson `json:",omitempty"`
 		Tournaments     []tournament          `json:",omitempty"`
 		TournamentStats []TournamentStats     `json:",omitempty"`
@@ -250,6 +233,27 @@ func extractInvitations(c appengine.Context, user *mdl.User, params []string) (i
 		break
 	}
 	return
+}
+
+type showTeamViewModel struct {
+	Id           int64
+	Name         string
+	Accuracy     float64
+	MembersCount int64
+	Private      bool
+	ImageURL     string
+}
+
+func buildShowTeamViewModel(teams []*mdl.Team) []showTeamViewModel {
+	ts := make([]showTeamViewModel, len(teams))
+	for i, t := range teams {
+		ts[i].Id = t.Id
+		ts[i].Name = t.Name
+		ts[i].MembersCount = t.MembersCount
+		ts[i].Private = t.Private
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
+	return ts
 }
 
 // User update handler.
