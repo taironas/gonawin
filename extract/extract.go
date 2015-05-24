@@ -211,3 +211,27 @@ func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
 	}
 	return match, nil
 }
+
+// Count extracts the 'count' value from the given http.Request
+// returns 20 if none is found.
+//
+func (c Context) Count() int64 {
+	count, err := strconv.ParseInt(c.r.FormValue("count"), 0, 64)
+	if err != nil {
+		log.Errorf(c.c, "%s: error during conversion of count parameter: %v", c.desc, err)
+		count = 20 // set count to default value
+	}
+	return count
+}
+
+// Page extracts the 'page' value from the given http.Request
+// returns 1 if none is found.
+//
+func (c Context) Page() int64 {
+	page, err := strconv.ParseInt(c.r.FormValue("page"), 0, 64)
+	if err != nil {
+		log.Errorf(c.c, "%s error during conversion of page parameter: %v", c.desc, err)
+		page = 1
+	}
+	return page
+}
