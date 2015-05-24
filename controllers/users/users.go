@@ -81,8 +81,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	desc := "User show handler:"
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "User show handler:", r)
 
 	var user *mdl.User
 	var err error
@@ -93,9 +92,6 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	log.Infof(c, "User: %v", user)
 	log.Infof(c, "User: %v", user.TeamIds)
 
-	uJson := buildShowUserViewModel(user)
-
-	// get with param:
 	with := r.FormValue("including")
 	params := helpers.SetOfStrings(with)
 
@@ -104,39 +100,42 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	tournaments := extractTournaments(c, user, params)
 	invitations := extractInvitations(c, user, params)
 
-	ts := buildShowTeamViewModel(teams)
-	stats := buildShowTournamentStatsViewModel(c, tournaments)
-	tournaments2 := buildShowTournamentViewModel(tournaments)
-	trsJson := buildShowTeamRequestsViewModel(teamRequests)
+	shvm := buildShowViewModel(c, user, teams, tournaments, teamRequests, invitations)
 
-	// invitations
-	invitationsFieldsToKeep := []string{"Id", "Name"}
-	invitationsJson := make([]mdl.TeamJson, len(invitations))
-	helpers.TransformFromArrayOfPointers(&invitations, &invitationsJson, invitationsFieldsToKeep)
+	return templateshlp.RenderJson(w, c, shvm)
+}
+
+type showViewModel struct {
+	User            mdl.UserJson                   `json:",omitempty"`
+	Teams           []showTeamViewModel            `json:",omitempty"`
+	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
+	Tournaments     []showTournamentViewModel      `json:",omitempty"`
+	TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
+	Invitations     []mdl.TeamJson                 `json:",omitempty"`
+	ImageURL        string                         `json:",omitempty"`
+}
+
+func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tournaments []*mdl.Tournament, trs []*mdl.TeamRequest, invs []*mdl.Team) showViewModel {
+
+	uvm := buildShowUserViewModel(u)
+	tvm := buildShowTeamViewModel(teams)
+	tsvm := buildShowTournamentStatsViewModel(c, tournaments)
+	tourvm := buildShowTournamentViewModel(tournaments)
+	trsvm := buildShowTeamRequestsViewModel(trs)
+	ivm := buildShowInvitationsViewModel(invs)
 
 	// imageURL
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(u.Username, u.Id)
 
-	// data
-	data := struct {
-		User            mdl.UserJson                   `json:",omitempty"`
-		Teams           []showTeamViewModel            `json:",omitempty"`
-		TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
-		Tournaments     []showTournamentViewModel      `json:",omitempty"`
-		TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
-		Invitations     []mdl.TeamJson                 `json:",omitempty"`
-		ImageURL        string                         `json:",omitempty"`
-	}{
-		uJson,
-		ts,
-		trsJson,
-		tournaments2,
-		stats,
-		invitationsJson,
+	return showViewModel{
+		uvm,
+		tvm,
+		trsvm,
+		tourvm,
+		tsvm,
+		ivm,
 		imageURL,
 	}
-
-	return templateshlp.RenderJson(w, c, data)
 }
 
 func buildShowUserViewModel(user *mdl.User) (u mdl.UserJson) {
@@ -266,6 +265,14 @@ func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamR
 	trs := make([]mdl.TeamRequestJson, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
 	return trs
+}
+
+func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJson {
+
+	fieldsToKeep := []string{"Id", "Name"}
+	inv := make([]mdl.TeamJson, len(invitations))
+	helpers.TransformFromArrayOfPointers(&invitations, &inv, fieldsToKeep)
+	return inv
 }
 
 // User update handler.
