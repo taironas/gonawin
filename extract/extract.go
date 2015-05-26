@@ -224,6 +224,18 @@ func (c Context) Count() int64 {
 	return count
 }
 
+// Count extracts the 'count' value from the given http.Request
+// returns 20 if none is found.
+//
+func (c Context) CountOrDefault(d int64) int64 {
+	count, err := strconv.ParseInt(c.r.FormValue("count"), 0, 64)
+	if err != nil {
+		log.Errorf(c.c, "%s: error during conversion of count parameter: %v", c.desc, err)
+		count = d // set count to default value
+	}
+	return count
+}
+
 // Page extracts the 'page' value from the given http.Request
 // returns 1 if none is found.
 //

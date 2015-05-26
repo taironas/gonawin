@@ -46,7 +46,9 @@ type userData struct {
 	}
 }
 
-// User index  handler.
+// Index user handler, returns an http response with the information of the
+// current user.
+//
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -56,25 +58,30 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	users := mdl.FindAllUsers(c)
 
+	vm := buildIndexUsersViewModel(users)
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJson {
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
 	usersJson := make([]mdl.UserJson, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
-
-	return templateshlp.RenderJson(w, c, usersJson)
+	return usersJson
 }
 
 // Show User handler, use it to get the user JSON data.
 // including parameter: {teams, tournaments, teamrequests}
-// count parameter: default 12
-// page parameter: default 1
+// 'count' parameter: default 25
+// 'page' parameter: default 1
+//
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "User show handler:"
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "User show handler:", r)
 
 	var user *mdl.User
 	var err error
@@ -85,66 +92,120 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	log.Infof(c, "User: %v", user)
 	log.Infof(c, "User: %v", user.TeamIds)
 
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
-
-	var uJson mdl.UserJson
-	helpers.InitPointerStructure(user, &uJson, fieldsToKeep)
-	log.Infof(c, "%s User: %v", desc, uJson)
-
-	// get with param:
 	with := r.FormValue("including")
 	params := helpers.SetOfStrings(with)
 
-	var teams []*mdl.Team
-	var teamRequests []*mdl.TeamRequest
-	var tournaments []*mdl.Tournament
-	var invitations []*mdl.Team
+	teams := extractTeams(c, extract, user, params)
+	teamRequests := extractTeamRequests(c, teams, params)
+	tournaments := extractTournaments(c, user, params)
+	invitations := extractInvitations(c, user, params)
+
+	shvm := buildShowViewModel(c, user, teams, tournaments, teamRequests, invitations)
+
+	return templateshlp.RenderJson(w, c, shvm)
+}
+
+type showViewModel struct {
+	User            mdl.UserJson                   `json:",omitempty"`
+	Teams           []showTeamViewModel            `json:",omitempty"`
+	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
+	Tournaments     []showTournamentViewModel      `json:",omitempty"`
+	TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
+	Invitations     []mdl.TeamJson                 `json:",omitempty"`
+	ImageURL        string                         `json:",omitempty"`
+}
+
+func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tournaments []*mdl.Tournament, trs []*mdl.TeamRequest, invs []*mdl.Team) showViewModel {
+
+	uvm := buildShowUserViewModel(u)
+	tvm := buildShowTeamViewModel(teams)
+	tsvm := buildShowTournamentStatsViewModel(c, tournaments)
+	tourvm := buildShowTournamentViewModel(tournaments)
+	trsvm := buildShowTeamRequestsViewModel(trs)
+	ivm := buildShowInvitationsViewModel(invs)
+
+	// imageURL
+	imageURL := helpers.UserImageURL(u.Username, u.Id)
+
+	return showViewModel{
+		uvm,
+		tvm,
+		trsvm,
+		tourvm,
+		tsvm,
+		ivm,
+		imageURL,
+	}
+}
+
+func buildShowUserViewModel(user *mdl.User) (u mdl.UserJson) {
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+
+	helpers.InitPointerStructure(user, &u, fieldsToKeep)
+	return
+}
+
+func extractTeams(c appengine.Context, extract extract.Context, user *mdl.User, params []string) (teams []*mdl.Team) {
 
 	for _, param := range params {
-		switch param {
-		case "teams":
-			// get count parameter, if not present count is set to 20
-			strcount := r.FormValue("count")
-			count := int64(25)
-			if len(strcount) > 0 {
-				if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-					log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-				} else {
-					count = n
-				}
-			}
-			// get page parameter, if not present set page to the first one.
-			strpage := r.FormValue("page")
-			page := int64(1)
-			if len(strpage) > 0 {
-				if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-					log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-					page = 1
-				} else {
-					page = p
-				}
-			}
-			teams = user.TeamsByPage(c, count, page)
-		case "teamrequests":
-			teamRequests = mdl.TeamsRequests(c, teams)
-		case "tournaments":
-			tournaments = user.Tournaments(c)
-		case "invitations":
-			invitations = user.Invitations(c)
+		if param != "teams" {
+			continue
 		}
+		count := extract.CountOrDefault(25)
+		page := extract.Page()
+		teams = user.TeamsByPage(c, count, page)
+		break
 	}
+	return
+}
 
-	// teams
-	type team struct {
-		Id           int64
-		Name         string
-		Accuracy     float64
-		MembersCount int64
-		Private      bool
-		ImageURL     string
+func extractTeamRequests(c appengine.Context, teams []*mdl.Team, params []string) (teamRequests []*mdl.TeamRequest) {
+
+	for _, param := range params {
+		if param != "teamrequests" {
+			continue
+		}
+		teamRequests = mdl.TeamsRequests(c, teams)
+		break
 	}
+	return
+}
 
-	ts := make([]team, len(teams))
+func extractTournaments(c appengine.Context, user *mdl.User, params []string) (tournaments []*mdl.Tournament) {
+
+	for _, param := range params {
+		if param != "tournaments" {
+			continue
+		}
+		tournaments = user.Tournaments(c)
+		break
+	}
+	return
+}
+
+func extractInvitations(c appengine.Context, user *mdl.User, params []string) (invitations []*mdl.Team) {
+
+	for _, param := range params {
+		if param != "invitations" {
+			continue
+		}
+		invitations = user.Invitations(c)
+		break
+	}
+	return
+}
+
+type showTeamViewModel struct {
+	Id           int64
+	Name         string
+	Accuracy     float64
+	MembersCount int64
+	Private      bool
+	ImageURL     string
+}
+
+func buildShowTeamViewModel(teams []*mdl.Team) []showTeamViewModel {
+	ts := make([]showTeamViewModel, len(teams))
 	for i, t := range teams {
 		ts[i].Id = t.Id
 		ts[i].Name = t.Name
@@ -152,18 +213,21 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ts[i].Private = t.Private
 		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
+	return ts
+}
 
-	// build tournaments stats json
-	type TournamentStats struct {
-		Id                int64
-		Name              string
-		ParticipantsCount int
-		TeamsCount        int
-		Progress          float64
-		ImageURL          string
-	}
+type showTournamentStatsViewModel struct {
+	Id                int64
+	Name              string
+	ParticipantsCount int
+	TeamsCount        int
+	Progress          float64
+	ImageURL          string
+}
 
-	stats := make([]TournamentStats, len(tournaments))
+func buildShowTournamentStatsViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentStatsViewModel {
+
+	stats := make([]showTournamentStatsViewModel, len(tournaments))
 	for i, t := range tournaments {
 		stats[i].Id = t.Id
 		stats[i].Name = t.Name
@@ -172,57 +236,43 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		stats[i].Progress = t.Progress(c)
 		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
+	return stats
+}
 
-	// tournaments
-	type tournament struct {
-		Id       int64
-		Name     string
-		UserIds  []int64
-		TeamIds  []int64
-		ImageURL string
-	}
+type showTournamentViewModel struct {
+	Id       int64
+	Name     string
+	UserIds  []int64
+	TeamIds  []int64
+	ImageURL string
+}
 
-	tournaments2 := make([]tournament, len(tournaments))
+func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamentViewModel {
+
+	tournaments2 := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
 		tournaments2[i].Id = t.Id
 		tournaments2[i].UserIds = t.UserIds
 		tournaments2[i].TeamIds = t.TeamIds
 		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
+	return tournaments2
+}
 
-	// team requests
-	teamRequestFieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
-	trsJson := make([]mdl.TeamRequestJson, len(teamRequests))
-	helpers.TransformFromArrayOfPointers(&teamRequests, &trsJson, teamRequestFieldsToKeep)
+func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJson {
 
-	// invitations
-	invitationsFieldsToKeep := []string{"Id", "Name"}
-	invitationsJson := make([]mdl.TeamJson, len(invitations))
-	helpers.TransformFromArrayOfPointers(&invitations, &invitationsJson, invitationsFieldsToKeep)
+	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
+	trs := make([]mdl.TeamRequestJson, len(teamRequests))
+	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
+	return trs
+}
 
-	// imageURL
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJson {
 
-	// data
-	data := struct {
-		User            mdl.UserJson          `json:",omitempty"`
-		Teams           []team                `json:",omitempty"`
-		TeamRequests    []mdl.TeamRequestJson `json:",omitempty"`
-		Tournaments     []tournament          `json:",omitempty"`
-		TournamentStats []TournamentStats     `json:",omitempty"`
-		Invitations     []mdl.TeamJson        `json:",omitempty"`
-		ImageURL        string                `json:",omitempty"`
-	}{
-		uJson,
-		ts,
-		trsJson,
-		tournaments2,
-		stats,
-		invitationsJson,
-		imageURL,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	fieldsToKeep := []string{"Id", "Name"}
+	inv := make([]mdl.TeamJson, len(invitations))
+	helpers.TransformFromArrayOfPointers(&invitations, &inv, fieldsToKeep)
+	return inv
 }
 
 // User update handler.
