@@ -100,7 +100,6 @@ func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error
 		msg,
 	}
 	return templateshlp.RenderJson(w, c, data)
-
 }
 
 func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
