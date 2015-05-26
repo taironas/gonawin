@@ -1,4 +1,4 @@
-<!-- Calendar by days -->
+<!-- Matches by days -->
 <div class="row">
   <div class="col-md-12">
     <div ng-repeat="d in matchesData.Days">
@@ -6,7 +6,7 @@
         <div class="panel-heading">
           <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
         </div>
-        <div class="calendar">
+        <div class="matches">
           <div ng-repeat="m in d.Matches" class="row">
             <!-- <div class="col-md-1"></div> -->
             <div class="col-md-12">
@@ -19,8 +19,8 @@
     </div>
   </div>
 </div>
-<!-- / Calendar by days-->
-<!-- Calendar by phases -->
+<!-- / Matches by days-->
+<!-- Matches by phases -->
 <div class="row">
   <div class="col-md-12">
     <div ng-repeat="phase in matchesData.Phases">
@@ -31,7 +31,7 @@
           <div class="panel-heading">
             <h3 class="panel-title">{{d.Date | moment:'ddd DD MMM'}}</h3>
           </div>
-          <div class="calendar">
+          <div class="matches">
             <div ng-repeat="m in d.Matches" class="row">
               <!-- <div class="col-md-1"></div> -->
               <div class="col-md-12">
@@ -44,4 +44,4 @@
     </div>
   </div>
 </div>
-<!-- Calendar by phases -->
+<!-- Matches by phases -->

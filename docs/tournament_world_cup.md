@@ -17,7 +17,7 @@ we want to have different views of the world cup tournament:
 * calendar view where we show the matches grouped by dates.
 
 #### global view:
-`url: /tournament/:id` 
+`url: /tournament/:id`
 
 The main url where we display the world cup groups ranked by points and the braket with the current rank.
 
@@ -25,16 +25,16 @@ needs:
 * get groups ranked by points
 * get the braket based on the current rank
 
-#### calendar view:
-`url: /tournament/:id/calendar`
+#### matches view:
+`url: /tournament/:id/matches`
 
-In the calendar view will display all matches (first phase and second phase).
+In the matches view will display all matches (first phase and second phase).
 
 We can group the matches by `phases` or by `dates`.
 
 By default we group by days. We you want group by phase use parameter `groupby` with values `phase` or `day`
 
-- example: `/tournament/:id/calendar?groupby=phase`
+- example: `/tournament/:id/matches?groupby=phase`
 
 #### group view:
 `url: /tournament/:id/matches/first_stage`

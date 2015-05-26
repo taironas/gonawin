@@ -74,7 +74,8 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 	log.Infof(c, "UpdateTournamentTeam : oldTeamId = %d, newTeamId = %d", oldTeamId, newTeamId)
 
 	// special treatment when old name is prefixed by "TBD"
-	if strings.Contains(oldName, "TBD") {
+	// or if the old name was not found in the list of teams.
+	if strings.Contains(oldName, "TBD") || (oldTeamId == 0) {
 		// get matches of phase
 		matches := GetMatchesByPhase(c, t, phaseName)
 
@@ -108,7 +109,11 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		// low limit, all matches above this limit should be updated.
 		low := limits[phaseName][0]
 		for _, m := range matches2ndPhase {
+			log.Infof(c, "UpdateTournamentTeam : match %v", m.IdNumber)
+			log.Infof(c, "UpdateTournamentTeam : teamId1 %v", m.TeamId1)
+			log.Infof(c, "UpdateTournamentTeam : teamId2 %v", m.TeamId2)
 			if m.IdNumber < low {
+				log.Infof(c, "UpdateTournamentTeam : skiping match %v", m.IdNumber)
 				continue
 			}
 			updateMatch := false

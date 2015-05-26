@@ -30,18 +30,18 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// NewChampionsLeague creates a champions league tournament.
+// NewCopaAmerica creates a the current copa america tournament.
 //
-func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "New Champions League Handler:"
+	desc := "NewCopaAmetrica Handler:"
 
-	tournament, err := mdl.CreateChampionsLeague(c, u.Id)
+	tournament, err := mdl.CreateCopaAmerica(c, u.Id)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -50,18 +50,18 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	return templateshlp.RenderJson(w, c, tournament)
 }
 
-// GetChampionsLeague returns the json data of the champions league tournament.
+// GetCopaAmerica returns the json data of the current Copa America tournament.
 //
-func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Get Champions League Handler:"
+	desc := "GetCopaAmerica Handler:"
 
-	tournaments := mdl.FindTournaments(c, "Name", "2014-2015 UEFA Champions League")
+	tournaments := mdl.FindTournaments(c, "Name", "2015 Copa America")
 	if tournaments == nil {
 		log.Errorf(c, "%s Champions League tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

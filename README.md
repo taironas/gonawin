@@ -67,6 +67,11 @@ Connect datastore backup to the local server
 
     > go_appengine\appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=bck_gonawin_mmddyyyy
 
+### Run App with clean data store:
+
+    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
+    > dev_appserver.py --clear_datastore=yes .
+
 #### Access app from smartphone
 
 Get your ip in this case `192.168.1.X`

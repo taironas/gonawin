@@ -67,6 +67,20 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
         $scope.messageDanger = err.data;
       });
     };
+
+    // start copa america create action
+    $scope.createCopaAmerica = function() {
+      console.log('Creating copa america');
+      Tournament.saveCopaAmerica($scope.tournament, function(tournament) {
+        console.log('Copa America Tournament: ', tournament);
+        $location.path('/tournaments/' + tournament.Id);
+      }, function(err) {
+        console.log('save failed: ', err.data);
+        $scope.messageDanger = err.data;
+      });
+    };
+
+
 }]);
 
 // TournamentCardCtrl: handles team card
@@ -195,9 +209,9 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     };
 
     // tab at undefined means you are in tournament/:id url.
-    // So calendar should be active by default
+    // So matches should be active by default
     if($routeParams.tab === undefined) {
-      $scope.tab = 'calendar';
+      $scope.tab = 'matches';
     } else {
       // Initialize tab variable to handle views:
       $scope.tab = $routeParams.tab;
@@ -358,7 +372,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     });
 
   $scope.tabs = {
-      "calendar":         { title: 'Calendar',                url: 'components/tournament/tab_calendar.html' },
+      "matches":         { title: 'Matches',                url: 'components/tournament/tab_matches.html' },
       "firststage":       { title: 'First Stage',             url: 'components/tournament/tab_firststage.html' },
       "secondstage":      { title: 'Second Stage',            url: 'components/tournament/tab_secondstage.html' },
       "ranking":          { title: 'Ranking',                 url: 'components/tournament/tab_ranking.html' },
@@ -370,13 +384,30 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
   // set the current tab based on the 'tab' parameter
   if($scope.tab === undefined) {
-    $scope.currentTab = $scope.tabs["calendar"].url;
+    $scope.currentTab = $scope.tabs["matches"].url;
   } else {
     $scope.currentTab = $scope.tabs[$scope.tab].url;
   }
 
   $scope.onClickTab = function (tab) {
     $scope.currentTab = tab.url;
+  };
+
+  $scope.isCopaAmerica = false;
+  $scope.tournamentData.$promise.then(function(response){
+      $scope.isCopaAmerica = response.Tournament.Name == '2015 Copa America';
+  });
+
+  $scope.tournamentHasGroups = false;
+  Tournament.groups({id:$routeParams.id}).$promise.then(function(response){
+      $scope.tournamentHasGroups = (response.Groups.length > 0)
+  });
+
+  $scope.showStageTab = function(){
+      if($scope.isCopaAmerica){
+          return false;
+      }
+      return $scope.tournamentHasGroups;
   };
 
   // $locationChangeSuccess event is triggered when url changes.
@@ -724,7 +755,6 @@ tournamentControllers.controller('TournamentSetTeamsCtrl', ['$scope', '$routePar
           });
     };
 }]);
-
 
 // TournamentFirstStageCtrl: fetch first stage data of a specific tournament.
 tournamentControllers.controller('TournamentFirstStageCtrl',  ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {

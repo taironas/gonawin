@@ -147,6 +147,7 @@ func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgro
 
 // Get team with highest rank in group based on group points, goals for and goals against.
 func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
+
 	points := make([]int64, len(g.Points))
 	copy(points, g.Points)
 

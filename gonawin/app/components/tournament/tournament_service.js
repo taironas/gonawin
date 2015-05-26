@@ -1,4 +1,5 @@
-'use strict'
+'use strict';
+
 var tournamentService = angular.module('tournamentService', ['ngResource']);
 
 tournamentService.factory('Tournament', function($http, $resource, $cookieStore) {
@@ -54,5 +55,7 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'},
        saveChampionsLeague: {method: 'POST', url: 'j/tournaments/newcl'},
        getChampionsLeague: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
+       saveCopaAmerica: {method: 'POST', url: 'j/tournaments/newca'},
+       getCopaAmerica: {method: 'GET', url: 'j/tournaments/getca', cache : true},
      });
 });

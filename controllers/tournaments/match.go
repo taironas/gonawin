@@ -244,9 +244,12 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 // From a tournament entity return an array of MatchJson data structure.
 // second phase matches will have the specific rules in there team names
 func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
+	desc := "buildMatchesFromTournament"
+	log.Infof(c, "%s start", desc)
 	matchesJson := buildFirstPhaseMatches(c, t, u)
+	log.Infof(c, "%s done with buildFirstPhaseMatches", desc)
 	matches2ndPhase := buildSecondPhaseMatches(c, t, u)
-
+	log.Infof(c, "%s done with buildSecondPhaseMatches", desc)
 	matchesJson = append(matchesJson, matches2ndPhase...)
 
 	return matchesJson
@@ -254,14 +257,18 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 
 // From a tournament entity return an array of first phase MatchJson data structure.
 func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
+	desc := "buildMatchesFromTournament"
+	log.Infof(c, "%s start", desc)
+	log.Infof(c, "%s %v", desc, t.Matches1stStage)
 
 	matches := mdl.Matches(c, t.Matches1stStage)
-
+	log.Infof(c, "%s number of matches retrieved %v", desc, len(matches))
 	var predicts mdl.Predicts
 	predicts = mdl.PredictsByIds(c, u.PredictIds)
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
+		log.Infof(c, "%s tournament builder not found", desc)
 		return []MatchJson{}
 	}
 
