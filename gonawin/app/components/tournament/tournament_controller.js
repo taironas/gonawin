@@ -209,9 +209,9 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     };
 
     // tab at undefined means you are in tournament/:id url.
-    // So calendar should be active by default
+    // So matches should be active by default
     if($routeParams.tab === undefined) {
-      $scope.tab = 'calendar';
+      $scope.tab = 'matches';
     } else {
       // Initialize tab variable to handle views:
       $scope.tab = $routeParams.tab;
@@ -372,7 +372,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     });
 
   $scope.tabs = {
-      "calendar":         { title: 'Calendar',                url: 'components/tournament/tab_calendar.html' },
+      "matches":         { title: 'Matches',                url: 'components/tournament/tab_matches.html' },
       "firststage":       { title: 'First Stage',             url: 'components/tournament/tab_firststage.html' },
       "secondstage":      { title: 'Second Stage',            url: 'components/tournament/tab_secondstage.html' },
       "ranking":          { title: 'Ranking',                 url: 'components/tournament/tab_ranking.html' },
@@ -384,7 +384,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
 
   // set the current tab based on the 'tab' parameter
   if($scope.tab === undefined) {
-    $scope.currentTab = $scope.tabs["calendar"].url;
+    $scope.currentTab = $scope.tabs["matches"].url;
   } else {
     $scope.currentTab = $scope.tabs[$scope.tab].url;
   }

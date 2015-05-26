@@ -1,4 +1,5 @@
-'use strict'
+'use strict';
+
 var tournamentService = angular.module('tournamentService', ['ngResource']);
 
 tournamentService.factory('Tournament', function($http, $resource, $cookieStore) {

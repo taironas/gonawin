@@ -364,9 +364,9 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
 	$scope.joinButtonMethod = result;
     });
 
-  // tab at undefined means you are in tournament/:id url.
-  // So calendar should be active by default
-  if($routeParams.tab == undefined){
+  // tab at undefined means you are in teams/:id url.
+  // So members should be active by default
+  if($routeParams.tab === undefined){
     $scope.tab = 'members';
   } else {
     // Initialize tab variable to handle views:
@@ -382,7 +382,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   };
 
   // set the current tab based on the 'tab' parameter
-  if($scope.tab == undefined) {
+  if($scope.tab === undefined) {
     $scope.currentTab = $scope.tabs["members"].url;
   } else {
     $scope.currentTab = $scope.tabs[$scope.tab].url;
