@@ -139,9 +139,9 @@ func (cat CopaAmericaTournament) MapOf2ndRoundMatches() map[string][][]string {
 	m2nd5 := []string{"23", "Jun/29/2015", "W19", "W20", "Estadio Nacional, Santiago"}
 	m2nd6 := []string{"24", "Jun/30/2015", "W21", "W22", "Estadio Municipal de Concepción, Concepción"}
 	//19 Round 19  -  Match for third place
-	m2nd7 := []string{"25", "Jul/3/2015", "L23", "L24", "Estadio Municipal de Concepción, Concepción"}
+	m2nd7 := []string{"25", "Jul/03/2015", "L23", "L24", "Estadio Municipal de Concepción, Concepción"}
 	//"20" Final
-	m2nd8 := []string{"26", "Jul/4/2015", "W23", "W24", "Estadio Nacional, Santiago"}
+	m2nd8 := []string{"26", "Jul/04/2015", "W23", "W24", "Estadio Nacional, Santiago"}
 
 	var round17 [][]string
 	var round18 [][]string
