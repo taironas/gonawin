@@ -409,15 +409,17 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	user.Destroy(c)
 
-	// return destroyed status
-	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
-	}
+	dvm := buildDestroyUserViewModel(user)
+	return templateshlp.RenderJson(w, c, dvm)
+}
 
-	return templateshlp.RenderJson(w, c, data)
+type DestroyUserViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildDestroyUserViewModel(user *mdl.User) DestroyUserViewModel {
+	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
+	return DestroyUserViewModel{msg}
 }
 
 // removeTeamUserRels remove all team - user relationships.
