@@ -379,7 +379,7 @@ func nothingToUpdate(c appengine.Context, w http.ResponseWriter) error {
 
 }
 
-// Destroy hander, use this to remove a user from the datastore.
+// Destroy hander, use this to remove a user from gonawin.
 //	POST	/j/user/destroy/[0-9]+/		Destroys the user with the given id.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -397,24 +397,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// delete all team-user relationships
-	for _, teamId := range user.TeamIds {
-		if mdl.IsTeamAdmin(c, teamId, u.Id) {
-			var team *mdl.Team
-			if team, err = mdl.TeamById(c, teamId); err != nil {
-				log.Errorf(c, "%s team %d not found", desc, teamId)
-				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-			}
-			if err = team.RemoveAdmin(c, user.Id); err != nil {
-				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
-			}
-		} else {
-			if err := user.RemoveTeamId(c, teamId); err != nil {
-				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-			}
-		}
-	}
+	removeTeamUserRels(c, desc, user, u)
 
 	// delete all tournament-user relationships
 	for _, tournamentId := range user.TournamentIds {
@@ -483,6 +466,30 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	return templateshlp.RenderJson(w, c, data)
+}
+
+// removeTeamUserRels remove all team - user relationships.
+//
+func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
+	var err error
+	for _, teamId := range requestUser.TeamIds {
+		if mdl.IsTeamAdmin(c, teamId, currentUser.Id) {
+			var team *mdl.Team
+			if team, err = mdl.TeamById(c, teamId); err != nil {
+				log.Errorf(c, "%s team %d not found", desc, teamId)
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+			}
+			if err = team.RemoveAdmin(c, requestUser.Id); err != nil {
+				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
+			}
+		} else {
+			if err = requestUser.RemoveTeamId(c, teamId); err != nil {
+				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+			}
+		}
+	}
+	return nil
 }
 
 // Teams handler, use this to retreive the JSON data of the user teams.
