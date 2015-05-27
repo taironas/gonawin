@@ -36,16 +36,6 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// use this structure to get information of user in order to update it.
-type userData struct {
-	User struct {
-		Username string
-		Name     string
-		Alias    string
-		Email    string
-	}
-}
-
 // Index user handler, returns an http response with the information of the
 // current user.
 //
@@ -275,7 +265,18 @@ func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJson {
 	return inv
 }
 
-// User update handler.
+// use this structure to get information of user in order to update it.
+type userData struct {
+	User struct {
+		Username string
+		Name     string
+		Alias    string
+		Email    string
+	}
+}
+
+// Update user handler, use this handler to update a user entity.
+//
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -290,61 +291,92 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if userId, err = extract.UserId(); err != nil {
 		return err
-	}
-
-	if userId != u.Id {
+	} else if userId != u.Id {
 		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 	}
+
+	var updatedData *userData
+	if updatedData, err = userDataFromHTTPRequest(c, desc, r); err != nil {
+		return err
+	}
+
+	var update bool
+	if shouldUpdateUserEmail(updatedData.User.Email, u.Email) {
+		u.Email = updatedData.User.Email
+		update = true
+	}
+
+	if shouldUpdateUserAlias(updatedData.User.Alias, u.Alias) {
+		u.Alias = updatedData.User.Alias
+		update = true
+	}
+
+	if !update {
+		return nothingToUpdate(c, w)
+	}
+
+	if err = u.Update(c); err != nil {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+	}
+
+	uvm := buildUpdateViewModel(u)
+
+	return templateshlp.RenderJson(w, c, uvm)
+}
+
+type updateViewModel struct {
+	MessageInfo string       `json:",omitempty"`
+	User        mdl.UserJson `json:",omitempty"`
+}
+
+func buildUpdateViewModel(u *mdl.User) updateViewModel {
+
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
+	var uJson mdl.UserJson
+	helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
+
+	return updateViewModel{
+		"User was correctly updated.",
+		uJson,
+	}
+}
+
+func shouldUpdateUserEmail(new, old string) bool {
+	return helpers.IsEmailValid(new) && new != old
+}
+
+func shouldUpdateUserAlias(new, old string) bool {
+	return helpers.IsStringValid(new) && new != old
+}
+
+func userDataFromHTTPRequest(c appengine.Context, desc string, r *http.Request) (*userData, error) {
 
 	// only work on name other values should not be editable
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Errorf(c, "%s Error when reading request body err: %v.", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+		return nil, &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 	}
 
 	var updatedData userData
 	err = json.Unmarshal(body, &updatedData)
 	if err != nil {
 		log.Errorf(c, "%s Error when decoding request body err: %v.", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
+		return nil, &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 	}
-	update := false
-	if helpers.IsEmailValid(updatedData.User.Email) && updatedData.User.Email != u.Email {
-		u.Email = updatedData.User.Email
-		update = true
-	}
+	return &updatedData, nil
+}
 
-	if helpers.IsStringValid(updatedData.User.Alias) && updatedData.User.Alias != u.Alias {
-		u.Alias = updatedData.User.Alias
-		update = true
-	}
-
-	if update {
-		u.Update(c)
-	} else {
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			"Nothing to update.",
-		}
-		return templateshlp.RenderJson(w, c, data)
-	}
-
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
-	var uJson mdl.UserJson
-	helpers.InitPointerStructure(u, &uJson, fieldsToKeep)
-
+func nothingToUpdate(c appengine.Context, w http.ResponseWriter) error {
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		User        mdl.UserJson
 	}{
-		"User was correctly updated.",
-		uJson,
+		"Nothing to update.",
 	}
 	return templateshlp.RenderJson(w, c, data)
+
 }
 
 // Destroy hander, use this to remove a user from the datastore.
