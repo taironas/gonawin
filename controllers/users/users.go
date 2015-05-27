@@ -485,9 +485,10 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Teams handler, use this to retreive the JSON data of the user teams.
+// Teams handler, use this to retreive the teams of the current user.
 // count parameter: default 12
 // page parameter: default 1
+//
 func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -503,43 +504,26 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// get with param:
+	count := extract.CountOrDefault(25)
+	page := extract.Page()
+
 	var teams []*mdl.Team
-	// get count parameter, if not present count is set to 20
-	strcount := r.FormValue("count")
-	count := int64(25)
-	if len(strcount) > 0 {
-		if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-			log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-		} else {
-			count = n
-		}
-	}
-	// get page parameter, if not present set page to the first one.
-	strpage := r.FormValue("page")
-	page := int64(1)
-	if len(strpage) > 0 {
-		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-			page = 1
-		} else {
-			page = p
-		}
-	}
 	teams = user.TeamsByPage(c, count, page)
 
-	// teams
+	tvm := buildTeamsUserViewModel(teams)
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type TeamsUserViewModel struct {
+	Teams []mdl.TeamJson `json:",omitempty"`
+}
+
+func buildTeamsUserViewModel(teams []*mdl.Team) TeamsUserViewModel {
 	teamsFieldsToKeep := []string{"Id", "Name"}
 	teamsJson := make([]mdl.TeamJson, len(teams))
 	helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 
-	// data
-	data := struct {
-		Teams []mdl.TeamJson `json:",omitempty"`
-	}{
-		teamsJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return TeamsUserViewModel{teamsJson}
 }
 
 // Tournaments user handler, use this to retrieve the JSON data of the tournaments of the user.
