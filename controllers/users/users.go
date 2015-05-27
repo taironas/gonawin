@@ -397,25 +397,11 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	removeTeamUserRels(c, desc, user, u)
-
-	// delete all tournament-user relationships
-	for _, tournamentId := range user.TournamentIds {
-		if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
-			var tournament *mdl.Tournament
-			if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
-				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
-				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
-			}
-			if err = tournament.RemoveAdmin(c, user.Id); err != nil {
-				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
-				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
-			}
-		} else {
-			if err := user.RemoveTournamentId(c, tournamentId); err != nil {
-				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
-			}
-		}
+	if err = removeTeamUserRels(c, desc, user, u); err != nil {
+		return err
+	}
+	if err = removeTournameUserRels(c, desc, user, u); err != nil {
+		return err
 	}
 
 	// send task to delete activities of the user.
@@ -486,6 +472,31 @@ func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUs
 		} else {
 			if err = requestUser.RemoveTeamId(c, teamId); err != nil {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
+			}
+		}
+	}
+	return nil
+}
+
+// removeTournameUserRels deletes all tournament-user relationships.
+//
+func removeTournameUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
+
+	var err error
+	for _, tournamentId := range requestUser.TournamentIds {
+		if mdl.IsTournamentAdmin(c, tournamentId, currentUser.Id) {
+			var tournament *mdl.Tournament
+			if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
+				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
+				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
+			}
+			if err = tournament.RemoveAdmin(c, requestUser.Id); err != nil {
+				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
+				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
+			}
+		} else {
+			if err := requestUser.RemoveTournamentId(c, tournamentId); err != nil {
+				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 			}
 		}
 	}
