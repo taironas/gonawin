@@ -404,29 +404,9 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// send task to delete activities of the user.
 	sendTaskDeleteUserActivities(c, desc, u)
+	sendTaskDeleteUserPredictions(c, desc, u)
 
-	// send task to delete predicts of the user.
-
-	log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
-
-	predictsIds, err1 := json.Marshal(u.PredictIds)
-	if err1 != nil {
-		log.Errorf(c, "%s Error marshaling", desc, err1)
-	}
-
-	task := taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
-		"predict_ids": []string{string(predictsIds)},
-	})
-
-	if _, err := taskqueue.Add(c, task, ""); err != nil {
-		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-	} else {
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
-	}
-
-	// delete the user
 	user.Destroy(c)
 
 	// return destroyed status
@@ -508,6 +488,29 @@ func sendTaskDeleteUserActivities(c appengine.Context, desc string, u *mdl.User)
 
 	if _, err = taskqueue.Add(c, task, ""); err != nil {
 		log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+}
+
+// sendTaskDeleteUserPredictions sends a task to delete predicts of the user.
+//
+func sendTaskDeleteUserPredictions(c appengine.Context, desc string, u *mdl.User) {
+
+	log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
+
+	var predictsIds []byte
+	var err error
+	if predictsIds, err = json.Marshal(u.PredictIds); err != nil {
+		log.Errorf(c, "%s Error marshaling %v", desc, err)
+	}
+
+	task := taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
+		"predict_ids": []string{string(predictsIds)},
+	})
+
+	if _, err = taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue. %v", desc, err)
 	} else {
 		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
