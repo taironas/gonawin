@@ -546,14 +546,12 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // count parameter: default 25
 // page parameter: default 1
 func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "User joined teams handler:"
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "User joined teams handler:", r)
 
 	var user *mdl.User
 	var err error
@@ -561,44 +559,26 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// get with param:
-	var tournaments []*mdl.Tournament
-	// get count parameter, if not present count is set to 25
-	strcount := r.FormValue("count")
-	count := int64(25)
-	if len(strcount) > 0 {
-		if n, err := strconv.ParseInt(strcount, 0, 64); err != nil {
-			log.Errorf(c, "%s: error during conversion of count parameter: %v", desc, err)
-		} else {
-			count = n
-		}
-	}
+	count := extract.CountOrDefault(25)
+	page := extract.Page()
 
-	// get page parameter, if not present set page to the first one.
-	strpage := r.FormValue("page")
-	page := int64(1)
-	if len(strpage) > 0 {
-		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
-			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-			page = 1
-		} else {
-			page = p
-		}
-	}
-	tournaments = user.TournamentsByPage(c, count, page)
+	tournaments := user.TournamentsByPage(c, count, page)
 
-	// tournaments
-	tournamentsFieldsToKeep := []string{"Id", "Name"}
-	tournamentsJson := make([]mdl.TournamentJson, len(tournaments))
-	helpers.TransformFromArrayOfPointers(&tournaments, &tournamentsJson, tournamentsFieldsToKeep)
+	tvm := buildTournamentsUserViewModel(tournaments)
 
-	// data
-	data := struct {
-		Tournaments []mdl.TournamentJson `json:",omitempty"`
-	}{
-		tournamentsJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type tournamentsUserViewModel struct {
+	Tournaments []mdl.TournamentJson `json:",omitempty"`
+}
+
+func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUserViewModel {
+	fieldsToKeep := []string{"Id", "Name"}
+	json := make([]mdl.TournamentJson, len(tournaments))
+	helpers.TransformFromArrayOfPointers(&tournaments, &json, fieldsToKeep)
+
+	return tournamentsUserViewModel{json}
 }
 
 // AllowInvitation user handler, use it to allow an invitation to a team.
