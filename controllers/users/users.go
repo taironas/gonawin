@@ -405,24 +405,10 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// send task to delete activities of the user.
-	log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
-
-	activityIds, err1 := json.Marshal(u.ActivityIds)
-	if err1 != nil {
-		log.Errorf(c, "%s Error marshaling", desc, err1)
-	}
-
-	task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
-		"activity_ids": []string{string(activityIds)},
-	})
-
-	if _, err := taskqueue.Add(c, task, ""); err != nil {
-		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-	} else {
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
-	}
+	sendTaskDeleteUserActivities(c, desc, u)
 
 	// send task to delete predicts of the user.
+
 	log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
 
 	predictsIds, err1 := json.Marshal(u.PredictIds)
@@ -430,7 +416,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s Error marshaling", desc, err1)
 	}
 
-	task = taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
+	task := taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
 		"predict_ids": []string{string(predictsIds)},
 	})
 
@@ -501,6 +487,30 @@ func removeTournameUserRels(c appengine.Context, desc string, requestUser, curre
 		}
 	}
 	return nil
+}
+
+// sendTaskDeleteActivities sends a task to delete activities of the user.
+//
+func sendTaskDeleteUserActivities(c appengine.Context, desc string, u *mdl.User) {
+
+	log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
+
+	var activityIds []byte
+	var err error
+
+	if activityIds, err = json.Marshal(u.ActivityIds); err != nil {
+		log.Errorf(c, "%s Error marshaling", desc, err)
+	}
+
+	task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
+		"activity_ids": []string{string(activityIds)},
+	})
+
+	if _, err = taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
 }
 
 // Teams handler, use this to retreive the JSON data of the user teams.
