@@ -379,7 +379,7 @@ func nothingToUpdate(c appengine.Context, w http.ResponseWriter) error {
 
 }
 
-// Destroy hander, use this to remove a user from the datastore.
+// Destroy hander, use this to remove a user from gonawin.
 //	POST	/j/user/destroy/[0-9]+/		Destroys the user with the given id.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -397,92 +397,125 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// delete all team-user relationships
-	for _, teamId := range user.TeamIds {
-		if mdl.IsTeamAdmin(c, teamId, u.Id) {
+	if err = removeTeamUserRels(c, desc, user, u); err != nil {
+		return err
+	}
+	if err = removeTournameUserRels(c, desc, user, u); err != nil {
+		return err
+	}
+
+	sendTaskDeleteUserActivities(c, desc, u)
+	sendTaskDeleteUserPredictions(c, desc, u)
+
+	user.Destroy(c)
+
+	dvm := buildDestroyUserViewModel(user)
+	return templateshlp.RenderJson(w, c, dvm)
+}
+
+type DestroyUserViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildDestroyUserViewModel(user *mdl.User) DestroyUserViewModel {
+	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
+	return DestroyUserViewModel{msg}
+}
+
+// removeTeamUserRels remove all team - user relationships.
+//
+func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
+	var err error
+	for _, teamId := range requestUser.TeamIds {
+		if mdl.IsTeamAdmin(c, teamId, currentUser.Id) {
 			var team *mdl.Team
 			if team, err = mdl.TeamById(c, teamId); err != nil {
 				log.Errorf(c, "%s team %d not found", desc, teamId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 			}
-			if err = team.RemoveAdmin(c, user.Id); err != nil {
+			if err = team.RemoveAdmin(c, requestUser.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
 			}
 		} else {
-			if err := user.RemoveTeamId(c, teamId); err != nil {
+			if err = requestUser.RemoveTeamId(c, teamId); err != nil {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 			}
 		}
 	}
+	return nil
+}
 
-	// delete all tournament-user relationships
-	for _, tournamentId := range user.TournamentIds {
-		if mdl.IsTournamentAdmin(c, tournamentId, u.Id) {
+// removeTournameUserRels deletes all tournament-user relationships.
+//
+func removeTournameUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
+
+	var err error
+	for _, tournamentId := range requestUser.TournamentIds {
+		if mdl.IsTournamentAdmin(c, tournamentId, currentUser.Id) {
 			var tournament *mdl.Tournament
 			if tournament, err = mdl.TournamentById(c, tournamentId); err != nil {
 				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
-			if err = tournament.RemoveAdmin(c, user.Id); err != nil {
+			if err = tournament.RemoveAdmin(c, requestUser.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
 			}
 		} else {
-			if err := user.RemoveTournamentId(c, tournamentId); err != nil {
+			if err := requestUser.RemoveTournamentId(c, tournamentId); err != nil {
 				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 			}
 		}
 	}
+	return nil
+}
 
-	// send task to delete activities of the user.
+// sendTaskDeleteActivities sends a task to delete activities of the user.
+//
+func sendTaskDeleteUserActivities(c appengine.Context, desc string, u *mdl.User) {
+
 	log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
 
-	activityIds, err1 := json.Marshal(u.ActivityIds)
-	if err1 != nil {
-		log.Errorf(c, "%s Error marshaling", desc, err1)
+	var activityIds []byte
+	var err error
+
+	if activityIds, err = json.Marshal(u.ActivityIds); err != nil {
+		log.Errorf(c, "%s Error marshaling", desc, err)
 	}
 
 	task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
 		"activity_ids": []string{string(activityIds)},
 	})
 
-	if _, err := taskqueue.Add(c, task, ""); err != nil {
-		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+	if _, err = taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
 	} else {
 		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
+}
 
-	// send task to delete predicts of the user.
+// sendTaskDeleteUserPredictions sends a task to delete predicts of the user.
+//
+func sendTaskDeleteUserPredictions(c appengine.Context, desc string, u *mdl.User) {
+
 	log.Infof(c, "%s Sending to taskqueue: delete predicts", desc)
 
-	predictsIds, err1 := json.Marshal(u.PredictIds)
-	if err1 != nil {
-		log.Errorf(c, "%s Error marshaling", desc, err1)
+	var predictsIds []byte
+	var err error
+	if predictsIds, err = json.Marshal(u.PredictIds); err != nil {
+		log.Errorf(c, "%s Error marshaling %v", desc, err)
 	}
 
-	task = taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
+	task := taskqueue.NewPOSTTask("/a/publish/users/deletepredicts/", url.Values{
 		"predict_ids": []string{string(predictsIds)},
 	})
 
-	if _, err := taskqueue.Add(c, task, ""); err != nil {
-		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
+	if _, err = taskqueue.Add(c, task, ""); err != nil {
+		log.Errorf(c, "%s unable to add task to taskqueue. %v", desc, err)
 	} else {
 		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
-
-	// delete the user
-	user.Destroy(c)
-
-	// return destroyed status
-	msg := fmt.Sprintf("The user %s was correctly deleted!", user.Username)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
 }
 
 // Teams handler, use this to retreive the JSON data of the user teams.
