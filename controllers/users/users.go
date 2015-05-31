@@ -24,7 +24,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"appengine"
 	"appengine/taskqueue"
@@ -598,7 +597,8 @@ func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUse
 	return tournamentsUserViewModel{json}
 }
 
-// AllowInvitation user handler, use it to allow an invitation to a team.
+// AllowInvitation handler, use it to allow an invitation to a team.
+//
 func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "POST" {
@@ -615,42 +615,49 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		return err
 	}
 
-	ur := mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id)
-	if ur == nil {
+	// find user request
+	var ur *mdl.UserRequest
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	// add user as member of team.
+	// add user as member of team
 	if err = team.Join(c, u); err != nil {
 		log.Errorf(c, "Team Join Handler: error on Join team: %v", err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	// destroy user request.
+	// destroy user request
 	if err = ur.Destroy(c); err != nil {
 		log.Errorf(c, "%s error when destroying user request. Error: %v", err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TeamJson
+	// publish activity
+	if updatedUser, err := mdl.UserById(c, u.Id); err == nil && updatedUser != nil {
+		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+	}
+
+	vm := buildAllowInvitationUserViewModel(team)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type allowInvitationUserViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildAllowInvitationUserViewModel(team *mdl.Team) allowInvitationUserViewModel {
+
+	var json mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
-	// publish new activity
-	var updatedUser *mdl.User
-	if updatedUser, err = mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
-	}
-	updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
+	helpers.InitPointerStructure(team, &json, fieldsToKeep)
 
 	msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
+	return allowInvitationUserViewModel{
 		msg,
-		tJson,
+		json,
 	}
-	return templateshlp.RenderJson(w, c, data)
 }
 
 // DenyInvitation user handler, use it to deny an invitation to a team.
