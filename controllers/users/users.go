@@ -24,7 +24,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"appengine"
 	"appengine/taskqueue"
