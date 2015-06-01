@@ -29,7 +29,8 @@ import (
 	"github.com/santiaago/gonawin/helpers/log"
 )
 
-// Invite handler, use it to send an invitation via email.
+// Invite task handler, use it to send an invitation via email.
+//
 func Invite(w http.ResponseWriter, r *http.Request) error {
 
 	c := appengine.NewContext(r)
@@ -41,44 +42,12 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	log.Infof(c, "%s processing...", desc)
+
 	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
 
 		log.Infof(c, "%s reading data...", desc)
 
-		emailBlob := []byte(r.FormValue("email"))
-		nameBlob := []byte(r.FormValue("name"))
-		bodyBlob := []byte(r.FormValue("body"))
-
-		var email string
-		err1 := json.Unmarshal(emailBlob, &email)
-		if err1 != nil {
-			log.Errorf(c, "%s unable to extract email from data, %v", desc, err1)
-		}
-
-		var name string
-		err2 := json.Unmarshal(nameBlob, &name)
-		if err2 != nil {
-			log.Errorf(c, "%s unable to extract name from data, %v", desc, err2)
-		}
-
-		var body string
-		err3 := json.Unmarshal(bodyBlob, &body)
-		if err3 != nil {
-			log.Errorf(c, "%s unable to extract body from data, %v", desc, err3)
-		}
-
-		log.Infof(c, "%s value of email: %v", desc, email)
-		log.Infof(c, "%s value of name: %v", desc, name)
-		log.Infof(c, "%s value of body: %v", desc, body)
-
-		log.Infof(c, "%s crunching data...", desc)
-
-		msg := &mail.Message{
-			Sender:  "No Reply gonawin <no-reply@gonawin.com>",
-			To:      []string{email},
-			Subject: name + " wants you to join Gonawin!",
-			Body:    body,
-		}
+		msg := buildMessage(c, desc, r)
 
 		if err := mail.Send(c, msg); err != nil {
 			log.Errorf(c, "%s: couldn't send email: %v", desc, err)
@@ -96,4 +65,35 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	return nil
+}
+
+func buildMessage(c appengine.Context, desc string, r *http.Request) *mail.Message {
+
+	emailBlob := []byte(r.FormValue("email"))
+	nameBlob := []byte(r.FormValue("name"))
+	bodyBlob := []byte(r.FormValue("body"))
+
+	email := decode(c, desc, emailBlob)
+	name := decode(c, desc, nameBlob)
+	body := decode(c, desc, bodyBlob)
+
+	log.Infof(c, "%s value of email: %v", desc, email)
+	log.Infof(c, "%s value of name: %v", desc, name)
+	log.Infof(c, "%s value of body: %v", desc, body)
+
+	log.Infof(c, "%s crunching data...", desc)
+
+	return &mail.Message{
+		Sender:  "No Reply gonawin <no-reply@gonawin.com>",
+		To:      []string{email},
+		Subject: name + " wants you to join Gonawin!",
+		Body:    body,
+	}
+}
+
+func decode(c appengine.Context, desc string, blob []byte) (v string) {
+	if err := json.Unmarshal(blob, &v); err != nil {
+		log.Errorf(c, "%s unable to extract object from data, %v", desc, err)
+	}
+	return
 }
