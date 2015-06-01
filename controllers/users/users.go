@@ -652,7 +652,8 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// DenyInvitation user handler, use it to deny an invitation to a team.
+// DenyInvitation handler, use it to deny an invitation to a team.
+//
 func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -664,25 +665,30 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-
 	if team, err = extract.Team(); err != nil {
 		return err
 	}
 
-	ur := mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id)
-	if ur == nil {
+	var ur *mdl.UserRequest
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	// destroy user request.
-	if errd := ur.Destroy(c); errd != nil {
-		log.Errorf(c, "%s error when destroying user request. Error: %v", errd)
+	if err = ur.Destroy(c); err != nil {
+		log.Errorf(c, "%s error when destroying user request. Error: %v", err)
 	}
-	msg := fmt.Sprintf("You denied an invitation to team %s.", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
+
+	vm := buildDenyInvitationUserViewModel(team.Name)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type DenyInvitationUserViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildDenyInvitationUserViewModel(name string) DenyInvitationUserViewModel {
+	return DenyInvitationUserViewModel{
+		fmt.Sprintf("You denied an invitation to team %s.", name),
 	}
-	return templateshlp.RenderJson(w, c, data)
 }
