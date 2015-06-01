@@ -28,7 +28,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// User score handler, returns the JSON data of the requested user.
+// Score handler, returns the score data of the requested user.
+//
 func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -37,18 +38,23 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	extract := extract.NewContext(c, "User Score Handler:", r)
 
-	user, err := extract.User()
-	if err != nil {
+	var user *mdl.User
+	var err error
+	if user, err = extract.User(); err != nil {
 		return err
 	}
 
 	scores := user.TournamentsScores(c)
 
-	data := struct {
-		Scores []*mdl.ScoreOverall
-	}{
-		scores,
-	}
+	vm := buildScoreUserViewModel(scores)
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type scoreUserViewModel struct {
+	Scores []*mdl.ScoreOverall
+}
+
+func buildScoreUserViewModel(scores []*mdl.ScoreOverall) scoreUserViewModel {
+	return scoreUserViewModel{scores}
 }
