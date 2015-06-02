@@ -28,7 +28,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// DeleteUserActivities handler, use it to delete user activities.
+// DeleteUserActivities task handler, use it to delete user activities.
+//
 func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 
 	c := appengine.NewContext(r)
@@ -40,17 +41,16 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	log.Infof(c, "%s processing...", desc)
-
 	log.Infof(c, "%s reading data...", desc)
+
 	activityIdsBlob := []byte(r.FormValue("activity_ids"))
 
 	var activityIds []int64
-	err := json.Unmarshal(activityIdsBlob, &activityIds)
-	if err != nil {
+	if err := json.Unmarshal(activityIdsBlob, &activityIds); err != nil {
 		log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err)
 	}
 
-	if err = mdl.DestroyActivities(c, activityIds); err != nil {
+	if err := mdl.DestroyActivities(c, activityIds); err != nil {
 		log.Errorf(c, "%s activities have not been deleted. %v", desc, err)
 	}
 
@@ -58,7 +58,8 @@ func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// DeleteUserPredicts handler, use it to delete the predictions of a given user.
+// DeleteUserPredicts task handler, use it to delete the predictions of a given user.
+//
 func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
 
 	c := appengine.NewContext(r)
@@ -70,17 +71,16 @@ func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	log.Infof(c, "%s processing...", desc)
-
 	log.Infof(c, "%s reading data...", desc)
+
 	predictIdsBlob := []byte(r.FormValue("predict_ids"))
 
 	var predictIds []int64
-	err := json.Unmarshal(predictIdsBlob, &predictIds)
-	if err != nil {
+	if err := json.Unmarshal(predictIdsBlob, &predictIds); err != nil {
 		log.Errorf(c, "%s unable to extract predictIds from data, %v", desc, err)
 	}
 
-	if err = mdl.DestroyPredicts(c, predictIds); err != nil {
+	if err := mdl.DestroyPredicts(c, predictIds); err != nil {
 		log.Errorf(c, "%s predicts have not been deleted. %v", desc, err)
 	}
 
