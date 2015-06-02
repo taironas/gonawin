@@ -140,7 +140,6 @@ func init() {
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/updateteam", checkErrors(adminAuthorized(tournamentsctrl.UpdateTeam)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/add/:userId", checkErrors(adminAuthorized(tournamentsctrl.AddAdmin)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/remove/:userId", checkErrors(adminAuthorized(tournamentsctrl.RemoveAdmin)))
-	r.HandleFunc("/j/tournaments/:tournamentId/admin/syncscores", checkErrors(adminAuthorized(tournamentsctrl.SyncScores)))
 	r.HandleFunc("/j/tournaments/:tournamentId/admin/activatephase", checkErrors(adminAuthorized(tournamentsctrl.ActivatePhase)))
 
 	// activities
@@ -154,7 +153,6 @@ func init() {
 	r.HandleFunc("/a/create/scoreentities", checkErrors(tasksctrl.CreateScoreEntities))
 	r.HandleFunc("/a/add/scoreentities/score", checkErrors(tasksctrl.AddScoreToScoreEntities))
 	r.HandleFunc("/a/invite", checkErrors(tasksctrl.Invite))
-	r.HandleFunc("/a/sync/scores/", checkErrors(tasksctrl.SyncScores))
 	r.HandleFunc("/a/publish/users/deletepredicts", checkErrors(tasksctrl.DeleteUserPredicts))
 
 	http.Handle("/", r)
