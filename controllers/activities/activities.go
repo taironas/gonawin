@@ -51,12 +51,12 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	activities := mdl.FindActivities(c, u, count, page)
 	log.Infof(c, "%s activities = %v", desc, activities)
 
-	json := activitiesToJSON(activities)
+	vm := buildActivitiesIndexViewModel(activities)
 
-	return templateshlp.RenderJson(w, c, json)
+	return templateshlp.RenderJson(w, c, vm)
 }
 
-func activitiesToJSON(activities []*mdl.Activity) []mdl.ActivityJson {
+func buildActivitiesIndexViewModel(activities []*mdl.Activity) []mdl.ActivityJson {
 	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
 	json := make([]mdl.ActivityJson, len(activities))
 	helpers.TransformFromArrayOfPointers(&activities, &json, fieldsToKeep)
