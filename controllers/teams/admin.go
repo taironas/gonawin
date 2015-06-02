@@ -33,7 +33,6 @@ import (
 
 // AddAdmin handler, use it to add an admin to a team.
 //
-// Use this handler to add a user as admin of current team.
 //	GET	/j/teams/:teamId/admin/add/:userId
 //
 func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -47,15 +46,15 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-	team, err = extract.Team()
-	if err != nil {
-		return err
+	if team, err = extract.Team(); err != nil {
+		log.Errorf(c, "%s error on AddAdmin to team: extract.Team() %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	var newAdmin *mdl.User
-	newAdmin, err = extract.User()
-	if err != nil {
-		return err
+	if newAdmin, err = extract.User(); err != nil {
+		log.Errorf(c, "%s error on AddAdmin to team: extract.User() %v", desc, err)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	if err = team.AddAdmin(c, newAdmin.Id); err != nil {
@@ -63,20 +62,23 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TeamJson
+	vm := buildTeamAddAdminViewModel(team, newAdmin)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type teamAddAdminViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildTeamAddAdminViewModel(team *mdl.Team, newAdmin *mdl.User) teamAddAdminViewModel {
+
+	var t mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of team %s.", newAdmin.Name, team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return teamAddAdminViewModel{msg, t}
 }
 
 // RemoveAdmin handler, use it to remove an admin from a team.
@@ -95,15 +97,15 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-	team, err = extract.Team()
-	if err != nil {
-		return err
+	if team, err = extract.Team(); err != nil {
+		log.Errorf(c, "%s error on RemoveAdmin to team: extract.Team() %v.", desc, err)
+		return &helpers.InternalServerError{Err: err}
 	}
 
 	var oldAdmin *mdl.User
-	oldAdmin, err = extract.User()
-	if err != nil {
-		return err
+	if oldAdmin, err = extract.User(); err != nil {
+		log.Errorf(c, "%s error on RemoveAdmin to team: extract.User() %v.", desc, err)
+		return &helpers.InternalServerError{Err: err}
 	}
 
 	if err = team.RemoveAdmin(c, oldAdmin.Id); err != nil {
@@ -111,17 +113,22 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	var tJson mdl.TeamJson
+	vm := buildTeamRemoveAdminViewModel(team, oldAdmin)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type teamRemoveAdminViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildTeamRemoveAdminViewModel(team *mdl.Team, oldAdmin *mdl.User) teamRemoveAdminViewModel {
+	var t mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of team %s.", oldAdmin.Name, team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+
+	return teamRemoveAdminViewModel{msg, t}
+
 }
