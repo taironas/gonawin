@@ -32,7 +32,6 @@ import (
 
 // Accuracies handler, use it to get the accuracies of a team.
 //
-// Use this handler to get the accuracies of a team.
 //	GET	/j/teams/:teamId/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
@@ -44,26 +43,26 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Team Accuracies Handler:"
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "Team Accuracies Handler:", r)
 
 	var t *mdl.Team
 	var err error
-	t, err = extract.Team()
-	if err != nil {
+	if t, err = extract.Team(); err != nil {
 		return err
 	}
 
-	log.Infof(c, "%s ready to build a acc array", desc)
+	vm := buildTeamAccuraciesViewModel(c, t)
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type teamAccuraciesViewModel struct {
+	Accuracies *[]mdl.AccuracyOverall
+}
+
+func buildTeamAccuraciesViewModel(c appengine.Context, t *mdl.Team) teamAccuraciesViewModel {
 	accs := t.AccuraciesGroupByTournament(c, 5)
-
-	data := struct {
-		Accuracies *[]mdl.AccuracyOverall
-	}{
-		accs,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return teamAccuraciesViewModel{accs}
 }
 
 // AccuracyByTournament handler, use it to get the team accuracies by tournament:
