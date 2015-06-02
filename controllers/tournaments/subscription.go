@@ -159,12 +159,12 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 	// publish new activity
-	var updatedteam *mdl.Team
-	if updatedteam, err = mdl.TeamById(c, teamId); err != nil {
+	var updatedTeam *mdl.Team
+	if updatedTeam, err = mdl.TeamById(c, teamId); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
-	updatedteam.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
+	updatedTeam.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 	msg := fmt.Sprintf("Team %s joined tournament %s.", team.Name, tournament.Name)
 	data := struct {
@@ -217,10 +217,12 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
+	var updatedTeam *mdl.Team
+	if updatedTeam, err = mdl.TeamById(c, teamId); err != nil {
+		log.Errorf(c, "%s team not found: %v", desc, err)
+		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	} else {
-		updatedUser.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
+		updatedTeam.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
 	}
 
 	msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
