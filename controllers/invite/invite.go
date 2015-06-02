@@ -35,6 +35,91 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
+// Invite handler, use it to invite users to use gonawin.
+// It expects a list of emails using the url param 'emails'
+//
+func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+	if r.Method != "POST" {
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+	}
+
+	desc := "invite handler:"
+	c := appengine.NewContext(r)
+
+	var emailsList string
+	if emailsList = r.FormValue("emails"); len(emailsList) <= 0 {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
+	}
+
+	emails := parseEmails(emailsList)
+
+	if !helpers.AreEmailsValid(emails) {
+		log.Errorf(c, "%s emails are not valid", desc, emails)
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
+	}
+
+	body := buildEmailBody(r)
+
+	// send tasks to send emails
+	processEmails(c, desc, emails, body, u)
+
+	vm := buildInviteViewModel()
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+func processEmails(c appengine.Context, desc string, emails []string, body string, u *mdl.User) error {
+
+	bname := encode(c, desc, u.Name)
+	bbody := encode(c, desc, body)
+
+	for _, email := range emails {
+		bemail := encode(c, desc, email)
+
+		task := taskqueue.NewPOSTTask("/a/invite/", url.Values{
+			"email": []string{string(bemail)},
+			"name":  []string{string(bname)},
+			"body":  []string{string(bbody)},
+		})
+		if _, err := taskqueue.Add(c, task, ""); err != nil {
+			log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
+			return err
+		}
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
+	}
+	return nil
+}
+
+type inviteViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildInviteViewModel() inviteViewModel {
+	msg := fmt.Sprintf("Email invitations have been successfully sent.")
+	return inviteViewModel{msg}
+}
+
+// parseEmails split string by ',' and
+// removes the leading and trailing spaces from each email.
+//
+func parseEmails(emailsList string) []string {
+	rawEmails := strings.Split(emailsList, ",")
+	emails := make([]string, 0)
+	for _, e := range rawEmails {
+		emails = append(emails, strings.Trim(e, " "))
+	}
+	return emails
+}
+
+func encode(c appengine.Context, desc, s string) []byte {
+	var b []byte
+	var err error
+	if b, err = json.Marshal(s); err != nil {
+		log.Errorf(c, "%s Error marshaling %v", desc, err)
+	}
+	return b
+}
+
 const inviteMessage = `
 Hi there,
 Join us at gonawin.
@@ -49,72 +134,7 @@ Your friends @ Gonawin
 
 `
 
-// Invite handler, use it to invite users to use gonawin.
-func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	desc := "invite handler:"
-	c := appengine.NewContext(r)
-
-	emailsList := r.FormValue("emails")
-
-	if len(emailsList) <= 0 {
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteNoEmailAddr)}
-	}
-	splitemails := strings.Split(emailsList, ",")
-
-	// remove leading and trailing spaces from each email.
-	emails := make([]string, 0)
-	for _, e := range splitemails {
-		emails = append(emails, strings.Trim(e, " "))
-	}
-
-	// validate emails
-	if !helpers.AreEmailsValid(emails) {
-		log.Errorf(c, "%s emails not valid dude!", desc, emails)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailsInvalid)}
-	}
-
+func buildEmailBody(r *http.Request) string {
 	currenturl := fmt.Sprintf("http://%s/#", r.Host)
-	body := fmt.Sprintf(inviteMessage, currenturl)
-
-	bname, errname := json.Marshal(u.Name)
-	if errname != nil {
-		log.Errorf(c, "%s Error marshaling", desc, errname)
-	}
-
-	bbody, errbody := json.Marshal(body)
-	if errbody != nil {
-		log.Errorf(c, "%s Error marshaling", desc, errbody)
-	}
-
-	for _, email := range emails {
-
-		bemail, errm := json.Marshal(email)
-		if errm != nil {
-			log.Errorf(c, "%s Error marshaling", desc, errm)
-		}
-
-		task := taskqueue.NewPOSTTask("/a/invite/", url.Values{
-			"email": []string{string(bemail)},
-			"name":  []string{string(bname)},
-			"body":  []string{string(bbody)},
-		})
-		if _, err := taskqueue.Add(c, task, ""); err != nil {
-			log.Errorf(c, "%s unable to add task to taskqueue.", desc)
-			return err
-		} else {
-			log.Infof(c, "%s add task to taskqueue successfully", desc)
-		}
-	}
-	msg := fmt.Sprintf("Email invitations have been successfully sent.")
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return fmt.Sprintf(inviteMessage, currenturl)
 }
