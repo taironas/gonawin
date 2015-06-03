@@ -24,7 +24,6 @@ import (
 
 	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
 	templateshlp "github.com/santiaago/gonawin/helpers/templates"
 
 	mdl "github.com/santiaago/gonawin/models"
@@ -32,7 +31,6 @@ import (
 
 // Accuracies handler, use it to get the accuracies of a team.
 //
-// Use this handler to get the accuracies of a team.
 //	GET	/j/teams/:teamId/accuracies	retrieves all the tournament accuracies of a team with the given id.
 //
 // The response is an array of accurracies for the specified team group by tournament with the last 5 progressions.
@@ -44,31 +42,30 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Team Accuracies Handler:"
-	extract := extract.NewContext(c, desc, r)
+	extract := extract.NewContext(c, "Team Accuracies Handler:", r)
 
 	var t *mdl.Team
 	var err error
-	t, err = extract.Team()
-	if err != nil {
+	if t, err = extract.Team(); err != nil {
 		return err
 	}
 
-	log.Infof(c, "%s ready to build a acc array", desc)
+	vm := buildTeamAccuraciesViewModel(c, t)
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type teamAccuraciesViewModel struct {
+	Accuracies *[]mdl.AccuracyOverall
+}
+
+func buildTeamAccuraciesViewModel(c appengine.Context, t *mdl.Team) teamAccuraciesViewModel {
 	accs := t.AccuraciesGroupByTournament(c, 5)
-
-	data := struct {
-		Accuracies *[]mdl.AccuracyOverall
-	}{
-		accs,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return teamAccuraciesViewModel{accs}
 }
 
 // AccuracyByTournament handler, use it to get the team accuracies by tournament:
 //
-// Use this handler to get the accuracies of a team for a specific tournament.
 //	GET	/j/teams/:teamId/accuracies/:tournamentId	retrieves accuracies of a team with the given id for the specified tournament.
 //
 // The response is an array of accurracies for the specified team team group by tournament with all it's progressions.
@@ -84,24 +81,24 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 
 	var t *mdl.Team
 	var err error
-	t, err = extract.Team()
-	if err != nil {
+	if t, err = extract.Team(); err != nil {
 		return err
 	}
 
 	var tour *mdl.Tournament
-	tour, err = extract.Tournament()
-	if err != nil {
+	if tour, err = extract.Tournament(); err != nil {
 		return err
 	}
 
-	log.Infof(c, "%s ready to build a acc array", desc)
-	acc := t.AccuracyByTournament(c, tour)
+	vm := buildAccuracyByTournamentViewModel(c, t, tour)
+	return templateshlp.RenderJson(w, c, vm)
+}
 
-	data := struct {
-		Accuracy *mdl.AccuracyOverall
-	}{
-		acc,
-	}
-	return templateshlp.RenderJson(w, c, data)
+type accuracyByTournamentViewModel struct {
+	Accuracy *mdl.AccuracyOverall
+}
+
+func buildAccuracyByTournamentViewModel(c appengine.Context, t *mdl.Team, tour *mdl.Tournament) accuracyByTournamentViewModel {
+	acc := t.AccuracyByTournament(c, tour)
+	return accuracyByTournamentViewModel{acc}
 }
