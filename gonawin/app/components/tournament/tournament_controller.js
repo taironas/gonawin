@@ -378,7 +378,6 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
       "ranking":          { title: 'Ranking',                 url: 'components/tournament/tab_ranking.html' },
       "predictions":      { title: 'Predictions',             url: 'components/tournament/tab_predictions.html' },
       "admin.setresults": { title: 'Set Results',             url: 'components/tournament/tab_setresults.html' },
-      "admin.syncdata":   { title: 'Sync Data',               url: 'components/tournament/tab_syncdata.html' },
       "admin.setteams":   { title: 'Set Teams',               url: 'components/tournament/tab_setteams.html' }
   };
 
@@ -665,26 +664,6 @@ tournamentControllers.controller('TournamentSetResultsCtrl', ['$scope', '$routeP
 				      function(response){
 					  console.log('block match predictions failed.')
 				      });
-    };
-
-}]);
-
-// TournamentSyncDataCtrl (admin): sync data.
-tournamentControllers.controller('TournamentSyncDataCtrl', ['$scope', '$routeParams', 'Tournament', '$location',function($scope, $routeParams, Tournament, $location) {
-    $scope.syncResults = function(){
-	console.log('sync results');
-	console.log('not yet implemented...');
-    };
-
-    $scope.syncScores = function(){
-	console.log('sync scores');
-	Tournament.syncScores({id:$routeParams.id},
-			       function(response){
-				   console.log('sync scores successfull');
-			       },
-			       function(response){
-				   console.log('unable to sync scores successfully');
-			       });
     };
 
 }]);

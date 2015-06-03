@@ -52,7 +52,6 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        activatePhase: {method: 'POST', url: 'j/tournaments/:id/admin/activatephase?phase=:phaseName'},
        addAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/add/:userId'},
        removeAdmin: {method: 'POST', url: 'j/tournaments/:id/admin/remove/:userId'},
-       syncScores: {method: 'POST', url: 'j/tournaments/:id/admin/syncscores'},
        saveChampionsLeague: {method: 'POST', url: 'j/tournaments/newcl'},
        getChampionsLeague: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
        saveCopaAmerica: {method: 'POST', url: 'j/tournaments/newca'},
