@@ -583,34 +583,52 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 }]);
 
 // TournamentPredictionsCtrl: collects complete data of specific tournament (matches, predictions)
-tournamentControllers.controller('TournamentPredictionsCtrl', ['$scope', '$routeParams', 'Tournament', 'User', '$location',function($scope, $routeParams, Tournament, User, $location) {
+tournamentControllers.controller('TournamentPredictionsCtrl', ['$scope', '$routeParams', 'Tournament', 'User', '$location',
+  function($scope, $routeParams, Tournament, User, $location) {
     console.log('Tournament predictions controller');
-    $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
-    if($scope.currentUser.Teams !== undefined && $scope.currentUser.Teams.length > 0) {
-      $scope.selectedTeamId = $scope.currentUser.Teams[0].Id;
-    }
-    console.log('current selected team:', $scope.selectedTeamId);
+    Tournament.get({ id:$routeParams.id }).$promise.then(function(response) {
+      if($scope.currentUser.Teams !== undefined && $scope.currentUser.Teams.length > 0) {
+        $scope.teams = filteredTeams($scope.currentUser.Teams, response.Teams);
+        $scope.selectedTeamId = $scope.teams[0].Id;
 
-    if($scope.selectedTeamId !== undefined)
-	$scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
+        if($scope.selectedTeamId !== undefined)
+          $scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
+      }
+    });
 
     $scope.update = function() {
-	$scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
-    }
+      $scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
+    };
+
     $scope.groupby = $routeParams.groupby;
-  // $locationChangeSuccess event is triggered when url changes.
-  // note: this event is not triggered when page is refreshed.
-  $scope.$on('$locationChangeSuccess', function(event) {
-    console.log('tournament predictions: location changed:');
-    console.log('tournament predictions: routeparams', $routeParams);
-    // set tab parameter to new tab parameter.
-    // use this to have to last state in order to display the proper view.
-    if($routeParams.tab !== undefined){
-      $scope.groupby = $routeParams.groupby;
+    // $locationChangeSuccess event is triggered when url changes.
+    // note: this event is not triggered when page is refreshed.
+    $scope.$on('$locationChangeSuccess', function(event) {
+      console.log('tournament predictions: location changed:');
+      console.log('tournament predictions: routeparams', $routeParams);
+      // set tab parameter to new tab parameter.
+      // use this to have to last state in order to display the proper view.
+      if($routeParams.tab !== undefined){
+        $scope.groupby = $routeParams.groupby;
+      }
+    });
+
+    // keep user's teams added to the given tournament
+    function filteredTeams(userTeams, tournamentTeams) {
+      var teams = [];
+      for(var i = 0; i < userTeams.length; i++) {
+        for(var j = 0; j < tournamentTeams.length; j++) {
+          if(userTeams[i].Id == tournamentTeams[j].Id) {
+            teams.push(userTeams[i]);
+          }
+        }
+      }
+
+      return teams;
     }
-  });
-}]);
+  }
+]);
 
 // TournamentSetResultsCtrl (admin): update results.
 // ToDo: Should only be available if you are admin

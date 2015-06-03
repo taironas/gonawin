@@ -7,7 +7,7 @@
   <div class="row">
     <div class="col-md-5 col-md-offset-1">
       <select ng-model="selectedTeamId" class="form-control" ng-change="update()">
-      	<option ng-repeat="t in currentUser.Teams" value="{{t.Id}}">
+      	<option ng-repeat="t in teams" value="{{t.Id}}">
       	  {{t.Name}}
       	</option>
       </select>
