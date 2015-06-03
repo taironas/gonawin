@@ -32,7 +32,7 @@ import (
 )
 
 // Join handler, use it to subscribe a user to a team.
-// New user activity will be published
+// New user activity will be pushlished
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 // Reponse: a JSON formatted team.
 //
@@ -47,14 +47,19 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-	if team, err = extract.Team(); err != nil {
-		return &helpers.InternalServerError{Err: err}
+	team, err = extract.Team()
+	if err != nil {
+		return err
 	}
 
-	if err = team.Join(c, u); err != nil {
+	if err := team.Join(c, u); err != nil {
 		log.Errorf(c, "%s  error on Join team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
+
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	// publish new activity
 	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
@@ -63,22 +68,16 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
 
-	vm := buildTeamJoinViewModel(team)
-	return templateshlp.RenderJson(w, c, vm)
-}
-
-type TeamJoinViewModel struct {
-	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
-}
-
-func buildTeamJoinViewModel(team *mdl.Team) TeamJoinViewModel {
-	var t mdl.TeamJson
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &t, fieldsToKeep)
-
 	msg := fmt.Sprintf("You joined team %s.", team.Name)
-	return TeamJoinViewModel{msg, t}
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+		Team        mdl.TeamJson
+	}{
+		msg,
+		tJson,
+	}
+
+	return templateshlp.RenderJson(w, c, data)
 }
 
 // Leave handler, use it to make a user leave a team.
