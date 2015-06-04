@@ -46,24 +46,27 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var t *mdl.Team
 	var err error
-	t, err = extract.Team()
-	if err != nil {
-		return err
+	if t, err = extract.Team(); err != nil {
+		return &helpers.InternalServerError{Err: err}
 	}
 
 	log.Infof(c, "%s ready to build a user array", desc)
 	users := t.RankingByUser(c, 50)
 
+	vm := buildTeamRankingViewModel(users)
+
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type teamRankingViewModel struct {
+	Users []mdl.UserJson
+}
+
+func buildTeamRankingViewModel(users []*mdl.User) teamRankingViewModel {
 	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-	usersJson := make([]mdl.UserJson, len(users))
-	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+	u := make([]mdl.UserJson, len(users))
+	helpers.TransformFromArrayOfPointers(&users, &u, fieldsToKeep)
 
-	data := struct {
-		Users []mdl.UserJson
-	}{
-		usersJson,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return teamRankingViewModel{u}
 
 }
