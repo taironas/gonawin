@@ -149,16 +149,9 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 		return err
 	}
 
-	var teamId int64
-	if teamId, err = extract.TeamId(); err != nil {
-		return err
-	}
-
 	var team *mdl.Team
-	team, err = mdl.TeamById(c, teamId)
-	if err != nil {
-		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	if team, err = extract.Team(); err != nil {
+		return err
 	}
 
 	players := team.Players(c)
