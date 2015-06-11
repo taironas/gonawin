@@ -592,8 +592,7 @@ tournamentControllers.controller('TournamentPredictionsCtrl', ['$scope', '$route
         $scope.teams = filteredTeams($scope.currentUser.Teams, response.Teams);
         $scope.selectedTeamId = $scope.teams[0].Id;
 
-        if($scope.selectedTeamId !== undefined)
-          $scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
+        $scope.matchesData = Tournament.calendarWithPrediction({id:$routeParams.id, teamId:$scope.selectedTeamId, groupby:$routeParams.groupby});
       }
     });
 
