@@ -419,7 +419,7 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 	for _, uId := range t.UserIds {
 		user, err := UserById(c, uId)
 		if err != nil {
-			log.Errorf(c, " Participants, cannot find user with ID=%", uId)
+			log.Errorf(c, " Participants, cannot find user with ID=%v", uId)
 		} else {
 			users = append(users, user)
 		}
