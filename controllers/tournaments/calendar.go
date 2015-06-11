@@ -154,7 +154,10 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 		return err
 	}
 
-	players := team.Players(c)
+	var players []*mdl.User
+	if players, err = team.Players(c); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
 
 	predictsByPlayer := make([]mdl.Predicts, len(players))
 	for i, p := range players {

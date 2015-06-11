@@ -176,6 +176,34 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 	return &u, nil
 }
 
+// Get an array of pointers to Users with respect to an array of ids.
+func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
+
+	users := make([]*User, len(ids))
+	keys := UserKeysByIds(c, ids)
+	if err := datastore.GetMulti(c, keys, users); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, " UsersByIds, missing key: %v", err)
+					users[i] = nil
+				}
+			}
+		} else {
+			return nil, err
+		}
+	}
+	return users, nil
+}
+
+func UserKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = UserKeyById(c, id)
+	}
+	return keys
+}
+
 // Get key pointer given a user id.
 func UserKeyById(c appengine.Context, id int64) *datastore.Key {
 
@@ -610,18 +638,4 @@ func GetWordFrequencyForUser(c appengine.Context, id int64, word string) int64 {
 		return helpers.CountTerm(strings.Split(users[0].Name, " "), word)
 	}
 	return 0
-}
-
-// Get an array of pointers to Users with respect to an array of ids.
-func UsersByIds(c appengine.Context, ids []int64) []*User {
-
-	var users []*User
-	for _, id := range ids {
-		if user, err := UserById(c, id); err == nil {
-			users = append(users, user)
-		} else {
-			log.Errorf(c, " Users.ByIds, error occurred during ByIds call: %v", err)
-		}
-	}
-	return users
 }

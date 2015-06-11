@@ -66,7 +66,13 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 	teamsToUpdate := make([]*Team, 0)
 	for _, team := range teams {
 		sumScore := int64(0)
-		players := team.Players(c)
+		var players []*User
+		var err error
+		if players, err = team.Players(c); err != nil {
+			log.Errorf(c, "%s error when calling team.Player user: %v", desc, err)
+			continue
+		}
+
 		if len(players) == 0 {
 			// a team with 0 players? this should never happen, just skip to the next.
 			continue
