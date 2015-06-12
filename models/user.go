@@ -181,13 +181,17 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 // It only return the found users.
 //
 func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
+
 	users := make([]User, len(ids))
 	keys := UserKeysByIds(c, ids)
+
+	var wrongIndexes []int
 	if err := datastore.GetMulti(c, keys, users); err != nil {
 		if me, ok := err.(appengine.MultiError); ok {
 			for i, merr := range me {
 				if merr == datastore.ErrNoSuchEntity {
 					log.Errorf(c, "UsersByIds, missing key: %v %v", err, keys[i].IntID())
+					wrongIndexes = append(wrongIndexes, i)
 				}
 			}
 		} else {
@@ -195,14 +199,23 @@ func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
 		}
 	}
 
-	var nonNilUsers []*User
+	var existingUsers []*User
 	for i := range users {
-		// Users with zero ids (not found) are filtered.
-		if users[i].Id != 0 {
-			nonNilUsers = append(nonNilUsers, &users[i])
+		if !contains(wrongIndexes, i) {
+			log.Infof(c, "UsersByIds %v", users[i])
+			existingUsers = append(existingUsers, &users[i])
 		}
 	}
-	return nonNilUsers, nil
+	return existingUsers, nil
+}
+
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
 
 func UserKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
