@@ -293,14 +293,7 @@ func (t *Team) Players(c appengine.Context) ([]*User, error) {
 		return nil, err
 	}
 
-	var nonNilUsers []*User
-	for i := range users {
-		if users[i] != nil {
-			nonNilUsers = append(nonNilUsers, users[i])
-		}
-	}
-
-	return nonNilUsers, err
+	return users, err
 }
 
 func (t *Team) ContainsTournamentId(id int64) (bool, int) {
