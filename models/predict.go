@@ -160,18 +160,46 @@ func FindAllPredicts(c appengine.Context) []*Predict {
 	return predicts
 }
 
-// Get an array of pointers to Predict entities with respect to an array of ids.
-func PredictsByIds(c appengine.Context, ids []int64) []*Predict {
+// PredictsByIds returns an array of pointers to Predict entities with respect to an array of ids.
+//
+func PredictsByIds(c appengine.Context, ids []int64) ([]*Predict, error) {
 
-	var predicts []*Predict
-	for _, id := range ids {
-		if p, err := PredictById(c, id); err == nil {
-			predicts = append(predicts, p)
+	predicts := make([]Predict, len(ids))
+	keys := PredictKeysByIds(c, ids)
+
+	var wrongIndexes []int
+
+	if err := datastore.GetMulti(c, keys, predicts); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, "PredictsByIds, missing key: %v %v", err, keys[i].IntID())
+					wrongIndexes = append(wrongIndexes, i)
+				}
+			}
 		} else {
-			log.Errorf(c, " Predict.ByIds, error occurred during ByIds call: %v", err)
+			return nil, err
 		}
 	}
-	return predicts
+
+	var existingPredicts []*Predict
+	for i := range predicts {
+		if !contains(wrongIndexes, i) {
+			log.Infof(c, "PredictsByIds %v", predicts[i])
+			existingPredicts = append(existingPredicts, &predicts[i])
+		}
+	}
+	return existingPredicts, nil
+}
+
+// PredictKeysByIds returns an array of keys with respect to a given array of ids.
+//
+func PredictKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = PredictKeyById(c, id)
+	}
+	return keys
 }
 
 // Get an array of pointers to Predict entities with respect to an array of ids.

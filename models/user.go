@@ -464,8 +464,16 @@ func UpdateUsers(c appengine.Context, users []*User) error {
 	return nil
 }
 
+// PredictFromMatchId returns the user predictions for a specific match.
+//
 func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, error) {
-	predicts := PredictsByIds(c, u.PredictIds)
+
+	var predicts []*Predict
+	var err error
+	if predicts, err = PredictsByIds(c, u.PredictIds); err != nil {
+		return nil, err
+	}
+
 	for i, p := range predicts {
 		if p.MatchId == mId {
 			return predicts[i], nil
