@@ -164,7 +164,8 @@ func FindAllUsers(c appengine.Context) []*User {
 	return users
 }
 
-// Find a user entity by id.
+// UserById finds a user entity by id.
+//
 func UserById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
@@ -176,7 +177,9 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 	return &u, nil
 }
 
-// Get an array of pointers to Users with respect to an array of ids.
+// UsersByIds returns an array of pointers to Users with respect to an array of ids.
+// It only return the found users.
+//
 func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
 
 	users := make([]*User, len(ids))
@@ -193,7 +196,15 @@ func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
 			return nil, err
 		}
 	}
-	return users, nil
+
+	var nonNilUsers []*User
+	for i := range users {
+		if users[i] != nil {
+			nonNilUsers = append(nonNilUsers, users[i])
+		}
+	}
+
+	return nonNilUsers, nil
 }
 
 func UserKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
