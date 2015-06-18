@@ -227,7 +227,11 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	// build players json
-	players := team.Players(c)
+	var players []*mdl.User
+	if players, err = team.Players(c); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
 	type player struct {
 		Id       int64  `json:",omitempty"`
 		Username string `json:",omitempty"`
@@ -235,6 +239,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Score    int64
 		ImageURL string
 	}
+
 	ps := make([]player, len(players))
 	for i, p := range players {
 		ps[i].Id = p.Id
@@ -390,7 +395,12 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// delete all team-user relationships
-	for _, player := range team.Players(c) {
+	var players []*mdl.User
+	if players, err = team.Players(c); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
+	for _, player := range players {
 		if err := player.RemoveTeamId(c, team.Id); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 		} else if u.Id == player.Id {
@@ -511,7 +521,10 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ids = append(ids, ur.UserId)
 	}
 
-	users := mdl.UsersByIds(c, ids)
+	var users []*mdl.User
+	if users, err = mdl.UsersByIds(c, ids); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
 
 	// filter team information to return in json api
 	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
@@ -681,7 +694,11 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// build members json
-	members := team.Players(c)
+	var members []*mdl.User
+	if members, err = team.Players(c); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+	}
+
 	fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
 	membersJson := make([]mdl.UserJson, len(members))
 	helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)

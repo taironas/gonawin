@@ -264,7 +264,11 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 	matches := mdl.Matches(c, t.Matches1stStage)
 	log.Infof(c, "%s number of matches retrieved %v", desc, len(matches))
 	var predicts mdl.Predicts
-	predicts = mdl.PredictsByIds(c, u.PredictIds)
+	var err error
+	if predicts, err = mdl.PredictsByIds(c, u.PredictIds); err != nil {
+		log.Infof(c, "%s predictions not found, %v", desc, err)
+		return []MatchJson{}
+	}
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
@@ -309,7 +313,10 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 	matches2ndPhase := mdl.Matches(c, t.Matches2ndStage)
 
 	var predicts mdl.Predicts
-	predicts = mdl.PredictsByIds(c, u.PredictIds)
+	var err error
+	if predicts, err = mdl.PredictsByIds(c, u.PredictIds); err != nil {
+		return []MatchJson{}
+	}
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {

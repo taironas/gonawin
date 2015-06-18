@@ -149,23 +149,23 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 		return err
 	}
 
-	var teamId int64
-	if teamId, err = extract.TeamId(); err != nil {
+	var team *mdl.Team
+	if team, err = extract.Team(); err != nil {
 		return err
 	}
 
-	var team *mdl.Team
-	team, err = mdl.TeamById(c, teamId)
-	if err != nil {
-		log.Errorf(c, "%s team with id:%v was not found %v", desc, teamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
+	var players []*mdl.User
+	if players, err = team.Players(c); err != nil {
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-
-	players := team.Players(c)
 
 	predictsByPlayer := make([]mdl.Predicts, len(players))
 	for i, p := range players {
-		predicts := mdl.PredictsByIds(c, p.PredictIds)
+		var predicts []*mdl.Predict
+		if predicts, err = mdl.PredictsByIds(c, p.PredictIds); err != nil {
+			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
+			continue
+		}
 		predictsByPlayer[i] = predicts
 	}
 
@@ -176,46 +176,64 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	}
 
 	if groupby == "day" {
-		log.Infof(c, "%s ready to build days array", desc)
-		matchesJson := buildMatchesFromTournament(c, t, u)
-
-		days := matchesGroupByDay(t, matchesJson)
-		dayswp := make([]DayWithPredictionJson, len(days))
-		for i, d := range days {
-			dayswp[i].Date = d.Date
-			matcheswp := make([]MatchWithPredictionJson, len(d.Matches))
-			for j, m := range d.Matches {
-				matcheswp[j].Match = m
-				uwp := make([]UserPredictionJson, len(players))
-				for k, p := range players {
-					// get player prediction
-					uwp[k].Id = p.Id
-					uwp[k].Username = p.Username
-					uwp[k].Alias = p.Alias
-					if hasMatch, l := predictsByPlayer[k].ContainsMatchId(m.Id); hasMatch == true {
-						uwp[k].Predict = fmt.Sprintf("%v - %v", predictsByPlayer[k][l].Result1, predictsByPlayer[k][l].Result2)
-					} else {
-						uwp[k].Predict = "-"
-					}
-				}
-				matcheswp[j].Participants = uwp
-			}
-			dayswp[i].Matches = matcheswp
-		}
-
-		data := struct {
-			Days []DayWithPredictionJson
-		}{
-			dayswp,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
+		vm := buildTournamentCalendarViewModel(c, t, u, predictsByPlayer, players)
+		return templateshlp.RenderJson(w, c, vm)
 
 	} else if groupby == "phase" {
 		// @santiaago: right now not supported.
 	}
 
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+}
+
+type tournamentCalendarViewModel struct {
+	Days []DayWithPredictionJson
+}
+
+func buildTournamentCalendarViewModel(c appengine.Context, t *mdl.Tournament, u *mdl.User, predictsByPlayer []mdl.Predicts, players []*mdl.User) tournamentCalendarViewModel {
+
+	desc := "buildCalendarTournamentViewModel"
+	log.Infof(c, "%s ready to build days array", desc)
+
+	matches := buildMatchesFromTournament(c, t, u)
+	matchesByDay := matchesGroupByDay(t, matches)
+
+	daysWithPredictions := make([]DayWithPredictionJson, len(matchesByDay))
+
+	for i, day := range matchesByDay {
+		daysWithPredictions[i].Date = day.Date
+		matchesWithPredictions := matchesWithPredictions(day, players, predictsByPlayer)
+		daysWithPredictions[i].Matches = matchesWithPredictions
+	}
+	return tournamentCalendarViewModel{daysWithPredictions}
+}
+
+func matchesWithPredictions(day DayJson, players []*mdl.User, predictsByPlayer []mdl.Predicts) []MatchWithPredictionJson {
+
+	matchesWithPredictions := make([]MatchWithPredictionJson, len(day.Matches))
+
+	for i, m := range day.Matches {
+		matchesWithPredictions[i].Match = m
+		participants := matchParticipants(m, players, predictsByPlayer)
+		matchesWithPredictions[i].Participants = participants
+	}
+	return matchesWithPredictions
+}
+
+func matchParticipants(m MatchJson, players []*mdl.User, predictsByPlayer []mdl.Predicts) []UserPredictionJson {
+
+	participants := make([]UserPredictionJson, len(players))
+	for i, p := range players {
+		participants[i].Id = p.Id
+		participants[i].Username = p.Username
+		participants[i].Alias = p.Alias
+		var prediction string = "-"
+		if ok, index := predictsByPlayer[i].ContainsMatchId(m.Id); ok {
+			prediction = fmt.Sprintf("%v - %v", predictsByPlayer[i][index].Result1, predictsByPlayer[i][index].Result2)
+		}
+		participants[i].Predict = prediction
+	}
+	return participants
 }
 
 // From an array of Matches, create an array of Phases where the matches are grouped in.
