@@ -4,6 +4,17 @@
       <div class="btn-group">
         <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()"><strong>Users</strong></a>
         <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()"><strong>Teams</strong></a>
+	<div class="btn-group" role="group">
+	  <button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	    Global
+	    <span class="caret"></span>
+	  </button>
+	  <ul class="dropdown-menu">
+	    <li ng-repeat="t in teams" value="{{t.Id}}">
+      	      <a href="" ng-click="byTeamRankOnClick()">{{t.Name}}</a>
+      	    </li>
+	  </ul>
+	</div>
       </div>
     </div>
   </div>
