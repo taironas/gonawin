@@ -79,6 +79,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 
 	scores := make([]int64, 0)
 	userIds := make([]int64, 0)
+	userIdsToPublish := make([]int64, 0)
 	userIdsToCreateSE := make([]int64, 0)
 	tournamentId := t.Id
 
@@ -88,6 +89,9 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		} else {
 			scores = append(scores, score)
 			userIds = append(userIds, u.Id)
+			if score > 0 {
+				userIdsToPublish = append(userIdsToPublish, u.Id)
+			}
 		}
 		if scoreEntity, _ := u.TournamentScore(c, &t); scoreEntity == nil {
 			userIdsToCreateSE = append(userIdsToCreateSE, u.Id)
@@ -177,9 +181,13 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 
 	// task queue for updating scores of users.
 	log.Infof(c, "%s task queue for publishing user score activities: -->", desc)
+	buserIdsToPublish, errm3 := json.Marshal(userIdsToPublish)
+	if errm3 != nil {
+		log.Errorf(c, "%s Error marshaling", desc, errm3)
+	}
 
 	task4 := taskqueue.NewPOSTTask("/a/publish/users/scoreactivities/", url.Values{
-		"userIds": []string{string(buserIds)},
+		"userIds": []string{string(buserIdsToPublish)},
 	})
 
 	if _, err := taskqueue.Add(c, task4, "gw-queue"); err != nil {
