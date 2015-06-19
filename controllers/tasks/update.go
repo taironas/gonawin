@@ -33,20 +33,20 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// UpdateScores handler, use it to update the scores.
+// UpdateScores updates the scores of all users in tournaments.
+// it does this by dispatching different tasks.
 //
-// Use this handler to ...
-//	GET	/a/update/scores/	Description..
+//	GET	/a/update/scores/	update
 //
 // The response is ...
 func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) error {
-	c := appengine.NewContext(r)
-	desc := "Task queue - Update Scores Handler:"
 
 	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...")
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Task queue - Update Scores Handler:"
 
 	// err := datastore.RunInTransaction(c, func(c appengine.Context) error {
 	// unable to have a transaction in this task...
@@ -197,13 +197,12 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 // UpdateUsersScores handler, use it to update users scores.
 func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 
-	c := appengine.NewContext(r)
-	desc := "Task queue - Update Users Scores Handler:"
-
 	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Task queue - Update Users Scores Handler:"
 
 	log.Infof(c, "%s processing...", desc)
 	log.Infof(c, "%s reading data...", desc)
