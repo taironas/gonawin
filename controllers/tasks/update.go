@@ -383,15 +383,16 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-// PublishUsersScoreActivities handler, use it to publish the score activities for an array of users.
+// PublishUsersScoreActivities published user score activities.
+//
 func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
-	c := appengine.NewContext(r)
-	desc := "Task queue - Publish Users Score Activities Handler:"
 
 	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...")
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
+
+	c := appengine.NewContext(r)
+	desc := "Task queue - Publish Users Score Activities Handler:"
 
 	log.Infof(c, "%s processing...", desc)
 	log.Infof(c, "%s reading data...", desc)
@@ -399,17 +400,16 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	userIdsBlob := []byte(r.FormValue("userIds"))
 
 	var userIds []int64
-	err1 := json.Unmarshal(userIdsBlob, &userIds)
-	if err1 != nil {
-		log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err1)
+	var err error
+	if err = json.Unmarshal(userIdsBlob, &userIds); err != nil {
+		log.Errorf(c, "%s unable to extract userIds from data, %v", desc, err)
 	}
 
 	log.Infof(c, "%s value of user ids: %v", desc, userIds)
-
 	log.Infof(c, "%s crunching data...", desc)
-	users := make([]*mdl.User, len(userIds))
 
 	log.Infof(c, "%s get users", desc)
+	users := make([]*mdl.User, len(userIds))
 	for i, id := range userIds {
 		if u, err := mdl.UserById(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
