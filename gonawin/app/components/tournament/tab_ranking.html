@@ -11,7 +11,7 @@
 	  </button>
 	  <ul class="dropdown-menu">
 	    <li ng-repeat="t in teams" value="{{t.Id}}">
-      	      <a href="" ng-click="byTeamRankOnClick()">{{t.Name}}</a>
+      	      <a href="" ng-click="byTeamRankOnClick(t.Id)">{{t.Name}}</a>
       	    </li>
 	  </ul>
 	</div>

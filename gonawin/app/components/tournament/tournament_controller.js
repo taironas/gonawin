@@ -857,12 +857,15 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
 	return;
     };
 
-    $scope.byTeamRankOnClick = function(){
+    $scope.byTeamRankOnClick = function(id){
+	console.log(id);
 	if($scope.rankBy != 'users'){
 	    return;
 	}
 	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
-	var members = Team.members({ id:$scope.teams[0].Id });
-	console.log(members);
-    }
+	Team.members({ id:id }).$promise.then(function(response){
+	    console.log('response',response);
+	    $scope.selectedMembers = response.Members;
+	});
+    };
 }]);
