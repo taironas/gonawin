@@ -804,68 +804,51 @@ tournamentControllers.controller('TournamentPredictCtrl', ['$scope', '$routePara
   };
 }]);
 
-// TournamentRankingCtrl: fetch ranking data of a specific tournament.
+// TournamentRankingCtrl: used to rank participants of the current tournament.
+//
 tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routeParams', 'Tournament', 'Team', '$location',function($scope, $routeParams, Tournament, Team, $location) {
     console.log('Tournament ranking controller:');
     console.log('route params', $routeParams)
+
     $scope.tournamentData = Tournament.get({ id:$routeParams.id });
 
-    // get teams that the user is a member and have joined the tournament.
+    // get the teams that the user belongs to and that are part of the current tournament.
     $scope.tournamentData.$promise.then(function(response) {
-	console.log('promise me you are in tournamentData');
 	if($scope.currentUser.Teams !== undefined && $scope.currentUser.Teams.length > 0) {
-	    console.log('filter me baby');
             $scope.teams = filteredTeams($scope.currentUser.Teams, response.Teams);
 	}
 	
     });
-
+    
     function filteredTeams(userTeams, tournamentTeams) {
-      var teams = [];
-      for(var i = 0; i < userTeams.length; i++) {
-        for(var j = 0; j < tournamentTeams.length; j++) {
-          if(userTeams[i].Id == tournamentTeams[j].Id) {
-            teams.push(userTeams[i]);
-          }
-        }
-      }
-      return teams;
-    }
-
-
-    $scope.rankBy = 'users'
-    $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
-
-    // predicate is udate for ranking tables
-    $scope.predicate = '';
-
-    $scope.byUsersRankOnClick = function(){
-	if($scope.rankBy == 'user'){
-	    return;
+	var teams = [];
+	for(var i = 0; i < userTeams.length; i++) {
+            for(var j = 0; j < tournamentTeams.length; j++) {
+		if(userTeams[i].Id == tournamentTeams[j].Id) {
+		    teams.push(userTeams[i]);
+		}
+            }
 	}
-	$scope.rankBy = 'users';
-	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
-	return;
+	return teams;
     };
 
-    $scope.byTeamsRankOnClick = function(){
-	if($scope.rankBy == 'teams'){
+    $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:'users'});
+    $scope.rankingData.$promise.then(function(response){
+    	$scope.selectedParticipants = response.Users;
+    });
+    
+    $scope.update = function() {
+	console.log($scope.selectedTeamId);
+	if ($scope.selectedTeamId == 0){
+	    $scope.selectedParticipants = $scope.rankingData.Users;
 	    return;
 	}
-	$scope.rankBy = 'teams';
-	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
-	return;
-    };
 
-    $scope.byTeamRankOnClick = function(id){
-	console.log(id);
-	if($scope.rankBy != 'users'){
-	    return;
-	}
-	$scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:$scope.rankBy});
-	Team.members({ id:id }).$promise.then(function(response){
+	Team.members({ id:$scope.selectedTeamId }).$promise.then(function(response){
 	    console.log('response',response);
-	    $scope.selectedMembers = response.Members;
+	    $scope.selectedParticipants = response.Members;
 	});
     };
+
+    $scope.predicate = ''; // predicate is udate for ranking tables.
 }]);
