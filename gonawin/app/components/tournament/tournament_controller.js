@@ -815,21 +815,21 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
     // get the teams that the user belongs to and that are part of the current tournament.
     $scope.tournamentData.$promise.then(function(response) {
 	if($scope.currentUser.Teams !== undefined && $scope.currentUser.Teams.length > 0) {
-            $scope.teams = filteredTeams($scope.currentUser.Teams, response.Teams);
+            $scope.teams = filter($scope.currentUser.Teams, response.Teams);
 	}
 	
     });
     
-    function filteredTeams(userTeams, tournamentTeams) {
-	var teams = [];
-	for(var i = 0; i < userTeams.length; i++) {
-            for(var j = 0; j < tournamentTeams.length; j++) {
-		if(userTeams[i].Id == tournamentTeams[j].Id) {
-		    teams.push(userTeams[i]);
+    function filter(a, b) {
+	var c = [];
+	for(var i = 0; i < a.length; i++) {
+            for(var j = 0; j < b.length; j++) {
+		if(a[i].Id == b[j].Id) {
+		    c.push(a[i]);
 		}
             }
 	}
-	return teams;
+	return c;
     };
 
     $scope.rankingData = Tournament.ranking({id:$routeParams.id, rankby:'users'});
@@ -838,15 +838,15 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
     });
     
     $scope.update = function() {
-	console.log($scope.selectedTeamId);
+	$scope.selectedParticipants = $scope.rankingData.Users;
 	if ($scope.selectedTeamId == 0){
-	    $scope.selectedParticipants = $scope.rankingData.Users;
 	    return;
 	}
 
 	Team.members({ id:$scope.selectedTeamId }).$promise.then(function(response){
-	    console.log('response',response);
-	    $scope.selectedParticipants = response.Members;
+	    if($scope.selectedParticipants !== undefined && $scope.selectedParticipants.length > 0) {
+		$scope.selectedParticipants = filter($scope.selectedParticipants, response.Members);
+	    }
 	});
     };
 
