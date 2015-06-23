@@ -13,6 +13,21 @@
             <p ng-show="user.Alias.length == 0"><a href="/#/users/{{user.Id}}"><strong>{{user.Username}}</strong></a></p>
           </p>
         </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div ng-if="ismember">
+              <strong><input class="btn btn-info btn-sm disabled" name="commit" type="submit" value="Joined" /></strong>
+            </div>
+            <div ng-if="!isMember">
+              <div ng-if="invitationSent">
+                <strong><input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Invitation sent..." /></strong>
+              </div>
+              <div ng-if="!invitationSent">
+                <strong><input class="btn btn-info btn-sm" name="commit" type="submit" value="Invite" /></strong>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="panel-footer gw-panel-footer">
