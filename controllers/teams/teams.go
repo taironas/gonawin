@@ -488,6 +488,14 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "user request was created")
 }
 
+type invitedUserViewModel struct {
+	Id       int64
+	Username string
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
 // Invited handler, use it to get all the users who were invited to a team.
 func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -513,18 +521,27 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	users := mdl.UsersByIds(c, ids)
 
-	// filter team information to return in json api
-	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-	usersJson := make([]mdl.UserJson, len(users))
-	helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+	ivm := buildInvitedUserViewModel(users)
 
 	data := struct {
-		Users []mdl.UserJson
+		Users []invitedUserViewModel `json:",omitempty"`
 	}{
-		usersJson,
+		ivm,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
+}
+
+func buildInvitedUserViewModel(users []*mdl.User) []invitedUserViewModel {
+	ivm := make([]invitedUserViewModel, len(users))
+	for i, u := range users {
+		ivm[i].Id = u.Id
+		ivm[i].Username = u.Username
+		ivm[i].Alias = u.Alias
+		ivm[i].Score = u.Score
+		ivm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+	}
+	return ivm
 }
 
 // AllowRequest handler, use it to allow a user to join a team.
