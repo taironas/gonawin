@@ -15,15 +15,17 @@
         </div>
         <div class="row">
           <div class="col-md-12">
-            <div ng-if="ismember">
-              <strong><input class="btn btn-info btn-sm disabled" name="commit" type="submit" value="Joined" /></strong>
-            </div>
-            <div ng-if="!isMember">
-              <div ng-if="invitationSent">
-                <strong><input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Invitation sent..." /></strong>
+            <div ng-if="user.isMember != undefined">
+              <div ng-if="user.isMember">
+                <strong><input class="btn btn-info btn-sm disabled" name="commit" type="submit" value="Joined" /></strong>
               </div>
-              <div ng-if="!invitationSent">
-                <strong><input class="btn btn-info btn-sm" name="commit" type="submit" value="Invite" /></strong>
+              <div ng-if="!user.isMember">
+                <div ng-if="user.invitationSent">
+                  <strong><input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Invitation sent..." /></strong>
+                </div>
+                <div ng-if="!user.invitationSent">
+                  <strong><input class="btn btn-info btn-sm" ng-click="invite(user.Id, $index)" name="commit" type="submit" value="Invite" /></strong>
+                </div>
               </div>
             </div>
           </div>

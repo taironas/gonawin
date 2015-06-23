@@ -489,11 +489,10 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
               if(teamResponse.Players) {
                 lenPlayers = teamResponse.Players.length;
               }
+              $scope.users[i].isMember = false;
               for(var k = 0; k < lenPlayers; k++) {
                 if($scope.users[i].Id == teamResponse.Players[k].Id) {
                   $scope.users[i].isMember = true;
-                } else {
-                  $scope.users[i].isMember = false;
                 }
               }
             }
@@ -507,24 +506,23 @@ teamControllers.controller('TeamInviteCtrl', ['$rootScope', '$scope', '$routePar
     }
 
     // Search function
-    $scope.searchTeam = function(){
+    $scope.searchTeam = function() {
       console.log('TeamInviteCtrl: searchTeam');
       console.log('keywords: ', $scope.keywords);
       $location.search('q', $scope.keywords);
     };
 
-    $scope.invite = function(userId, index){
-	console.log('invite user id: ', userId);
-	console.log('invite index: ', index);
-	console.log('user: ', $scope.users[index]);
-	$scope.users[index].invitationSent = true;
+    $scope.invite = function(userId, index) {
+      console.log('invite user id: ', userId);
+      console.log('invite index: ', index);
+      console.log('user: ', $scope.users[index]);
+      $scope.users[index].invitationSent = true;
 
-	console.log('sending invitation');
-	Team.sendInvite({ id:$routeParams.id, userId: $scope.users[index].Id}).$promise.then(function(r){
-	    console.log('invitation sent.');
-	    $scope.invitedUsers.push($scope.users[index]);
-	});
-	$scope.noInvitationsMessage = '';
+      console.log('sending invitation');
+      Team.sendInvite({ id:$routeParams.id, userId: $scope.users[index].Id}).$promise.then(function(r) {
+        console.log('invitation sent.');
+        $scope.invitedUsers.push($scope.users[index]);
+      });
+      $scope.noInvitationsMessage = '';
     };
-
 }]);
