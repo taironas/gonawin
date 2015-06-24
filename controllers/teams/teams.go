@@ -488,7 +488,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "user request was created")
 }
 
-type invitedUserViewModel struct {
+type teamInvitedUserViewModel struct {
 	Id       int64
 	Username string
 	Alias    string
@@ -521,10 +521,10 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	users := mdl.UsersByIds(c, ids)
 
-	ivm := buildInvitedUserViewModel(users)
+	ivm := buildTeamInvitedUserViewModel(users)
 
 	data := struct {
-		Users []invitedUserViewModel `json:",omitempty"`
+		Users []teamInvitedUserViewModel `json:",omitempty"`
 	}{
 		ivm,
 	}
@@ -532,8 +532,8 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-func buildInvitedUserViewModel(users []*mdl.User) []invitedUserViewModel {
-	ivm := make([]invitedUserViewModel, len(users))
+func buildTeamInvitedUserViewModel(users []*mdl.User) teamInvitedUserViewModel {
+	ivm := make([]teamInvitedUserViewModel, len(users))
 	for i, u := range users {
 		ivm[i].Id = u.Id
 		ivm[i].Username = u.Username
