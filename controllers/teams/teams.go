@@ -532,7 +532,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-func buildTeamInvitedUserViewModel(users []*mdl.User) teamInvitedUserViewModel {
+func buildTeamInvitedUserViewModel(users []*mdl.User) []teamInvitedUserViewModel {
 	ivm := make([]teamInvitedUserViewModel, len(users))
 	for i, u := range users {
 		ivm[i].Id = u.Id
