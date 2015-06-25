@@ -8,15 +8,18 @@ userControllers.controller('UserListCtrl', ['$scope', '$rootScope', 'User', func
   $rootScope.title = 'gonawin - Users';
 }]);
 
-userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParams', 'User', 'Team', function($scope, $rootScope, $routeParams, User, Team) {
-  $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
-    function(data) {
-      $rootScope.title = 'gonawin - ' + data.User.Username;
-      console.log('UserShowCtrl: user', data.User);
-    }, function(err) {
-      console.log('get user failed: ', err.data);
-      $scope.messageDanger = err.data;
-    });
+userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParams', 'User', 'Team',
+  function($scope, $rootScope, $routeParams, User, Team) {
+
+    $scope.userData = User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
+      function(data) {
+        $rootScope.title = 'gonawin - ' + data.User.Username;
+        console.log('UserShowCtrl: user', data.User);
+      }, function(err) {
+        console.log('get user failed: ', err.data);
+        $scope.messageDanger = err.data;
+      }
+    );
 
     $scope.userData.$promise.then(function(response) {
       console.log('User show controller:: user = ', response);
@@ -37,68 +40,71 @@ userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParam
         lenInvite = $scope.userData.Invitations.length;
       }
       for(var i = 0; i < lenInvite; i++) {
-        $scope.userData.Invitations[i].handled = true;
+        $scope.userData.Invitations[i].show = true;
       }
     });
 
-    $scope.acceptTeamRequest = function(request){
+    $scope.acceptTeamRequest = function(request) {
       console.log('User show controller:: accept team Request');
       console.log('req: ', request);
       Team.allowRequest({requestId:request.Id},
-			  function(data){
+			  function(data) {
           User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
-            function(userData){
+            function(userData) {
               console.log('userData: ', userData);
               $scope.userData.TeamRequests = userData.TeamRequests;
-          });
-        },
-			  function(err){
+            }
+          );
+        }, function(err) {
           console.log('allow request failed: ', err.data);
           $scope.messageDanger = err.data;
-      });
+        }
+      );
     };
-    $scope.denyTeamRequest = function(request){
+
+    $scope.denyTeamRequest = function(request) {
       console.log('User show controller:: deny team Request');
       console.log('req: ', request);
       Team.denyRequest({requestId:request.Id},
-        function(data){
+        function(data) {
           User.get({ id:$routeParams.id, including: "Teams TeamRequests Tournaments Invitations" },
-            function(userData){
+            function(userData)  {
               console.log('userData: ', userData);
               $scope.userData.TeamRequests = userData.TeamRequests;
-          });
-        },
-        function(err){
+            }
+          );
+        }, function(err) {
           console.log('deny request failed: ', err.data);
           $scope.messageDanger = err.data;
-      });
+        }
+      );
     };
 
-    $scope.acceptInvitation = function(invitation, index){
-      if(!$scope.userData.Invitations[index].handled){
+    $scope.acceptInvitation = function(invitation, index) {
+      if(!$scope.userData.Invitations[index].show) {
         return;
       }
       User.allowInvitation({ id:$routeParams.Id, teamId:invitation.Id},
-      function(data){
-        console.log('user allow invitation');
-        $scope.messageInfo = data.MessageInfo;
-        $scope.userData.Invitations[index].handled = false;
+        function(data) {
+          console.log('user allow invitation');
+          $scope.messageInfo = data.MessageInfo;
+          $scope.userData.Invitations[index].show = false;
 
-        User.get({ id:$routeParams.id, including: "Teams Invitations" },
-          function(data){
-            $scope.userData.Teams = data.Teams;
-            $scope.userData.Invitations = data.Invitations;
-            $scope.noInvitationMessage = 'You haven\'t received any invitations';
-          },
-          function(err){
-            console.log('get updated user data failed: ', err.data);
-            $scope.messageDanger = err.data;
-        });
-      },
-      function(err){
-        console.log('allow invitation failed: ', err.data);
-        $scope.messageDanger = err.data;
-      });
+          User.get({ id:$routeParams.id, including: "Teams Invitations" },
+            function(data)  {
+              $scope.userData.Teams = data.Teams;
+              $scope.userData.Invitations = data.Invitations;
+              $scope.noInvitationMessage = 'You haven\'t received any invitations';
+            }, function(err)  {
+              console.log('get updated user data failed: ', err.data);
+              $scope.messageDanger = err.data;
+            }
+          );
+        }, function(err) {
+          console.log('allow invitation failed: ', err.data);
+          $scope.messageDanger = err.data;
+        }
+      );
     };
 
     $scope.denyInvitation = function(invitation, index) {
@@ -106,16 +112,19 @@ userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParam
     	    return;
     	}
 
-      User.denyInvitation({ id:$routeParams.Id, teamId:invitation.Id}, function(data) {
-				console.log('user deny invitation');
-				$scope.messageInfo = data.MessageInfo;
-				$scope.userData.Invitations[index].handled = false;
-      }, function(err) {
-        console.log('deny invitation failed: ', err.data);
-				$scope.messageDanger = err.data;
-	    });
+      User.denyInvitation({ id:$routeParams.Id, teamId:invitation.Id},
+        function(data) {
+  				console.log('user deny invitation');
+  				$scope.messageInfo = data.MessageInfo;
+  				$scope.userData.Invitations[index].show = false;
+        }, function(err) {
+          console.log('deny invitation failed: ', err.data);
+  				$scope.messageDanger = err.data;
+  	    }
+      );
     };
-}]);
+  }
+]);
 
 // UserCardCtrl: handles team card
 userControllers.controller('UserCardCtrl', ['$rootScope', '$scope', '$q', 'User',
