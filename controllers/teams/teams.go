@@ -499,7 +499,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type teamInvitedViewModel struct {
-	Users []teamInvitedUserViewModel `json:",omitempty"`
+	Users []teamInvitedUserViewModel
 }
 
 type teamInvitedUserViewModel struct {
