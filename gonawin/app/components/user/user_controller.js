@@ -102,7 +102,7 @@ userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParam
     };
 
     $scope.denyInvitation = function(invitation, index) {
-    	if(!$scope.userData.Invitations[index].show) {
+    	if(!$scope.userData.Invitations[index].handled) {
     	    return;
     	}
 
