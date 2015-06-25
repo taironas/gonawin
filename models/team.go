@@ -284,20 +284,16 @@ func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
 	return 0
 }
 
-// from a team id return an array of users/ players that participates in it.
-func (t *Team) Players(c appengine.Context) []*User {
+// Players return an array of users/ players that participates the given team.
+func (t *Team) Players(c appengine.Context) ([]*User, error) {
 
 	var users []*User
-
-	for _, uId := range t.UserIds {
-		user, err := UserById(c, uId)
-		if err != nil {
-			log.Errorf(c, " Players, cannot find user with ID=%", uId)
-		} else {
-			users = append(users, user)
-		}
+	var err error
+	if users, err = UsersByIds(c, t.UserIds); err != nil {
+		return nil, err
 	}
-	return users
+
+	return users, err
 }
 
 func (t *Team) ContainsTournamentId(id int64) (bool, int) {
@@ -586,13 +582,20 @@ func (t *Team) RankingByUser(c appengine.Context, limit int) []*User {
 	if limit < 0 {
 		return nil
 	}
-	users := t.Players(c)
+
+	var users []*User
+	var err error
+
+	if users, err = t.Players(c); err != nil {
+		return nil
+	}
+
 	sort.Sort(UserByScore(users))
 	if len(users) <= limit {
 		return users
-	} else {
-		return users[0:limit]
 	}
+
+	return users[0:limit]
 }
 
 // Sort teams by score
@@ -699,7 +702,14 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 		return err
 	}
 	// add new activity id in user activity table for each member of the team
-	for _, p := range t.Players(c) {
+	var players []*User
+	var err error
+	if players, err = t.Players(c); err != nil {
+		log.Errorf(c, "model/team, Publish: error occurred during Players call: %v", err)
+		return nil
+	}
+
+	for _, p := range players {
 		if err := activity.AddNewActivityId(c, p); err != nil {
 			log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
 		} else {

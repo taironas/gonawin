@@ -216,7 +216,7 @@ fieldset[disabled] .btn-warning.active {
 .navbar-default .navbar-nav>li>a:focus .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:hover .gw-badge,
 .navbar-default .navbar-nav .open .dropdown-menu>li>a:focus .gw-badge {
-  background-color: #f5f7f4;
+  background-color: #fa8072;
 }
 
 /* End Navbar styles

@@ -164,7 +164,8 @@ func FindAllUsers(c appengine.Context) []*User {
 	return users
 }
 
-// Find a user entity by id.
+// UserById finds a user entity by id.
+//
 func UserById(c appengine.Context, id int64) (*User, error) {
 
 	var u User
@@ -174,6 +175,55 @@ func UserById(c appengine.Context, id int64) (*User, error) {
 		return nil, err
 	}
 	return &u, nil
+}
+
+// UsersByIds returns an array of pointers to Users with respect to an array of ids.
+// It only return the found users.
+//
+func UsersByIds(c appengine.Context, ids []int64) ([]*User, error) {
+
+	users := make([]User, len(ids))
+	keys := UserKeysByIds(c, ids)
+
+	var wrongIndexes []int
+	if err := datastore.GetMulti(c, keys, users); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, "UsersByIds, missing key: %v %v", err, keys[i].IntID())
+					wrongIndexes = append(wrongIndexes, i)
+				}
+			}
+		} else {
+			return nil, err
+		}
+	}
+
+	var existingUsers []*User
+	for i := range users {
+		if !contains(wrongIndexes, i) {
+			log.Infof(c, "UsersByIds %v", users[i])
+			existingUsers = append(existingUsers, &users[i])
+		}
+	}
+	return existingUsers, nil
+}
+
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func UserKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = UserKeyById(c, id)
+	}
+	return keys
 }
 
 // Get key pointer given a user id.
@@ -414,8 +464,16 @@ func UpdateUsers(c appengine.Context, users []*User) error {
 	return nil
 }
 
+// PredictFromMatchId returns the user predictions for a specific match.
+//
 func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, error) {
-	predicts := PredictsByIds(c, u.PredictIds)
+
+	var predicts []*Predict
+	var err error
+	if predicts, err = PredictsByIds(c, u.PredictIds); err != nil {
+		return nil, err
+	}
+
 	for i, p := range predicts {
 		if p.MatchId == mId {
 			return predicts[i], nil
@@ -610,18 +668,4 @@ func GetWordFrequencyForUser(c appengine.Context, id int64, word string) int64 {
 		return helpers.CountTerm(strings.Split(users[0].Name, " "), word)
 	}
 	return 0
-}
-
-// Get an array of pointers to Users with respect to an array of ids.
-func UsersByIds(c appengine.Context, ids []int64) []*User {
-
-	var users []*User
-	for _, id := range ids {
-		if user, err := UserById(c, id); err == nil {
-			users = append(users, user)
-		} else {
-			log.Errorf(c, " Users.ByIds, error occurred during ByIds call: %v", err)
-		}
-	}
-	return users
 }

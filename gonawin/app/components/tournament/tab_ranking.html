@@ -1,42 +1,26 @@
 <div ng-controller="TournamentRankingCtrl">
+  <!-- select -->
   <div class="row">
-    <div class="col-md-4 col-md-offset-4 centered">
-      <div class="btn-group">
-        <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'users'}" href="" ng-click="byUsersRankOnClick()"><strong>Users</strong></a>
-        <a class="btn btn-default btn-sm" ng-class="{active: rankBy == 'teams'}" href="" ng-click="byTeamsRankOnClick()"><strong>Teams</strong></a>
-      </div>
+    <div class="col-md-11 col-md-offset-1">
+      <p class="lead">Select a team to rank:</p>
     </div>
   </div>
-  <!-- Teams -->
-  <div ng-if="rankingData.Teams">
-    <div class="row">
-      <div class="col-md-3"></div>
-      <div class="teams col-md-6">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Teams</th>
-              <th>Accuracy</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr ng-repeat="t in rankingData.Teams | orderBy:'Accuracy':!reverse">
-              <td>{{$index + 1}}</td>
-              <td><a href="/#/teams/{{t.Id}}">{{t.Name}}</a></td>
-              <td>{{100*t.Accuracy | number:2}}%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="col-md-3"></div>
+  <div class="row">
+    <div class="col-md-4 col-md-offset-1">
+      <select ng-init="selectedTeamId = 0" ng-model="selectedTeamId" class="form-control" ng-change="update()">
+	<option selected value="0">Global</option>
+      	<option ng-repeat="t in teams" value="{{t.Id}}">
+      	  {{t.Name}}
+      	</option>
+      </select>
     </div>
   </div>
-  <!-- / Teams -->
+  <br>
+  <!-- / select -->
   <!-- participants -->
   <div ng-if="rankingData.Users">
     <div class="row">
-      <div class="col-md-3"></div>
+      <div class="col-md-1"></div>
       <div class="participants col-md-6">
         <table class="table table-striped">
           <thead>
@@ -47,7 +31,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="u in rankingData.Users | orderBy:'Score':!reverse">
+            <tr ng-repeat="u in selectedParticipants | orderBy:'Score':!reverse">
               <td ng-show="u.Id == currentUser.User.Id" class="info">{{$index + 1}}</td>
               <td ng-show="u.Id != currentUser.User.Id">{{$index + 1}}</td>
               <td ng-show="u.Id == currentUser.User.Id && (u.Alias.length > 0)" class="info"><a href="/#/users/{{u.Id}}">{{u.Alias}}</a></td>
