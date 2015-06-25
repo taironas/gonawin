@@ -498,6 +498,10 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, "user request was created")
 }
 
+type teamInvitedViewModel struct {
+	Users []teamInvitedUserViewModel `json:",omitempty"`
+}
+
 type teamInvitedUserViewModel struct {
 	Id       int64
 	Username string
@@ -534,27 +538,22 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	ivm := buildTeamInvitedUserViewModel(users)
+	ivm := buildTeamInvitedViewModel(users)
 
-	data := struct {
-		Users []teamInvitedUserViewModel `json:",omitempty"`
-	}{
-		ivm,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, ivm)
 }
 
-func buildTeamInvitedUserViewModel(users []*mdl.User) []teamInvitedUserViewModel {
-	ivm := make([]teamInvitedUserViewModel, len(users))
+func buildTeamInvitedViewModel(users []*mdl.User) teamInvitedViewModel {
+	uvm := make([]teamInvitedUserViewModel, len(users))
 	for i, u := range users {
-		ivm[i].Id = u.Id
-		ivm[i].Username = u.Username
-		ivm[i].Alias = u.Alias
-		ivm[i].Score = u.Score
-		ivm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+		uvm[i].Id = u.Id
+		uvm[i].Username = u.Username
+		uvm[i].Alias = u.Alias
+		uvm[i].Score = u.Score
+		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
 	}
-	return ivm
+
+	return teamInvitedViewModel{Users: uvm}
 }
 
 // AllowRequest handler, use it to allow a user to join a team.
