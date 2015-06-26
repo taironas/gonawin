@@ -14,10 +14,10 @@
           <div class="col-md-12">
             <div ng-if="!isTeamAdmin && !teamData.Joined">
               <div ng-if="team.Private">
-                <div ng-if="team.RequestSent">
+                <div ng-if="teamData.RequestSent">
                   <input class="btn btn-default btn-sm disabled" name="commit" type="submit" value="Request sent..." />
                 </div>
-                <div ng-if="!team.RequestSent">
+                <div ng-if="!teamData.RequestSent">
                   <strong><input class="btn btn-info btn-sm" name="commit" ng-click="requestInvitation()" type="submit" value="Request invitation" /></strong>
                 </div>
               </div>
