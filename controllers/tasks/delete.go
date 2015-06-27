@@ -28,36 +28,6 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// DeleteUserActivities task handler, use it to delete user activities.
-//
-func DeleteUserActivities(w http.ResponseWriter, r *http.Request) error {
-
-	c := appengine.NewContext(r)
-	desc := "Task queue - DeleteUsersActivities Handler:"
-
-	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...", desc)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	log.Infof(c, "%s processing...", desc)
-	log.Infof(c, "%s reading data...", desc)
-
-	activityIdsBlob := []byte(r.FormValue("activity_ids"))
-
-	var activityIds []int64
-	if err := json.Unmarshal(activityIdsBlob, &activityIds); err != nil {
-		log.Errorf(c, "%s unable to extract activityIds from data, %v", desc, err)
-	}
-
-	if err := mdl.DestroyActivities(c, activityIds); err != nil {
-		log.Errorf(c, "%s activities have not been deleted. %v", desc, err)
-	}
-
-	log.Infof(c, "%s task done!", desc)
-	return nil
-}
-
 // DeleteUserPredicts task handler, use it to delete the predictions of a given user.
 //
 func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {

@@ -403,7 +403,6 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	sendTaskDeleteUserActivities(c, desc, u)
 	sendTaskDeleteUserPredictions(c, desc, u)
 
 	user.Destroy(c)
@@ -468,30 +467,6 @@ func removeTournameUserRels(c appengine.Context, desc string, requestUser, curre
 		}
 	}
 	return nil
-}
-
-// sendTaskDeleteActivities sends a task to delete activities of the user.
-//
-func sendTaskDeleteUserActivities(c appengine.Context, desc string, u *mdl.User) {
-
-	log.Infof(c, "%s Sending to taskqueue: delete activities", desc)
-
-	var activityIds []byte
-	var err error
-
-	if activityIds, err = json.Marshal(u.ActivityIds); err != nil {
-		log.Errorf(c, "%s Error marshaling", desc, err)
-	}
-
-	task := taskqueue.NewPOSTTask("/a/publish/users/deleteactivities/", url.Values{
-		"activity_ids": []string{string(activityIds)},
-	})
-
-	if _, err = taskqueue.Add(c, task, ""); err != nil {
-		log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
-	} else {
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
-	}
 }
 
 // sendTaskDeleteUserPredictions sends a task to delete predicts of the user.

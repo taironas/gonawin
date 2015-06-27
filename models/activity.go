@@ -90,7 +90,8 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 	return activities
 }
 
-// Deletes activities for a specific user.
+// Deletes activities in array.
+//
 func DestroyActivities(c appengine.Context, activityIds []int64) error {
 	var keys []*datastore.Key
 	for _, id := range activityIds {
