@@ -81,7 +81,8 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 
 		var activity Activity
 		if err := datastore.Get(c, key, &activity); err != nil {
-			log.Errorf(c, " Activity.FindActivities: error occurred during Get call: %v", err)
+			log.Errorf(c, " Activity.FindActivities: error occurred during Get call id: %v: %v", ids[i], err)
+			continue // skip activity if not found..
 		}
 		activities = append(activities, &activity)
 	}
