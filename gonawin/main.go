@@ -149,7 +149,6 @@ func init() {
 	r.HandleFunc("/a/update/scores", checkErrors(tasksctrl.UpdateScores))
 	r.HandleFunc("/a/update/users/scores", checkErrors(tasksctrl.UpdateUsersScores))
 	r.HandleFunc("/a/publish/users/scoreactivities", checkErrors(tasksctrl.PublishUsersScoreActivities))
-	r.HandleFunc("/a/publish/users/deleteactivities", checkErrors(tasksctrl.DeleteUserActivities))
 	r.HandleFunc("/a/create/scoreentities", checkErrors(tasksctrl.CreateScoreEntities))
 	r.HandleFunc("/a/add/scoreentities/score", checkErrors(tasksctrl.AddScoreToScoreEntities))
 	r.HandleFunc("/a/invite", checkErrors(tasksctrl.Invite))
