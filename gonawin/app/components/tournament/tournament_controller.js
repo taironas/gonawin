@@ -168,24 +168,12 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $scope.joinTournament = function(){
       Tournament.join({ id:$routeParams.id }).$promise.then(function(response){
           $scope.joinButtonName = 'Leave Tournament';
-          $scope.joinButtonMethod = $scope.leaveTournament;
+          $scope.joinButtonMethod = function(){};
           $scope.messageInfo = response.MessageInfo;
           $scope.$broadcast('setUpdatedTournamentData');
           $rootScope.$broadcast('setUpdatedDashboard');
 	  $scope.joinedTournament = true;
       });
-    };
-
-    $scope.leaveTournament = function(){
-      if(confirm('Are you sure?\nYou will not be able to play on this tournament.')){
-        Tournament.leave({ id:$routeParams.id }).$promise.then(function(response){
-            $scope.joinButtonName = 'Join';
-            $scope.joinButtonMethod = $scope.joinTournament;
-            $scope.messageInfo = response.MessageInfo;
-            $scope.$broadcast('setUpdatedTournamentData');
-            $rootScope.$broadcast('setUpdatedDashboard');
-        });
-      }
     };
 
     $scope.joinTournamentAsTeam = function(teamId){
@@ -253,7 +241,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     $scope.tournamentData.$promise.then(function(tournamentResult){
 	var deferred = $q.defer();
 	if (tournamentResult.Joined) {
-	    deferred.resolve($scope.leaveTournament);
+	    deferred.resolve(function(){});
 	}
 	else {
 	    deferred.resolve($scope.joinTournament);
