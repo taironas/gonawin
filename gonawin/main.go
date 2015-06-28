@@ -106,7 +106,6 @@ func init() {
 	r.HandleFunc("/j/teams/join/:teamId", checkErrors(authorized(teamsctrl.Join)))
 	r.HandleFunc("/j/teams/leave/:teamId", checkErrors(authorized(teamsctrl.Leave)))
 	r.HandleFunc("/j/tournaments/join/:tournamentId", checkErrors(authorized(tournamentsctrl.Join)))
-	r.HandleFunc("/j/tournaments/leave/:tournamentId", checkErrors(authorized(tournamentsctrl.Leave)))
 	r.HandleFunc("/j/tournaments/joinasteam/:tournamentId/:teamId", checkErrors(authorized(tournamentsctrl.JoinAsTeam)))
 	r.HandleFunc("/j/tournaments/leaveasteam/:tournamentId/:teamId", checkErrors(authorized(tournamentsctrl.LeaveAsTeam)))
 

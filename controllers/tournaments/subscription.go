@@ -31,7 +31,8 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Join handler for tournament.
+// Join let you join a tournament.
+//
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -76,52 +77,8 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Leave handler for tournament relationships
-func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Tournament Leave Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var err error
-	var tournament *mdl.Tournament
-
-	if tournament, err = extract.Tournament(); err != nil {
-		return err
-	}
-
-	if err := tournament.Leave(c, u); err != nil {
-		log.Errorf(c, "%s error on Leave team: %v", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-	}
-
-	// return the left tournament
-	var tJson mdl.TournamentJson
-	fieldsToKeep := []string{"Id", "Name"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
-	} else {
-		updatedUser.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
-	}
-
-	msg := fmt.Sprintf("You left tournament %s.", tournament.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
-	}{
-		msg,
-		tJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
-}
-
-// Join as Team handler for tournament teams realtionship.
+// JoinAsTeam makes all members of a team join the tournament.
+//
 func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -178,7 +135,8 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// JSON Leave as Team handler for tournament teams realtionship.
+// LeaveAsTeam makes the team leave the tournament.
+//
 func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
