@@ -115,6 +115,7 @@ tournamentControllers.controller('TournamentNewCtrl', ['$rootScope', '$scope', '
 tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', '$routeParams', 'Tournament', '$location', '$q', '$route', function($rootScope, $scope, $routeParams, Tournament, $location, $q, $route) {
     console.log('Tournament Show controller: Start');
 
+    $scope.joinedTournament = false;
     $scope.tournamentData =  Tournament.get({ id:$routeParams.id });
     console.log('tournamentData', $scope.tournamentData);
 
@@ -171,6 +172,7 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
           $scope.messageInfo = response.MessageInfo;
           $scope.$broadcast('setUpdatedTournamentData');
           $rootScope.$broadcast('setUpdatedDashboard');
+	  $scope.joinedTournament = true;
       });
     };
 
@@ -231,9 +233,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
     });
 
     // Checks if user has joined a tournament
-    $scope.joined = $scope.tournamentData.$promise.then(function(result){
-	     console.log('tournament joined ready!');
-       return result.Joined;
+    $scope.tournamentData.$promise.then(function(response){
+	$scope.joinedTournament = response.Joined;
     });
 
     $scope.tournamentData.$promise.then(function(tournamentResult){
