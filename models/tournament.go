@@ -228,20 +228,6 @@ func (t *Tournament) Join(c appengine.Context, u *User) error {
 	return nil
 }
 
-// Makes a user leave a tournament.
-// Todo: should we check that user is indeed a member of the tournament?
-func (t *Tournament) Leave(c appengine.Context, u *User) error {
-	// find and remove
-	if err := u.RemoveTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.Leave, error leaving tournament for user:%v Error: %v", u.Id, err))
-	}
-	if err := t.RemoveUserId(c, u.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.Leave, error joining tournament for user:%v Error: %v", u.Id, err))
-	}
-
-	return nil
-}
-
 // Checks if user is admin of tournament with id 'tournamentId'.
 func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
 	if tournament, err := TournamentById(c, tournamentId); err == nil {

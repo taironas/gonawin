@@ -31,7 +31,6 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        search: { method: 'GET', url: 'j/tournaments/search?q=:q', cache : true},
        participants: { method: 'GET', url:'j/tournaments/:id/participants' },
        join: {method: 'POST', url: 'j/tournaments/join/:id' },
-       leave: {method: 'POST', url: 'j/tournaments/leave/:id' },
        joinAsTeam: {method: 'POST', url: 'j/tournaments/joinasteam/:id/:teamId' },
        leaveAsTeam: {method: 'POST', url: 'j/tournaments/leaveasteam/:id/:teamId' },
        candidates: {method: 'GET', url: 'j/tournaments/:id/candidates' },
