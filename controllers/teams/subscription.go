@@ -51,6 +51,11 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
+	if team.Private {
+		log.Errorf(c, "%s  Private team cannot be joined without consent.", desc)
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodePrivateTeamJoinForbiden)}
+	}
+
 	if err = team.Join(c, u); err != nil {
 		log.Errorf(c, "%s  error on Join team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
