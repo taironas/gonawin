@@ -460,7 +460,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
 	       if($scope.groupby == 'phase') {
            $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
            $scope.matchesData.$promise.then(function(result) {
-             if(result.Phases !== undefined) {
+             if(result.Phases !== undefined && $scope.matchesData.Phases !== undefined) {
                for(var i = 0; i < result.Phases.length; i++) {
                  if($scope.matchesData.Phases[i].Completed) {
                    $scope.matchesData.Phases[i].showPhase = false;
@@ -476,7 +476,7 @@ tournamentControllers.controller('TournamentCalendarCtrl', ['$scope', '$routePar
       } else {
         $scope.matchesData = Tournament.calendar({id:$routeParams.id, groupby:'phase'});
          $scope.matchesData.$promise.then(function(result) {
-           if(result.Phases !== undefined) {
+           if(result.Phases !== undefined && $scope.matchesData.Phases !== undefined) {
              for(var i = 0; i < result.Phases.length; i++) {
                if($scope.matchesData.Phases[i].Completed) {
                  $scope.matchesData.Phases[i].showPhase = false;
@@ -817,9 +817,9 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
 	if($scope.currentUser.Teams !== undefined && $scope.currentUser.Teams.length > 0) {
             $scope.teams = filter($scope.currentUser.Teams, response.Teams);
 	}
-	
+
     });
-    
+
     function filter(a, b) {
 	var c = [];
 	for(var i = 0; i < a.length; i++) {
@@ -836,7 +836,7 @@ tournamentControllers.controller('TournamentRankingCtrl', ['$scope', '$routePara
     $scope.rankingData.$promise.then(function(response){
     	$scope.selectedParticipants = response.Users;
     });
-    
+
     $scope.update = function() {
 	$scope.selectedParticipants = $scope.rankingData.Users;
 	if ($scope.selectedTeamId == 0){
