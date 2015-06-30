@@ -16,8 +16,6 @@
 
 package helpers
 
-import ()
-
 // errors
 const (
 	// generic
@@ -61,6 +59,7 @@ const (
 	ErrorCodeTeamRequestNotFound      = "Request not found"
 	ErrorCodeTeamMemberNotFound       = "Member not found"
 	ErrorCodeTeamAdminCannotLeave     = "Team administrator cannot leave the team"
+	ErrorCodePrivateTeamJoinForbiden  = "Private Team cannot be joined without consent. Please request an invitation."
 	//tournaments
 	ErrorCodeTournamentAlreadyExists          = "Sorry, that tournament already exists"
 	ErrorCodeTournamentCannotCreate           = "Could not create the team"
