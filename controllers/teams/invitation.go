@@ -20,9 +20,14 @@ import (
 	"errors"
 	"net/http"
 
+	"appengine"
+
 	"github.com/santiaago/gonawin/extract"
 	"github.com/santiaago/gonawin/helpers"
 	"github.com/santiaago/gonawin/helpers/log"
+	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+
+	mdl "github.com/santiaago/gonawin/models"
 )
 
 // RequestInvite handler, use it to request an invitation to a team.
