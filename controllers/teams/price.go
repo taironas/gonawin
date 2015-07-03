@@ -33,6 +33,9 @@ import (
 )
 
 // Prices handler, use it to get the team's prices.
+//  POST	/j/teams/[0-9]+/prices/     Get the prices of a team team with the given team id.
+// Reponse: array of JSON formatted prices.
+//
 func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -50,16 +53,19 @@ func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	log.Infof(c, "%s ready to build a price array", desc)
 	prices := team.Prices(c)
 
-	data := struct {
-		Prices []*mdl.Price
-	}{
-		prices,
-	}
+	pvm := buildTeamPricesViewModel(prices)
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, pvm)
+}
+
+type teamPricesViewModel struct {
+	Prices []*mdl.Price
+}
+
+func buildTeamPricesViewModel(prices []*mdl.Price) teamPricesViewModel {
+	return teamPricesViewModel{Prices: prices}
 }
 
 // PriceByTournament, use it to list the prices of a team for a specific tournament.
