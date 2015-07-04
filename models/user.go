@@ -96,6 +96,7 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 		log.Errorf(c, "User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
+
 	// add name to inverted index
 	// as name and username can have the same words.
 	// We build a string with a set of words between these two strings

@@ -19,6 +19,8 @@ type testUser struct {
 	err      string
 }
 
+// TestCreateUser tests that you can create a user.
+//
 func TestCreateUser(t *testing.T) {
 	var c aetest.Context
 	var err error
@@ -33,7 +35,7 @@ func TestCreateUser(t *testing.T) {
 			email:    "foo@bar.com",
 			username: "john.snow",
 			name:     "john snow",
-			alias:    "",
+			alias:    "crow",
 			isAdmin:  false,
 			auth:     "",
 			err:      "",
