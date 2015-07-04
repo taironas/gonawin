@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/santiaago/gonawin/helpers"
+
 	"appengine/aetest"
 )
 
@@ -24,7 +26,9 @@ type testUser struct {
 func TestCreateUser(t *testing.T) {
 	var c aetest.Context
 	var err error
-	if c, err = aetest.NewContext(nil); err != nil {
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
 		t.Fatal(err)
 	}
 	defer c.Close()
@@ -48,13 +52,16 @@ func TestCreateUser(t *testing.T) {
 		if got, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
-		if err = checkUser(t, got, test); err != nil {
+		if err = checkUser(got, test); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+		if err = checkUserInvertedIndex(t, c, got); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
 }
 
-func checkUser(t *testing.T, got *User, want testUser) error {
+func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
 		s = fmt.Sprintf("want Email == %s, got %s", want.email, got.Email)
@@ -72,4 +79,23 @@ func checkUser(t *testing.T, got *User, want testUser) error {
 		return nil
 	}
 	return errors.New(s)
+}
+
+func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User) error {
+
+	var ids []int64
+	var err error
+	words := helpers.SetOfStrings("john")
+	if ids, err = GetUserInvertedIndexes(c, words); err != nil {
+		s := fmt.Sprintf("failed calling GetUserInvertedIndexes %v", err)
+		return errors.New(s)
+	}
+	for _, id := range ids {
+		if id == got.Id {
+			return nil
+		}
+	}
+
+	return errors.New("user not found")
+
 }

@@ -128,7 +128,8 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 	return user, nil
 }
 
-// Destroy a user given a user id.
+// Destroy lets you remove a user from the data store given a user id.
+//
 func (u *User) Destroy(c appengine.Context) error {
 
 	if _, err := UserById(c, u.Id); err != nil {

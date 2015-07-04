@@ -75,11 +75,12 @@ func CreateUserInvertedIndex(c appengine.Context, word string, ids string) (*Use
 	return u, err
 }
 
-// Add name to user inverted index entity.
+// AddToUserInvertedIndex add a name the user inverted index entity.
 //
 // We do this by spliting the name in words (split by spaces),
 // for each word we check if it already exists a user inverted index entity.
 // If it does not yet exist, we create an entity with the word as key and user id as value.
+//
 func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 	desc := "AddToUserInvertedIndex: "
 	words := strings.Split(name, " ")
