@@ -32,7 +32,7 @@ func TestSaveActivity(t *testing.T) {
 				Object:    ActivityEntity{10, "team", "TeamFoo"},
 				Target:    ActivityEntity{100, "foo", "TargetFoo"},
 				Published: time.Now(),
-				UserID:    1,
+				CreatorID: 1,
 			},
 			want: &Activity{
 				Type:      "Team",
@@ -41,7 +41,7 @@ func TestSaveActivity(t *testing.T) {
 				Object:    ActivityEntity{10, "team", "TeamFoo"},
 				Target:    ActivityEntity{100, "foo", "TargetFoo"},
 				Published: time.Now(),
-				UserID:    1,
+				CreatorID: 1,
 			},
 		},
 	}

@@ -32,14 +32,14 @@ func TestCreateTournament(t *testing.T) {
 				Description: "Foo description",
 				Start:       time.Now(),
 				End:         time.Now(),
-				AdminId:     int64(0),
+				AdminIds:    make([]int64, 1),
 			},
 			want: &Tournament{
 				Name:            "Foo",
 				Description:     "Foo description",
 				Start:           time.Now(),
 				End:             time.Now(),
-				AdminId:         int64(0),
+				AdminIds:        make([]int64, 1),
 				GroupIds:        make([]int64, 0),
 				Matches1stStage: make([]int64, 0),
 				Matches2ndStage: make([]int64, 0),
@@ -49,7 +49,7 @@ func TestCreateTournament(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		got, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminId)
+		got, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
 		if got == nil && test.want != nil {
 			t.Errorf("TestCreateTournament(%q): got nil wanted %v", test.name, *test.want)
 		} else if got != nil && test.want == nil {
@@ -58,7 +58,7 @@ func TestCreateTournament(t *testing.T) {
 			// This is OK
 		} else if got.Name != test.want.Name ||
 			got.Description != test.want.Description ||
-			got.AdminId != test.want.AdminId ||
+			len(got.AdminIds) != len(test.want.AdminIds) ||
 			len(got.GroupIds) != len(test.want.GroupIds) ||
 			len(got.Matches1stStage) != len(test.want.Matches1stStage) ||
 			len(got.Matches2ndStage) != len(test.want.Matches2ndStage) ||
@@ -89,13 +89,13 @@ func TestDestroyTournament(t *testing.T) {
 			Description: "Foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
-			AdminId:     int64(0),
+			AdminIds:    make([]int64, 1),
 		},
 		want: nil,
 	}
 
 	// create tournament
-	tournament, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminId)
+	tournament, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
 
 	// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
 	dummy := Tournament{}
@@ -131,21 +131,21 @@ func TestFindTournaments(t *testing.T) {
 			Description: "Foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
-			AdminId:     int64(0),
+			AdminIds:    make([]int64, 1),
 		},
 		Tournament{
 			Name:        "foobar",
 			Description: "foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
-			AdminId:     int64(0),
+			AdminIds:    make([]int64, 1),
 		},
 		Tournament{
 			Name:        "foobarfoo",
 			Description: "Foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
-			AdminId:     int64(0),
+			AdminIds:    make([]int64, 1),
 		},
 	}
 
@@ -193,7 +193,7 @@ func TestFindTournaments(t *testing.T) {
 				test.tournaments[i].Description,
 				test.tournaments[i].Start,
 				test.tournaments[i].End,
-				test.tournaments[i].AdminId); err1 != nil {
+				test.tournaments[i].AdminIds[0]); err1 != nil {
 				t.Errorf("TestFindTournaments(%q): error creating tournaments: %v", test.name, err1)
 			} else {
 				// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
