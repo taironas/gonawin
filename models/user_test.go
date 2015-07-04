@@ -1,10 +1,23 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 
 	"appengine/aetest"
 )
+
+type testUser struct {
+	title    string
+	email    string
+	username string
+	name     string
+	alias    string
+	isAdmin  bool
+	auth     string
+	err      string
+}
 
 func TestCreateUser(t *testing.T) {
 	var c aetest.Context
@@ -14,16 +27,7 @@ func TestCreateUser(t *testing.T) {
 	}
 	defer c.Close()
 
-	tests := []struct {
-		title    string
-		email    string
-		username string
-		name     string
-		alias    string
-		isAdmin  bool
-		auth     string
-		err      string
-	}{
+	tests := []testUser{
 		{
 			title:    "can create user",
 			email:    "foo@bar.com",
@@ -42,23 +46,28 @@ func TestCreateUser(t *testing.T) {
 		if got, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
-		if got.Email != test.email {
-			t.Errorf("test %v - Error; want Email == %s, got %s", i, test.email, got.Email)
-		}
-		if got.Username != test.username {
-			t.Errorf("test %v - Error; want Username == %s, got %s", i, test.username, got.Username)
-		}
-		if got.Name != test.name {
-			t.Errorf("test %v - Error; want Name == %s, got %s", i, test.name, got.Name)
-		}
-		if got.Alias != test.alias {
-			t.Errorf("test %v - Error; want Name == %s, got %s", i, test.alias, got.Alias)
-		}
-		if got.IsAdmin != test.isAdmin {
-			t.Errorf("test %v - Error; want isAdmin == %s, got %s", i, test.isAdmin, got.IsAdmin)
-		}
-		if got.Auth != test.auth {
-			t.Errorf("test %v - Error; want auth == %s, got %s", i, test.auth, got.Auth)
+		if err = checkUser(t, got, test); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
+}
+
+func checkUser(t *testing.T, got *User, want testUser) error {
+	var s string
+	if got.Email != want.email {
+		s = fmt.Sprintf("want Email == %s, got %s", want.email, got.Email)
+	} else if got.Username != want.username {
+		s = fmt.Sprintf("want Username == %s, got %s", want.username, got.Username)
+	} else if got.Name != want.name {
+		s = fmt.Sprintf("want Name == %s, got %s", want.name, got.Name)
+	} else if got.Alias != want.alias {
+		s = fmt.Sprintf("want Name == %s, got %s", want.alias, got.Alias)
+	} else if got.IsAdmin != want.isAdmin {
+		s = fmt.Sprintf("want isAdmin == %s, got %s", want.isAdmin, got.IsAdmin)
+	} else if got.Auth != want.auth {
+		s = fmt.Sprintf("want auth == %s, got %s", want.auth, got.Auth)
+	} else {
+		return nil
+	}
+	return errors.New(s)
 }
