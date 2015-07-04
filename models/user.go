@@ -77,9 +77,10 @@ type UserJson struct {
 	Created               *time.Time           `json:",omitempty"`
 }
 
-// Creates a user entity.
+// CreateUser let you create a user entity.
+//
 func CreateUser(c appengine.Context, email, username, name, alias string, isAdmin bool, auth string) (*User, error) {
-	// create new user
+
 	userId, _, err := datastore.AllocateIDs(c, "User", nil, 1)
 	if err != nil {
 		log.Errorf(c, " User.Create: %v", err)
@@ -89,10 +90,26 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 
 	emptyArray := make([]int64, 0)
 	emptyScores := make([]ScoreOfTournament, 0)
-	user := &User{userId, email, username, name, alias, isAdmin, auth, emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, int64(0), emptyScores, emptyArray, time.Now()}
+	user := &User{
+		Id:                    userId,
+		Email:                 email,
+		Username:              username,
+		Name:                  name,
+		Alias:                 alias,
+		IsAdmin:               isAdmin,
+		Auth:                  auth,
+		PredictIds:            emptyArray,
+		ArchivedPredictInds:   emptyArray,
+		TournamentIds:         emptyArray,
+		ArchivedTournamentIds: emptyArray,
+		TeamIds:               emptyArray,
+		Score:                 int64(0),
+		ScoreOfTournaments:    emptyScores,
+		ActivityIds:           emptyArray,
+		Created:               time.Now(),
+	}
 
-	_, err = datastore.Put(c, key, user)
-	if err != nil {
+	if _, err = datastore.Put(c, key, user); err != nil {
 		log.Errorf(c, "User.Create: %v", err)
 		return nil, errors.New("model/user: Unable to put user in Datastore")
 	}
