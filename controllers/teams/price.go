@@ -33,7 +33,7 @@ import (
 )
 
 // Prices handler, use it to get the team's prices.
-//  POST	/j/teams/[0-9]+/prices/     Get the prices of a team team with the given team id.
+//  GET	/j/teams/[0-9]+/prices/     Get the prices of a team team with the given team id.
 // Reponse: array of JSON formatted prices.
 //
 func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -68,10 +68,9 @@ func buildTeamPricesViewModel(prices []*mdl.Price) teamPricesViewModel {
 	return teamPricesViewModel{Prices: prices}
 }
 
-// PriceByTournament, use it to list the prices of a team for a specific tournament.
-//
-// Use this handler to get the price of a team for a specific tournament.
-//	GET	/j/teams/[0-9]+/prices/[0-9]+/	Retreives price of a team with the given id for the specified tournament.
+// PriceByTournament handler, use it to get the price of a team for a specific tournament.
+//	GET	/j/teams/[0-9]+/prices/[0-9]+/		Retrieves price of a team with the given id for the specified tournament.
+// Reponse: JSON formatted price.
 //
 func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
@@ -79,7 +78,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Team Prices by tournament Handler:"
+	desc := "Team Price by tournament Handler:"
 	extract := extract.NewContext(c, desc, r)
 
 	var t *mdl.Team
@@ -95,21 +94,16 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		return err
 	}
 
-	log.Infof(c, "%s ready to get price", desc)
 	p := t.PriceByTournament(c, tournamentId)
 
-	data := struct {
-		Price *mdl.Price
-	}{
-		p,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	pvm := buildTeamPriceViewModel(p)
+
+	return templateshlp.RenderJson(w, c, pvm)
 }
 
 // UpdatePrice handler, use it to update the price of a team for a specific tournament.
-//
-// Use this handler to get the price of a team for a specific tournament.
-//	GET	/j/teams/[0-9]+/prices/update/[0-9]+/	Update Retreives price of a team with the given id for the specified tournament.
+//	POST	/j/teams/[0-9]+/prices/update/[0-9]+/		Updates price of a team with the given id for the specified tournament.
+// Reponse: JSON formatted price.
 //
 func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -133,10 +127,8 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	log.Infof(c, "%s ready to get price", desc)
 	p := t.PriceByTournament(c, tournamentId)
 
-	// only work on name and private. Other values should not be editable
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -161,10 +153,15 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
 	}
 
-	data := struct {
-		Price *mdl.Price
-	}{
-		p,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	pvm := buildTeamPriceViewModel(p)
+
+	return templateshlp.RenderJson(w, c, pvm)
+}
+
+type teamPriceViewModel struct {
+	Price *mdl.Price
+}
+
+func buildTeamPriceViewModel(price *mdl.Price) teamPriceViewModel {
+	return teamPriceViewModel{Price: price}
 }
