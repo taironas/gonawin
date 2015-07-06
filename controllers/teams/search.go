@@ -43,57 +43,73 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Team Search Handler:"
 
 	words := helpers.SetOfStrings(keywords)
-	ids, err := mdl.GetTeamInvertedIndexes(c, words)
-	if err != nil {
-		log.Errorf(c, "%s teams.Index, error occurred when getting indexes of words: %v", desc, err)
-		data := struct {
-			MessageDanger string `json:",omitempty"`
-		}{
-			"Oops! something went wrong, we are unable to perform search query.",
-		}
-		return templateshlp.RenderJson(w, c, data)
+
+	var ids []int64
+	var err error
+	if ids, err = mdl.GetTeamInvertedIndexes(c, words); err != nil {
+		return unableToPerformSearch(c, w, desc, err)
 	}
+
 	result := mdl.TeamScore(c, keywords, ids)
 	log.Infof(c, "%s result from TeamScore: %v", desc, result)
-	teams := mdl.TeamsByIds(c, result)
+
+	var teams []*mdl.Team
+	if teams = mdl.TeamsByIds(c, result); len(teams) == 0 {
+		return notFound(c, w, keywords)
+	}
+
 	log.Infof(c, "%s ByIds result %v", desc, teams)
-	if len(teams) == 0 {
-		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
 
-		return templateshlp.RenderJson(w, c, data)
-	}
-	// filter team information to return in json api
-	type team struct {
-		Id           int64
-		Name         string
-		AdminIds     []int64
-		Private      bool
-		Accuracy     float64
-		MembersCount int64
-		ImageURL     string
-	}
+	tvm := buildSearchTeamViewModel(teams)
 
-	ts := make([]team, len(teams))
-	for i, t := range teams {
-		ts[i].Id = t.Id
-		ts[i].Name = t.Name
-		ts[i].AdminIds = t.AdminIds
-		ts[i].Private = t.Private
-		ts[i].Accuracy = t.Accuracy
-		ts[i].MembersCount = t.MembersCount
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-	}
-
-	// we should not directly return an array. so we add an extra layer.
 	data := struct {
-		Teams []team `json:",omitempty"`
+		Users []searchTeamViewModel `json:",omitempty"`
 	}{
-		ts,
+		tvm,
+	}
+	return templateshlp.RenderJson(w, c, data)
+}
+
+type searchTeamViewModel struct {
+	Id           int64
+	Name         string
+	AdminIds     []int64
+	Private      bool
+	Accuracy     float64
+	MembersCount int64
+	ImageURL     string
+}
+
+func buildSearchTeamViewModel(teams []*mdl.Team) []searchTeamViewModel {
+	tvm := make([]searchTeamViewModel, len(teams))
+	for i, t := range teams {
+		tvm[i].Id = t.Id
+		tvm[i].Name = t.Name
+		tvm[i].AdminIds = t.AdminIds
+		tvm[i].Private = t.Private
+		tvm[i].Accuracy = t.Accuracy
+		tvm[i].MembersCount = t.MembersCount
+		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
+	return tvm
+}
+
+func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error {
+	msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
+	data := struct {
+		MessageInfo string `json:",omitempty"`
+	}{
+		msg,
+	}
+	return templateshlp.RenderJson(w, c, data)
+}
+
+func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
+	log.Errorf(c, "%s teams.Index, error occurred when getting indexes of words: %v", desc, err)
+	data := struct {
+		MessageDanger string `json:",omitempty"`
+	}{
+		"Oops! something went wrong, we are unable to perform search query.",
 	}
 	return templateshlp.RenderJson(w, c, data)
 }
