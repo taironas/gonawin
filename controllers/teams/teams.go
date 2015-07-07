@@ -79,7 +79,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "teams index handler:"
 
-	// get count parameter, if not present count is set to 20
+	// get count parameter, if not present count is set to 25
 	strcount := r.FormValue("count")
 	count := int64(25)
 	if len(strcount) > 0 {
@@ -96,28 +96,30 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if len(strpage) > 0 {
 		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
 			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-			page = 1
 		} else {
 			page = p
 		}
 	}
+
 	// fetch teams
 	teams := mdl.GetNotJoinedTeams(c, u, count, page)
 
-	if len(teams) == 0 {
-		return templateshlp.RenderEmptyJsonArray(w, c)
-	}
+	tvm := buildIndexTeamsViewModel(teams)
 
-	type team struct {
-		Id           int64  `json:",omitempty"`
-		Name         string `json:",omitempty"`
-		AdminIds     []int64
-		Private      bool
-		Accuracy     float64
-		MembersCount int64
-		ImageURL     string
-	}
-	ts := make([]team, len(teams))
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type indexTeamViewModel struct {
+	Id           int64
+	Name         string
+	Private      bool
+	Accuracy     float64
+	MembersCount int64
+	ImageURL     string
+}
+
+func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
+	ts := make([]indexTeamViewModel, len(teams))
 	for i, t := range teams {
 		ts[i].Id = t.Id
 		ts[i].Name = t.Name
@@ -127,7 +129,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
 
-	return templateshlp.RenderJson(w, c, ts)
+	return ts
 }
 
 // New handler, use it to create a new team.
