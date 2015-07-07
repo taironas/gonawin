@@ -318,6 +318,7 @@ func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tourna
 
 // Update handler, use it to update a team from a given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
+// Reponse: JSON formatted team.
 //
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -327,6 +328,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Update Handler:"
 	extract := extract.NewContext(c, desc, r)
+
 	var team *mdl.Team
 	var err error
 	team, err = extract.Team()
@@ -355,10 +357,6 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	updatedPrivate := updatedData.Visibility == "private"
-	log.Errorf(c, "%s %v. %v", desc, team.Name, team.Private)
-	log.Errorf(c, "%s %v. %v", desc, updatedData.Name, updatedPrivate)
-	log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
-	log.Errorf(c, "%s updateddata %v.", desc, updatedData)
 
 	if helpers.IsStringValid(updatedData.Name) &&
 		(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
@@ -383,20 +381,26 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// publish new activity
 	u.Publish(c, "team", "updated team", team.Entity(), mdl.ActivityEntity{})
 
-	// keep only needed fields for json api
+	tvm := buildUpdateTeamsViewModel(team)
+
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type updateTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
 	var tJson mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+
+	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJson}
+
+	return tvm
 }
 
 // Destroy handler, use to to destroy a team.
