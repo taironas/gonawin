@@ -133,7 +133,7 @@ func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 }
 
 // New handler, use it to create a new team.
-//	POST	/j/teams/new/				Creates a new team.
+//	POST	/j/teams/new/		Creates a new team.
 //
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
@@ -186,20 +186,26 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// return the newly created team
+	tvm := buildNewTeamsViewModel(team)
+
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type newTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
 	var tJson mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
 
-	return templateshlp.RenderJson(w, c, data)
+	tvm := newTeamViewModel{MessageInfo: msg, Team: tJson}
+
+	return tvm
 }
 
 // Show handler, use it to get the team data to show.
