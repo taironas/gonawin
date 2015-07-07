@@ -195,17 +195,43 @@ func FindAllTournaments(c appengine.Context, count, page int64) []*Tournament {
 }
 
 // Find all tournaments with respect to array of ids.
-func TournamentsByIds(c appengine.Context, ids []int64) []*Tournament {
+func TournamentsByIds(c appengine.Context, ids []int64) ([]*Tournament, error) {
 
-	var tournaments []*Tournament
-	for _, id := range ids {
-		if tournament, err := TournamentById(c, id); err == nil {
-			tournaments = append(tournaments, tournament)
+	tournaments := make([]Tournament, len(ids))
+	keys := TournamentKeysByIds(c, ids)
+
+	var wrongIndexes []int
+
+	if err := datastore.GetMulti(c, keys, tournaments); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, "TournamentsByIds, missing key: %v %v", err, keys[i].IntID())
+
+					wrongIndexes = append(wrongIndexes, i)
+				}
+			}
 		} else {
-			log.Errorf(c, " Tournament.ByIds, error occurred during ByIds call: %v", err)
+			return nil, err
 		}
 	}
-	return tournaments
+
+	var existingTournaments []*Tournament
+	for i := range tournaments {
+		if !contains(wrongIndexes, i) {
+			log.Infof(c, "TournamentsByIds %v", tournaments[i])
+			existingTournaments = append(existingTournaments, &tournaments[i])
+		}
+	}
+	return existingTournaments, nil
+}
+
+func TournamentKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = TournamentKeyById(c, id)
+	}
+	return keys
 }
 
 // Checks if a user has joined a tournament.
