@@ -397,7 +397,11 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	result := mdl.TournamentScore(c, keywords, ids)
 	log.Infof(c, "%s result from TournamentScore: %v", desc, result)
-	tournaments := mdl.TournamentsByIds(c, result)
+
+	var tournaments []*mdl.Tournament
+	if tournaments, err = mdl.TournamentsByIds(c, result); err != nil {
+		log.Infof(c, "%v something failed when calling TournamentsByIds: %v", desc, err)
+	}
 	log.Infof(c, "%s ByIds result %v", desc, tournaments)
 
 	if len(tournaments) == 0 {

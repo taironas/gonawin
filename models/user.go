@@ -398,14 +398,10 @@ func (u *User) ContainsTournamentId(id int64) (bool, int) {
 func (u *User) Tournaments(c appengine.Context) []*Tournament {
 
 	var tournaments []*Tournament
+	var err error
 
-	for _, tId := range u.TournamentIds {
-		t, err := TournamentById(c, tId)
-		if err != nil {
-			log.Errorf(c, " Tournaments, cannot find team with ID=%", tId)
-		} else {
-			tournaments = append(tournaments, t)
-		}
+	if tournaments, err = TournamentsByIds(c, u.TournamentIds); err != nil {
+		log.Errorf(c, "Something failed when calling TournamentsByIds from user.Tournaments: %v", err)
 	}
 
 	return tournaments

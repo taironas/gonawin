@@ -410,18 +410,14 @@ func (t *Team) RemovePriceByTournamentId(c appengine.Context, tId int64) error {
 	return errors.New(fmt.Sprintf("RemovePriceByTournamentId price id not found. Team: %v tournament:%v", t.Id, tId))
 }
 
-// from a team return an array of tournament the user is involved in.
+// from a team return an array of tournament the team is involved in.
 func (t *Team) Tournaments(c appengine.Context) []*Tournament {
 
 	var tournaments []*Tournament
+	var err error
 
-	for _, tId := range t.TournamentIds {
-		tournament, err := TournamentById(c, tId)
-		if err != nil {
-			log.Errorf(c, " Tournaments, cannot find team with ID=%", tId)
-		} else {
-			tournaments = append(tournaments, tournament)
-		}
+	if tournaments, err = TournamentsByIds(c, t.TournamentIds); err != nil {
+		log.Errorf(c, "Something failed when calling TournamentsByIds from team.Tournaments: %v", err)
 	}
 
 	return tournaments
