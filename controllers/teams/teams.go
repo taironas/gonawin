@@ -248,7 +248,7 @@ type showViewModel struct {
 	Team        mdl.TeamJson              `json:",omitempty"`
 	Joined      bool                      `json:",omitempty"`
 	RequestSent bool                      `json:",omitempty"`
-	Players     []showPlayerViewModel     `json:",omitempty"`
+	Players     []playerViewModel         `json:",omitempty"`
 	Tournaments []showTournamentViewModel `json:",omitempty"`
 	ImageURL    string                    `json:",omitempty"`
 }
@@ -259,7 +259,7 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
 	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
 
-	pvm := buildShowPlayerViewModel(c, players)
+	pvm := buildPlayersViewModel(c, players)
 	tvm := buildShowTournamentViewModel(c, tournaments)
 
 	return showViewModel{
@@ -270,27 +270,6 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 		tvm,
 		helpers.TeamImageURL(t.Name, t.Id),
 	}
-}
-
-type showPlayerViewModel struct {
-	Id       int64  `json:",omitempty"`
-	Username string `json:",omitempty"`
-	Alias    string
-	Score    int64
-	ImageURL string
-}
-
-func buildShowPlayerViewModel(c appengine.Context, players []*mdl.User) []showPlayerViewModel {
-	pvm := make([]showPlayerViewModel, len(players))
-	for i, p := range players {
-		pvm[i].Id = p.Id
-		pvm[i].Username = p.Username
-		pvm[i].Alias = p.Alias
-		pvm[i].Score = p.Score
-		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
-	}
-
-	return pvm
 }
 
 type showTournamentViewModel struct {
@@ -477,6 +456,7 @@ func buildDestroyTeamsViewModel(team *mdl.Team) destroyTeamViewModel {
 
 // Members handler, use it to get all members of a team.
 //	/j/teams/[0-9]+/members/	GET			use this handler to get members of a team.
+// Reponse: array of JSON formatted users.
 //
 func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -489,7 +469,6 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-
 	team, err = extract.Team()
 	if err != nil {
 		return err
@@ -501,14 +480,28 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
-	membersJson := make([]mdl.UserJson, len(members))
-	helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
+	pvm := buildPlayersViewModel(c, members)
 
-	data := struct {
-		Members []mdl.UserJson
-	}{
-		membersJson,
+	return templateshlp.RenderJson(w, c, pvm)
+}
+
+type playerViewModel struct {
+	Id       int64  `json:",omitempty"`
+	Username string `json:",omitempty"`
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
+func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
+	pvm := make([]playerViewModel, len(players))
+	for i, p := range players {
+		pvm[i].Id = p.Id
+		pvm[i].Username = p.Username
+		pvm[i].Alias = p.Alias
+		pvm[i].Score = p.Score
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
 	}
-	return templateshlp.RenderJson(w, c, data)
+
+	return pvm
 }
