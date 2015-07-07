@@ -134,6 +134,7 @@ func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 
 // New handler, use it to create a new team.
 //	POST	/j/teams/new/		Creates a new team.
+// Reponse: JSON formatted team.
 //
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
@@ -209,7 +210,8 @@ func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
 }
 
 // Show handler, use it to get the team data to show.
-//	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
+//	GET	/j/teams/show/[0-9]+/		Retrieves the team with the given id.
+// Reponse: JSON formatted team.
 //
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -227,72 +229,91 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// get data for json team
-	// build team json
-	var tJson mdl.TeamJson
-	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
 	// build players json
 	var players []*mdl.User
 	if players, err = team.Players(c); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	type player struct {
-		Id       int64  `json:",omitempty"`
-		Username string `json:",omitempty"`
-		Alias    string
-		Score    int64
-		ImageURL string
-	}
-
-	ps := make([]player, len(players))
-	for i, p := range players {
-		ps[i].Id = p.Id
-		ps[i].Username = p.Username
-		ps[i].Alias = p.Alias
-		ps[i].Score = p.Score
-		ps[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
-	}
-
 	// build tournaments json
 	tournaments := team.Tournaments(c)
-	type tournament struct {
-		Id                int64  `json:",omitempty"`
-		Name              string `json:",omitempty"`
-		ParticipantsCount int
-		TeamsCount        int
-		Progress          float64
-		ImageURL          string
-	}
-	ts := make([]tournament, len(tournaments))
-	for i, t := range tournaments {
-		ts[i].Id = t.Id
-		ts[i].Name = t.Name
-		ts[i].ParticipantsCount = len(t.UserIds)
-		ts[i].TeamsCount = len(t.TeamIds)
-		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-	}
 
-	teamData := struct {
-		Team        mdl.TeamJson
-		Joined      bool
-		RequestSent bool
-		Players     []player
-		Tournaments []tournament
-		ImageURL    string
-	}{
+	svm := buildShowViewModel(c, team, u, players, tournaments)
+
+	return templateshlp.RenderJson(w, c, svm)
+
+}
+
+type showViewModel struct {
+	Team        mdl.TeamJson              `json:",omitempty"`
+	Joined      bool                      `json:",omitempty"`
+	RequestSent bool                      `json:",omitempty"`
+	Players     []showPlayerViewModel     `json:",omitempty"`
+	Tournaments []showTournamentViewModel `json:",omitempty"`
+	ImageURL    string                    `json:",omitempty"`
+}
+
+func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
+	// build team json
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
+	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
+
+	pvm := buildShowPlayerViewModel(c, players)
+	tvm := buildShowTournamentViewModel(c, tournaments)
+
+	return showViewModel{
 		tJson,
-		team.Joined(c, u),
-		mdl.WasTeamRequestSent(c, team.Id, u.Id),
-		ps,
-		ts,
-		helpers.TeamImageURL(team.Name, team.Id),
+		t.Joined(c, u),
+		mdl.WasTeamRequestSent(c, t.Id, u.Id),
+		pvm,
+		tvm,
+		helpers.TeamImageURL(t.Name, t.Id),
 	}
-	return templateshlp.RenderJson(w, c, teamData)
+}
 
+type showPlayerViewModel struct {
+	Id       int64  `json:",omitempty"`
+	Username string `json:",omitempty"`
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
+func buildShowPlayerViewModel(c appengine.Context, players []*mdl.User) []showPlayerViewModel {
+	pvm := make([]showPlayerViewModel, len(players))
+	for i, p := range players {
+		pvm[i].Id = p.Id
+		pvm[i].Username = p.Username
+		pvm[i].Alias = p.Alias
+		pvm[i].Score = p.Score
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+	}
+
+	return pvm
+}
+
+type showTournamentViewModel struct {
+	Id                int64  `json:",omitempty"`
+	Name              string `json:",omitempty"`
+	ParticipantsCount int
+	TeamsCount        int
+	Progress          float64
+	ImageURL          string
+}
+
+func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
+	tvm := make([]showTournamentViewModel, len(tournaments))
+	for i, t := range tournaments {
+		tvm[i].Id = t.Id
+		tvm[i].Name = t.Name
+		tvm[i].ParticipantsCount = len(t.UserIds)
+		tvm[i].TeamsCount = len(t.TeamIds)
+		tvm[i].Progress = t.Progress(c)
+		tvm[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+
+	return tvm
 }
 
 // Update handler, use it to update a team from a given id.
