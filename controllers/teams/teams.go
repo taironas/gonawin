@@ -405,6 +405,7 @@ func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
 
 // Destroy handler, use to to destroy a team.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
+// Reponse: JSON formatted message.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -414,6 +415,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Destroy Handler:"
 	extract := extract.NewContext(c, desc, r)
+
 	var team *mdl.Team
 	var err error
 	team, err = extract.Team()
@@ -446,7 +448,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
 		if err := tournament.RemoveTeamId(c, team.Id); err != nil {
-			log.Errorf(c, "%serror when trying to destroy tournament relationship: %v", desc, err)
+			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}
 	// delete the team
@@ -455,15 +457,22 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// publish new activity
 	u.Publish(c, "team", "deleted team", team.Entity(), mdl.ActivityEntity{})
 
-	msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
-	}
+	tvm := buildDestroyTeamsViewModel(team)
 
 	// return destroyed status
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type destroyTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildDestroyTeamsViewModel(team *mdl.Team) destroyTeamViewModel {
+	msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
+
+	tvm := destroyTeamViewModel{MessageInfo: msg}
+
+	return tvm
 }
 
 // Members handler, use it to get all members of a team.
