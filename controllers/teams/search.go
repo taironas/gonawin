@@ -30,10 +30,13 @@ import (
 	mdl "github.com/santiaago/gonawin/models"
 )
 
-// Search handler, use it to get all teams that match the search.
+// Search handler returns the result of a team search in a JSON format.
+// It uses parameter 'q' to make the query.
+//
 //	GET	/j/teams/search/			Search for all teams respecting the query "q"
 //
 func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+
 	keywords := r.FormValue("q")
 	if r.Method != "GET" || len(keywords) == 0 {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -60,17 +63,16 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	log.Infof(c, "%s ByIds result %v", desc, teams)
 
-	tvm := buildSearchTeamViewModel(teams)
+	svm := buildTeamSearchViewModel(teams)
 
-	data := struct {
-		Users []searchTeamViewModel `json:",omitempty"`
-	}{
-		tvm,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, svm)
 }
 
-type searchTeamViewModel struct {
+type teamSearchViewModel struct {
+	Teams []teamSearchTeamViewModel
+}
+
+type teamSearchTeamViewModel struct {
 	Id           int64
 	Name         string
 	AdminIds     []int64
@@ -80,8 +82,8 @@ type searchTeamViewModel struct {
 	ImageURL     string
 }
 
-func buildSearchTeamViewModel(teams []*mdl.Team) []searchTeamViewModel {
-	tvm := make([]searchTeamViewModel, len(teams))
+func buildTeamSearchViewModel(teams []*mdl.Team) teamSearchViewModel {
+	tvm := make([]teamSearchTeamViewModel, len(teams))
 	for i, t := range teams {
 		tvm[i].Id = t.Id
 		tvm[i].Name = t.Name
@@ -91,7 +93,7 @@ func buildSearchTeamViewModel(teams []*mdl.Team) []searchTeamViewModel {
 		tvm[i].MembersCount = t.MembersCount
 		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
-	return tvm
+	return teamSearchViewModel{Teams: tvm}
 }
 
 func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error {
