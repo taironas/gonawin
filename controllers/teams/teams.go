@@ -272,6 +272,27 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 	}
 }
 
+type playerViewModel struct {
+	Id       int64
+	Username string
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
+func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
+	pvm := make([]playerViewModel, len(players))
+	for i, p := range players {
+		pvm[i].Id = p.Id
+		pvm[i].Username = p.Username
+		pvm[i].Alias = p.Alias
+		pvm[i].Score = p.Score
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+	}
+
+	return pvm
+}
+
 type showTournamentViewModel struct {
 	Id                int64  `json:",omitempty"`
 	Name              string `json:",omitempty"`
@@ -480,12 +501,12 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	pvm := buildPlayersViewModel(c, members)
+	mvm := buildMembersViewModel(c, members)
 
-	return templateshlp.RenderJson(w, c, pvm)
+	return templateshlp.RenderJson(w, c, mvm)
 }
 
-type playerViewModel struct {
+type memberViewModel struct {
 	Id       int64  `json:",omitempty"`
 	Username string `json:",omitempty"`
 	Alias    string
@@ -493,15 +514,19 @@ type playerViewModel struct {
 	ImageURL string
 }
 
-func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
-	pvm := make([]playerViewModel, len(players))
-	for i, p := range players {
-		pvm[i].Id = p.Id
-		pvm[i].Username = p.Username
-		pvm[i].Alias = p.Alias
-		pvm[i].Score = p.Score
-		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+type membersViewModel struct {
+	Members []memberViewModel
+}
+
+func buildMembersViewModel(c appengine.Context, members []*mdl.User) membersViewModel {
+	mvm := make([]memberViewModel, len(members))
+	for i, m := range members {
+		mvm[i].Id = m.Id
+		mvm[i].Username = m.Username
+		mvm[i].Alias = m.Alias
+		mvm[i].Score = m.Score
+		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.Id)
 	}
 
-	return pvm
+	return membersViewModel{Members: mvm}
 }
