@@ -26,15 +26,15 @@ import (
 
 	"github.com/taironas/route"
 
-	"github.com/santiaago/gonawin/helpers/handlers"
+	"github.com/taironas/gonawin/helpers/handlers"
 
-	activitiesctrl "github.com/santiaago/gonawin/controllers/activities"
-	invitectrl "github.com/santiaago/gonawin/controllers/invite"
-	sessionsctrl "github.com/santiaago/gonawin/controllers/sessions"
-	tasksctrl "github.com/santiaago/gonawin/controllers/tasks"
-	teamsctrl "github.com/santiaago/gonawin/controllers/teams"
-	tournamentsctrl "github.com/santiaago/gonawin/controllers/tournaments"
-	usersctrl "github.com/santiaago/gonawin/controllers/users"
+	activitiesctrl "github.com/taironas/gonawin/controllers/activities"
+	invitectrl "github.com/taironas/gonawin/controllers/invite"
+	sessionsctrl "github.com/taironas/gonawin/controllers/sessions"
+	tasksctrl "github.com/taironas/gonawin/controllers/tasks"
+	teamsctrl "github.com/taironas/gonawin/controllers/teams"
+	tournamentsctrl "github.com/taironas/gonawin/controllers/tournaments"
+	usersctrl "github.com/taironas/gonawin/controllers/users"
 )
 
 // entry point of application

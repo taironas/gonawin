@@ -23,12 +23,12 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	"github.com/santiaago/gonawin/helpers/log"
-	mdl "github.com/santiaago/gonawin/models"
+	"github.com/taironas/gonawin/helpers/log"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // Index activity handler, use it to get the activities of a user.

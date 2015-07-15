@@ -6,7 +6,7 @@ import (
 
 	"appengine/aetest"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 func TestSaveActivity(t *testing.T) {

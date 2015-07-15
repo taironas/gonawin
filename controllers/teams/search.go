@@ -23,11 +23,11 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	mdl "github.com/santiaago/gonawin/models"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // Search handler returns the result of a team search in a JSON format.

@@ -22,10 +22,10 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
-	mdl "github.com/santiaago/gonawin/models"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // Score handler, returns the score data of the requested user.

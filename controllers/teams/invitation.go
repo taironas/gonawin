@@ -22,12 +22,12 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	mdl "github.com/santiaago/gonawin/models"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // RequestInvite handler, use it to request an invitation to a team.

@@ -25,8 +25,8 @@ import (
 	"appengine/datastore"
 	"appengine/mail"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // Invite task handler, use it to send an invitation via email.

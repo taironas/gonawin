@@ -30,10 +30,10 @@ import (
 	"appengine/urlfetch"
 	"appengine/user"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 
-	gwconfig "github.com/santiaago/gonawin/config"
-	mdl "github.com/santiaago/gonawin/models"
+	gwconfig "github.com/taironas/gonawin/config"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 var (

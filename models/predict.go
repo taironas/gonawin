@@ -24,7 +24,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // A Predict entity is defined by the result of a Match: Result1 and Result2 a match id and a user id.

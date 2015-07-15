@@ -28,11 +28,11 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
-	mdl "github.com/santiaago/gonawin/models"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // Index user handler, returns an http response with the information of the

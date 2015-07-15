@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/santiaago/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers"
 
 	"appengine/aetest"
 )

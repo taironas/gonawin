@@ -15,7 +15,7 @@
  */
 
 // Package handlers provides a set of functions to manipulate http.HandlerFunc
-// at a route level. cf github.com/santiaago/gonawin/gonawin/main.go for details
+// at a route level. cf github.com/taironas/gonawin/gonawin/main.go for details
 // on how to use it.
 //
 package handlers
@@ -26,11 +26,11 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/auth"
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/auth"
+	"github.com/taironas/gonawin/helpers/log"
 
-	mdl "github.com/santiaago/gonawin/models"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
