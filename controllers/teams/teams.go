@@ -23,7 +23,6 @@
 //	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
-//	POST	/j/teams/invite/[0-9]+/			Request an invitation to a private team with the given id.
 //	POST	/j/teams/allow/[0-9]+/			Allow a user to be a member of a team with the given id.
 //	POST	/j/teams/deny/[0-9]+/			Deny entrance of user to be a member of a team with the given id.
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
@@ -80,7 +79,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "teams index handler:"
 
-	// get count parameter, if not present count is set to 20
+	// get count parameter, if not present count is set to 25
 	strcount := r.FormValue("count")
 	count := int64(25)
 	if len(strcount) > 0 {
@@ -97,28 +96,30 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if len(strpage) > 0 {
 		if p, err := strconv.ParseInt(strpage, 0, 64); err != nil {
 			log.Errorf(c, "%s error during conversion of page parameter: %v", desc, err)
-			page = 1
 		} else {
 			page = p
 		}
 	}
+
 	// fetch teams
 	teams := mdl.GetNotJoinedTeams(c, u, count, page)
 
-	if len(teams) == 0 {
-		return templateshlp.RenderEmptyJsonArray(w, c)
-	}
+	tvm := buildIndexTeamsViewModel(teams)
 
-	type team struct {
-		Id           int64  `json:",omitempty"`
-		Name         string `json:",omitempty"`
-		AdminIds     []int64
-		Private      bool
-		Accuracy     float64
-		MembersCount int64
-		ImageURL     string
-	}
-	ts := make([]team, len(teams))
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type indexTeamViewModel struct {
+	Id           int64
+	Name         string
+	Private      bool
+	Accuracy     float64
+	MembersCount int64
+	ImageURL     string
+}
+
+func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
+	ts := make([]indexTeamViewModel, len(teams))
 	for i, t := range teams {
 		ts[i].Id = t.Id
 		ts[i].Name = t.Name
@@ -128,11 +129,12 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
 
-	return templateshlp.RenderJson(w, c, ts)
+	return ts
 }
 
 // New handler, use it to create a new team.
-//	POST	/j/teams/new/				Creates a new team.
+//	POST	/j/teams/new/		Creates a new team.
+// Reponse: JSON formatted team.
 //
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
@@ -185,24 +187,31 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// return the newly created team
+	tvm := buildNewTeamsViewModel(team)
+
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type newTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
 	var tJson mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
 
-	return templateshlp.RenderJson(w, c, data)
+	tvm := newTeamViewModel{MessageInfo: msg, Team: tJson}
+
+	return tvm
 }
 
 // Show handler, use it to get the team data to show.
-//	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
+//	GET	/j/teams/show/[0-9]+/		Retrieves the team with the given id.
+// Reponse: JSON formatted team.
 //
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -220,76 +229,96 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// get data for json team
-	// build team json
-	var tJson mdl.TeamJson
-	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
-
 	// build players json
 	var players []*mdl.User
 	if players, err = team.Players(c); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	type player struct {
-		Id       int64  `json:",omitempty"`
-		Username string `json:",omitempty"`
-		Alias    string
-		Score    int64
-		ImageURL string
-	}
-
-	ps := make([]player, len(players))
-	for i, p := range players {
-		ps[i].Id = p.Id
-		ps[i].Username = p.Username
-		ps[i].Alias = p.Alias
-		ps[i].Score = p.Score
-		ps[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
-	}
-
 	// build tournaments json
 	tournaments := team.Tournaments(c)
-	type tournament struct {
-		Id                int64  `json:",omitempty"`
-		Name              string `json:",omitempty"`
-		ParticipantsCount int
-		TeamsCount        int
-		Progress          float64
-		ImageURL          string
-	}
-	ts := make([]tournament, len(tournaments))
-	for i, t := range tournaments {
-		ts[i].Id = t.Id
-		ts[i].Name = t.Name
-		ts[i].ParticipantsCount = len(t.UserIds)
-		ts[i].TeamsCount = len(t.TeamIds)
-		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
-	}
 
-	teamData := struct {
-		Team        mdl.TeamJson
-		Joined      bool
-		RequestSent bool
-		Players     []player
-		Tournaments []tournament
-		ImageURL    string
-	}{
+	svm := buildShowViewModel(c, team, u, players, tournaments)
+
+	return templateshlp.RenderJson(w, c, svm)
+
+}
+
+type showViewModel struct {
+	Team        mdl.TeamJson              `json:",omitempty"`
+	Joined      bool                      `json:",omitempty"`
+	RequestSent bool                      `json:",omitempty"`
+	Players     []playerViewModel         `json:",omitempty"`
+	Tournaments []showTournamentViewModel `json:",omitempty"`
+	ImageURL    string                    `json:",omitempty"`
+}
+
+func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
+	// build team json
+	var tJson mdl.TeamJson
+	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
+	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
+
+	pvm := buildPlayersViewModel(c, players)
+	tvm := buildShowTournamentViewModel(c, tournaments)
+
+	return showViewModel{
 		tJson,
-		team.Joined(c, u),
-		mdl.WasTeamRequestSent(c, team.Id, u.Id),
-		ps,
-		ts,
-		helpers.TeamImageURL(team.Name, team.Id),
+		t.Joined(c, u),
+		mdl.WasTeamRequestSent(c, t.Id, u.Id),
+		pvm,
+		tvm,
+		helpers.TeamImageURL(t.Name, t.Id),
 	}
-	return templateshlp.RenderJson(w, c, teamData)
+}
 
+type playerViewModel struct {
+	Id       int64
+	Username string
+	Alias    string
+	Score    int64
+	ImageURL string
+}
+
+func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
+	pvm := make([]playerViewModel, len(players))
+	for i, p := range players {
+		pvm[i].Id = p.Id
+		pvm[i].Username = p.Username
+		pvm[i].Alias = p.Alias
+		pvm[i].Score = p.Score
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+	}
+
+	return pvm
+}
+
+type showTournamentViewModel struct {
+	Id                int64  `json:",omitempty"`
+	Name              string `json:",omitempty"`
+	ParticipantsCount int
+	TeamsCount        int
+	Progress          float64
+	ImageURL          string
+}
+
+func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
+	tvm := make([]showTournamentViewModel, len(tournaments))
+	for i, t := range tournaments {
+		tvm[i].Id = t.Id
+		tvm[i].Name = t.Name
+		tvm[i].ParticipantsCount = len(t.UserIds)
+		tvm[i].TeamsCount = len(t.TeamIds)
+		tvm[i].Progress = t.Progress(c)
+		tvm[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+	}
+
+	return tvm
 }
 
 // Update handler, use it to update a team from a given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
+// Reponse: JSON formatted team.
 //
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -299,6 +328,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Update Handler:"
 	extract := extract.NewContext(c, desc, r)
+
 	var team *mdl.Team
 	var err error
 	team, err = extract.Team()
@@ -327,10 +357,6 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	updatedPrivate := updatedData.Visibility == "private"
-	log.Errorf(c, "%s %v. %v", desc, team.Name, team.Private)
-	log.Errorf(c, "%s %v. %v", desc, updatedData.Name, updatedPrivate)
-	log.Errorf(c, "%s visibility %v.", desc, updatedData.Visibility)
-	log.Errorf(c, "%s updateddata %v.", desc, updatedData)
 
 	if helpers.IsStringValid(updatedData.Name) &&
 		(updatedData.Name != team.Name || updatedData.Description != team.Description || updatedPrivate != team.Private) {
@@ -355,24 +381,31 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// publish new activity
 	u.Publish(c, "team", "updated team", team.Entity(), mdl.ActivityEntity{})
 
-	// keep only needed fields for json api
+	tvm := buildUpdateTeamsViewModel(team)
+
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type updateTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Team        mdl.TeamJson
+}
+
+func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
 	var tJson mdl.TeamJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
-	}{
-		msg,
-		tJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+
+	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJson}
+
+	return tvm
 }
 
 // Destroy handler, use to to destroy a team.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
+// Reponse: JSON formatted message.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -382,6 +415,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Team Destroy Handler:"
 	extract := extract.NewContext(c, desc, r)
+
 	var team *mdl.Team
 	var err error
 	team, err = extract.Team()
@@ -414,7 +448,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
 		if err := tournament.RemoveTeamId(c, team.Id); err != nil {
-			log.Errorf(c, "%serror when trying to destroy tournament relationship: %v", desc, err)
+			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}
 	// delete the team
@@ -423,274 +457,27 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// publish new activity
 	u.Publish(c, "team", "deleted team", team.Entity(), mdl.ActivityEntity{})
 
+	tvm := buildDestroyTeamsViewModel(team)
+
+	// return destroyed status
+	return templateshlp.RenderJson(w, c, tvm)
+}
+
+type destroyTeamViewModel struct {
+	MessageInfo string `json:",omitempty"`
+}
+
+func buildDestroyTeamsViewModel(team *mdl.Team) destroyTeamViewModel {
 	msg := fmt.Sprintf("The team %s was correctly deleted!", team.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-	}{
-		msg,
-	}
 
-	// return destroyed status
-	return templateshlp.RenderJson(w, c, data)
-}
+	tvm := destroyTeamViewModel{MessageInfo: msg}
 
-// RequestInvite handler, use it to request an invitation to a team.
-// A user sends a team a request to join a team if team is private.
-// use this handler when you wish to request an invitation to a team.
-// this is done when the team in set as 'private' and the user wishes to join it.
-func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Request Invite Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var team *mdl.Team
-	var err error
-	team, err = extract.Team()
-	if err != nil {
-		return err
-	}
-
-	if _, err := mdl.CreateTeamRequest(c, team.Id, team.Name, u.Id, u.Username); err != nil {
-		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-	}
-
-	// return destroyed status
-	return templateshlp.RenderJson(w, c, "team request was created")
-}
-
-// SendInvite handler, use it to send an invitation to gonawin.
-// A team sends a user an invitation with tuple (user, team) to join a team.
-func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Send User Invitation Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var team *mdl.Team
-	var err error
-	team, err = extract.Team()
-	if err != nil {
-		return err
-	}
-
-	var user *mdl.User
-	user, err = extract.User()
-	if err != nil {
-		return err
-	}
-
-	if _, err := mdl.CreateUserRequest(c, team.Id, user.Id); err != nil {
-		log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
-	}
-
-	// publish new activity
-	user.Publish(c, "invitation", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
-
-	return templateshlp.RenderJson(w, c, "user request was created")
-}
-
-type teamInvitedViewModel struct {
-	Users []teamInvitedUserViewModel
-}
-
-type teamInvitedUserViewModel struct {
-	Id       int64
-	Username string
-	Alias    string
-	Score    int64
-	ImageURL string
-}
-
-// Invited handler, use it to get all the users who were invited to a team.
-func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "GET" {
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	desc := "Team Invited Handler:"
-	c := appengine.NewContext(r)
-	extract := extract.NewContext(c, desc, r)
-
-	var teamId int64
-	var err error
-	teamId, err = extract.TeamId()
-	if err != nil {
-		return err
-	}
-
-	urs := mdl.FindUserRequests(c, "TeamId", teamId)
-	var ids []int64
-	for _, ur := range urs {
-		ids = append(ids, ur.UserId)
-	}
-
-	var users []*mdl.User
-	if users, err = mdl.UsersByIds(c, ids); err != nil {
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
-	}
-
-	ivm := buildTeamInvitedViewModel(users)
-
-	return templateshlp.RenderJson(w, c, ivm)
-}
-
-func buildTeamInvitedViewModel(users []*mdl.User) teamInvitedViewModel {
-	uvm := make([]teamInvitedUserViewModel, len(users))
-	for i, u := range users {
-		uvm[i].Id = u.Id
-		uvm[i].Username = u.Username
-		uvm[i].Alias = u.Alias
-		uvm[i].Score = u.Score
-		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
-	}
-
-	return teamInvitedViewModel{Users: uvm}
-}
-
-// AllowRequest handler, use it to allow a user to join a team.
-// use this handler to allow a request send by a user on a team.
-// after this, the user that send the request will be part of the team
-func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Allow Request Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var teamRequest *mdl.TeamRequest
-	var err error
-	teamRequest, err = extract.TeamRequest()
-	if err != nil {
-		return err
-	}
-
-	// join user to the team
-	var team *mdl.Team
-	team, err = mdl.TeamById(c, teamRequest.TeamId)
-	if err != nil {
-		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
-	}
-	user, err := mdl.UserById(c, teamRequest.UserId)
-	if err != nil {
-		log.Errorf(c, "%s user not found, err: %v", desc, err)
-		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
-	}
-
-	team.Join(c, user)
-	// request is no more needed so clear it from datastore
-	teamRequest.Destroy(c)
-
-	return templateshlp.RenderJson(w, c, "team request was handled")
-}
-
-// Deny handler.
-// use this handler to deny a request send by a user on a team.
-// the user will not be able to be part of the team
-func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Deny Request Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var err error
-	var teamRequest *mdl.TeamRequest
-
-	teamRequest, err = extract.TeamRequest()
-	if err != nil {
-		return err
-	}
-
-	// request is no more needed so clear it from datastore
-	teamRequest.Destroy(c)
-
-	return templateshlp.RenderJson(w, c, "team request was handled")
-}
-
-// Search handler, use it to get all teams that match the search.
-//	GET	/j/teams/search/			Search for all teams respecting the query "q"
-//
-func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	keywords := r.FormValue("q")
-	if r.Method != "GET" || len(keywords) == 0 {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Search Handler:"
-
-	words := helpers.SetOfStrings(keywords)
-	ids, err := mdl.GetTeamInvertedIndexes(c, words)
-	if err != nil {
-		log.Errorf(c, "%s teams.Index, error occurred when getting indexes of words: %v", desc, err)
-		data := struct {
-			MessageDanger string `json:",omitempty"`
-		}{
-			"Oops! something went wrong, we are unable to perform search query.",
-		}
-		return templateshlp.RenderJson(w, c, data)
-	}
-	result := mdl.TeamScore(c, keywords, ids)
-	log.Infof(c, "%s result from TeamScore: %v", desc, result)
-	teams := mdl.TeamsByIds(c, result)
-	log.Infof(c, "%s ByIds result %v", desc, teams)
-	if len(teams) == 0 {
-		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "team")
-		data := struct {
-			MessageInfo string `json:",omitempty"`
-		}{
-			msg,
-		}
-
-		return templateshlp.RenderJson(w, c, data)
-	}
-	// filter team information to return in json api
-	type team struct {
-		Id           int64
-		Name         string
-		AdminIds     []int64
-		Private      bool
-		Accuracy     float64
-		MembersCount int64
-		ImageURL     string
-	}
-
-	ts := make([]team, len(teams))
-	for i, t := range teams {
-		ts[i].Id = t.Id
-		ts[i].Name = t.Name
-		ts[i].AdminIds = t.AdminIds
-		ts[i].Private = t.Private
-		ts[i].Accuracy = t.Accuracy
-		ts[i].MembersCount = t.MembersCount
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
-	}
-
-	// we should not directly return an array. so we add an extra layer.
-	data := struct {
-		Teams []team `json:",omitempty"`
-	}{
-		ts,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return tvm
 }
 
 // Members handler, use it to get all members of a team.
 //	/j/teams/[0-9]+/members/	GET			use this handler to get members of a team.
+// Reponse: array of JSON formatted users.
 //
 func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -703,7 +490,6 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var team *mdl.Team
 	var err error
-
 	team, err = extract.Team()
 	if err != nil {
 		return err
@@ -715,145 +501,32 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	fieldsToKeepForMember := []string{"Id", "Username", "Alias", "Score"}
-	membersJson := make([]mdl.UserJson, len(members))
-	helpers.TransformFromArrayOfPointers(&members, &membersJson, fieldsToKeepForMember)
+	mvm := buildMembersViewModel(c, members)
 
-	data := struct {
-		Members []mdl.UserJson
-	}{
-		membersJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJson(w, c, mvm)
 }
 
-// Prices handler, use it to get the team's prices.
-func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "GET" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Prices Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var team *mdl.Team
-	var err error
-
-	team, err = extract.Team()
-	if err != nil {
-		return err
-	}
-
-	log.Infof(c, "%s ready to build a price array", desc)
-	prices := team.Prices(c)
-
-	data := struct {
-		Prices []*mdl.Price
-	}{
-		prices,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+type memberViewModel struct {
+	Id       int64  `json:",omitempty"`
+	Username string `json:",omitempty"`
+	Alias    string
+	Score    int64
+	ImageURL string
 }
 
-// PriceByTournament, use it to list the prices of a team for a specific tournament.
-//
-// Use this handler to get the price of a team for a specific tournament.
-//	GET	/j/teams/[0-9]+/prices/[0-9]+/	Retreives price of a team with the given id for the specified tournament.
-//
-func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method == "GET" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
-	}
-
-	c := appengine.NewContext(r)
-	desc := "Team Prices by tournament Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var t *mdl.Team
-	var err error
-	t, err = extract.Team()
-	if err != nil {
-		return err
-	}
-
-	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
-	if err != nil {
-		return err
-	}
-
-	log.Infof(c, "%s ready to get price", desc)
-	p := t.PriceByTournament(c, tournamentId)
-
-	data := struct {
-		Price *mdl.Price
-	}{
-		p,
-	}
-	return templateshlp.RenderJson(w, c, data)
+type membersViewModel struct {
+	Members []memberViewModel
 }
 
-// UpdatePrice handler, use it to update the price of a team for a specific tournament.
-//
-// Use this handler to get the price of a team for a specific tournament.
-//	GET	/j/teams/[0-9]+/prices/update/[0-9]+/	Update Retreives price of a team with the given id for the specified tournament.
-//
-func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
-	if r.Method != "POST" {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
+func buildMembersViewModel(c appengine.Context, members []*mdl.User) membersViewModel {
+	mvm := make([]memberViewModel, len(members))
+	for i, m := range members {
+		mvm[i].Id = m.Id
+		mvm[i].Username = m.Username
+		mvm[i].Alias = m.Alias
+		mvm[i].Score = m.Score
+		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.Id)
 	}
 
-	c := appengine.NewContext(r)
-	desc := "Team update price Handler:"
-	extract := extract.NewContext(c, desc, r)
-
-	var t *mdl.Team
-	var err error
-	t, err = extract.Team()
-	if err != nil {
-		return err
-	}
-
-	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
-	if err != nil {
-		return err
-	}
-
-	log.Infof(c, "%s ready to get price", desc)
-	p := t.PriceByTournament(c, tournamentId)
-
-	// only work on name and private. Other values should not be editable
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Errorf(c, "%s Error when reading request body err: %v", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-	}
-
-	var priceData PriceData
-	err = json.Unmarshal(body, &priceData)
-	if err != nil {
-		log.Errorf(c, "%s Error when decoding request body err: %v", desc, err)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-	}
-
-	if helpers.IsStringValid(priceData.Description) && (p.Description != priceData.Description) {
-		// update data
-		p.Description = priceData.Description
-		p.Update(c)
-	} else {
-		log.Errorf(c, "%s Cannot update because updated is not valid.", desc)
-		log.Errorf(c, "%s Update description = %s", desc, priceData.Description)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotUpdate)}
-	}
-
-	data := struct {
-		Price *mdl.Price
-	}{
-		p,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	return membersViewModel{Members: mvm}
 }
