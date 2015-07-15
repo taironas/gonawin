@@ -30,14 +30,14 @@ import (
 
 	oauth "github.com/garyburd/go-oauth/oauth"
 
-	"github.com/santiaago/gonawin/helpers"
-	authhlp "github.com/santiaago/gonawin/helpers/auth"
-	"github.com/santiaago/gonawin/helpers/log"
-	"github.com/santiaago/gonawin/helpers/memcache"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/helpers"
+	authhlp "github.com/taironas/gonawin/helpers/auth"
+	"github.com/taironas/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/memcache"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	gwconfig "github.com/santiaago/gonawin/config"
-	mdl "github.com/santiaago/gonawin/models"
+	gwconfig "github.com/taironas/gonawin/config"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 var (

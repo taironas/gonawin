@@ -23,8 +23,8 @@ import (
 
 	"appengine"
 
-	helpers "github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
+	helpers "github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.

@@ -20,7 +20,7 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // Accuracy entity is a placeholder for progression of the accuracy of a team in a tournament.

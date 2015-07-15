@@ -25,12 +25,12 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	mdl "github.com/santiaago/gonawin/models"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // A DayJson is a variable to hold a date and match field.
@@ -180,7 +180,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 		return templateshlp.RenderJson(w, c, vm)
 
 	} else if groupby == "phase" {
-		// @santiaago: right now not supported.
+		// @taironas: right now not supported.
 	}
 
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}

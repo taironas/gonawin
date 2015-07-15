@@ -24,8 +24,8 @@ import (
 	"appengine"
 	"appengine/taskqueue"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // Update the score of the participants to the tournament.

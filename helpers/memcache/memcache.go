@@ -24,7 +24,7 @@ import (
 	"appengine"
 	"appengine/memcache"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // set a key value pair to memcache

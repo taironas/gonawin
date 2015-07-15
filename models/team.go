@@ -26,8 +26,8 @@ import (
 	"appengine"
 	"appengine/datastore"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 // Accuracy of Tournament

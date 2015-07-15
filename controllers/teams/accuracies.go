@@ -22,11 +22,11 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/extract"
-	"github.com/santiaago/gonawin/helpers"
-	templateshlp "github.com/santiaago/gonawin/helpers/templates"
+	"github.com/taironas/gonawin/extract"
+	"github.com/taironas/gonawin/helpers"
+	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	mdl "github.com/santiaago/gonawin/models"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // Accuracies handler, use it to get the accuracies of a team.

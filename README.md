@@ -41,15 +41,15 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 * install the [go appengine sdk](https://developers.google.com/appengine/downloads)
 * set up the appengine [environement](https://developers.google.com/appengine/docs/go/gettingstarted/devenvironment)
 *   `go get github.com/garyburd/go-oauth/oauth`
-*   `go get github.com/santiaago/gonawin`
-*   `cd $GOPATH/src/github.com/santiaago/gonawin/gonawin`
+*   `go get github.com/taironas/gonawin`
+*   `cd $GOPATH/src/github.com/taironas/gonawin/gonawin`
 *   `cp example-config.json config.json`
 *   add your email to the `config.json` in the `admins` section
 *   `goapp serve`
 
 #### Run App
 
-    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
+    > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
     > goapp serve
 
 #### Run App with production datastore backup
@@ -60,7 +60,7 @@ Create datastore backup
 
 Run local server
 
-    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
+    > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
     > goapp serve
 
 Connect datastore backup to the local server
@@ -69,7 +69,7 @@ Connect datastore backup to the local server
 
 ### Run App with clean data store:
 
-    > cd $GOPATH/src/github.com/santiaago/gonawin/gonawin
+    > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
     > dev_appserver.py --clear_datastore=yes .
 
 #### Access app from smartphone
@@ -109,7 +109,7 @@ __Note:__ If deployment hangs rollback it by doing:
 
 #####On Windows:
 
-    python appcfg.py rollback $GOPATH\src\github.com\santiaago\gonawin\gonawin
+    python appcfg.py rollback $GOPATH\src\github.com\taironas\gonawin\gonawin
 
 
 #### Documentation

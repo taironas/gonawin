@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	mdl "github.com/santiaago/gonawin/models"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	mdl "github.com/taironas/gonawin/models"
 	"github.com/taironas/route"
 
 	"appengine"

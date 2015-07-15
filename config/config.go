@@ -1,5 +1,5 @@
 // Package config provides a way to configure gonawin app.
-// It reads a config.json file similar to github.com/santiaago/gonawin/example-config.json
+// It reads a config.json file similar to github.com/taironas/gonawin/example-config.json
 //
 package config
 

@@ -25,7 +25,7 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/helpers/log"
+	"github.com/taironas/gonawin/helpers/log"
 )
 
 type Tday struct {

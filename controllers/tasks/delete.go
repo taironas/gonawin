@@ -23,9 +23,9 @@ import (
 
 	"appengine"
 
-	"github.com/santiaago/gonawin/helpers"
-	"github.com/santiaago/gonawin/helpers/log"
-	mdl "github.com/santiaago/gonawin/models"
+	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/helpers/log"
+	mdl "github.com/taironas/gonawin/models"
 )
 
 // DeleteUserPredicts task handler, use it to delete the predictions of a given user.
