@@ -197,7 +197,8 @@ func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team 
 	return paged
 }
 
-// Get an array of pointers to Teams with respect to an array of ids.
+// TeamsByIds returns an array of teams from a given team IDs array.
+// An error could be returned.
 func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
 
 	teams := make([]Team, len(ids))
@@ -229,6 +230,7 @@ func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
 	return existingTeams, nil
 }
 
+// TeamsKeysByIds returns an array of datastore keys from a given team IDs array.
 func TeamsKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 	keys := make([]*datastore.Key, len(ids))
 	for i, id := range ids {
