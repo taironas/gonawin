@@ -161,7 +161,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	for i, p := range players {
 		var predicts []*mdl.Predict
 		if predicts, err = mdl.PredictsByIds(c, p.PredictIds); err != nil {
-			log.Errorf(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
+			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
 			continue
 		}
 		predictsByPlayer[i] = predicts

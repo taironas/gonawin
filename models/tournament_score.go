@@ -33,6 +33,7 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	desc := "Update users score:"
 	// send task to update scores of user.
 	// ------------------------------------------------------------
+	log.Infof(c, "%s Sending to taskqueue: update scores", desc)
 
 	b1, errm := json.Marshal(t)
 	if errm != nil {
@@ -51,6 +52,8 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	if _, err := taskqueue.Add(c, task, ""); err != nil {
 		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 		return err
+	} else {
+		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
 	return nil
 }
