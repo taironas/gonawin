@@ -61,14 +61,11 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	result := mdl.UserScore(c, keywords, ids)
-	log.Infof(c, "%s result from UserScore: %v", desc, result)
 
 	var users []*mdl.User
 	if users, err = mdl.UsersByIds(c, result); len(users) == 0 || err != nil {
 		return notFound(c, w, keywords)
 	}
-
-	log.Infof(c, "%s ByIds result %v", desc, users)
 
 	uvm := buildSearchUserViewModel(users)
 

@@ -36,12 +36,8 @@ func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
 	desc := "Task queue - DeleteUserPredicts Handler:"
 
 	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
-
-	log.Infof(c, "%s processing...", desc)
-	log.Infof(c, "%s reading data...", desc)
 
 	predictIdsBlob := []byte(r.FormValue("predict_ids"))
 
@@ -54,6 +50,5 @@ func DeleteUserPredicts(w http.ResponseWriter, r *http.Request) error {
 		log.Errorf(c, "%s predicts have not been deleted. %v", desc, err)
 	}
 
-	log.Infof(c, "%s task done!", desc)
 	return nil
 }

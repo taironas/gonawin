@@ -169,9 +169,6 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 
 	var user *mdl.User
 
-	log.Infof(c, "%s oauth_verifier = %s", desc, r.FormValue("oauth_verifier"))
-	log.Infof(c, "%s oauth_token = %s", desc, r.FormValue("oauth_token"))
-
 	// get the request token
 	requestToken := r.FormValue("oauth_token")
 
