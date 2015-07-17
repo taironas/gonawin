@@ -103,7 +103,6 @@ func FindPredictByUserMatch(c appengine.Context, userId, matchId int64) *Predict
 		if len(predicts) == 1 {
 			return predicts[0]
 		} else if len(predicts) == 0 {
-			log.Infof(c, "%s no predicts found.", desc)
 			return nil
 		} else {
 			log.Errorf(c, "%s too many predicts found. pair matchId, UserId should be unique.", desc)
@@ -185,7 +184,6 @@ func PredictsByIds(c appengine.Context, ids []int64) ([]*Predict, error) {
 	var existingPredicts []*Predict
 	for i := range predicts {
 		if !contains(wrongIndexes, i) {
-			log.Infof(c, "PredictsByIds %v", predicts[i])
 			existingPredicts = append(existingPredicts, &predicts[i])
 		}
 	}

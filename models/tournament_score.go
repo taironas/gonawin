@@ -33,7 +33,6 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	desc := "Update users score:"
 	// send task to update scores of user.
 	// ------------------------------------------------------------
-	log.Infof(c, "%s Sending to taskqueue: update scores", desc)
 
 	b1, errm := json.Marshal(t)
 	if errm != nil {
@@ -52,8 +51,6 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	if _, err := taskqueue.Add(c, task, ""); err != nil {
 		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 		return err
-	} else {
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
 	return nil
 }
@@ -87,13 +84,9 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 
 		// compute current accuracy, get accuracy entity , add accuracy to entity.
-		log.Infof(c, "sum of score is: %v", sumScore)
-		log.Infof(c, "max: %v", max)
 		newAcc := float64(sumScore) / float64(max)
-		log.Infof(c, "new Acc: %v", newAcc)
 		computedAcc := float64(0)
 		if acc, _ := team.TournamentAcc(c, t); acc == nil {
-			log.Infof(c, "%s create accuracy if not exist", desc)
 			oldmatches := t.OldMatches(c)
 			if oldmatches > 0 {
 				oldmatches = oldmatches - 1 // do not take into account the match that triggers the update accuracy.
@@ -103,14 +96,12 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 				return err
 			} else {
 				team.AddTournamentAcc(c, acc1.Id, t.Id)
-				log.Infof(c, "%s accuracy exists now, lets update it", desc)
 				var err error
 				if computedAcc, err = acc1.Add(c, newAcc); err != nil {
 					log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
 				}
 			}
 		} else {
-			log.Infof(c, "%s accuracy entity exists, lets update it", desc)
 			var err error
 			if computedAcc, err = acc.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %v, ", desc, team.Id, err)
@@ -118,11 +109,8 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 
 		// ToDo: update team overall accuracy.
-		log.Infof(c, "%s ready to update global accuracy for team: %v", desc, team.Id)
 		if err := team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
 			log.Errorf(c, "%s unable to update global accuracy for team: %v, %v", desc, team.Id, err)
-		} else {
-			log.Infof(c, "%s update successfull: %v", desc, team.Id)
 		}
 	}
 	if err := UpdateTeams(c, teamsToUpdate); err != nil {

@@ -142,7 +142,7 @@ func (s *Score) Update(c appengine.Context) error {
 	oldScore := new(Score)
 	if err := datastore.Get(c, k, oldScore); err == nil {
 		if _, err = datastore.Put(c, k, s); err != nil {
-			log.Infof(c, "Score.Update: error at Put, %v", err)
+			log.Errorf(c, "Score.Update: error at Put, %v", err)
 			return err
 		}
 	}
@@ -174,14 +174,12 @@ func ScoreByUserTournament(c appengine.Context, userId interface{}, tournamentId
 
 // Get a team given an id.
 func ScoreById(c appengine.Context, id int64) (*Score, error) {
-	log.Infof(c, "ScoreById: call")
 	var s Score
 	key := datastore.NewKey(c, "Score", "", id, nil)
 
 	if err := datastore.Get(c, key, &s); err != nil {
-		log.Errorf(c, " ScoreById: Score not found : %v", err)
+		log.Errorf(c, "ScoreById: Score not found : %v", err)
 		return &s, err
 	}
-	log.Infof(c, "ScoreById: found, returning score entity")
 	return &s, nil
 }

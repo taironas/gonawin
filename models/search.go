@@ -45,7 +45,6 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
 	}
-	log.Infof(c, "query vector: %v", q)
 
 	// d vector
 	vec_d := make([][]float64, len(ids))
@@ -65,7 +64,6 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d
 	}
-	log.Infof(c, "d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
@@ -73,9 +71,8 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
-	log.Infof(c, "score vector :%v", score)
+
 	sortedScore := sortMapByValueDesc(score)
-	log.Infof(c, "sorted score: %v", sortedScore)
 
 	return getKeysFrompairList(sortedScore)
 }
@@ -98,7 +95,6 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 	}
-	log.Infof(c, "query vector: %v", q)
 
 	// d vector
 	vec_d := make([][]float64, len(ids))
@@ -118,7 +114,6 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d
 	}
-	log.Infof(c, "d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
@@ -126,9 +121,8 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
-	log.Infof(c, "score vector :%v", score)
+
 	sortedScore := sortMapByValueDesc(score)
-	log.Infof(c, "sorted score: %v", sortedScore)
 
 	return getKeysFrompairList(sortedScore)
 }
@@ -151,7 +145,6 @@ func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbUserWords+1)/float64(dft+1))
 	}
-	log.Infof(c, "query vector: %v", q)
 
 	// d vector
 	vec_d := make([][]float64, len(ids))
@@ -171,7 +164,6 @@ func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 		vec_d[i] = make([]float64, len(setOfWords))
 		vec_d[i] = d
 	}
-	log.Infof(c, "d vector: %v", vec_d)
 
 	// compute score vector
 	var score map[int64]float64
@@ -179,9 +171,8 @@ func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 	for i, vec_di := range vec_d {
 		score[ids[i]] = dotProduct(vec_di, q)
 	}
-	log.Infof(c, "score vector :%v", score)
+
 	sortedScore := sortMapByValueDesc(score)
-	log.Infof(c, "sorted score: %v", sortedScore)
 
 	return getKeysFrompairList(sortedScore)
 }

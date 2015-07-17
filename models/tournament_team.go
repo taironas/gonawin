@@ -47,7 +47,6 @@ func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 // Update tournament team.
 // From a phase an old name and a new, update the next phases of the tournament.
 func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldName, newName string) error {
-	log.Infof(c, "UpdateTournamentTeam : phaseName = %s, oldName = %s, newName = %s", phaseName, oldName, newName)
 
 	var tb TournamentBuilder
 	if tb = GetTournamentBuilder(t); tb == nil {
@@ -71,8 +70,6 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		}
 	}
 
-	log.Infof(c, "UpdateTournamentTeam : oldTeamId = %d, newTeamId = %d", oldTeamId, newTeamId)
-
 	// special treatment when old name is prefixed by "TBD"
 	// or if the old name was not found in the list of teams.
 	if strings.Contains(oldName, "TBD") || (oldTeamId == 0) {
@@ -82,8 +79,6 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		for _, m := range matches {
 			updateMatch := false
 			rule := strings.Split(m.Rule, " ")
-
-			log.Infof(c, "UpdateTournamentTeam : rule = %v", rule)
 
 			if rule[0] == oldName {
 				rule[0] = newName
@@ -97,7 +92,6 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 
 			if updateMatch {
 				m.Rule = fmt.Sprintf("%s", strings.Join(append(rule[:0], rule...), " "))
-				log.Infof(c, "UpdateTournamentTeam : updateMatch, match = %v", m)
 				if err := UpdateMatch(c, m); err != nil {
 					return err
 				}
@@ -109,11 +103,7 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		// low limit, all matches above this limit should be updated.
 		low := limits[phaseName][0]
 		for _, m := range matches2ndPhase {
-			log.Infof(c, "UpdateTournamentTeam : match %v", m.IdNumber)
-			log.Infof(c, "UpdateTournamentTeam : teamId1 %v", m.TeamId1)
-			log.Infof(c, "UpdateTournamentTeam : teamId2 %v", m.TeamId2)
 			if m.IdNumber < low {
-				log.Infof(c, "UpdateTournamentTeam : skiping match %v", m.IdNumber)
 				continue
 			}
 			updateMatch := false
