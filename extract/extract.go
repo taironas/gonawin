@@ -55,9 +55,7 @@ func (c Context) User() (*mdl.User, error) {
 	}
 
 	var u *mdl.User
-	u, err = mdl.UserById(c.c, userId)
-	log.Infof(c.c, "%s User: %v", c.desc, u)
-	if err != nil {
+	if u, err = mdl.UserById(c.c, userId); err != nil {
 		log.Errorf(c.c, "%s user not found", c.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
@@ -71,7 +69,6 @@ func (c Context) User() (*mdl.User, error) {
 func (c Context) Admin(userId int64) (*mdl.User, error) {
 
 	a, err := mdl.UserById(c.c, userId)
-	log.Infof(c.c, "%s User: %v", c.desc, a)
 	if err != nil {
 		log.Errorf(c.c, "%s user not found", c.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
