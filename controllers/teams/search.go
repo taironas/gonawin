@@ -57,7 +57,11 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	log.Infof(c, "%s result from TeamScore: %v", desc, result)
 
 	var teams []*mdl.Team
-	if teams = mdl.TeamsByIds(c, result); len(teams) == 0 {
+	if teams, err = mdl.TeamsByIds(c, result); err != nil {
+		log.Infof(c, "%v something failed when calling TeamsByIds: %v", desc, err)
+	}
+
+	if len(teams) == 0 {
 		return notFound(c, w, keywords)
 	}
 

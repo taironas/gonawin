@@ -198,17 +198,43 @@ func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team 
 }
 
 // Get an array of pointers to Teams with respect to an array of ids.
-func TeamsByIds(c appengine.Context, ids []int64) []*Team {
+func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
 
-	var teams []*Team
-	for _, id := range ids {
-		if team, err := TeamById(c, id); err == nil {
-			teams = append(teams, team)
+	teams := make([]Team, len(ids))
+	keys := TeamsKeysByIds(c, ids)
+
+	var wrongIndexes []int
+
+	if err := datastore.GetMulti(c, keys, teams); err != nil {
+		if me, ok := err.(appengine.MultiError); ok {
+			for i, merr := range me {
+				if merr == datastore.ErrNoSuchEntity {
+					log.Errorf(c, "TeamsByIds, missing key: %v %v", err, keys[i].IntID())
+
+					wrongIndexes = append(wrongIndexes, i)
+				}
+			}
 		} else {
-			log.Errorf(c, " Team.ByIds, error occurred during ByIds call: %v", err)
+			return nil, err
 		}
 	}
-	return teams
+
+	var existingTeams []*Team
+	for i := range teams {
+		if !contains(wrongIndexes, i) {
+			log.Infof(c, "TeamsByIds %v", teams[i])
+			existingTeams = append(existingTeams, &teams[i])
+		}
+	}
+	return existingTeams, nil
+}
+
+func TeamsKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(ids))
+	for i, id := range ids {
+		keys[i] = TeamKeyById(c, id)
+	}
+	return keys
 }
 
 // Checks if a user has joined a team or not.

@@ -660,7 +660,12 @@ func (u *User) Invitations(c appengine.Context) []*Team {
 		ids = append(ids, ur.TeamId)
 	}
 
-	return TeamsByIds(c, ids)
+	var teams []*Team
+	var err error
+	if teams, err = TeamsByIds(c, ids); err != nil {
+		log.Errorf(c, "User.Invitations: something failed when calling TeamsByIds: %v", err)
+	}
+	return teams
 }
 
 // Find all entity users with respect of a filter and value.
