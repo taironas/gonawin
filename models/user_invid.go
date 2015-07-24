@@ -82,7 +82,6 @@ func CreateUserInvertedIndex(c appengine.Context, word string, ids string) (*Use
 // If it does not yet exist, we create an entity with the word as key and user id as value.
 //
 func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
-	desc := "AddToUserInvertedIndex: "
 	words := strings.Split(name, " ")
 	for _, w := range words {
 
