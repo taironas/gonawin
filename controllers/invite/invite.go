@@ -85,7 +85,6 @@ func processEmails(c appengine.Context, desc string, emails []string, body strin
 			log.Errorf(c, "%s unable to add task to taskqueue %v", desc, err)
 			return err
 		}
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
 	return nil
 }

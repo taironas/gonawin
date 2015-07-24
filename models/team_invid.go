@@ -84,23 +84,16 @@ func AddToTeamInvertedIndex(c appengine.Context, name string, id int64) error {
 
 	words := strings.Split(name, " ")
 	for _, w := range words {
-		log.Infof(c, " AddToTeamInvertedIndex: Word: %v", w)
 
 		if invId, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
 			return errors.New(fmt.Sprintf(" teaminvid.Add, unable to find KeyName=%s: %v", w, err))
 		} else if invId == nil {
-			log.Infof(c, " create inv id as word does not exist in table")
 			CreateTeamInvertedIndex(c, w, strconv.FormatInt(id, 10))
-			log.Infof(c, " create done team inv id")
 		} else {
 			// update row with new info
-			log.Infof(c, " update row with new info")
-			log.Infof(c, " current info: keyname: %v", invId.KeyName)
-			log.Infof(c, " current info: teamIDs: %v", string(invId.TeamIds))
 			k := TeamInvertedIndexKeyById(c, invId.Id)
 
 			if newIds := helpers.MergeIds(invId.TeamIds, id); len(newIds) > 0 {
-				log.Infof(c, " current info: new team ids: %v", newIds)
 				invId.TeamIds = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId); err != nil {
 					return err
@@ -130,7 +123,6 @@ func UpdateTeamInvertedIndex(c appengine.Context, oldname string, newname string
 			}
 		}
 		if !innew {
-			log.Infof(c, " remove: %v", wo)
 			err = teamInvertedIndexRemoveWord(c, wo, id)
 		}
 	}
@@ -144,7 +136,6 @@ func UpdateTeamInvertedIndex(c appengine.Context, oldname string, newname string
 			}
 		}
 		if !inold && (len(wn) > 0) {
-			log.Infof(c, " add: %v", wn)
 			err = teamInvertedIndexAddWord(c, wn, id)
 		}
 	}
@@ -159,17 +150,13 @@ func teamInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 	invId, err := FindTeamInvertedIndex(c, "KeyName", w)
 	if err != nil {
 		return errors.New(fmt.Sprintf(" teaminvid.removeWord, unable to find KeyName=%s: %v", w, err))
-	} else if invId == nil {
-		log.Infof(c, " word %v does not exist in Team InvertedIndex so nothing to remove", w)
-	} else {
+	} else if invId != nil {
 		// update row with new info
 		k := TeamInvertedIndexKeyById(c, invId.Id)
 
 		if newIds, err := helpers.RemovefromIds(invId.TeamIds, id); err == nil {
-			log.Infof(c, " new team ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
-				log.Infof(c, " removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
 				// decrement word counter
 				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
@@ -228,7 +215,7 @@ func GetTeamInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 		l := ""
 		res, err := FindTeamInvertedIndex(c, "KeyName", w)
 		if err != nil {
-			log.Infof(c, "teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
+			log.Errorf(c, "teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res != nil {
 			strTeamIds := string(res.TeamIds)
@@ -259,7 +246,7 @@ func GetTeamInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 				intIds[i] = n
 				i = i + 1
 			} else {
-				log.Infof(c, "teaminvid.GetIndexes, unable to parse %v, error:%v", w, err)
+				log.Errorf(c, "teaminvid.GetIndexes, unable to parse %v, error:%v", w, err)
 			}
 		}
 	}

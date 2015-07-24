@@ -75,13 +75,12 @@ func FindPricesByTeam(c appengine.Context, teamId int64) []*Price {
 
 	if _, err := q.GetAll(c, &prices); err == nil {
 		if len(prices) == 0 {
-			log.Infof(c, "%s no prices found.", desc)
 			return nil
 		} else {
 			return prices
 		}
 	} else {
-		log.Errorf(c, "%s an error occurred during GetAll: %v", err)
+		log.Errorf(c, "%s an error occurred during GetAll: %v", desc, err)
 		return nil
 	}
 }

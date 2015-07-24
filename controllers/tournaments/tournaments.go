@@ -396,13 +396,11 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	result := mdl.TournamentScore(c, keywords, ids)
-	log.Infof(c, "%s result from TournamentScore: %v", desc, result)
 
 	var tournaments []*mdl.Tournament
 	if tournaments, err = mdl.TournamentsByIds(c, result); err != nil {
-		log.Infof(c, "%v something failed when calling TournamentsByIds: %v", desc, err)
+		log.Errorf(c, "%v something failed when calling TournamentsByIds: %v", desc, err)
 	}
-	log.Infof(c, "%s ByIds result %v", desc, tournaments)
 
 	if len(tournaments) == 0 {
 		msg := fmt.Sprintf("Oops! Your search - %s - did not match any %s.", keywords, "tournament")
@@ -628,7 +626,6 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	mapIdTeams := tb.MapOfIdTeams(c, tournament)
 	var p *mdl.Predict
 	if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
-		log.Infof(c, "%s predict entity for pair (%v, %v) not found, so we create one.", desc, u.Id, match.Id)
 		if predict, err1 := mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
 			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}

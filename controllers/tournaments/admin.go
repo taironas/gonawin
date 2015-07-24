@@ -151,8 +151,6 @@ func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Tournament activate phase handler:"
 	extract := extract.NewContext(c, desc, r)
 
-	log.Infof(c, "%v", desc)
-
 	var err error
 	var tournament *mdl.Tournament
 

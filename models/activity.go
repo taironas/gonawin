@@ -71,10 +71,7 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 
 	// loop backward on all of these ids to fetch the activities
 	ids := u.ActivityIds
-	log.Infof(c, "calculateStartAndEnd(%v, %v, %v)", int64(len(ids)), count, page)
 	start, end := calculateStartAndEnd(int64(len(ids)), count, page)
-
-	log.Infof(c, " Activity.FindActivities: start = %d, end = %d", start, end)
 
 	for i := start; i >= end; i-- {
 		key := datastore.NewKey(c, "Activity", "", ids[i], nil)

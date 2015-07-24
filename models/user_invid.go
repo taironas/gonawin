@@ -85,23 +85,16 @@ func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 	desc := "AddToUserInvertedIndex: "
 	words := strings.Split(name, " ")
 	for _, w := range words {
-		log.Infof(c, "%s Word: %v", desc, w)
 
 		if invId, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
 			return errors.New(fmt.Sprintf(" userinvid.Add, unable to find KeyName=%s: %v", w, err))
 		} else if invId == nil {
-			log.Infof(c, " create inv id as word does not exist in table")
 			CreateUserInvertedIndex(c, w, strconv.FormatInt(id, 10))
-			log.Infof(c, " create done user inv id")
 		} else {
 			// update row with new info
-			log.Infof(c, " update row with new info")
-			log.Infof(c, " current info: keyname: %v", invId.KeyName)
-			log.Infof(c, " current info: userIds: %v", string(invId.UserIds))
 			k := UserInvertedIndexKeyById(c, invId.Id)
 
 			if newIds := helpers.MergeIds(invId.UserIds, id); len(newIds) > 0 {
-				log.Infof(c, " current info: new user ids: %v", newIds)
 				invId.UserIds = []byte(newIds)
 				if _, err := datastore.Put(c, k, invId); err != nil {
 					return err
@@ -131,7 +124,6 @@ func UpdateUserInvertedIndex(c appengine.Context, oldname string, newname string
 			}
 		}
 		if !innew {
-			log.Infof(c, " remove: %v", wo)
 			err = userInvertedIndexRemoveWord(c, wo, id)
 		}
 	}
@@ -145,7 +137,6 @@ func UpdateUserInvertedIndex(c appengine.Context, oldname string, newname string
 			}
 		}
 		if !inold && (len(wn) > 0) {
-			log.Infof(c, " add: %v", wn)
 			err = userInvertedIndexAddWord(c, wn, id)
 		}
 	}
@@ -159,17 +150,13 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 	invId, err := FindUserInvertedIndex(c, "KeyName", w)
 	if err != nil {
 		return errors.New(fmt.Sprintf(" userinvid.removeWord, unable to find KeyName=%s: %v", w, err))
-	} else if invId == nil {
-		log.Infof(c, " word %v does not exist in User InvertedIndex so nothing to remove", w)
-	} else {
+	} else if invId != nil {
 		// update row with new info
 		k := UserInvertedIndexKeyById(c, invId.Id)
 
 		if newIds, err := helpers.RemovefromIds(invId.UserIds, id); err == nil {
-			log.Infof(c, " new user ids after removal: %v", newIds)
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
-				log.Infof(c, " removing key %v from datastore as it is no longer used", k)
 				datastore.Delete(c, k)
 				// decrement word counter
 				errDec := datastore.RunInTransaction(c, func(c appengine.Context) error {
@@ -227,7 +214,7 @@ func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 		l := ""
 		res, err := FindUserInvertedIndex(c, "KeyName", w)
 		if err != nil {
-			log.Infof(c, "userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
+			log.Errorf(c, "userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 			err1 = errors.New(fmt.Sprintf(" userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
 		} else if res != nil {
 			strUserIds := string(res.UserIds)
@@ -257,8 +244,6 @@ func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 			if n, err := strconv.ParseInt(w, 10, 64); err == nil {
 				intIds[i] = n
 				i = i + 1
-			} else {
-				log.Infof(c, "userinvid.GetIndexes, unable to parse %v, error:%v", w, err)
 			}
 		}
 	}

@@ -98,7 +98,6 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	if groupby == "day" {
-		log.Infof(c, "%s ready to build days array", desc)
 		matchesJson := buildMatchesFromTournament(c, t, u)
 
 		days := matchesGroupByDay(t, matchesJson)
@@ -112,7 +111,6 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return templateshlp.RenderJson(w, c, data)
 
 	} else if groupby == "phase" {
-		log.Infof(c, "%s ready to build phase array", desc)
 		matchesJson := buildMatchesFromTournament(c, t, u)
 		phases := matchesGroupByPhase(t, matchesJson)
 		data := struct {
@@ -191,9 +189,6 @@ type tournamentCalendarViewModel struct {
 }
 
 func buildTournamentCalendarViewModel(c appengine.Context, t *mdl.Tournament, u *mdl.User, predictsByPlayer []mdl.Predicts, players []*mdl.User) tournamentCalendarViewModel {
-
-	desc := "buildCalendarTournamentViewModel"
-	log.Infof(c, "%s ready to build days array", desc)
 
 	matches := buildMatchesFromTournament(c, t, u)
 	matchesByDay := matchesGroupByDay(t, matches)

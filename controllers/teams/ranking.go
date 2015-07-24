@@ -24,7 +24,6 @@ import (
 
 	"github.com/taironas/gonawin/extract"
 	"github.com/taironas/gonawin/helpers"
-	"github.com/taironas/gonawin/helpers/log"
 	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
 	mdl "github.com/taironas/gonawin/models"
@@ -50,7 +49,6 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	log.Infof(c, "%s ready to build a user array", desc)
 	users := t.RankingByUser(c, 50)
 
 	vm := buildTeamRankingViewModel(users)

@@ -37,15 +37,10 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 	desc := "Task queue - Invite Handler:"
 
 	if r.Method != "POST" {
-		log.Infof(c, "%s something went wrong...")
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	log.Infof(c, "%s processing...", desc)
-
 	err := datastore.RunInTransaction(c, func(c appengine.Context) error {
-
-		log.Infof(c, "%s reading data...", desc)
 
 		msg := buildMessage(c, desc, r)
 
@@ -54,13 +49,11 @@ func Invite(w http.ResponseWriter, r *http.Request) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInviteEmailCannotSend)}
 		}
 
-		log.Infof(c, "%s task done!", desc)
 		return nil
 	}, nil)
 
 	if err != nil {
 		c.Errorf("%s error: %v", desc, err)
-		log.Infof(c, "%s something went wrong...", desc)
 		return err
 	}
 
@@ -76,12 +69,6 @@ func buildMessage(c appengine.Context, desc string, r *http.Request) *mail.Messa
 	email := decode(c, desc, emailBlob)
 	name := decode(c, desc, nameBlob)
 	body := decode(c, desc, bodyBlob)
-
-	log.Infof(c, "%s value of email: %v", desc, email)
-	log.Infof(c, "%s value of name: %v", desc, name)
-	log.Infof(c, "%s value of body: %v", desc, body)
-
-	log.Infof(c, "%s crunching data...", desc)
 
 	return &mail.Message{
 		Sender:  "No Reply gonawin <no-reply@gonawin.com>",

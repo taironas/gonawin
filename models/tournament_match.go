@@ -138,7 +138,6 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 	}
 
 	for i, m := range matches {
-		log.Infof(c, "%s current match: %v", desc, m.Id)
 		if results1[i] < 0 || results2[i] < 0 {
 			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
