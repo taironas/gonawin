@@ -65,6 +65,11 @@ type TwitterUserInfo struct {
 // Check user validity from an accessToken string. verify if google user account is valid.
 func CheckUserValidity(r *http.Request, url string, accessToken string) bool {
 	c := appengine.NewContext(r)
+
+	if len(url) == 0 || len(accessToken) == 0 {
+		return false
+	}
+
 	client := urlfetch.Client(c)
 	resp, err := client.Get(url + "=" + accessToken)
 	if err != nil {
