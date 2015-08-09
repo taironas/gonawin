@@ -52,6 +52,10 @@ This is a baby-gophers project because `The young are born blind and helpless` -
     > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
     > goapp serve
 
+#### Test App
+
+    > goapp test ./...
+
 #### Run App with production datastore backup
 
 Create datastore backup
