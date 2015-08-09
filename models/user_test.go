@@ -98,6 +98,9 @@ func TestDestroyUser(t *testing.T) {
 	if u, err = UserById(c, got.Id); u != nil {
 		t.Errorf("Error: user found, not properly destroy")
 	}
+	if err = checkUserInvertedIndex(t, c, got); err == nil {
+		t.Errorf("Error: user found in database")
+	}
 }
 
 func checkUser(got *User, want testUser) error {
