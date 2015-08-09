@@ -61,6 +61,45 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+// TestDestroyUser tests that you can destroy a user.
+//
+func TestDestroyUser(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	test := testUser{
+		title:    "can destroy user",
+		email:    "foo@bar.com",
+		username: "john.snow",
+		name:     "john snow",
+		alias:    "crow",
+		isAdmin:  false,
+		auth:     "",
+		err:      "",
+	}
+
+	t.Log(test.title)
+	var got *User
+	if got, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = got.Destroy(c); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	var u *User
+	if u, err = UserById(c, got.Id); u != nil {
+		t.Errorf("Error: user found, not properly destroy")
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
