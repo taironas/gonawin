@@ -103,6 +103,49 @@ func TestDestroyUser(t *testing.T) {
 	}
 }
 
+// TestFindUser tests that you can find a user.
+//
+func TestFindUser(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	test := testUser{
+		title:    "can find user",
+		email:    "foo@bar.com",
+		username: "john.snow",
+		name:     "john snow",
+		alias:    "crow",
+		isAdmin:  false,
+		auth:     "",
+		err:      "",
+	}
+
+	t.Log(test.title)
+
+	if _, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	var got *User
+	if got = FindUser(c, "Username", "john.snow"); got == nil {
+		t.Errorf("Error: user not found by Username")
+	}
+
+	if got = FindUser(c, "Name", "john snow"); got == nil {
+		t.Errorf("Error: user not found by Name")
+	}
+
+	if got = FindUser(c, "Alias", "crow"); got == nil {
+		t.Errorf("Error: user not found by Alias")
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
@@ -114,7 +157,7 @@ func checkUser(got *User, want testUser) error {
 	} else if got.Alias != want.alias {
 		s = fmt.Sprintf("want Name == %s, got %s", want.alias, got.Alias)
 	} else if got.IsAdmin != want.isAdmin {
-		s = fmt.Sprintf("want isAdmin == %s, got %s", want.isAdmin, got.IsAdmin)
+		s = fmt.Sprintf("want isAdmin == %t, got %t", want.isAdmin, got.IsAdmin)
 	} else if got.Auth != want.auth {
 		s = fmt.Sprintf("want auth == %s, got %s", want.auth, got.Auth)
 	} else {
