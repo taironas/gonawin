@@ -11,14 +11,12 @@ import (
 )
 
 type testUser struct {
-	title    string
 	email    string
 	username string
 	name     string
 	alias    string
 	isAdmin  bool
 	auth     string
-	err      string
 }
 
 // TestCreateUser tests that you can create a user.
@@ -33,26 +31,20 @@ func TestCreateUser(t *testing.T) {
 	}
 	defer c.Close()
 
-	tests := []testUser{
-		{
-			title:    "can create user",
-			email:    "foo@bar.com",
-			username: "john.snow",
-			name:     "john snow",
-			alias:    "crow",
-			isAdmin:  false,
-			auth:     "",
-			err:      "",
-		},
+	tests := []struct {
+		title string
+		user  testUser
+	}{
+		{"can create user", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}},
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
 		var got *User
-		if got, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
+		if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
-		if err = checkUser(got, test); err != nil {
+		if err = checkUser(got, test.user); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkUserInvertedIndex(t, c, got); err != nil {
@@ -73,20 +65,16 @@ func TestDestroyUser(t *testing.T) {
 	}
 	defer c.Close()
 
-	test := testUser{
-		title:    "can destroy user",
-		email:    "foo@bar.com",
-		username: "john.snow",
-		name:     "john snow",
-		alias:    "crow",
-		isAdmin:  false,
-		auth:     "",
-		err:      "",
+	test := struct {
+		title string
+		user  testUser
+	}{
+		"can destroy user", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
 	}
 
 	t.Log(test.title)
 	var got *User
-	if got, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
+	if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -115,20 +103,16 @@ func TestFindUser(t *testing.T) {
 	}
 	defer c.Close()
 
-	test := testUser{
-		title:    "can find user",
-		email:    "foo@bar.com",
-		username: "john.snow",
-		name:     "john snow",
-		alias:    "crow",
-		isAdmin:  false,
-		auth:     "",
-		err:      "",
+	test := struct {
+		title string
+		user  testUser
+	}{
+		"can find user", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
 	}
 
 	t.Log(test.title)
 
-	if _, err = CreateUser(c, test.email, test.username, test.name, test.alias, test.isAdmin, test.auth); err != nil {
+	if _, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -143,6 +127,54 @@ func TestFindUser(t *testing.T) {
 
 	if got = FindUser(c, "Alias", "crow"); got == nil {
 		t.Errorf("Error: user not found by Alias")
+	}
+}
+
+// TestFindAllUsers tests that you can find all the users.
+//
+func TestFindAllUsers(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	test := struct {
+		title string
+		users []testUser
+	}{
+		"can find users",
+		[]testUser{
+			{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+			{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+			{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+		},
+	}
+
+	t.Log(test.title)
+
+	for _, user := range test.users {
+		if _, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+	}
+
+	var got []*User
+	if got = FindAllUsers(c); got == nil {
+		t.Errorf("Error: users not found")
+	}
+
+	if len(got) != len(test.users) {
+		t.Errorf("Error: want users count == %s, got %s", len(test.users), len(got))
+	}
+
+	for i, user := range test.users {
+		if err = checkUser(got[i], user); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
 	}
 }
 
