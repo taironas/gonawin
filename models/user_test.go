@@ -53,6 +53,41 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+// TestUserById tests that you can get a user by its ID.
+//
+func TestUserById(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	test := struct {
+		title string
+		user  testUser
+	}{
+		"can get user by ID", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+	}
+
+	t.Log(test.title)
+	var got *User
+	if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	var u *User
+	if u, err = UserById(c, got.Id); u == nil {
+		t.Errorf("Error: user not found")
+	}
+
+	if err = checkUser(got, test.user); err != nil {
+		t.Errorf("Error: want user == %v, got %v", test.user, got)
+	}
+}
+
 // TestDestroyUser tests that you can destroy a user.
 //
 func TestDestroyUser(t *testing.T) {
