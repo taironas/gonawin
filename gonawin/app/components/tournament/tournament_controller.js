@@ -173,6 +173,8 @@ tournamentControllers.controller('TournamentShowCtrl', ['$rootScope', '$scope', 
           $scope.$broadcast('setUpdatedTournamentData');
           $rootScope.$broadcast('setUpdatedDashboard');
 	  $scope.joinedTournament = true;
+      }, function(err){
+	  $scope.messageDanger = err.data;
       });
     };
 
