@@ -32,7 +32,9 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// Join handler lets the user join a tournament.
+// Join handler let the user join a tournament.
+//
+//	POST	/j/tournaments/join/:tournamentId	let a user join a tournament.
 //
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
@@ -55,7 +57,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.Forbidden{Err: errors.New("Tournament has ended, you cannot join an old tournament")}
 	}
 
-	if err := tournament.Join(c, u); err != nil {
+	if err = tournament.Join(c, u); err != nil {
 		log.Errorf(c, "%s error on Join tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
@@ -64,18 +66,18 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
+	var updatedUser *mdl.User
+	if updatedUser, err = mdl.UserById(c, u.Id); err != nil {
 		log.Errorf(c, "User not found %v", u.Id)
 	} else {
 		updatedUser.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 	}
 
-	msg := fmt.Sprintf("You joined tournament %s.", tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
 		Tournament  mdl.TournamentJson
 	}{
-		msg,
+		fmt.Sprintf("You joined tournament %s.", tournament.Name),
 		tJson,
 	}
 
