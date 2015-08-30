@@ -45,7 +45,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Team Join Handler:"
+	desc := "Team Join Handler"
 	extract := extract.NewContext(c, desc, r)
 
 	var team *mdl.Team

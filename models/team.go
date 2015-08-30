@@ -506,26 +506,35 @@ func (t *Team) AddUserId(c appengine.Context, uId int64) error {
 // AddUserToTournaments add user to teams current tournaments.
 //
 func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
-
 	log.Infof(c, "Team.AddUserToTournaments")
+	if len(t.TournamentIds) == 0 {
+		return nil
+	}
+
+	var u *User
+	var err error
+
+	log.Infof(c, "Team.AddUserToTournaments get user")
+	if u, err = UserById(c, uId); err != nil {
+		log.Errorf(c, "User not found %v", uId)
+		return err
+	}
+
 	for _, tId := range t.TournamentIds {
 		if tournament, err := TournamentById(c, tId); err != nil {
 			log.Errorf(c, "Cannot find tournament with Id=%d", t.Id)
 		} else if time.Now().Before(tournament.End) {
+
 			log.Infof(c, "Team.AddUserToTournaments add user id to tournament")
 			if err := tournament.AddUserId(c, uId); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%v to tournament:%v", uId, tId)
 			}
-			log.Infof(c, "Team.AddUserToTournaments get user")
-			if u, err := UserById(c, uId); err != nil {
-				log.Errorf(c, "User not found %v", uId)
+
+			log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v", u.Id)
+			if err = u.AddTournamentId(c, tournament.Id); err != nil {
+				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%v to user:%v, %v", tId, uId, err)
 			} else {
-				log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v", u.Id)
-				if err1 := u.AddTournamentId(c, tournament.Id); err1 != nil {
-					log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%v to user:%v", tId, uId)
-				} else {
-					log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v successfully", u.Id)
-				}
+				log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v successfully", u.Id)
 			}
 		}
 	}
