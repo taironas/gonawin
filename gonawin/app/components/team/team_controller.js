@@ -377,7 +377,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
     "members":      { title: 'Members',     url: 'components/team/tab_members.html' },
     "tournaments":  { title: 'Tournaments', url: 'components/team/tab_tournaments.html' },
     "ranking":      { title: 'Ranking',     url: 'components/team/tab_ranking.html' },
-    "accuracies":   { title: 'Accuracies',  url: 'components/team/tab_accuracies.html' },
     "prizes":       { title: 'Prizes',      url: 'components/team/tab_prices.html' }
   };
 
@@ -396,7 +395,6 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   $scope.rankingData = Team.ranking({id:$routeParams.id, rankby:$routeParams.rankby});
   // predicate is updated for ranking tables
   $scope.predicate = 'Score';
-  $scope.accuracyData = Team.accuracies({id:$routeParams.id});
 
   $scope.pricesData = Team.prices({id:$routeParams.id});
 
