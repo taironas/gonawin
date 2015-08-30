@@ -86,6 +86,8 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // JoinAsTeam makes all members of a team join the tournament.
 //
+//	POST	j/tournaments/joinasteam/:tournamentId/:teamId	let a team join a tournament.
+//
 func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -100,6 +102,10 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if tournament, err = extract.Tournament(); err != nil {
 		return err
+	}
+
+	if time.Now().After(tournament.End) {
+		return &helpers.Forbidden{Err: errors.New("Tournament has ended, a team cannot join an old tournament")}
 	}
 
 	var teamId int64
