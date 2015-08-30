@@ -214,7 +214,7 @@ func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
 //
 func (c Context) Count() int64 {
 
-	defaultValue := 20 // set count to default value
+	defaultValue := int64(20) // set count to default value
 	if len(c.r.FormValue("count")) == 0 {
 		return defaultValue
 	}
@@ -250,7 +250,7 @@ func (c Context) CountOrDefault(d int64) int64 {
 func (c Context) Page() int64 {
 
 	if len(c.r.FormValue("page")) == 0 {
-		return 1
+		return int64(1)
 	}
 
 	page, err := strconv.ParseInt(c.r.FormValue("page"), 0, 64)
