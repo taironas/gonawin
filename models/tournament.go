@@ -241,7 +241,8 @@ func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	return hasTournament
 }
 
-// Makes a user join a tournament.
+// Join let a user join a tournament.
+//
 func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
 	if err := u.AddTournamentId(c, t.Id); err != nil {
