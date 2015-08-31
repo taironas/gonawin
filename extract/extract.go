@@ -213,10 +213,16 @@ func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
 // returns 20 if none is found.
 //
 func (c Context) Count() int64 {
+
+	defaultValue := int64(20) // set count to default value
+	if len(c.r.FormValue("count")) == 0 {
+		return defaultValue
+	}
+
 	count, err := strconv.ParseInt(c.r.FormValue("count"), 0, 64)
 	if err != nil {
 		log.Errorf(c.c, "%s: error during conversion of count parameter: %v", c.desc, err)
-		count = 20 // set count to default value
+		count = defaultValue
 	}
 	return count
 }
@@ -225,6 +231,11 @@ func (c Context) Count() int64 {
 // returns 20 if none is found.
 //
 func (c Context) CountOrDefault(d int64) int64 {
+
+	if len(c.r.FormValue("count")) == 0 {
+		return d
+	}
+
 	count, err := strconv.ParseInt(c.r.FormValue("count"), 0, 64)
 	if err != nil {
 		log.Errorf(c.c, "%s: error during conversion of count parameter: %v", c.desc, err)
@@ -237,6 +248,11 @@ func (c Context) CountOrDefault(d int64) int64 {
 // returns 1 if none is found.
 //
 func (c Context) Page() int64 {
+
+	if len(c.r.FormValue("page")) == 0 {
+		return int64(1)
+	}
+
 	page, err := strconv.ParseInt(c.r.FormValue("page"), 0, 64)
 	if err != nil {
 		log.Errorf(c.c, "%s error during conversion of page parameter: %v", c.desc, err)

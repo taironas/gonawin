@@ -542,7 +542,7 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	c := appengine.NewContext(r)
-	extract := extract.NewContext(c, "User joined teams handler:", r)
+	extract := extract.NewContext(c, "User joined tournaments handler", r)
 
 	var user *mdl.User
 	var err error
