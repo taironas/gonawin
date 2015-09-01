@@ -79,6 +79,17 @@ func TestUserById(t *testing.T) {
 	}
 
 	var u *User
+
+	// Test non existing user
+	if u, err = UserById(c, got.Id+50); u != nil {
+		t.Errorf("Error: no user should have been found")
+	}
+
+	if err == nil {
+		t.Errorf("Error: an error should have been returned in case of non existing user")
+	}
+
+	// Test existing user
 	if u, err = UserById(c, got.Id); u == nil {
 		t.Errorf("Error: user not found")
 	}
@@ -203,7 +214,7 @@ func TestFindAllUsers(t *testing.T) {
 	}
 
 	if len(got) != len(test.users) {
-		t.Errorf("Error: want users count == %s, got %s", len(test.users), len(got))
+		t.Errorf("Error: want users count == %d, got %d", len(test.users), len(got))
 	}
 
 	for i, user := range test.users {
