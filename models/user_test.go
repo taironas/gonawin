@@ -65,49 +65,53 @@ func TestUsersByIds(t *testing.T) {
 	}
 	defer c.Close()
 
-	test := struct {
+	tests := []struct {
 		title string
 		users []testUser
 	}{
-		"can get users by IDs",
-		[]testUser{
-			{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
-			{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
-			{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+		{
+			"can get users by IDs",
+			[]testUser{
+				{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+				{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+				{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+			},
 		},
 	}
 
-	t.Log(test.title)
-	var gotIDs []int64
-	var got *User
-	for _, user := range test.users {
-		if got, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
-			t.Errorf("Error: %v", err)
+	for i, test := range tests {
+		t.Log(test.title)
+		var gotIDs []int64
+		var got *User
+		for _, user := range test.users {
+			if got, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+
+			gotIDs = append(gotIDs, got.Id)
 		}
 
-		gotIDs = append(gotIDs, got.Id)
-	}
+		var users []*User
 
-	var users []*User
+		// Test non existing users
+		var nonExistingIDs []int64
+		for _, ID := range gotIDs {
+			nonExistingIDs = append(nonExistingIDs, ID+50)
+		}
 
-	// Test non existing users
-	var nonExistingIDs []int64
-	for _, ID := range gotIDs {
-		nonExistingIDs = append(nonExistingIDs, ID+50)
-	}
+		if users, err = UsersByIds(c, nonExistingIDs); users != nil {
+			t.Errorf("Error: no users should have been found")
+		}
 
-	if users, err = UsersByIds(c, nonExistingIDs); users != nil {
-		t.Errorf("Error: no users should have been found")
-	}
+		// Test existing users
+		if users, err = UsersByIds(c, gotIDs); users == nil {
+			t.Errorf("Error: users not found")
+		}
 
-	// Test existing users
-	if users, err = UsersByIds(c, gotIDs); users == nil {
-		t.Errorf("Error: users not found")
-	}
-
-	for i, user := range test.users {
-		if err = checkUser(users[i], user); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
+		for j, user := range test.users {
+			if err = checkUser(users[j], user); err != nil {
+				t.Errorf("test %v - Error: %v", i, err)
+			}
 		}
 	}
 }
