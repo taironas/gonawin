@@ -65,37 +65,39 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
-	test := struct {
+	tests := []struct {
 		title string
 		user  testUser
 	}{
-		"can get user by ID", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+		{"can get user by ID", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}},
 	}
 
-	t.Log(test.title)
-	var got *User
-	if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
-		t.Errorf("Error: %v", err)
-	}
+	for _, test := range tests {
+		t.Log(test.title)
+		var got *User
+		if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
 
-	var u *User
+		var u *User
 
-	// Test non existing user
-	if u, err = UserById(c, got.Id+50); u != nil {
-		t.Errorf("Error: no user should have been found")
-	}
+		// Test non existing user
+		if u, err = UserById(c, got.Id+50); u != nil {
+			t.Errorf("Error: no user should have been found")
+		}
 
-	if err == nil {
-		t.Errorf("Error: an error should have been returned in case of non existing user")
-	}
+		if err == nil {
+			t.Errorf("Error: an error should have been returned in case of non existing user")
+		}
 
-	// Test existing user
-	if u, err = UserById(c, got.Id); u == nil {
-		t.Errorf("Error: user not found")
-	}
+		// Test existing user
+		if u, err = UserById(c, got.Id); u == nil {
+			t.Errorf("Error: user not found")
+		}
 
-	if err = checkUser(got, test.user); err != nil {
-		t.Errorf("Error: want user == %v, got %v", test.user, got)
+		if err = checkUser(got, test.user); err != nil {
+			t.Errorf("Error: want user == %v, got %v", test.user, got)
+		}
 	}
 }
 
