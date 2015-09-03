@@ -65,38 +65,36 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
+	var got *User
+	if got, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
 	tests := []struct {
-		title string
-		user  testUser
+		title  string
+		userID int64
+		user   testUser
+		err    string
 	}{
-		{"can get user by ID", testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}},
+		{"can get user by ID", got.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given ID", got.Id + 50, testUser{}, "datastore: no such entity"},
 	}
 
 	for _, test := range tests {
 		t.Log(test.title)
-		var got *User
-		if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
-			t.Errorf("Error: %v", err)
-		}
 
 		var u *User
 
-		// Test non existing user
-		if u, err = UserById(c, got.Id+50); u != nil {
-			t.Errorf("Error: no user should have been found")
-		}
+		u, err = UserById(c, test.userID)
 
-		if err == nil {
-			t.Errorf("Error: an error should have been returned in case of non existing user")
-		}
-
-		// Test existing user
-		if u, err = UserById(c, got.Id); u == nil {
-			t.Errorf("Error: user not found")
-		}
-
-		if err = checkUser(got, test.user); err != nil {
-			t.Errorf("Error: want user == %v, got %v", test.user, got)
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && u == nil {
+			t.Errorf("Error: an user should have been found")
+		} else if test.err == "" && u != nil {
+			if err = checkUser(u, test.user); err != nil {
+				t.Errorf("Error: want user: %v, got: %v", test.user, got)
+			}
 		}
 	}
 }
@@ -263,4 +261,12 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User) error {
 
 	return errors.New("user not found")
 
+}
+
+// errorStringRepresentation returns the string representation of an error.
+func errorStringRepresentation(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
