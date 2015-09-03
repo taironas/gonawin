@@ -53,6 +53,52 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+// TestUserById tests that you can get a user by its ID.
+//
+func TestUserById(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var got *User
+	if got, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	tests := []struct {
+		title  string
+		userID int64
+		user   testUser
+		err    string
+	}{
+		{"can get user by ID", got.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given ID", got.Id + 50, testUser{}, "datastore: no such entity"},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var u *User
+
+		u, err = UserById(c, test.userID)
+
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && u == nil {
+			t.Errorf("Error: an user should have been found")
+		} else if test.err == "" && u != nil {
+			if err = checkUser(u, test.user); err != nil {
+				t.Errorf("Error: want user: %v, got: %v", test.user, got)
+			}
+		}
+	}
+}
+
 // TestDestroyUser tests that you can destroy a user.
 //
 func TestDestroyUser(t *testing.T) {
@@ -168,7 +214,7 @@ func TestFindAllUsers(t *testing.T) {
 	}
 
 	if len(got) != len(test.users) {
-		t.Errorf("Error: want users count == %s, got %s", len(test.users), len(got))
+		t.Errorf("Error: want users count == %d, got %d", len(test.users), len(got))
 	}
 
 	for i, user := range test.users {
@@ -215,4 +261,12 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User) error {
 
 	return errors.New("user not found")
 
+}
+
+// errorStringRepresentation returns the string representation of an error.
+func errorStringRepresentation(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
