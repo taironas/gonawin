@@ -65,52 +65,83 @@ func TestUsersByIds(t *testing.T) {
 	}
 	defer c.Close()
 
+	/*Test data: good user ID*/
+	testUsers := []testUser{
+		{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+		{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+		{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+	}
+
+	var gotIDs []int64
+
+	for _, testUser := range testUsers {
+		var got *User
+		if got, err = CreateUser(c, testUser.email, testUser.username, testUser.name, testUser.alias, testUser.isAdmin, testUser.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		gotIDs = append(gotIDs, got.Id)
+	}
+
+	/*Test data: only one bad user ID*/
+	userIDsWithOneBadID := make([]int64, len(gotIDs))
+	copy(userIDsWithOneBadID, gotIDs)
+	userIDsWithOneBadID[0] = userIDsWithOneBadID[0] + 50
+
+	/*Test data: bad user IDs*/
+	userIDsWithBadIDs := make([]int64, len(gotIDs))
+	copy(userIDsWithBadIDs, gotIDs)
+	userIDsWithBadIDs[0] = userIDsWithBadIDs[0] + 50
+	userIDsWithBadIDs[1] = userIDsWithBadIDs[1] + 50
+	userIDsWithBadIDs[2] = userIDsWithBadIDs[2] + 50
+
 	tests := []struct {
-		title string
-		users []testUser
+		title   string
+		userIDs []int64
+		users   []testUser
+		err     string
 	}{
 		{
 			"can get users by IDs",
+			gotIDs,
 			[]testUser{
 				{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
 				{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
 				{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
 			},
+			"",
+		},
+		{
+			"can get all users by IDs except one",
+			userIDsWithOneBadID,
+			[]testUser{
+				{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+				{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+			},
+			"",
+		},
+		{
+			"non existing users for given IDs",
+			userIDsWithBadIDs,
+			[]testUser{},
+			"",
 		},
 	}
 
-	for i, test := range tests {
+	for _, test := range tests {
 		t.Log(test.title)
-		var gotIDs []int64
-		var got *User
-		for _, user := range test.users {
-			if got, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
-				t.Errorf("Error: %v", err)
-			}
-
-			gotIDs = append(gotIDs, got.Id)
-		}
 
 		var users []*User
 
-		// Test non existing users
-		var nonExistingIDs []int64
-		for _, ID := range gotIDs {
-			nonExistingIDs = append(nonExistingIDs, ID+50)
-		}
+		users, err = UsersByIds(c, test.userIDs)
 
-		if users, err = UsersByIds(c, nonExistingIDs); users != nil {
-			t.Errorf("Error: no users should have been found")
-		}
-
-		// Test existing users
-		if users, err = UsersByIds(c, gotIDs); users == nil {
-			t.Errorf("Error: users not found")
-		}
-
-		for j, user := range test.users {
-			if err = checkUser(users[j], user); err != nil {
-				t.Errorf("test %v - Error: %v", i, err)
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && users != nil {
+			for i, user := range test.users {
+				if err = checkUser(users[i], user); err != nil {
+					t.Errorf("Error: want user: %v, got: %v", user, users[i])
+				}
 			}
 		}
 	}
@@ -278,4 +309,12 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User) error {
 
 	return errors.New("user not found")
 
+}
+
+// errorStringRepresentation returns the string representation of an error.
+func errorStringRepresentation(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
