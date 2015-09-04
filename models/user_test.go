@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/taironas/gonawin/helpers"
 
@@ -314,6 +315,77 @@ func TestFindAllUsers(t *testing.T) {
 	for i, user := range test.users {
 		if err = checkUser(got[i], user); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
+		}
+	}
+}
+
+// TestUserById tests that you can get a user by its ID.
+//
+func TestUserUpdate(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	/*Test data: saved user*/
+	var user *User
+	if user, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	/*Test data: non saved user*/
+	nonSavedUser := User{
+		0,
+		"foo@bar.com",
+		"john.snow",
+		"john snow",
+		"crow",
+		false,
+		"",
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		0,
+		[]ScoreOfTournament{},
+		[]int64{},
+		time.Now(),
+	}
+
+	tests := []struct {
+		title        string
+		userToUpdate *User
+		updatedUser  testUser
+		err          string
+	}{
+		{"update user successfully", user, testUser{"foo@bar.com", "white.walkers", "white walkers", "dead", false, ""}, ""},
+		{"update non saved user", &nonSavedUser, testUser{"foo@bar.com", "white.walkers", "white walkers", "dead", false, ""}, ""},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		test.userToUpdate.Username = test.updatedUser.username
+		test.userToUpdate.Name = test.updatedUser.name
+		test.userToUpdate.Alias = test.updatedUser.alias
+
+		err = test.userToUpdate.Update(c)
+
+		updatedUser, _ := UserById(c, test.userToUpdate.Id)
+
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && err != nil {
+			t.Errorf("Error: user should have been properly updated")
+		} else if test.err == "" && updatedUser != nil {
+			if err = checkUser(updatedUser, test.updatedUser); err != nil {
+				t.Errorf("Error: want user: %v, got: %v", test.updatedUser, updatedUser)
+			}
 		}
 	}
 }
