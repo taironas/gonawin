@@ -93,7 +93,7 @@ func TestUserById(t *testing.T) {
 			t.Errorf("Error: an user should have been found")
 		} else if test.err == "" && u != nil {
 			if err = checkUser(u, test.user); err != nil {
-				t.Errorf("Error: want user: %v, got: %v", test.user, got)
+				t.Errorf("Error: want user: %v, got: %v", test.user, u)
 			}
 		}
 	}
