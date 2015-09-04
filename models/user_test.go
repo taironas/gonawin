@@ -211,7 +211,7 @@ func TestUserKeysByIds(t *testing.T) {
 		err     string
 	}{
 		{
-			"can get users by IDs",
+			"can get user keys by IDs",
 			[]int64{25, 666, 2042},
 			"",
 		},
