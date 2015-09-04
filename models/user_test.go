@@ -99,6 +99,100 @@ func TestUserById(t *testing.T) {
 	}
 }
 
+// TestUsersByIds tests that you can get a list of users by their IDs.
+//
+func TestUsersByIds(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	/*Test data: good user ID*/
+	testUsers := []testUser{
+		{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+		{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+		{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+	}
+
+	var gotIDs []int64
+
+	for _, testUser := range testUsers {
+		var got *User
+		if got, err = CreateUser(c, testUser.email, testUser.username, testUser.name, testUser.alias, testUser.isAdmin, testUser.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		gotIDs = append(gotIDs, got.Id)
+	}
+
+	/*Test data: only one bad user ID*/
+	userIDsWithOneBadID := make([]int64, len(gotIDs))
+	copy(userIDsWithOneBadID, gotIDs)
+	userIDsWithOneBadID[0] = userIDsWithOneBadID[0] + 50
+
+	/*Test data: bad user IDs*/
+	userIDsWithBadIDs := make([]int64, len(gotIDs))
+	copy(userIDsWithBadIDs, gotIDs)
+	userIDsWithBadIDs[0] = userIDsWithBadIDs[0] + 50
+	userIDsWithBadIDs[1] = userIDsWithBadIDs[1] + 50
+	userIDsWithBadIDs[2] = userIDsWithBadIDs[2] + 50
+
+	tests := []struct {
+		title   string
+		userIDs []int64
+		users   []testUser
+		err     string
+	}{
+		{
+			"can get users by IDs",
+			gotIDs,
+			[]testUser{
+				{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
+				{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+				{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+			},
+			"",
+		},
+		{
+			"can get all users by IDs except one",
+			userIDsWithOneBadID,
+			[]testUser{
+				{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
+				{"foo@bar.com", "jamie.lannister", "jamie lannister", "kingslayer", false, ""},
+			},
+			"",
+		},
+		{
+			"non existing users for given IDs",
+			userIDsWithBadIDs,
+			[]testUser{},
+			"",
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var users []*User
+
+		users, err = UsersByIds(c, test.userIDs)
+
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && users != nil {
+			for i, user := range test.users {
+				if err = checkUser(users[i], user); err != nil {
+					t.Errorf("Error: want user: %v, got: %v", user, users[i])
+				}
+			}
+		}
+	}
+}
+
 // TestDestroyUser tests that you can destroy a user.
 //
 func TestDestroyUser(t *testing.T) {
