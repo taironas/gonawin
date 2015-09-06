@@ -61,27 +61,28 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// add admin to tournament
 	if err = tournament.AddAdmin(c, newAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	// send response
-	var tJson mdl.TournamentJson
+	vm := buildTournamentAddAdminViewModel(tournament, newAdmin)
+	return templateshlp.RenderJson(w, c, vm)
+}
+
+type tournamentAddAdminViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Tournament  mdl.TournamentJson
+}
+
+func buildTournamentAddAdminViewModel(tournament *mdl.Tournament, newAdmin *mdl.User) tournamentAddAdminViewModel {
+
+	var t mdl.TournamentJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
-	}{
-		msg,
-		tJson,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	return tournamentAddAdminViewModel{msg, t}
 }
 
 // RemoveAdmin handler lets you remove an admin from a tournament.
