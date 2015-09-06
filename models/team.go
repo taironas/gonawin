@@ -68,7 +68,8 @@ type TeamJson struct {
 	MembersCount  *int64             `json:",omitempty"`
 }
 
-// Create a team given a name, an admin id and a private mode.
+// CreateTeam creates a team given a name, description, an admin id and a private mode.
+//
 func CreateTeam(c appengine.Context, name string, description string, adminId int64, private bool) (*Team, error) {
 	// create new team
 	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
