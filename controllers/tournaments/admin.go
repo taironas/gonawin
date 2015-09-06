@@ -141,10 +141,11 @@ func buildTournamentRemoveAdminViewModel(tournament *mdl.Tournament, oldAdmin *m
 	return tournamentRemoveAdminViewModel{msg, t}
 }
 
-// ActivatePhase handler let you  activate phase of tournament.
+// ActivatePhase handler, use it to activate the phase of tournament.
 //
 // Use this handler to activate all the matches of given phase in tournament.
-//	GET	/j/tournaments/[0-9]+/admin/activatephase/
+//
+//	POST	/j/tournaments/[0-9]+/admin/activatephase/
 //
 func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
