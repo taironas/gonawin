@@ -58,6 +58,50 @@ func TestCreateTeam(t *testing.T) {
 	}
 }
 
+// TestDestroyTeam test that you can destroy a team.
+//
+func TestDestroyTeam(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title string
+		team  testTeam
+	}{
+		{
+			title: "can destroy team",
+			team:  testTeam{"my team", "description", 10, false},
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		var got *Team
+		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+
+		if err = got.Destroy(c); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+
+		var team *Team
+		if team, err = TeamById(c, got.Id); team != nil {
+			t.Errorf("test %v - Error: team found, not properly destroyed - %v", i, err)
+		}
+
+		if err = checkTeamInvertedIndex(t, c, got, test.team); err == nil {
+			t.Errorf("test %v - Error: team found in database", i)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
