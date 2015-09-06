@@ -102,6 +102,48 @@ func TestDestroyTeam(t *testing.T) {
 	}
 }
 
+// TestFindTeams tests that you can find teams.
+//
+func TestFindTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title string
+		teams []testTeam
+		query string
+	}{
+		{
+			title: "can find teams ",
+			teams: []testTeam{
+				testTeam{"my team", "description", 10, false},
+				testTeam{"my other team", "description", 10, false},
+			},
+			query: "my team",
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		for _, team := range test.teams {
+			if _, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				t.Errorf("test %v - Error: %v", i, err)
+			}
+		}
+
+		var got []*Team
+		if got = FindTeams(c, "Name", test.query); len(got) == 0 {
+			t.Errorf("test %v - Error: teams not found by Name with query: %v", i, test.query)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
