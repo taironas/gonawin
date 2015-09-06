@@ -132,11 +132,21 @@ func TestFindTeams(t *testing.T) {
 		{
 			title: "cannot find teams",
 			teams: []testTeam{
-				testTeam{"my team", "description", 10, false},
-				testTeam{"my other team", "description", 10, false},
+				testTeam{"real", "description", 10, false},
+				testTeam{"barça", "description", 10, false},
 			},
 			query: "something else",
 			want:  0,
+		},
+		{
+			title: "can find multiple teams",
+			teams: []testTeam{
+				testTeam{"lakers", "description", 10, false},
+				testTeam{"lakers", "description", 10, false},
+				testTeam{"lakers", "description", 10, false},
+			},
+			query: "lakers",
+			want:  3,
 		},
 	}
 
@@ -150,7 +160,7 @@ func TestFindTeams(t *testing.T) {
 
 		var got []*Team
 		if got = FindTeams(c, "Name", test.query); len(got) != test.want {
-			t.Errorf("test %v - Error: teams not found by Name with query: %v", i, test.query)
+			t.Errorf("test %v - found %v teams expected %v with query %v by Name", i, test.want, len(got), test.query)
 		}
 	}
 }
