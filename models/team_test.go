@@ -35,11 +35,11 @@ func TestCreateTeam(t *testing.T) {
 	}{
 		{
 			title: "can create public team",
-			team:  testTeam{"my team", "description", 0, false},
+			team:  testTeam{"my team", "description", 10, false},
 		},
 		{
 			title: "can create private team",
-			team:  testTeam{"my team", "description", 0, true},
+			team:  testTeam{"my other team", "description", 0, true},
 		},
 	}
 
@@ -58,6 +58,8 @@ func TestCreateTeam(t *testing.T) {
 	}
 }
 
+// checkTeam checks that the team passed has the same fields as the testTeam object.
+//
 func checkTeam(got *Team, want testTeam) error {
 	var s string
 	if got.Name != want.name {
@@ -74,14 +76,16 @@ func checkTeam(got *Team, want testTeam) error {
 	return errors.New(s)
 }
 
+// checkTeamInvertedIndex checks that the team is present in the datastore when
+// performing a search.
+//
 func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want testTeam) error {
 
 	var ids []int64
 	var err error
 	words := helpers.SetOfStrings(want.name)
 	if ids, err = GetTeamInvertedIndexes(c, words); err != nil {
-		s := fmt.Sprintf("failed calling GetUserInvertedIndexes %v", err)
-		return errors.New(s)
+		return errors.New(fmt.Sprintf("failed calling GetTeamInvertedIndexes %v", err))
 	}
 	for _, id := range ids {
 		if id == got.Id {
