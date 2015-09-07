@@ -83,7 +83,7 @@ func TestUserById(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var u *User
+		var got *User
 
 		got, err = UserById(c, test.userID)
 
