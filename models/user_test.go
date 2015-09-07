@@ -319,7 +319,7 @@ func TestFindAllUsers(t *testing.T) {
 	}
 }
 
-// TestUserById tests that you can get a user by its ID.
+// TestUserUpdate tests that you can update a user.
 //
 func TestUserUpdate(t *testing.T) {
 	var c aetest.Context
