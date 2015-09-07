@@ -194,6 +194,45 @@ func TestUsersByIds(t *testing.T) {
 	}
 }
 
+// TestUserKeysByIds tests that you can get a list of user keys by their IDs.
+//
+func TestUserKeysByIds(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title   string
+		userIDs []int64
+	}{
+		{
+			"can get user keys by IDs",
+			[]int64{25, 666, 2042},
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		keys := UserKeysByIds(c, test.userIDs)
+
+		if len(keys) != len(test.userIDs) {
+			t.Errorf("Error: want number of user IDs: %d, got: %d", len(test.userIDs), len(keys))
+		}
+
+		for i, userID := range test.userIDs {
+			if keys[i].IntID() != userID {
+				t.Errorf("Error: want key ID: %d, got: %d", userID, keys[i].IntID())
+			}
+		}
+	}
+}
+
 // TestDestroyUser tests that you can destroy a user.
 //
 func TestDestroyUser(t *testing.T) {
