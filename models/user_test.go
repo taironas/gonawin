@@ -65,8 +65,8 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
-	var got *User
-	if got, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+	var createdUser *User
+	if createdUser, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -76,8 +76,8 @@ func TestUserById(t *testing.T) {
 		user   testUser
 		err    string
 	}{
-		{"can get user by ID", got.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
-		{"non existing user for given ID", got.Id + 50, testUser{}, "datastore: no such entity"},
+		{"can get user by ID", createdUser.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given ID", createdUser.Id + 50, testUser{}, "datastore: no such entity"},
 	}
 
 	for _, test := range tests {
