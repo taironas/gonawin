@@ -208,12 +208,10 @@ func TestUserKeysByIds(t *testing.T) {
 	tests := []struct {
 		title   string
 		userIDs []int64
-		err     string
 	}{
 		{
 			"can get user keys by IDs",
 			[]int64{25, 666, 2042},
-			"",
 		},
 	}
 
@@ -222,11 +220,13 @@ func TestUserKeysByIds(t *testing.T) {
 
 		keys := UserKeysByIds(c, test.userIDs)
 
-		if test.err == "" && keys != nil {
-			for i, userID := range test.userIDs {
-				if keys[i].IntID() != userID {
-					t.Errorf("Error: want key ID: %v, got: %v", userID, keys[i].IntID())
-				}
+		if len(keys) != len(test.userIDs) {
+			t.Errorf("Error: want number of user IDs: %d, got: %d", len(test.userIDs), len(keys))
+		}
+
+		for i, userID := range test.userIDs {
+			if keys[i].IntID() != userID {
+				t.Errorf("Error: want key ID: %d, got: %d", userID, keys[i].IntID())
 			}
 		}
 	}
