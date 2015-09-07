@@ -65,8 +65,8 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
-	var got *User
-	if got, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+	var u *User
+	if u, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -76,23 +76,23 @@ func TestUserById(t *testing.T) {
 		user   testUser
 		err    string
 	}{
-		{"can get user by ID", got.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
-		{"non existing user for given ID", got.Id + 50, testUser{}, "datastore: no such entity"},
+		{"can get user by ID", u.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given ID", u.Id + 50, testUser{}, "datastore: no such entity"},
 	}
 
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var u *User
+		var got *User
 
-		u, err = UserById(c, test.userID)
+		got, err = UserById(c, test.userID)
 
 		if errorStringRepresentation(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
-		} else if test.err == "" && u == nil {
+		} else if test.err == "" && got == nil {
 			t.Errorf("Error: an user should have been found")
-		} else if test.err == "" && u != nil {
-			if err = checkUser(u, test.user); err != nil {
+		} else if test.err == "" && got != nil {
+			if err = checkUser(got, test.user); err != nil {
 				t.Errorf("Error: want user: %v, got: %v", test.user, got)
 			}
 		}
