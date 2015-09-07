@@ -420,9 +420,9 @@ func errorStringRepresentation(err error) string {
 	return ""
 }
 
-func createNonSavedUser(email string, username string, name string, alias string, isAdmin bool) User {
+func createNonSavedUser(email, username, name, alias string, isAdmin bool) User {
 	return User{
-		0,
+		5,
 		email,
 		username,
 		name,
