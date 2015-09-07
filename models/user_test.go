@@ -338,24 +338,7 @@ func TestUserUpdate(t *testing.T) {
 	}
 
 	/*Test data: non saved user*/
-	nonSavedUser := User{
-		0,
-		"foo@bar.com",
-		"john.snow",
-		"john snow",
-		"crow",
-		false,
-		"",
-		[]int64{},
-		[]int64{},
-		[]int64{},
-		[]int64{},
-		[]int64{},
-		0,
-		[]ScoreOfTournament{},
-		[]int64{},
-		time.Now(),
-	}
+	nonSavedUser := createNonSavedUser("foo@bar.com", "john.snow", "john snow", "crow", false)
 
 	tests := []struct {
 		title        string
@@ -435,4 +418,25 @@ func errorStringRepresentation(err error) string {
 		return err.Error()
 	}
 	return ""
+}
+
+func createNonSavedUser(email string, username string, name string, alias string, isAdmin bool) User {
+	return User{
+		0,
+		email,
+		username,
+		name,
+		alias,
+		isAdmin,
+		"",
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		0,
+		[]ScoreOfTournament{},
+		[]int64{},
+		time.Now(),
+	}
 }
