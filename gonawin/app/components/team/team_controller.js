@@ -92,6 +92,10 @@ teamControllers.controller('TeamCardCtrl', ['$rootScope', '$scope', '$q', 'Team'
       $scope.isTeamAdmin = result;
     });
 
+    // set showButtonRow:
+    // This variable defines if the row of button(s) should be displayed or not.
+    $scope.showButtonRow = $scope.$parent.isCurrentUserDisplayed;
+
     $scope.requestInvitation = function() {
       console.log('team request invitation');
       Team.requestInvite( {id:$scope.team.Id}, function() {
