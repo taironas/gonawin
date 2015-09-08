@@ -10,7 +10,7 @@
         <div class="row">
           <p><a href="/#/teams/{{team.Id}}"><strong>{{team.Name}}</strong></a> <i class="fa fa-lock fa-lg gn-grey" ng-if="team.Private"></i></p>
         </div>
-        <div class="row">
+        <div class="row" ng-if="showButtonRow">
           <div class="col-md-12">
             <div ng-if="!isTeamAdmin && !teamData.Joined">
               <div ng-if="team.Private">
