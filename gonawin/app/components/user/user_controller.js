@@ -42,6 +42,13 @@ userControllers.controller('UserShowCtrl', ['$scope', '$rootScope', '$routeParam
       for(var i = 0; i < lenInvite; i++) {
         $scope.userData.Invitations[i].show = true;
       }
+
+      if(response.User.Id == $scope.currentUser.User.Id) {
+        $scope.isCurrentUserDisplayed = true;
+      }
+      else {
+        $scope.isCurrentUserDisplayed = false;
+      }
     });
 
     $scope.acceptTeamRequest = function(request) {
