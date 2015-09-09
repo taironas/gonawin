@@ -63,7 +63,10 @@ type indexActivitiesViewModel struct {
 }
 
 func buildIndexActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, lastPage int64) indexActivitiesViewModel {
-	return indexActivitiesViewModel{Results: buildActivitiesViewModel(activities, perPage, currentPage, lastPage), Status: "OK"}
+	return indexActivitiesViewModel{
+		Results: buildActivitiesViewModel(activities, perPage, currentPage, lastPage),
+		Status:  "OK",
+	}
 }
 
 type activitiesViewModel struct {
@@ -75,7 +78,13 @@ type activitiesViewModel struct {
 }
 
 func buildActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, lastPage int64) activitiesViewModel {
-	return activitiesViewModel{Total: int64(len(activities)), PerPage: perPage, CurrentPage: currentPage, LastPage: lastPage, Activities: buildJSONActivities(activities)}
+	return activitiesViewModel{
+		Total:       int64(len(activities)),
+		PerPage:     perPage,
+		CurrentPage: currentPage,
+		LastPage:    lastPage,
+		Activities:  buildJSONActivities(activities),
+	}
 }
 
 func buildJSONActivities(activities []*mdl.Activity) []mdl.ActivityJson {
