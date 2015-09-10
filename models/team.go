@@ -133,7 +133,7 @@ func TeamById(c appengine.Context, id int64) (*Team, error) {
 
 	if err := datastore.Get(c, key, &t); err != nil {
 		log.Errorf(c, " team not found : %v", err)
-		return &t, err
+		return nil, err
 	}
 	return &t, nil
 }
