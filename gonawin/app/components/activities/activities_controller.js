@@ -9,9 +9,12 @@ activitiesControllers.controller('ActivitiesCtrl', ['$scope', '$location', 'Acti
   $scope.loadActivities = function()
   {
     Activity.get({ count:$scope.count, page:$scope.page}).$promise.then(function(response){
-      $scope.activities = $scope.activities.concat(response.Results.Activities);
+      if (response.Status == "OK") {
+        $scope.activities = $scope.activities.concat(response.Results.Activities);
 
-      $scope.more = response.Results.CurrentPage == response.Results.LastPage;
+        $scope.more = response.Results.CurrentPage == response.Results.LastPage;
+      }
+      else $scope.messageDanger = response.Status;
     });
   };
   // Indicates if there more activities that could be loaded
