@@ -56,6 +56,12 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 
     > goapp test ./...
 
+
+test models (in ./models):
+
+    > goapp test -v -run=^*Team$
+    > goapp test -v -run=^*User$
+
 #### Run App with production datastore backup
 
 Create datastore backup
