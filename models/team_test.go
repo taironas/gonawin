@@ -84,7 +84,7 @@ func TestDestroyTeam(t *testing.T) {
 		},
 		{
 			title:      "cannot destroy team",
-			team:       testTeam{"my team", "description", 10, false},
+			team:       testTeam{"my team other team", "description", 10, false},
 			overrideId: true,
 			newId:      11,
 			err:        "Cannot find team with Id",
