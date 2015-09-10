@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/taironas/gonawin/helpers"
@@ -71,12 +72,22 @@ func TestDestroyTeam(t *testing.T) {
 	defer c.Close()
 
 	tests := []struct {
-		title string
-		team  testTeam
+		title      string
+		team       testTeam
+		overrideId bool
+		newId      int64
+		err        string
 	}{
 		{
 			title: "can destroy team",
 			team:  testTeam{"my team", "description", 10, false},
+		},
+		{
+			title:      "cannot destroy team",
+			team:       testTeam{"my team other team", "description", 10, false},
+			overrideId: true,
+			newId:      11,
+			err:        "Cannot find team with Id",
 		},
 	}
 
@@ -87,8 +98,16 @@ func TestDestroyTeam(t *testing.T) {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
+		if test.overrideId {
+			got.Id = test.newId
+		}
+
 		if err = got.Destroy(c); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
+			if len(test.err) == 0 {
+				t.Errorf("test %v - Error: %v", i, err)
+			} else if !strings.Contains(errString(err), test.err) {
+				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
+			}
 		}
 
 		var team *Team
@@ -201,4 +220,12 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	}
 
 	return errors.New("team not found")
+}
+
+// errString returns the string representation of an error.
+func errString(err error) string {
+	if err != nil {
+		return err.Error()
+	}
+	return ""
 }
