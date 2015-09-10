@@ -121,6 +121,69 @@ func TestDestroyTeam(t *testing.T) {
 	}
 }
 
+// TestFindTeams tests that you can find teams.
+//
+func TestFindTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title string
+		teams []testTeam
+		query string
+		want  int
+	}{
+		{
+			title: "can find team",
+			teams: []testTeam{
+				testTeam{"my team", "description", 10, false},
+				testTeam{"my other team", "description", 10, false},
+			},
+			query: "my team",
+			want:  1,
+		},
+		{
+			title: "cannot find teams",
+			teams: []testTeam{
+				testTeam{"real", "description", 10, false},
+				testTeam{"barça", "description", 10, false},
+			},
+			query: "something else",
+			want:  0,
+		},
+		{
+			title: "can find multiple teams",
+			teams: []testTeam{
+				testTeam{"lakers", "description", 10, false},
+				testTeam{"lakers", "description", 10, false},
+				testTeam{"lakers", "description", 10, false},
+			},
+			query: "lakers",
+			want:  3,
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		for _, team := range test.teams {
+			if _, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				t.Errorf("test %v - Error: %v", i, err)
+			}
+		}
+
+		var got []*Team
+		if got = FindTeams(c, "Name", test.query); len(got) != test.want {
+			t.Errorf("test %v - found %v teams expected %v with query %v by Name", i, test.want, len(got), test.query)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
