@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/taironas/gonawin/helpers"
 
@@ -65,8 +66,8 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
-	var got *User
-	if got, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+	var u *User
+	if u, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -76,23 +77,23 @@ func TestUserById(t *testing.T) {
 		user   testUser
 		err    string
 	}{
-		{"can get user by ID", got.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
-		{"non existing user for given ID", got.Id + 50, testUser{}, "datastore: no such entity"},
+		{"can get user by ID", u.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given ID", u.Id + 50, testUser{}, "datastore: no such entity"},
 	}
 
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var u *User
+		var got *User
 
-		u, err = UserById(c, test.userID)
+		got, err = UserById(c, test.userID)
 
 		if errorStringRepresentation(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
-		} else if test.err == "" && u == nil {
+		} else if test.err == "" && got == nil {
 			t.Errorf("Error: an user should have been found")
-		} else if test.err == "" && u != nil {
-			if err = checkUser(u, test.user); err != nil {
+		} else if test.err == "" && got != nil {
+			if err = checkUser(got, test.user); err != nil {
 				t.Errorf("Error: want user: %v, got: %v", test.user, got)
 			}
 		}
@@ -188,6 +189,75 @@ func TestUsersByIds(t *testing.T) {
 				if err = checkUser(users[i], user); err != nil {
 					t.Errorf("Error: want user: %v, got: %v", user, users[i])
 				}
+			}
+		}
+	}
+}
+
+// TestUserKeyById tests that you can get a user key by its ID.
+//
+func TestUserKeyById(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title  string
+		userID int64
+	}{
+		{"can get user key by ID", 15},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		key := UserKeyById(c, test.userID)
+
+		if key.IntID() != test.userID {
+			t.Errorf("Error: want key ID: %v, got: %v", test.userID, key.IntID())
+		}
+	}
+}
+
+// TestUserKeysByIds tests that you can get a list of user keys by their IDs.
+//
+func TestUserKeysByIds(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title   string
+		userIDs []int64
+	}{
+		{
+			"can get user keys by IDs",
+			[]int64{25, 666, 2042},
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		keys := UserKeysByIds(c, test.userIDs)
+
+		if len(keys) != len(test.userIDs) {
+			t.Errorf("Error: want number of user IDs: %d, got: %d", len(test.userIDs), len(keys))
+		}
+
+		for i, userID := range test.userIDs {
+			if keys[i].IntID() != userID {
+				t.Errorf("Error: want key ID: %d, got: %d", userID, keys[i].IntID())
 			}
 		}
 	}
@@ -318,6 +388,60 @@ func TestFindAllUsers(t *testing.T) {
 	}
 }
 
+// TestUserUpdate tests that you can update a user.
+//
+func TestUserUpdate(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	/*Test data: saved user*/
+	var user *User
+	if user, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	/*Test data: non saved user*/
+	nonSavedUser := createNonSavedUser("foo@bar.com", "john.snow", "john snow", "crow", false)
+
+	tests := []struct {
+		title        string
+		userToUpdate *User
+		updatedUser  testUser
+		err          string
+	}{
+		{"update user successfully", user, testUser{"foo@bar.com", "white.walkers", "white walkers", "dead", false, ""}, ""},
+		{"update non saved user", &nonSavedUser, testUser{"foo@bar.com", "white.walkers", "white walkers", "dead", false, ""}, ""},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		test.userToUpdate.Username = test.updatedUser.username
+		test.userToUpdate.Name = test.updatedUser.name
+		test.userToUpdate.Alias = test.updatedUser.alias
+
+		err = test.userToUpdate.Update(c)
+
+		updatedUser, _ := UserById(c, test.userToUpdate.Id)
+
+		if errorStringRepresentation(err) != test.err {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && err != nil {
+			t.Errorf("Error: user should have been properly updated")
+		} else if test.err == "" && updatedUser != nil {
+			if err = checkUser(updatedUser, test.updatedUser); err != nil {
+				t.Errorf("Error: want user: %v, got: %v", test.updatedUser, updatedUser)
+			}
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
@@ -363,4 +487,25 @@ func errorStringRepresentation(err error) string {
 		return err.Error()
 	}
 	return ""
+}
+
+func createNonSavedUser(email, username, name, alias string, isAdmin bool) User {
+	return User{
+		5,
+		email,
+		username,
+		name,
+		alias,
+		isAdmin,
+		"",
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		[]int64{},
+		0,
+		[]ScoreOfTournament{},
+		[]int64{},
+		time.Now(),
+	}
 }
