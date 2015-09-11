@@ -271,6 +271,59 @@ func TestTeamKeyById(t *testing.T) {
 	}
 }
 
+// TestTeamUpdate tests team.Update function.
+//
+func TestTeamUpdate(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title      string
+		team       testTeam
+		updateTeam testTeam
+	}{
+		{
+			title:      "can update team",
+			team:       testTeam{"my team", "description", 10, false},
+			updateTeam: testTeam{name: "updated team", description: "updated description"},
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		var team *Team
+		if team, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+
+		team.Name = test.updateTeam.name
+		team.Description = test.updateTeam.description
+		team.AdminIds[0] = test.updateTeam.adminId
+		team.Private = test.updateTeam.private
+
+		if err = team.Update(c); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+
+		var got *Team
+		if got, err = TeamById(c, team.Id); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+		if err = checkTeam(got, test.updateTeam); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+		if err = checkTeamInvertedIndex(t, c, got, test.updateTeam); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
