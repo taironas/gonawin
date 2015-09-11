@@ -19,6 +19,7 @@ package activities
 
 import (
 	"errors"
+	"math"
 	"net/http"
 
 	"appengine"
@@ -27,7 +28,6 @@ import (
 	"github.com/taironas/gonawin/helpers"
 	templateshlp "github.com/taironas/gonawin/helpers/templates"
 
-	"github.com/taironas/gonawin/helpers/log"
 	mdl "github.com/taironas/gonawin/models"
 )
 
@@ -49,14 +49,45 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	page := extract.Page()
 
 	activities := mdl.FindActivities(c, u, count, page)
-	log.Infof(c, "%s activities = %v", desc, activities)
 
-	vm := buildActivitiesIndexViewModel(activities)
+	lastPage := math.Ceil(float64(int64(len(activities)) / count))
+
+	vm := buildIndexActivitiesViewModel(activities, count, page, int64(lastPage))
 
 	return templateshlp.RenderJson(w, c, vm)
 }
 
-func buildActivitiesIndexViewModel(activities []*mdl.Activity) []mdl.ActivityJson {
+type indexActivitiesViewModel struct {
+	Results activitiesViewModel
+	Status  string
+}
+
+func buildIndexActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, lastPage int64) indexActivitiesViewModel {
+	return indexActivitiesViewModel{
+		Results: buildActivitiesViewModel(activities, perPage, currentPage, lastPage),
+		Status:  "OK",
+	}
+}
+
+type activitiesViewModel struct {
+	Total       int64
+	PerPage     int64
+	CurrentPage int64
+	LastPage    int64
+	Activities  []mdl.ActivityJson
+}
+
+func buildActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, lastPage int64) activitiesViewModel {
+	return activitiesViewModel{
+		Total:       int64(len(activities)),
+		PerPage:     perPage,
+		CurrentPage: currentPage,
+		LastPage:    lastPage,
+		Activities:  buildJSONActivities(activities),
+	}
+}
+
+func buildJSONActivities(activities []*mdl.Activity) []mdl.ActivityJson {
 	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
 	json := make([]mdl.ActivityJson, len(activities))
 	helpers.TransformFromArrayOfPointers(&activities, &json, fieldsToKeep)
