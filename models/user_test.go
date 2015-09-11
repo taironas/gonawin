@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/test"
 
 	"appengine/aetest"
 )
@@ -88,7 +89,7 @@ func TestUserById(t *testing.T) {
 
 		got, err = UserById(c, test.userID)
 
-		if errorStringRepresentation(err) != test.err {
+		if gonawintest.ErrString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && got == nil {
 			t.Errorf("Error: an user should have been found")
@@ -182,7 +183,7 @@ func TestUsersByIds(t *testing.T) {
 
 		users, err = UsersByIds(c, test.userIDs)
 
-		if errorStringRepresentation(err) != test.err {
+		if gonawintest.ErrString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && users != nil {
 			for i, user := range test.users {
@@ -430,7 +431,7 @@ func TestUserUpdate(t *testing.T) {
 
 		updatedUser, _ := UserById(c, test.userToUpdate.Id)
 
-		if errorStringRepresentation(err) != test.err {
+		if gonawintest.ErrString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && err != nil {
 			t.Errorf("Error: user should have been properly updated")
@@ -481,14 +482,6 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User, want test
 
 	return errors.New("user not found")
 
-}
-
-// errorStringRepresentation returns the string representation of an error.
-func errorStringRepresentation(err error) string {
-	if err != nil {
-		return err.Error()
-	}
-	return ""
 }
 
 func createNonSavedUser(email, username, name, alias string, isAdmin bool) User {

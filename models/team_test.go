@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/taironas/gonawin/helpers"
+	"github.com/taironas/gonawin/test"
 
 	"appengine/aetest"
 )
@@ -105,7 +106,7 @@ func TestDestroyTeam(t *testing.T) {
 		if err = got.Destroy(c); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
-			} else if !strings.Contains(errString(err), test.err) {
+			} else if !strings.Contains(gonawintest.ErrString(err), test.err) {
 				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
 			}
 		}
@@ -220,12 +221,4 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	}
 
 	return errors.New("team not found")
-}
-
-// errString returns the string representation of an error.
-func errString(err error) string {
-	if err != nil {
-		return err.Error()
-	}
-	return ""
 }
