@@ -14,7 +14,9 @@ activitiesControllers.controller('ActivitiesCtrl', ['$scope', '$location', 'Acti
 
         $scope.more = response.Results.CurrentPage == response.Results.LastPage;
       }
-      else $scope.messageDanger = response.Status;
+      else {
+        $scope.messageDanger = response.Status;
+      }
     });
   };
   // Indicates if there more activities that could be loaded
