@@ -287,11 +287,22 @@ func TestTeamUpdate(t *testing.T) {
 		title      string
 		team       testTeam
 		updateTeam testTeam
+		overrideId bool
+		newId      int64
+		err        string
 	}{
 		{
 			title:      "can update team",
 			team:       testTeam{"my team", "description", 10, false},
 			updateTeam: testTeam{name: "updated team", description: "updated description"},
+		},
+		{
+			title:      "cannot update, team not found",
+			team:       testTeam{"my team", "description", 10, false},
+			updateTeam: testTeam{name: "updated team", description: "updated description"},
+			overrideId: true,
+			newId:      -1,
+			err:        "no such entity",
 		},
 	}
 
@@ -307,8 +318,17 @@ func TestTeamUpdate(t *testing.T) {
 		team.AdminIds[0] = test.updateTeam.adminId
 		team.Private = test.updateTeam.private
 
+		if test.overrideId {
+			team.Id = test.newId
+		}
+
 		if err = team.Update(c); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
+			if len(test.err) == 0 {
+				t.Errorf("test %v - Error: %v", i, err)
+			} else if !strings.Contains(errString(err), test.err) {
+				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
+			}
+			continue
 		}
 
 		var got *Team
