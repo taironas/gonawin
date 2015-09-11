@@ -197,12 +197,22 @@ func TestTeamById(t *testing.T) {
 	defer c.Close()
 
 	tests := []struct {
-		title string
-		team  testTeam
+		title      string
+		team       testTeam
+		overrideId bool
+		newId      int64
+		err        string
 	}{
 		{
 			title: "can get team by Id",
 			team:  testTeam{"my team", "description", 10, false},
+		},
+		{
+			title:      "cannot get team by Id",
+			team:       testTeam{"my team", "description", 10, false},
+			overrideId: true,
+			newId:      -1,
+			err:        "no such entity",
 		},
 	}
 
@@ -213,14 +223,20 @@ func TestTeamById(t *testing.T) {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
-		var got *Team
-		if got, err = TeamById(c, team.Id); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
-		}
-		if err = checkTeam(got, test.team); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
+		if test.overrideId {
+			team.Id = test.newId
 		}
 
+		var got *Team
+		if got, err = TeamById(c, team.Id); err != nil {
+			if len(test.err) == 0 {
+				t.Errorf("test %v - Error: %v", i, err)
+			} else if !strings.Contains(errString(err), test.err) {
+				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
+			}
+		} else if err = checkTeam(got, test.team); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
 	}
 }
 
