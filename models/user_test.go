@@ -48,7 +48,7 @@ func TestCreateUser(t *testing.T) {
 		if err = checkUser(got, test.user); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
-		if err = checkUserInvertedIndex(t, c, got); err != nil {
+		if err = checkUserInvertedIndex(t, c, got, test.user); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
@@ -296,7 +296,7 @@ func TestDestroyUser(t *testing.T) {
 	if u, err = UserById(c, got.Id); u != nil {
 		t.Errorf("Error: user found, not properly destroyed")
 	}
-	if err = checkUserInvertedIndex(t, c, got); err == nil {
+	if err = checkUserInvertedIndex(t, c, got, test.user); err == nil {
 		t.Errorf("Error: user found in database")
 	}
 }
@@ -462,14 +462,16 @@ func checkUser(got *User, want testUser) error {
 	return errors.New(s)
 }
 
-func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User) error {
+// checkUserInvertedIndex checks that the user is present in the datastore when
+// performing a search.
+//
+func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User, want testUser) error {
 
 	var ids []int64
 	var err error
-	words := helpers.SetOfStrings("john")
+	words := helpers.SetOfStrings(want.username)
 	if ids, err = GetUserInvertedIndexes(c, words); err != nil {
-		s := fmt.Sprintf("failed calling GetUserInvertedIndexes %v", err)
-		return errors.New(s)
+		return errors.New(fmt.Sprintf("failed calling GetUserInvertedIndexes %v", err))
 	}
 	for _, id := range ids {
 		if id == got.Id {
