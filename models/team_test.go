@@ -196,45 +196,42 @@ func TestTeamById(t *testing.T) {
 	}
 	defer c.Close()
 
+	tTeam := testTeam{"my team", "description", 10, false}
+
+	var team *Team
+	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
 	tests := []struct {
-		title      string
-		team       testTeam
-		overrideId bool
-		newId      int64
-		err        string
+		title  string
+		Id     int64
+		wanted testTeam
+		err    string
 	}{
 		{
-			title: "can get team by Id",
-			team:  testTeam{"my team", "description", 10, false},
+			title:  "can get team by Id",
+			Id:     team.Id,
+			wanted: testTeam{team.Name, team.Description, team.AdminIds[0], team.Private},
 		},
 		{
-			title:      "cannot get team by Id",
-			team:       testTeam{"my team", "description", 10, false},
-			overrideId: true,
-			newId:      -1,
-			err:        "no such entity",
+			title: "cannot get team by Id",
+			Id:    -1,
+			err:   "no such entity",
 		},
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
-		var team *Team
-		if team, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
-		}
-
-		if test.overrideId {
-			team.Id = test.newId
-		}
 
 		var got *Team
-		if got, err = TeamById(c, team.Id); err != nil {
+		if got, err = TeamById(c, test.Id); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
 			} else if !strings.Contains(errString(err), test.err) {
 				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
 			}
-		} else if err = checkTeam(got, test.team); err != nil {
+		} else if err = checkTeam(got, test.wanted); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
