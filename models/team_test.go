@@ -106,7 +106,7 @@ func TestDestroyTeam(t *testing.T) {
 		if err = got.Destroy(c); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
-			} else if !strings.Contains(gonawintest.ErrString(err), test.err) {
+			} else if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
 			}
 		}

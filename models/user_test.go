@@ -89,7 +89,7 @@ func TestUserById(t *testing.T) {
 
 		got, err = UserById(c, test.userID)
 
-		if gonawintest.ErrString(err) != test.err {
+		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && got == nil {
 			t.Errorf("Error: an user should have been found")
@@ -183,7 +183,7 @@ func TestUsersByIds(t *testing.T) {
 
 		users, err = UsersByIds(c, test.userIDs)
 
-		if gonawintest.ErrString(err) != test.err {
+		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && users != nil {
 			for i, user := range test.users {
@@ -431,7 +431,7 @@ func TestUserUpdate(t *testing.T) {
 
 		updatedUser, _ := UserById(c, test.userToUpdate.Id)
 
-		if gonawintest.ErrString(err) != test.err {
+		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && err != nil {
 			t.Errorf("Error: user should have been properly updated")

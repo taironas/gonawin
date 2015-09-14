@@ -1,7 +1,7 @@
 package gonawintest
 
-// ErrString returns the string representation of an error.
-func ErrString(err error) string {
+// ErrorString returns the string representation of an error.
+func ErrorString(err error) string {
 	if err != nil {
 		return err.Error()
 	}
