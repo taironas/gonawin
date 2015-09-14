@@ -283,9 +283,16 @@ func TestTeamUpdate(t *testing.T) {
 	}
 	defer c.Close()
 
+	tTeam := testTeam{"my team", "description", 10, false}
+
+	var newTeam *Team
+	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
 	tests := []struct {
 		title      string
-		team       testTeam
+		id         int64
 		updateTeam testTeam
 		overrideId bool
 		newId      int64
@@ -293,13 +300,13 @@ func TestTeamUpdate(t *testing.T) {
 	}{
 		{
 			title:      "can update team",
-			team:       testTeam{"my team", "description", 10, false},
-			updateTeam: testTeam{name: "updated team", description: "updated description"},
+			id:         newTeam.Id,
+			updateTeam: testTeam{name: "updated team 1", description: "updated description 1"},
 		},
 		{
 			title:      "cannot update, team not found",
-			team:       testTeam{"my team", "description", 10, false},
-			updateTeam: testTeam{name: "updated team", description: "updated description"},
+			id:         newTeam.Id,
+			updateTeam: testTeam{name: "updated team 2", description: "updated description 2"},
 			overrideId: true,
 			newId:      -1,
 			err:        "no such entity",
@@ -309,7 +316,7 @@ func TestTeamUpdate(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var team *Team
-		if team, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		if team, err = TeamById(c, test.id); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
