@@ -185,6 +185,59 @@ func TestFindTeams(t *testing.T) {
 	}
 }
 
+// TestTeamById tests TeamById function.
+//
+func TestTeamById(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tTeam := testTeam{"my team", "description", 10, false}
+
+	var team *Team
+	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	tests := []struct {
+		title  string
+		Id     int64
+		wanted testTeam
+		err    string
+	}{
+		{
+			title:  "can get team by Id",
+			Id:     team.Id,
+			wanted: testTeam{team.Name, team.Description, team.AdminIds[0], team.Private},
+		},
+		{
+			title: "cannot get team by Id",
+			Id:    -1,
+			err:   "no such entity",
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		var got *Team
+		if got, err = TeamById(c, test.Id); err != nil {
+			if len(test.err) == 0 {
+				t.Errorf("test %v - Error: %v", i, err)
+			} else if !strings.Contains(errString(err), test.err) {
+				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
+			}
+		} else if err = checkTeam(got, test.wanted); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {

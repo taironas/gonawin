@@ -8,7 +8,7 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-func TestTeamById(t *testing.T) {
+func TestTTeamById(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)
