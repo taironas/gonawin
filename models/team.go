@@ -149,14 +149,15 @@ func (t *Team) Update(c appengine.Context) error {
 	t.KeyName = helpers.TrimLower(t.Name)
 	k := TeamKeyById(c, t.Id)
 	oldTeam := new(Team)
-	if err := datastore.Get(c, k, oldTeam); err == nil {
+	var err error
+	if err = datastore.Get(c, k, oldTeam); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
 		// use lower trim names as team inverted index store them like this.
 		UpdateTeamInvertedIndex(c, oldTeam.KeyName, t.KeyName, t.Id)
 	}
-	return nil
+	return err
 }
 
 // Get all teams in datastore.
