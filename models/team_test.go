@@ -238,6 +238,37 @@ func TestTeamById(t *testing.T) {
 	}
 }
 
+// TestTeamKeyById tests TeamKeyById function.
+//
+func TestTeamKeyById(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title string
+		id    int64
+	}{
+		{
+			title: "can get team Key by Id",
+			id:    0,
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		if got := TeamKeyById(c, test.id); got == nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
