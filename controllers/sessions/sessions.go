@@ -90,7 +90,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	var user *mdl.User
 	var err error
-	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(c, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
@@ -221,7 +221,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
-	if user, err = mdl.SigninUser(w, r, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(c, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
 		log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
@@ -308,7 +308,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 
 	var user *mdl.User
 	var err error
-	if user, err = mdl.SigninUser(w, r, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(c, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 

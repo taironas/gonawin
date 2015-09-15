@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"strings"
 	"time"
 
@@ -267,10 +266,9 @@ func (u *User) Update(c appengine.Context) error {
 	return nil
 }
 
-// Create user from params in datastore and return a pointer to it.
-func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*User, error) {
+// SigninUser saves a user from given parameters in the datastore and return a pointer to it.
+func SigninUser(c appengine.Context, queryName string, email string, username string, name string) (*User, error) {
 
-	c := appengine.NewContext(r)
 	var user *User
 
 	queryValue := ""
