@@ -494,7 +494,7 @@ func checkUser(got *User, want testUser) error {
 	} else if got.Name != want.name {
 		s = fmt.Sprintf("want Name == %s, got %s", want.name, got.Name)
 	} else if got.Alias != want.alias {
-		s = fmt.Sprintf("want Name == %s, got %s", want.alias, got.Alias)
+		s = fmt.Sprintf("want Alias == %s, got %s", want.alias, got.Alias)
 	} else if got.IsAdmin != want.isAdmin {
 		s = fmt.Sprintf("want isAdmin == %t, got %t", want.isAdmin, got.IsAdmin)
 	} else {
