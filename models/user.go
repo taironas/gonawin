@@ -277,7 +277,7 @@ func SigninUser(c appengine.Context, queryName string, email string, username st
 	} else if queryName == "Username" {
 		queryValue = username
 	} else {
-		return nil, errors.New("models/user: no valid query name.")
+		return nil, errors.New("no valid query name.")
 	}
 
 	// find user
@@ -290,7 +290,7 @@ func SigninUser(c appengine.Context, queryName string, email string, username st
 		alias := ""
 		if userCreate, err := CreateUser(c, email, username, name, alias, isAdmin, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
-			return nil, errors.New("models/user: Unable to create user.")
+			return nil, errors.New("unable to create user.")
 		} else {
 			user = userCreate
 		}
