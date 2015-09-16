@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -463,7 +464,7 @@ func TestUserSigninUser(t *testing.T) {
 	}{
 		{"can signin user with Email", "Email", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, ""},
 		{"can signin user with Username", "Username", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, ""},
-		{"cannot signin user", "Name", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, "models/user: no valid query name."},
+		{"cannot signin user", "Name", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, "no valid query name."},
 	}
 
 	for _, test := range tests {
@@ -473,7 +474,7 @@ func TestUserSigninUser(t *testing.T) {
 
 		got, err = SigninUser(c, test.queryName, test.user.email, test.user.username, test.user.name)
 
-		if gonawintest.ErrorString(err) != test.err {
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && got == nil {
 			t.Errorf("Error: an user should have been found")
