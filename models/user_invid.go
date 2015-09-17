@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -86,7 +85,7 @@ func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 	for _, w := range words {
 
 		if invId, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
-			return errors.New(fmt.Sprintf(" userinvid.Add, unable to find KeyName=%s: %v", w, err))
+			return fmt.Errorf(" userinvid.Add, unable to find KeyName=%s: %v", w, err)
 		} else if invId == nil {
 			CreateUserInvertedIndex(c, w, strconv.FormatInt(id, 10))
 		} else {
@@ -148,7 +147,7 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 
 	invId, err := FindUserInvertedIndex(c, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf(" userinvid.removeWord, unable to find KeyName=%s: %v", w, err))
+		return fmt.Errorf(" userinvid.removeWord, unable to find KeyName=%s: %v", w, err)
 	} else if invId != nil {
 		// update row with new info
 		k := UserInvertedIndexKeyById(c, invId.Id)
@@ -164,16 +163,16 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 					return err1
 				}, nil)
 				if errDec != nil {
-					return errors.New(fmt.Sprintf(" Error decrementing WordCountUser: %v", errDec))
+					return fmt.Errorf(" Error decrementing WordCountUser: %v", errDec)
 				}
 			} else {
 				invId.UserIds = []byte(newIds)
 				if _, err1 := datastore.Put(c, k, invId); err1 != nil {
-					return errors.New(fmt.Sprintf(" RemoveWordFromUserInvertedIndex error on update: %v", err))
+					return fmt.Errorf(" RemoveWordFromUserInvertedIndex error on update: %v", err)
 				}
 			}
 		} else {
-			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v", err))
+			return fmt.Errorf(" unable to remove id from ids: %v", err)
 		}
 	}
 	return nil
@@ -214,7 +213,7 @@ func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 		res, err := FindUserInvertedIndex(c, "KeyName", w)
 		if err != nil {
 			log.Errorf(c, "userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
-			err1 = errors.New(fmt.Sprintf(" userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
+			err1 = fmt.Errorf(" userinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 		} else if res != nil {
 			strUserIds := string(res.UserIds)
 			if len(l) == 0 {
@@ -289,7 +288,7 @@ func UserInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 func GetUserFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
 	if invId, err := FindUserInvertedIndex(c, "KeyName", word); err != nil {
-		return 0, errors.New(fmt.Sprintf(" userinvid.GetUserFrequencyForWord, unable to find KeyName=%s: %v", word, err))
+		return 0, fmt.Errorf(" userinvid.GetUserFrequencyForWord, unable to find KeyName=%s: %v", word, err)
 	} else if invId == nil {
 		return 0, nil
 	} else {

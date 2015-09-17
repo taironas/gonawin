@@ -132,7 +132,7 @@ func CreateUser(c appengine.Context, email, username, name, alias string, isAdmi
 func (u *User) Destroy(c appengine.Context) error {
 
 	if _, err := UserById(c, u.Id); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find user with Id=%d", u.Id))
+		return fmt.Errorf("Cannot find user with Id=%d", u.Id)
 	} else {
 		key := datastore.NewKey(c, "User", "", u.Id, nil)
 
@@ -372,7 +372,7 @@ func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
 	log.Infof(c, "User Add tournament id")
 	if hasTournament, _ := u.ContainsTournamentId(tId); hasTournament {
-		return errors.New(fmt.Sprintf("AddTournamentId, allready a member."))
+		return fmt.Errorf("AddTournamentId, allready a member")
 	}
 	log.Infof(c, "User Add tournament id append")
 	u.TournamentIds = append(u.TournamentIds, tId)
@@ -388,7 +388,7 @@ func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
 func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 
 	if hasTournament, i := u.ContainsTournamentId(tId); !hasTournament {
-		return errors.New(fmt.Sprintf("RemoveTournamentId, not a member."))
+		return fmt.Errorf("RemoveTournamentId, not a member")
 	} else {
 		// as the order of index in tournamentsId is not important,
 		// replace elem at index i with last element and resize slice.
@@ -428,7 +428,7 @@ func (u *User) Tournaments(c appengine.Context) []*Tournament {
 func (u *User) AddTeamId(c appengine.Context, tId int64) error {
 
 	if hasTeam, _ := u.ContainsTeamId(tId); hasTeam {
-		return errors.New(fmt.Sprintf("AddTeamId, allready a member."))
+		return fmt.Errorf("AddTeamId, allready a member")
 	}
 
 	u.TeamIds = append(u.TeamIds, tId)
@@ -442,7 +442,7 @@ func (u *User) AddTeamId(c appengine.Context, tId int64) error {
 func (u *User) RemoveTeamId(c appengine.Context, tId int64) error {
 
 	if hasTeam, i := u.ContainsTeamId(tId); !hasTeam {
-		return errors.New(fmt.Sprintf("RemoveTeamId, not a member."))
+		return fmt.Errorf("RemoveTeamId, not a member")
 	} else {
 		// as the order of index in teamsId is not important,
 		// replace elem at index i with last element and resize slice.
