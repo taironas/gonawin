@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -154,13 +153,13 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamId1 = val.Id
 			} else {
-				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
 			}
 			if val, ok := mapOfTeams[rule[1]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamId2 = val.Id
 			} else {
-				return errors.New(fmt.Sprintf("Cannot parse rule in tournament =%d", t.Id))
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
 			}
 			matches[i].Rule = ""
 			matches[i].Ready = true
