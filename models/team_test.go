@@ -376,7 +376,7 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	var err error
 	words := helpers.SetOfStrings(want.name)
 	if ids, err = GetTeamInvertedIndexes(c, words); err != nil {
-		return errors.New(fmt.Sprintf("failed calling GetTeamInvertedIndexes %v", err))
+		return fmt.Errorf("failed calling GetTeamInvertedIndexes %v", err)
 	}
 	for _, id := range ids {
 		if id == got.Id {
