@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -56,7 +55,7 @@ func CreatePredict(c appengine.Context, userId, result1, result2, matchId int64)
 func (p *Predict) Destroy(c appengine.Context) error {
 
 	if _, err := PredictById(c, p.Id); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find predict with Id=%d", p.Id))
+		return fmt.Errorf("Cannot find predict with Id=%d", p.Id)
 	} else {
 		key := datastore.NewKey(c, "Predict", "", p.Id, nil)
 
