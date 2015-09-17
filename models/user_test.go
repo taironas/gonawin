@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -443,6 +444,48 @@ func TestUserUpdate(t *testing.T) {
 	}
 }
 
+// TestUserSigninUser tests that you can signin a user.
+//
+func TestUserSigninUser(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title     string
+		queryName string
+		user      testUser
+		err       string
+	}{
+		{"can signin user with Email", "Email", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, ""},
+		{"can signin user with Username", "Username", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, ""},
+		{"cannot signin user", "Name", testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""}, "no valid query name."},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var got *User
+
+		got, err = SigninUser(c, test.queryName, test.user.email, test.user.username, test.user.name)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && got == nil {
+			t.Errorf("Error: an user should have been found")
+		} else if test.err == "" && got != nil {
+			if err = checkUser(got, test.user); err != nil {
+				t.Errorf("Error: want user: %v, got: %v", test.user, got)
+			}
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
@@ -452,11 +495,9 @@ func checkUser(got *User, want testUser) error {
 	} else if got.Name != want.name {
 		s = fmt.Sprintf("want Name == %s, got %s", want.name, got.Name)
 	} else if got.Alias != want.alias {
-		s = fmt.Sprintf("want Name == %s, got %s", want.alias, got.Alias)
+		s = fmt.Sprintf("want Alias == %s, got %s", want.alias, got.Alias)
 	} else if got.IsAdmin != want.isAdmin {
 		s = fmt.Sprintf("want isAdmin == %t, got %t", want.isAdmin, got.IsAdmin)
-	} else if got.Auth != want.auth {
-		s = fmt.Sprintf("want auth == %s, got %s", want.auth, got.Auth)
 	} else {
 		return nil
 	}

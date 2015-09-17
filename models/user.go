@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
 	"strings"
 	"time"
 
@@ -267,10 +266,9 @@ func (u *User) Update(c appengine.Context) error {
 	return nil
 }
 
-// Create user from params in datastore and return a pointer to it.
-func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email string, username string, name string) (*User, error) {
+// SigninUser saves a user from given parameters in the datastore and return a pointer to it.
+func SigninUser(c appengine.Context, queryName string, email string, username string, name string) (*User, error) {
 
-	c := appengine.NewContext(r)
 	var user *User
 
 	queryValue := ""
@@ -279,7 +277,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 	} else if queryName == "Username" {
 		queryValue = username
 	} else {
-		return nil, errors.New("models/user: no valid query name.")
+		return nil, errors.New("no valid query name")
 	}
 
 	// find user
@@ -292,7 +290,7 @@ func SigninUser(w http.ResponseWriter, r *http.Request, queryName string, email 
 		alias := ""
 		if userCreate, err := CreateUser(c, email, username, name, alias, isAdmin, GenerateAuthKey()); err != nil {
 			log.Errorf(c, "Signup: %v", err)
-			return nil, errors.New("models/user: Unable to create user.")
+			return nil, errors.New("unable to create user")
 		} else {
 			user = userCreate
 		}
