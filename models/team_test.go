@@ -229,7 +229,7 @@ func TestTeamById(t *testing.T) {
 		if got, err = TeamById(c, test.Id); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
-			} else if !strings.Contains(errString(err), test.err) {
+			} else if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
 			}
 		} else if err = checkTeam(got, test.wanted); err != nil {
@@ -330,7 +330,7 @@ func TestTeamUpdate(t *testing.T) {
 		if err = team.Update(c); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
-			} else if !strings.Contains(errString(err), test.err) {
+			} else if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 				t.Errorf("test %v - Error: %v expected %v", i, err, test.err)
 			}
 			continue
