@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strconv"
@@ -111,7 +110,7 @@ func CreateTournament(c appengine.Context, name string, description string, star
 func (t *Tournament) Destroy(c appengine.Context) error {
 
 	if _, err := TournamentById(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find tournament with Id=%d", t.Id))
+		return fmt.Errorf("Cannot find tournament with Id=%d", t.Id)
 	} else {
 		key := datastore.NewKey(c, "Tournament", "", t.Id, nil)
 		if errd := datastore.Delete(c, key); errd != nil {
@@ -246,10 +245,10 @@ func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
 	if err := u.AddTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
 	if err := t.AddUserId(c, u.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err))
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
 
 	return nil
@@ -273,7 +272,7 @@ func (t *Tournament) AddAdmin(c appengine.Context, id int64) error {
 
 	if ismember, _ := t.ContainsUserId(id); ismember {
 		if isadmin, _ := t.ContainsAdminId(id); isadmin {
-			return errors.New(fmt.Sprintf("User with %v is already an admin of tournament.", id))
+			return fmt.Errorf("User with %v is already an admin of tournament", id)
 		}
 		t.AdminIds = append(t.AdminIds, id)
 		if err := t.Update(c); err != nil {
@@ -281,7 +280,7 @@ func (t *Tournament) AddAdmin(c appengine.Context, id int64) error {
 		}
 		return nil
 	}
-	return errors.New(fmt.Sprintf("User with %v is not a member of the tournament.", id))
+	return fmt.Errorf("User with %v is not a member of the tournament", id)
 }
 
 // Removes user of admins array in current tournament.
@@ -300,11 +299,11 @@ func (t *Tournament) RemoveAdmin(c appengine.Context, id int64) error {
 				}
 				return nil
 			}
-			return errors.New(fmt.Sprintf("Cannot remove admin %v as there are no admins left in tournament.", id))
+			return fmt.Errorf("Cannot remove admin %v as there are no admins left in tournament", id)
 		}
-		return errors.New(fmt.Sprintf("User with %v is not admin of the tournament.", id))
+		return fmt.Errorf("User with %v is not admin of the tournament", id)
 	}
-	return errors.New(fmt.Sprintf("User with %v is not a member of the tournament.", id))
+	return fmt.Errorf("User with %v is not a member of the tournament", id)
 }
 
 // Checks if user is admin of team.
@@ -329,19 +328,19 @@ func (t *Tournament) TeamJoined(c appengine.Context, team *Team) bool {
 func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	// add
 	if err := team.AddTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.Id, err))
+		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.Id, err)
 	}
 	if err := t.AddTeamId(c, team.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", t.Id, err))
+		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", t.Id, err)
 	}
 	if err := t.AddUserIds(c, team.UserIds); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", t.Id, err))
+		return fmt.Errorf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", t.Id, err)
 	}
 	if p, errp := CreatePrice(c, team.Id, t.Id, t.Name, ""); errp != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp))
+		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp)
 	} else {
 		if err := team.AddPriceId(c, p.Id); err != nil {
-			return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.Id, err))
+			return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.Id, err)
 		}
 	}
 	return nil
@@ -351,13 +350,13 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
 	// find and remove
 	if err := team.RemoveTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.Id, err))
+		return fmt.Errorf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.Id, err)
 	}
 	if err := t.RemoveTeamId(c, team.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.Id, err))
+		return fmt.Errorf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.Id, err)
 	}
 	if err := team.RemovePriceByTournamentId(c, t.Id); err != nil {
-		return errors.New(fmt.Sprintf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.Id, err))
+		return fmt.Errorf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.Id, err)
 	}
 	return nil
 }
@@ -460,7 +459,7 @@ func (t *Tournament) Teams(c appengine.Context) []*Team {
 func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
 
 	if hasTeam, i := t.ContainsTeamId(tId); !hasTeam {
-		return errors.New(fmt.Sprintf("RemoveTeamId, not a member."))
+		return fmt.Errorf("RemoveTeamId, not a member")
 	} else {
 		// as the order of index in teamsId is not important,
 		// replace elem at index i with last element and resize slice.
@@ -477,7 +476,7 @@ func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
 func (t *Tournament) AddTeamId(c appengine.Context, tId int64) error {
 
 	if hasTeam, _ := t.ContainsTeamId(tId); hasTeam {
-		return errors.New(fmt.Sprintf("AddTeamId, allready a member."))
+		return fmt.Errorf("AddTeamId, allready a member")
 	}
 
 	t.TeamIds = append(t.TeamIds, tId)
@@ -491,7 +490,7 @@ func (t *Tournament) AddTeamId(c appengine.Context, tId int64) error {
 func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
 
 	if hasUser, i := t.ContainsUserId(uId); !hasUser {
-		return errors.New(fmt.Sprintf("RemoveUserId, not a member."))
+		return fmt.Errorf("RemoveUserId, not a member")
 	} else {
 		// as the order of index in usersId is not important,
 		// replace elem at index i with last element and resize slice.
@@ -507,7 +506,7 @@ func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
 // Adds a user Id in the UserId array.
 func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
 	if hasUser, _ := t.ContainsUserId(uId); hasUser {
-		return errors.New(fmt.Sprintf("AddUserId, allready a member."))
+		return fmt.Errorf("AddUserId, allready a member")
 	}
 
 	t.UserIds = append(t.UserIds, uId)

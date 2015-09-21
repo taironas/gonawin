@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -56,7 +55,7 @@ func CreatePrice(c appengine.Context, teamId, tournamentId int64, tournamentName
 func (p *Price) Destroy(c appengine.Context) error {
 
 	if _, err := PriceById(c, p.Id); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find price with Id=%d", p.Id))
+		return fmt.Errorf("Cannot find price with Id=%d", p.Id)
 	} else {
 		key := datastore.NewKey(c, "Price", "", p.Id, nil)
 

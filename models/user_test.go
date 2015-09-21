@@ -513,7 +513,7 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User, want test
 	var err error
 	words := helpers.SetOfStrings(want.username)
 	if ids, err = GetUserInvertedIndexes(c, words); err != nil {
-		return errors.New(fmt.Sprintf("failed calling GetUserInvertedIndexes %v", err))
+		return fmt.Errorf("failed calling GetUserInvertedIndexes %v", err)
 	}
 	for _, id := range ids {
 		if id == got.Id {

@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -86,7 +85,7 @@ func AddToTeamInvertedIndex(c appengine.Context, name string, id int64) error {
 	for _, w := range words {
 
 		if invId, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
-			return errors.New(fmt.Sprintf(" teaminvid.Add, unable to find KeyName=%s: %v", w, err))
+			return fmt.Errorf(" teaminvid.Add, unable to find KeyName=%s: %v", w, err)
 		} else if invId == nil {
 			CreateTeamInvertedIndex(c, w, strconv.FormatInt(id, 10))
 		} else {
@@ -149,7 +148,7 @@ func teamInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 
 	invId, err := FindTeamInvertedIndex(c, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf(" teaminvid.removeWord, unable to find KeyName=%s: %v", w, err))
+		return fmt.Errorf(" teaminvid.removeWord, unable to find KeyName=%s: %v", w, err)
 	} else if invId != nil {
 		// update row with new info
 		k := TeamInvertedIndexKeyById(c, invId.Id)
@@ -165,16 +164,16 @@ func teamInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 					return err1
 				}, nil)
 				if errDec != nil {
-					return errors.New(fmt.Sprintf(" Error decrementing WordCountTeam: %v", errDec))
+					return fmt.Errorf(" Error decrementing WordCountTeam: %v", errDec)
 				}
 			} else {
 				invId.TeamIds = []byte(newIds)
 				if _, err1 := datastore.Put(c, k, invId); err1 != nil {
-					return errors.New(fmt.Sprintf(" RemoveWordFromTeamInvertedIndex error on update: %v", err))
+					return fmt.Errorf(" RemoveWordFromTeamInvertedIndex error on update: %v", err)
 				}
 			}
 		} else {
-			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v", err))
+			return fmt.Errorf(" unable to remove id from ids: %v", err)
 		}
 	}
 
@@ -216,7 +215,7 @@ func GetTeamInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 		res, err := FindTeamInvertedIndex(c, "KeyName", w)
 		if err != nil {
 			log.Errorf(c, "teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
-			err1 = errors.New(fmt.Sprintf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
+			err1 = fmt.Errorf(" teaminvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 		} else if res != nil {
 			strTeamIds := string(res.TeamIds)
 			if len(l) == 0 {
@@ -293,7 +292,7 @@ func TeamInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 func GetTeamFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
 	if invId, err := FindTeamInvertedIndex(c, "KeyName", word); err != nil {
-		return 0, errors.New(fmt.Sprintf(" teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err))
+		return 0, fmt.Errorf(" teaminvid.GetTeamFrequencyForWord, unable to find KeyName=%s: %v", word, err)
 	} else if invId == nil {
 		return 0, nil
 	} else {

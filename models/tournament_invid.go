@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -87,7 +86,7 @@ func AddToTournamentInvertedIndex(c appengine.Context, name string, id int64) er
 		log.Infof(c, " AddToTournamentInvertedIndex: Word: %v", w)
 
 		if invId, err := FindTournamentInvertedIndex(c, "KeyName", w); err != nil {
-			return errors.New(fmt.Sprintf(" tournamentinvid.Add, unable to find KeyName=%s: %v", w, err))
+			return fmt.Errorf(" tournamentinvid.Add, unable to find KeyName=%s: %v", w, err)
 		} else if invId == nil {
 			log.Infof(c, " create inv id as word does not exist in table")
 			CreateTournamentInvertedIndex(c, w, strconv.FormatInt(id, 10))
@@ -160,7 +159,7 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 
 	invId, err := FindTournamentInvertedIndex(c, "KeyName", w)
 	if err != nil {
-		return errors.New(fmt.Sprintf(" tournamentinvid.removeWord, unable to find KeyName=%s: %v", w, err))
+		return fmt.Errorf(" tournamentinvid.removeWord, unable to find KeyName=%s: %v", w, err)
 	} else if invId == nil {
 		log.Infof(c, " word %v does not exist in Tournament InvertedIndex so nothing to remove", w)
 	} else {
@@ -180,7 +179,7 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 					return err1
 				}, nil)
 				if errDec != nil {
-					return errors.New(fmt.Sprintf(" Error decrementing WordCountTournament: %v", errDec))
+					return fmt.Errorf(" Error decrementing WordCountTournament: %v", errDec)
 				}
 			} else {
 				invId.TournamentIds = []byte(newIds)
@@ -189,7 +188,7 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 				}
 			}
 		} else {
-			return errors.New(fmt.Sprintf(" unable to remove id from ids: %v", err))
+			return fmt.Errorf(" unable to remove id from ids: %v", err)
 		}
 	}
 
@@ -230,7 +229,7 @@ func GetTournamentInvertedIndexes(c appengine.Context, words []string) ([]int64,
 		res, err := FindTournamentInvertedIndex(c, "KeyName", w)
 		if err != nil {
 			log.Infof(c, "tournamentinvid.GetIndexes, unable to find KeyName=%v: %v", w, err)
-			err1 = errors.New(fmt.Sprintf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err))
+			err1 = fmt.Errorf(" tournamentinvid.GetIndexes, unable to find KeyName=%s: %v", w, err)
 		} else if res != nil {
 			strTournamentIds := string(res.TournamentIds)
 			if len(l) == 0 {
@@ -308,7 +307,7 @@ func TournamentInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 func GetTournamentFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
 	if invId, err := FindTournamentInvertedIndex(c, "KeyName", word); err != nil {
-		return 0, errors.New(fmt.Sprintf(" tournamentinvid.GetTournamentFrequencyForWord, unable to find KeyName=%s: %v", word, err))
+		return 0, fmt.Errorf(" tournamentinvid.GetTournamentFrequencyForWord, unable to find KeyName=%s: %v", word, err)
 	} else if invId == nil {
 		return 0, nil
 	} else {

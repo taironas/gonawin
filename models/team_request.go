@@ -17,7 +17,6 @@
 package models
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -69,7 +68,7 @@ func CreateTeamRequest(c appengine.Context, teamId int64, teamName string, userI
 func (tr *TeamRequest) Destroy(c appengine.Context) error {
 
 	if teamRequest, err := TeamRequestById(c, tr.Id); err != nil {
-		return errors.New(fmt.Sprintf("Cannot find team request with teamRequestId=%d", tr.Id))
+		return fmt.Errorf("Cannot find team request with teamRequestId=%d", tr.Id)
 	} else {
 		key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
 
