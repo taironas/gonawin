@@ -319,7 +319,7 @@ func (u *User) Teams(c appengine.Context) []*Team {
 	for _, tID := range u.TeamIds {
 		t, err := TeamById(c, tID)
 		if err != nil {
-			log.Errorf(c, "Teams, cannot find team with ID=%", tID)
+			log.Errorf(c, "Teams, cannot find team with ID=%v", tID)
 		} else {
 			teams = append(teams, t)
 		}
