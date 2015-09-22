@@ -486,6 +486,64 @@ func TestUserSigninUser(t *testing.T) {
 	}
 }
 
+// TestUserTeams tests that you can get teams of a given user.
+//
+func TestUserTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var user *User
+	if user, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	test := struct {
+		title string
+		teams []testTeam
+	}{
+		"can get teams",
+		[]testTeam{
+			{"night's watch", "guards of the wall", 10, false},
+			{"Unsullied", "former slaves", 10, false},
+			{"Wildlings", "we lived beyond the wall", 10, false},
+		},
+	}
+
+	t.Log(test.title)
+
+	for _, team := range test.teams {
+		var newTeam *Team
+		if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		if err = newTeam.Join(c, user); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+	}
+
+	var got []*Team
+	if got = user.Teams(c); got == nil {
+		t.Errorf("Error: teams not found")
+	}
+
+	if len(got) != len(test.teams) {
+		t.Errorf("Error: want teams count == %d, got %d", len(test.teams), len(got))
+	}
+
+	for i, team := range test.teams {
+		if err = checkTeam(got[i], team); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
