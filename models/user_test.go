@@ -486,6 +486,89 @@ func TestUserSigninUser(t *testing.T) {
 	}
 }
 
+// TestUserTeams tests that you can get teams of a given user.
+//
+func TestUserTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title       string
+		user        testUser
+		teams       []testTeam
+		missingTeam bool
+	}{
+		{"can get teams",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{
+				{"night's watch", "guards of the wall", 10, false},
+				{"Unsullied", "former slaves", 10, false},
+				{"Wildlings", "we lived beyond the wall", 10, false},
+			},
+			false,
+		},
+		{"user with no team",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{},
+			false,
+		},
+		{"user with missing team",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{
+				{"night's watch", "guards of the wall", 10, false},
+				{"Unsullied", "former slaves", 10, false},
+				{"Wildlings", "we lived beyond the wall", 10, false},
+			},
+			true,
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		for _, team := range test.teams {
+			var newTeam *Team
+			if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+
+			if err = newTeam.Join(c, user); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+		}
+
+		if test.missingTeam {
+			if err = user.AddTeamId(c, 666 /*extra team ID*/); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+		}
+
+		var got []*Team
+		got = user.Teams(c)
+
+		if len(got) != len(test.teams) {
+			t.Errorf("Error: want teams count == %d, got %d", len(test.teams), len(got))
+		}
+
+		for i, team := range test.teams {
+			if err = checkTeam(got[i], team); err != nil {
+				t.Errorf("test %v - Error: %v", i, err)
+			}
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {

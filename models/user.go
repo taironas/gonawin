@@ -311,15 +311,15 @@ func GenerateAuthKey() string {
 	return fmt.Sprintf("%x", b)
 }
 
-// From a user id returns an array of teams the user iq involved participates.
+// Teams returns an array of teams joined by the user.
 func (u *User) Teams(c appengine.Context) []*Team {
 
 	var teams []*Team
 
-	for _, tId := range u.TeamIds {
-		t, err := TeamById(c, tId)
+	for _, tID := range u.TeamIds {
+		t, err := TeamById(c, tID)
 		if err != nil {
-			log.Errorf(c, "Teams, cannot find team with ID=%", tId)
+			log.Errorf(c, "Teams, cannot find team with ID=%v", tID)
 		} else {
 			teams = append(teams, t)
 		}
