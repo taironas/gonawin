@@ -498,48 +498,55 @@ func TestUserTeams(t *testing.T) {
 	}
 	defer c.Close()
 
-	var user *User
-	if user, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
-		t.Errorf("Error: %v", err)
-	}
-
-	test := struct {
+	tests := []struct {
 		title string
+		user  testUser
 		teams []testTeam
 	}{
-		"can get teams",
-		[]testTeam{
-			{"night's watch", "guards of the wall", 10, false},
-			{"Unsullied", "former slaves", 10, false},
-			{"Wildlings", "we lived beyond the wall", 10, false},
+		{"can get teams",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{
+				{"night's watch", "guards of the wall", 10, false},
+				{"Unsullied", "former slaves", 10, false},
+				{"Wildlings", "we lived beyond the wall", 10, false},
+			},
+		},
+		{"user with no team",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{},
 		},
 	}
 
-	t.Log(test.title)
+	for _, test := range tests {
+		t.Log(test.title)
 
-	for _, team := range test.teams {
-		var newTeam *Team
-		if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+		var user *User
+		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("Error: %v", err)
 		}
 
-		if err = newTeam.Join(c, user); err != nil {
-			t.Errorf("Error: %v", err)
+		for _, team := range test.teams {
+			var newTeam *Team
+			if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+
+			if err = newTeam.Join(c, user); err != nil {
+				t.Errorf("Error: %v", err)
+			}
 		}
-	}
 
-	var got []*Team
-	if got = user.Teams(c); got == nil {
-		t.Errorf("Error: teams not found")
-	}
+		var got []*Team
+		got = user.Teams(c)
 
-	if len(got) != len(test.teams) {
-		t.Errorf("Error: want teams count == %d, got %d", len(test.teams), len(got))
-	}
+		if len(got) != len(test.teams) {
+			t.Errorf("Error: want teams count == %d, got %d", len(test.teams), len(got))
+		}
 
-	for i, team := range test.teams {
-		if err = checkTeam(got[i], team); err != nil {
-			t.Errorf("test %v - Error: %v", i, err)
+		for i, team := range test.teams {
+			if err = checkTeam(got[i], team); err != nil {
+				t.Errorf("test %v - Error: %v", i, err)
+			}
 		}
 	}
 }
