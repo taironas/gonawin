@@ -499,9 +499,10 @@ func TestUserTeams(t *testing.T) {
 	defer c.Close()
 
 	tests := []struct {
-		title string
-		user  testUser
-		teams []testTeam
+		title       string
+		user        testUser
+		teams       []testTeam
+		missingTeam bool
 	}{
 		{"can get teams",
 			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
@@ -510,10 +511,21 @@ func TestUserTeams(t *testing.T) {
 				{"Unsullied", "former slaves", 10, false},
 				{"Wildlings", "we lived beyond the wall", 10, false},
 			},
+			false,
 		},
 		{"user with no team",
 			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
 			[]testTeam{},
+			false,
+		},
+		{"user with missing team",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[]testTeam{
+				{"night's watch", "guards of the wall", 10, false},
+				{"Unsullied", "former slaves", 10, false},
+				{"Wildlings", "we lived beyond the wall", 10, false},
+			},
+			true,
 		},
 	}
 
@@ -532,6 +544,12 @@ func TestUserTeams(t *testing.T) {
 			}
 
 			if err = newTeam.Join(c, user); err != nil {
+				t.Errorf("Error: %v", err)
+			}
+		}
+
+		if test.missingTeam {
+			if err = user.AddTeamId(c, 666 /*extra team ID*/); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 		}
