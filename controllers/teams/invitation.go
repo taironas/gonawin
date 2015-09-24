@@ -50,6 +50,10 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
+	if mdl.WasTeamRequestSent(c, team.Id, u.Id) {
+		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamRequestAlreadySent)}
+	}
+
 	if _, err := mdl.CreateTeamRequest(c, team.Id, team.Name, u.Id, u.Username); err != nil {
 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}

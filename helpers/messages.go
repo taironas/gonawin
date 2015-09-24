@@ -59,7 +59,8 @@ const (
 	ErrorCodeTeamRequestNotFound      = "Request not found"
 	ErrorCodeTeamMemberNotFound       = "Member not found"
 	ErrorCodeTeamAdminCannotLeave     = "Team administrator cannot leave the team"
-	ErrorCodePrivateTeamJoinForbiden  = "Private Team cannot be joined without consent. Please request an invitation."
+	ErrorCodeTeamPrivateJoinForbiden  = "Private Team cannot be joined without consent. Please request an invitation"
+	ErrorCodeTeamRequestAlreadySent   = "Sorry, you already requested an invitation"
 	//tournaments
 	ErrorCodeTournamentAlreadyExists          = "Sorry, that tournament already exists"
 	ErrorCodeTournamentCannotCreate           = "Could not create the team"
