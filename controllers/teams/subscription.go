@@ -56,7 +56,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if team.Private {
 		log.Errorf(c, "%s  Private team cannot be joined without consent.", desc)
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodePrivateTeamJoinForbiden)}
+		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamPrivateJoinForbiden)}
 	}
 
 	if err = team.Join(c, u); err != nil {
