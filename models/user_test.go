@@ -569,6 +569,80 @@ func TestUserTeams(t *testing.T) {
 	}
 }
 
+// TestTeamsByPage tests that you can get teams by page.
+//
+func TestTeamsByPage(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title          string
+		user           testUser
+		paginatedTeams [][]testTeam
+		count          int64
+		page           int64
+	}{
+		{"can get teams by page",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[][]testTeam{
+				{
+					{"night's watch", "guards of the wall", 10, false},
+					{"Unsullied", "former slaves", 10, false},
+				},
+				{
+					{"Wildlings", "we lived beyond the wall", 10, false},
+				},
+			},
+			2,
+			2,
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		for _, teams := range test.paginatedTeams {
+			for _, team := range teams {
+				var newTeam *Team
+				if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+
+				if err = newTeam.Join(c, user); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+			}
+		}
+
+		var i int64 = test.page
+		for ; i == 1; i-- {
+			var got []*Team
+			got = user.TeamsByPage(c, test.count, i)
+
+			if len(got) != len(test.paginatedTeams) {
+				t.Errorf("Error: want teams count == %d, got %d", len(test.paginatedTeams), len(got))
+			}
+
+			for i, team := range test.paginatedTeams[i-1] {
+				if err = checkTeam(got[i], team); err != nil {
+					t.Errorf("test %v - Error: %v", i, err)
+				}
+			}
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
