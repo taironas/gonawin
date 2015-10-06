@@ -419,18 +419,14 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s crunching data...", desc)
 
 	log.Infof(c, "%s get users", desc)
-	users := make([]*mdl.User, len(userIds))
-	for i, id := range userIds {
-		if u, err := mdl.UserById(c, id); err != nil {
-			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
-		} else {
-			users[i] = u
-		}
+	var users []*mdl.User
+	if users, err = UsersByIds(c, userIds); err != nil {
+		log.Errorf(c, "%s something went wrong when getting users by IDs", desc)
 	}
 
 	log.Infof(c, "%s build activities", desc)
 	activities := make([]*mdl.Activity, len(users))
-	for i, _ := range users {
+	for i := range users {
 		if users[i] != nil {
 			verb := fmt.Sprintf("'s score is now %d", users[i].Score)
 			if a := users[i].BuildActivity(c, "score", verb, mdl.ActivityEntity{}, mdl.ActivityEntity{}); a != nil {
@@ -447,7 +443,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	log.Infof(c, "%s add activity ids", desc)
-	for i, _ := range activities {
+	for i := range activities {
 		if activities[i] != nil && users[i] != nil {
 			activities[i].AddNewActivityId(c, users[i])
 		}
