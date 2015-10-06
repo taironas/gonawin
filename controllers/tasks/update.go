@@ -420,7 +420,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 
 	log.Infof(c, "%s get users", desc)
 	var users []*mdl.User
-	if users, err = UsersByIds(c, userIds); err != nil {
+	if users, err = mdl.UsersByIds(c, userIds); err != nil {
 		log.Errorf(c, "%s something went wrong when getting users by IDs", desc)
 	}
 
