@@ -569,6 +569,80 @@ func TestUserTeams(t *testing.T) {
 	}
 }
 
+// TestTournamentsByPage tests that you can get tournaments by page.
+//
+func TestTournamentsByPage(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title                string
+		user                 testUser
+		paginatedTournaments [][]Tournament
+		count                int64
+		page                 int64
+	}{
+		{"can get tournaments by page",
+			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			[][]Tournament{
+				{
+					{Name: "2014 FIFA World Cup", Description: "football world cup in Brazil", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+				},
+				{
+					{Name: "2018 FIFA World Cup", Description: "football world cup in Russia", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+				},
+			},
+			2,
+			2,
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		for _, tournaments := range test.paginatedTournaments {
+			for _, tournament := range tournaments {
+				var newTournament *Tournament
+				if newTournament, err = CreateTournament(c, tournament.Name, tournament.Description, tournament.Start, tournament.End, tournament.AdminIds[0]); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+
+				if err = newTournament.Join(c, user); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+			}
+		}
+
+		var i = test.page
+		for ; i == 1; i-- {
+			var got []*Tournament
+			got = user.TournamentsByPage(c, test.count, i)
+
+			if len(got) != len(test.paginatedTournaments) {
+				t.Errorf("Error: want tournaments count == %d, got %d", len(test.paginatedTournaments), len(got))
+			}
+
+			for i, tournament := range test.paginatedTournaments[i-1] {
+				if err = checkTournament(got[i], &tournament); err != nil {
+					t.Errorf("test %v - Error: %v", i, err)
+				}
+			}
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
