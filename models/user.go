@@ -328,7 +328,7 @@ func (u *User) Teams(c appengine.Context) []*Team {
 	return teams
 }
 
-// From a user id returns an array of teams the user is involved participates.
+// TeamsByPage returns an array of teams the user is involved participates from a user id.
 func (u *User) TeamsByPage(c appengine.Context, count, page int64) []*Team {
 	desc := "User.TeamsByPage"
 	teams := u.Teams(c)
