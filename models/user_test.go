@@ -588,55 +588,71 @@ func TestTournamentsByPage(t *testing.T) {
 		count                int64
 		page                 int64
 	}{
-		{"can get tournaments by page",
-			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			[][]Tournament{
+		{
+			title: "can get tournaments by page",
+			user:  testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			paginatedTournaments: [][]Tournament{
 				{
 					{Name: "2014 FIFA World Cup", Description: "football world cup in Brazil", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
-					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
 				},
 				{
 					{Name: "2018 FIFA World Cup", Description: "football world cup in Russia", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
 				},
 			},
-			2,
-			2,
+			count: 2,
+			page:  2,
 		},
 	}
 
-	for _, test := range tests {
+	for ti, test := range tests {
 		t.Log(test.title)
 
 		var user *User
 		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
-			t.Errorf("Error: %v", err)
+			t.Errorf("test %v Error: %v", ti, err)
 		}
 
-		for _, tournaments := range test.paginatedTournaments {
-			for _, tournament := range tournaments {
+		for pti, tournaments := range test.paginatedTournaments {
+			for tsi, tournament := range tournaments {
 				var newTournament *Tournament
 				if newTournament, err = CreateTournament(c, tournament.Name, tournament.Description, tournament.Start, tournament.End, tournament.AdminIds[0]); err != nil {
-					t.Errorf("Error: %v", err)
+					t.Errorf("test %v Error: %v", ti, err)
 				}
 
 				if err = newTournament.Join(c, user); err != nil {
-					t.Errorf("Error: %v", err)
+					t.Errorf("test %v Error: %v", ti, err)
 				}
+				// need to upate userIds in test structure.
+				// cannot go this before as we need to user.Id.
+				test.paginatedTournaments[pti][tsi].UserIds = []int64{user.Id}
 			}
 		}
 
-		var i = test.page
-		for ; i == 1; i-- {
+		for i := int64(1); i <= test.page; i++ {
+			t.Log(fmt.Sprintf("test page %v", i))
 			var got []*Tournament
 			got = user.TournamentsByPage(c, test.count, i)
 
-			if len(got) != len(test.paginatedTournaments) {
-				t.Errorf("Error: want tournaments count == %d, got %d", len(test.paginatedTournaments), len(got))
+			// pagination is reversed to creation order
+			paginatedIndex := int64(len(test.paginatedTournaments)) - i
+
+			t.Log(fmt.Sprintf("expected tournaments %+v", test.paginatedTournaments[paginatedIndex]))
+			gotTournamentsStr := fmt.Sprintf("got tournaments:\n")
+			for _, tt := range got {
+				gotTournamentsStr += fmt.Sprintf("%+v\n", *tt)
+			}
+			t.Log(gotTournamentsStr)
+
+			if len(got) != len(test.paginatedTournaments[paginatedIndex]) {
+				t.Errorf("test %v page %v Error: want tournaments count == %d, got %d", ti, i, len(test.paginatedTournaments[paginatedIndex]), len(got))
 			}
 
-			for i, tournament := range test.paginatedTournaments[i-1] {
-				if err = checkTournament(got[i], &tournament); err != nil {
-					t.Errorf("test %v - Error: %v", i, err)
+			for j, tournament := range test.paginatedTournaments[paginatedIndex] {
+				// pagination is reversed to creation order
+				gotIndex := len(got) - j - 1
+				if err = checkTournament(got[gotIndex], &tournament); err != nil {
+					t.Errorf("test %v - page %v - Error: %v", ti, i, err)
 				}
 			}
 		}
