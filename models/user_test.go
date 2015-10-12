@@ -569,6 +569,108 @@ func TestUserTeams(t *testing.T) {
 	}
 }
 
+// TestTeamsByPage tests that you can get teams by page.
+//
+func TestTeamsByPage(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title          string
+		user           testUser
+		paginatedTeams [][]testTeam
+		count          int64
+		page           int64
+	}{
+		{
+			title: "can get teams by page",
+			user:  testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			paginatedTeams: [][]testTeam{
+				{
+					{
+						name:        "night's watch",
+						description: "guards of the wall",
+						adminId:     10,
+						private:     false,
+					},
+				},
+				{
+					{
+						name:        "Unsullied",
+						description: "former slaves",
+						adminId:     10,
+						private:     false,
+					},
+					{
+						name:        "Wildlings",
+						description: "we lived beyond the wall",
+						adminId:     10,
+						private:     false,
+					},
+				},
+			},
+			count: 2,
+			page:  2,
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+			t.Errorf("Error: %v", err)
+		}
+
+		for _, teams := range test.paginatedTeams {
+			for _, team := range teams {
+				var newTeam *Team
+				if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+
+				if err = newTeam.Join(c, user); err != nil {
+					t.Errorf("Error: %v", err)
+				}
+			}
+		}
+
+		for i := int64(1); i <= test.page; i++ {
+			t.Log(fmt.Sprintf("test page %v", i))
+			var got []*Team
+			got = user.TeamsByPage(c, test.count, i)
+
+			// pagination is reversted to creation order
+			paginatedIndex := int64(len(test.paginatedTeams)) - i
+
+			t.Log(fmt.Sprintf("expected teams %+v", test.paginatedTeams[paginatedIndex]))
+			gotTeamsStr := fmt.Sprintf("got teams:\n")
+			for _, tt := range got {
+				gotTeamsStr += fmt.Sprintf("%+v\n", *tt)
+			}
+			t.Log(gotTeamsStr)
+
+			if len(got) != len(test.paginatedTeams[paginatedIndex]) {
+				t.Errorf("page %v Error: want teams count == %d, got %d", i, len(test.paginatedTeams), len(got))
+			}
+
+			for j, team := range test.paginatedTeams[paginatedIndex] {
+				// pagination is reversted to creation order
+				gotIndex := len(got) - j - 1
+				if err = checkTeam(got[gotIndex], team); err != nil {
+					t.Errorf("page %v - Error: %v", i, err)
+				}
+			}
+		}
+	}
+}
+
 // TestTournamentsByPage tests that you can get tournaments by page.
 //
 func TestTournamentsByPage(t *testing.T) {
