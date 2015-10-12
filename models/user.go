@@ -343,7 +343,7 @@ func (u *User) TeamsByPage(c appengine.Context, count, page int64) []*Team {
 	return paged
 }
 
-// From a user id returns an array of tournaments the user is involved participates.
+// TournamentsByPage returns an array of tournaments the user is involved participates from a user id.
 func (u *User) TournamentsByPage(c appengine.Context, count, page int64) []*Tournament {
 	desc := "User.TournamentsByPage"
 	tournaments := u.Tournaments(c)

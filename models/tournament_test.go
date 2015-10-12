@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -48,7 +50,7 @@ func TestCreateTournament(t *testing.T) {
 			},
 		},
 	}
-	for _, test := range tests {
+	for i, test := range tests {
 		got, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
 		if got == nil && test.want != nil {
 			t.Errorf("TestCreateTournament(%q): got nil wanted %v", test.name, *test.want)
@@ -56,15 +58,8 @@ func TestCreateTournament(t *testing.T) {
 			t.Errorf("TestCreateTournament(%q): got %v wanted nil", test.name, *got)
 		} else if got == nil && test.want == nil {
 			// This is OK
-		} else if got.Name != test.want.Name ||
-			got.Description != test.want.Description ||
-			len(got.AdminIds) != len(test.want.AdminIds) ||
-			len(got.GroupIds) != len(test.want.GroupIds) ||
-			len(got.Matches1stStage) != len(test.want.Matches1stStage) ||
-			len(got.Matches2ndStage) != len(test.want.Matches2ndStage) ||
-			len(got.UserIds) != len(test.want.UserIds) ||
-			len(got.TeamIds) != len(test.want.TeamIds) {
-			t.Errorf("TestCreateTournament(%q): got %v wanted %v", test.name, *got, *test.want)
+		} else if err = checkTournament(got, test.want); err != nil {
+			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
 }
@@ -221,4 +216,29 @@ func TestFindTournaments(t *testing.T) {
 			}
 		}
 	}
+}
+
+func checkTournament(got *Tournament, want *Tournament) error {
+	var s string
+	if got.Name != want.Name {
+		s = fmt.Sprintf("want Name == %s, got %s", want.Name, got.Name)
+	} else if got.Description != want.Description {
+		s = fmt.Sprintf("want Description == %s, got %s", want.Description, got.Description)
+	} else if len(got.AdminIds) != len(want.AdminIds) {
+		s = fmt.Sprintf("want AdminIds count == %d, got %d", len(want.AdminIds), len(got.AdminIds))
+	} else if len(got.GroupIds) != len(want.GroupIds) {
+		s = fmt.Sprintf("want GroupIds count == %d, got %d", len(want.GroupIds), len(got.GroupIds))
+	} else if len(got.Matches1stStage) != len(want.Matches1stStage) {
+		s = fmt.Sprintf("want Matches1stStage count == %d, got %d", len(want.Matches1stStage), len(got.Matches1stStage))
+	} else if len(got.Matches2ndStage) != len(want.Matches2ndStage) {
+		s = fmt.Sprintf("want Matches2ndStage count == %d, got %d", len(want.Matches2ndStage), len(got.Matches2ndStage))
+	} else if len(got.UserIds) != len(want.UserIds) {
+		s = fmt.Sprintf("want UserIds count == %d, got %d", len(want.UserIds), len(got.UserIds))
+	} else if len(got.TeamIds) != len(want.TeamIds) {
+		s = fmt.Sprintf("want TeamIds count == %d, got %d", len(want.TeamIds), len(got.TeamIds))
+	} else {
+		return nil
+	}
+
+	return errors.New(s)
 }
