@@ -588,19 +588,35 @@ func TestTeamsByPage(t *testing.T) {
 		count          int64
 		page           int64
 	}{
-		{"can get teams by page",
-			testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			[][]testTeam{
+		{
+			title: "can get teams by page",
+			user:  testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
+			paginatedTeams: [][]testTeam{
 				{
-					{"night's watch", "guards of the wall", 10, false},
-					{"Unsullied", "former slaves", 10, false},
+					{
+						name:        "night's watch",
+						description: "guards of the wall",
+						adminId:     10,
+						private:     false,
+					},
 				},
 				{
-					{"Wildlings", "we lived beyond the wall", 10, false},
+					{
+						name:        "Unsullied",
+						description: "former slaves",
+						adminId:     10,
+						private:     false,
+					},
+					{
+						name:        "Wildlings",
+						description: "we lived beyond the wall",
+						adminId:     10,
+						private:     false,
+					},
 				},
 			},
-			2,
-			2,
+			count: 2,
+			page:  2,
 		},
 	}
 
@@ -625,18 +641,30 @@ func TestTeamsByPage(t *testing.T) {
 			}
 		}
 
-		var i int64 = test.page
-		for ; i == 1; i-- {
+		for i := int64(1); i <= test.page; i++ {
+			t.Log(fmt.Sprintf("test page %v", i))
 			var got []*Team
 			got = user.TeamsByPage(c, test.count, i)
 
-			if len(got) != len(test.paginatedTeams) {
-				t.Errorf("Error: want teams count == %d, got %d", len(test.paginatedTeams), len(got))
+			// pagination is reversted to creation order
+			paginatedIndex := int64(len(test.paginatedTeams)) - i
+
+			t.Log(fmt.Sprintf("expected teams %+v", test.paginatedTeams[paginatedIndex]))
+			gotTeamsStr := fmt.Sprintf("got teams:\n")
+			for _, tt := range got {
+				gotTeamsStr += fmt.Sprintf("%+v\n", *tt)
+			}
+			t.Log(gotTeamsStr)
+
+			if len(got) != len(test.paginatedTeams[paginatedIndex]) {
+				t.Errorf("page %v Error: want teams count == %d, got %d", i, len(test.paginatedTeams), len(got))
 			}
 
-			for i, team := range test.paginatedTeams[i-1] {
-				if err = checkTeam(got[i], team); err != nil {
-					t.Errorf("test %v - Error: %v", i, err)
+			for j, team := range test.paginatedTeams[paginatedIndex] {
+				// pagination is reversted to creation order
+				gotIndex := len(got) - j - 1
+				if err = checkTeam(got[gotIndex], team); err != nil {
+					t.Errorf("page %v - Error: %v", i, err)
 				}
 			}
 		}
