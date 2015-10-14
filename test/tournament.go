@@ -15,7 +15,10 @@ func CreateWorldCup(c aetest.Context, adminID int64) *mdl.Tournament {
 
 // PredictOnMatch add a predict to given match and for a given user
 func PredictOnMatch(c aetest.Context, user *mdl.User, matchID, result1, result2 int64) error {
-	if predict, err := mdl.CreatePredict(c, user.Id, result1, result2, matchID); err != nil {
+	var predict *mdl.Predict
+	var err error
+
+	if predict, err = mdl.CreatePredict(c, user.Id, result1, result2, matchID); err != nil {
 		return err
 	}
 	// add p.Id to User predict table.
