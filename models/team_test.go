@@ -361,12 +361,7 @@ func TestTeamsByIds(t *testing.T) {
 	}
 	defer c.Close()
 
-	testTeams := []testTeam{
-		{"team a", "description a", 10, false},
-		{"team b", "description b", 10, false},
-		{"team c", "description c", 10, false},
-	}
-
+	testTeams := createTestTeams(3)
 	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
 
 	// Test data: only one bad team ID
@@ -396,16 +391,13 @@ func TestTeamsByIds(t *testing.T) {
 		{
 			"can get all teams by IDs except one",
 			teamIDsWithOneBadID,
-			[]testTeam{
-				{"team b", "description b", 10, false},
-				{"team c", "description c", 10, false},
-			},
+			createTestTeams(3)[1:],
 			"",
 		},
 		{
 			"non existing teams for given IDs",
 			teamIDsWithBadIDs,
-			[]testTeam{},
+			createTestTeams(0),
 			"",
 		},
 	}
@@ -467,8 +459,9 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	return errors.New("team not found")
 }
 
-func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTeam) (teamIds []int64) {
+func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTeam) (teamIDs []int64) {
 
+	var err error
 	for i, team := range testTeams {
 		var got *Team
 		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
@@ -476,6 +469,19 @@ func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTe
 		}
 
 		teamIDs = append(teamIDs, got.Id)
+	}
+	return
+}
+
+func createTestTeams(n int) (testTeams []testTeam) {
+	for i := 0; i < n; i++ {
+		newTeam := testTeam{
+			name:        fmt.Sprintf("team %v", i),
+			description: fmt.Sprintf("description %v", i),
+			adminId:     10,
+			private:     false,
+		}
+		testTeams = append(testTeams, newTeam)
 	}
 	return
 }
