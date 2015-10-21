@@ -349,6 +349,26 @@ func TestTeamUpdate(t *testing.T) {
 	}
 }
 
+// TestTeamsKeysByIds tests team.TeamsKeysByIds function.
+//
+func TestTeamsKeysByIds(t *testing.T) {
+	var c aetest.Context
+
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	ids := []int64{1, 2, 3, 4}
+	keys := TeamsKeysByIds(c, ids)
+	if len(keys) != len(ids) {
+		t.Errorf("test keys lenght does not match, expected: %v, got: %v", len(ids), len(keys))
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
