@@ -362,10 +362,18 @@ func TestTeamsKeysByIds(t *testing.T) {
 	}
 	defer c.Close()
 
-	ids := []int64{1, 2, 3, 4}
-	keys := TeamsKeysByIds(c, ids)
-	if len(keys) != len(ids) {
-		t.Errorf("test keys lenght does not match, expected: %v, got: %v", len(ids), len(keys))
+	tests := []struct {
+		ids []int64
+	}{
+		{[]int64{}},
+		{[]int64{1, 2, 3, 4}},
+	}
+
+	for i, test := range tests {
+		keys := TeamsKeysByIds(c, test.ids)
+		if len(keys) != len(test.ids) {
+			t.Errorf("test %v: keys lenght does not match, expected: %v, got: %v", i, len(test.ids), len(keys))
+		}
 	}
 }
 
