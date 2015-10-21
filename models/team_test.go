@@ -367,15 +367,7 @@ func TestTeamsByIds(t *testing.T) {
 		{"team c", "description c", 10, false},
 	}
 
-	var teamIDs []int64
-	for _, team := range testTeams {
-		var got *Team
-		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
-			t.Errorf("Error: %v", err)
-		}
-
-		teamIDs = append(teamIDs, got.Id)
-	}
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
 
 	// Test data: only one bad team ID
 	teamIDsWithOneBadID := make([]int64, len(teamIDs))
@@ -473,4 +465,17 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	}
 
 	return errors.New("team not found")
+}
+
+func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTeam) (teamIds []int64) {
+
+	for i, team := range testTeams {
+		var got *Team
+		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			t.Errorf("team %v error: %v", i, err)
+		}
+
+		teamIDs = append(teamIDs, got.Id)
+	}
+	return
 }
