@@ -114,7 +114,7 @@ func TestUsersByIds(t *testing.T) {
 	}
 	defer c.Close()
 
-	/*Test data: good user ID*/
+	// Test data: good user ID
 	testUsers := []testUser{
 		{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
 		{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
@@ -132,12 +132,12 @@ func TestUsersByIds(t *testing.T) {
 		gotIDs = append(gotIDs, got.Id)
 	}
 
-	/*Test data: only one bad user ID*/
+	// Test data: only one bad user ID
 	userIDsWithOneBadID := make([]int64, len(gotIDs))
 	copy(userIDsWithOneBadID, gotIDs)
 	userIDsWithOneBadID[0] = userIDsWithOneBadID[0] + 50
 
-	/*Test data: bad user IDs*/
+	// Test data: bad user IDs
 	userIDsWithBadIDs := make([]int64, len(gotIDs))
 	copy(userIDsWithBadIDs, gotIDs)
 	userIDsWithBadIDs[0] = userIDsWithBadIDs[0] + 50
