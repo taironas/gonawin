@@ -349,11 +349,82 @@ func TestTeamUpdate(t *testing.T) {
 	}
 }
 
+// TestTeamsByIds tests that you can get a list of teams by their IDs.
+//
+func TestTeamsByIds(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testTeams := createTestTeams(3)
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
+
+	// Test data: only one bad team ID
+	teamIDsWithOneBadID := make([]int64, len(teamIDs))
+	copy(teamIDsWithOneBadID, teamIDs)
+	teamIDsWithOneBadID[0] = teamIDsWithOneBadID[0] + 50
+
+	// Test data: bad team IDs
+	teamIDsWithBadIDs := make([]int64, len(teamIDs))
+	copy(teamIDsWithBadIDs, teamIDs)
+	teamIDsWithBadIDs[0] = teamIDsWithBadIDs[0] + 50
+	teamIDsWithBadIDs[1] = teamIDsWithBadIDs[1] + 50
+	teamIDsWithBadIDs[2] = teamIDsWithBadIDs[2] + 50
+
+	tests := []struct {
+		title   string
+		teamIDs []int64
+		teams   []testTeam
+		err     string
+	}{
+		{
+			"can get teams by IDs",
+			teamIDs,
+			testTeams,
+			"",
+		},
+		{
+			"can get all teams by IDs except one",
+			teamIDsWithOneBadID,
+			createTestTeams(3)[1:],
+			"",
+		},
+		{
+			"non existing teams for given IDs",
+			teamIDsWithBadIDs,
+			createTestTeams(0),
+			"",
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		var teams []*Team
+		teams, err = TeamsByIds(c, test.teamIDs)
+
+		if gonawintest.ErrorString(err) != test.err {
+			t.Errorf("test %v error: want err: %s, got: %q", i, test.err, err)
+		} else if test.err == "" && teams != nil {
+			for i, team := range test.teams {
+				if err = checkTeam(teams[i], team); err != nil {
+					t.Errorf("test %v error: want team: %v, got: %v", i, team, teams[i])
+				}
+			}
+		}
+	}
+
+}
+
 // TestTeamsKeysByIds tests team.TeamsKeysByIds function.
 //
 func TestTeamsKeysByIds(t *testing.T) {
 	var c aetest.Context
-
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
 
@@ -413,4 +484,31 @@ func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want test
 	}
 
 	return errors.New("team not found")
+}
+
+func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTeam) (teamIDs []int64) {
+
+	var err error
+	for i, team := range testTeams {
+		var got *Team
+		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			t.Errorf("team %v error: %v", i, err)
+		}
+
+		teamIDs = append(teamIDs, got.Id)
+	}
+	return
+}
+
+func createTestTeams(n int) (testTeams []testTeam) {
+	for i := 0; i < n; i++ {
+		newTeam := testTeam{
+			name:        fmt.Sprintf("team %v", i),
+			description: fmt.Sprintf("description %v", i),
+			adminId:     10,
+			private:     false,
+		}
+		testTeams = append(testTeams, newTeam)
+	}
+	return
 }
