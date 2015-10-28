@@ -761,6 +761,57 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
+// TestRemoveTournamentId tests that tournament ID is well removed from a user entity.
+//
+func TestRemoveTournamentId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title        string
+		tournamentID int64
+		err          string
+	}{
+		{
+			"can remove tournament ID from user",
+			42,
+			"",
+		},
+		{
+			"cannot remove tournament ID from user",
+			54,
+			"RemoveTournamentId, not a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTournamentId(c, tests[0].tournamentID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		err = user.RemoveTournamentId(c, test.tournamentID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && len(user.TournamentIds) != 0 {
+			t.Errorf("Error: tournament IDs should be empty")
+		}
+	}
+}
+
 func checkUser(got *User, want testUser) error {
 	var s string
 	if got.Email != want.email {
