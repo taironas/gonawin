@@ -761,7 +761,7 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
-// AddPredictId tests that predict ID is well added to a user entity.
+// TestAddPredictId tests that predict ID is well added to a user entity.
 //
 func TestAddPredictId(t *testing.T) {
 	var c aetest.Context
