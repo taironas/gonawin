@@ -371,7 +371,7 @@ func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 // Adds a tournament Id in the TournamentId array.
 func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
 	log.Infof(c, "User Add tournament id")
-	if hasTournament, _ := u.ContainsTournamentId(tId); hasTournament {
+	if hasTournament, _ := helpers.Contain(u.TournamentIds, tId); hasTournament {
 		return fmt.Errorf("AddTournamentId, allready a member")
 	}
 	log.Infof(c, "User Add tournament id append")
@@ -387,7 +387,7 @@ func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
 // Removes a tournament Id in the TournamentId array.
 func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 
-	if hasTournament, i := u.ContainsTournamentId(tId); !hasTournament {
+	if hasTournament, i := helpers.Contain(u.TournamentIds, tId); !hasTournament {
 		return fmt.Errorf("RemoveTournamentId, not a member")
 	} else {
 		// as the order of index in tournamentsId is not important,
@@ -399,16 +399,6 @@ func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 		return err
 	}
 	return nil
-}
-
-func (u *User) ContainsTournamentId(id int64) (bool, int) {
-
-	for i, tId := range u.TournamentIds {
-		if tId == id {
-			return true, i
-		}
-	}
-	return false, -1
 }
 
 // from a user return an array of tournament the user is involved in.
