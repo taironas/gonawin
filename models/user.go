@@ -368,19 +368,16 @@ func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 	return nil
 }
 
-// Adds a tournament Id in the TournamentId array.
+// AddTournamentId adds a tournament Id in the TournamentId array.
 func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
-	log.Infof(c, "User Add tournament id")
 	if hasTournament, _ := u.ContainsTournamentId(tId); hasTournament {
 		return fmt.Errorf("AddTournamentId, allready a member")
 	}
-	log.Infof(c, "User Add tournament id append")
+
 	u.TournamentIds = append(u.TournamentIds, tId)
 	if err := u.Update(c); err != nil {
-		log.Infof(c, "User Add tournament id unable to update user.")
 		return err
 	}
-	log.Infof(c, "User Add tournament id all good")
 	return nil
 }
 
