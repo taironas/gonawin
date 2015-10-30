@@ -9,7 +9,7 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-func TestSaveActivity(t *testing.T) {
+func TestActivitySave(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)

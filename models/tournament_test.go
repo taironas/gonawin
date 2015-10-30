@@ -64,7 +64,7 @@ func TestCreateTournament(t *testing.T) {
 	}
 }
 
-func TestDestroyTournament(t *testing.T) {
+func TestTournamentDestroy(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)
