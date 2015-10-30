@@ -448,6 +448,64 @@ func TestTeamsKeysByIds(t *testing.T) {
 	}
 }
 
+// TestGetNotJoinedTeams test GetNotJoinedTeams function.
+//
+func TestGetNotJoinedTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title       string
+		userTeamIDs []int64
+		teams       []testTeam
+	}{
+		{
+			title:       "user has not join any team",
+			userTeamIDs: []int64{},
+			teams:       createTestTeams(10),
+		},
+	}
+
+	for i, test := range tests {
+
+		teamIDs := createTeamsFromTestTeams(t, c, test.teams)
+
+		var user *User
+		if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+			t.Errorf("test %v - error: %v", i, err)
+		}
+
+		// make user join selected teams
+		for _, id := range test.userTeamIDs {
+			var team *Team
+			if team, err = TeamById(c, teamIDs[id]); err != nil {
+				t.Errorf("test %v - team not found - %v", i, err)
+			}
+			if err = team.Join(c, user); err != nil {
+				t.Errorf("test %v - %v", i, err)
+			}
+		}
+
+		notJoinedTeams := GetNotJoinedTeams(c, user, 100, 1)
+
+		// check no team in notJoinedTeams is in user teams collection
+		for _, team := range notJoinedTeams {
+			for _, id := range test.userTeamIDs {
+				if teamIDs[id] == team.Id {
+					t.Errorf("test %v - team  %v is in both collections: NotJoined and UserTeams", i)
+				}
+			}
+		}
+	}
+
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {

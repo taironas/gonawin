@@ -173,7 +173,9 @@ func FindAllTeams(c appengine.Context) []*Team {
 	return teams
 }
 
-// Get all teams which have not been joined by a specific user with respect to the count and page.
+// GetNotJoinedTeams gets all teams that a user has not joined
+// with respect to the count and page.
+//
 func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team {
 	desc := "Get not joined teams"
 	teams := FindAllTeams(c)
