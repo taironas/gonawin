@@ -236,7 +236,7 @@ func TournamentKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 // Checks if a user has joined a tournament.
 func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
-	hasTournament, _ := helpers.Contain(u.TournamentIds, t.Id)
+	hasTournament, _ := u.ContainsTournamentId(t.Id)
 	return hasTournament
 }
 
