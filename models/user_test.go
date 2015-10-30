@@ -761,6 +761,60 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
+// TestContainsTournamentId tests if a tournament ID exists for a user entity.
+//
+func TestContainsTournamentId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title        string
+		tournamentID int64
+		contains     bool
+		index        int
+	}{
+		{
+			"contains tournament ID from user",
+			42,
+			true,
+			0,
+		},
+		{
+			"does not contain tournament ID from user",
+			54,
+			false,
+			-1,
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTournamentId(c, tests[0].tournamentID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		contains, index := user.ContainsTournamentId(test.tournamentID)
+
+		if contains != test.contains {
+			t.Errorf("Error: want contains: %t, got: %t", test.contains, contains)
+		} else if index != test.index {
+			t.Errorf("Error: want index: %d, got: %d", test.index, index)
+		}
+	}
+}
+
 // TestAddPredictId tests that predict ID is well added to a user entity.
 //
 func TestAddPredictId(t *testing.T) {

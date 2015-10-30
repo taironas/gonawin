@@ -398,14 +398,10 @@ func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 	return nil
 }
 
+// ContainsTournamentId indicates if a tournament ID exists for a user.
+// If the tournament ID exists, its position in the slice is returned otherwise -1.
 func (u *User) ContainsTournamentId(id int64) (bool, int) {
-
-	for i, tId := range u.TournamentIds {
-		if tId == id {
-			return true, i
-		}
-	}
-	return false, -1
+	return helpers.Contains(u.TournamentIds, id)
 }
 
 // from a user return an array of tournament the user is involved in.
