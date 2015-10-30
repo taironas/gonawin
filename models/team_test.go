@@ -460,21 +460,33 @@ func TestGetNotJoinedTeams(t *testing.T) {
 	}
 	defer c.Close()
 
+	testTeams := createTestTeams(10)
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
+
 	tests := []struct {
 		title       string
 		userTeamIDs []int64
-		teams       []testTeam
 	}{
 		{
 			title:       "user has not join any team",
 			userTeamIDs: []int64{},
-			teams:       createTestTeams(10),
+		},
+		{
+			title:       "user has join one team",
+			userTeamIDs: []int64{0},
+		},
+		{
+			title:       "user has join multiple teams",
+			userTeamIDs: []int64{0, 2, 4, 6, 8},
+		},
+		{
+			title:       "user has join all teams",
+			userTeamIDs: []int64{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
 		},
 	}
 
 	for i, test := range tests {
-
-		teamIDs := createTeamsFromTestTeams(t, c, test.teams)
+		t.Log(test.title)
 
 		var user *User
 		if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
