@@ -25,9 +25,9 @@ func Insert(s []int64, value int64, i int64) []int64 {
 	return s
 }
 
-// Contain indicates if a value exists in a given slice.
+// Contains indicates if a value exists in a given slice.
 // If the value exists, its position in the slice is returned otherwise -1.
-func Contain(s []int64, value int64) (bool, int) {
+func Contains(s []int64, value int64) (bool, int) {
 	for i, v := range s {
 		if v == value {
 			return true, i
