@@ -761,6 +761,49 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
+// TestAddPredictId tests that predict ID is well added to a user entity.
+//
+func TestAddPredictId(t *testing.T) {
+
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title     string
+		predictID int64
+		err       string
+	}{
+		{
+			"can add predict ID to user",
+			42,
+			"",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		err = user.AddPredictId(c, test.predictID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && user.PredictIds[0] != test.predictID {
+			t.Errorf("Error: a predict ID should have been retrieved from the user")
+		}
+	}
+}
+
 // TestAddTournamentId tests that tournament ID is well added to a user entity.
 //
 func TestAddTournamentId(t *testing.T) {
@@ -797,7 +840,6 @@ func TestAddTournamentId(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test.title)
-
 		err = user.AddTournamentId(c, test.tournamentID)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
