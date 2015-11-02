@@ -804,9 +804,11 @@ func TestRemoveTournamentId(t *testing.T) {
 
 		err = user.RemoveTournamentId(c, test.tournamentID)
 
+		contains, _ := user.ContainsTournamentId(test.tournamentID)
+
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
-		} else if test.err == "" && len(user.TournamentIds) != 0 {
+		} else if test.err == "" && contains {
 			t.Errorf("Error: tournament IDs should be empty")
 		}
 	}
