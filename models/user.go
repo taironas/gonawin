@@ -358,7 +358,7 @@ func (u *User) TournamentsByPage(c appengine.Context, count, page int64) []*Tour
 	return paged
 }
 
-// Adds a predict Id in the PredictId array.
+// AddPredictId adds a predict Id in the PredictId array.
 func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 
 	u.PredictIds = append(u.PredictIds, pId)
@@ -368,19 +368,16 @@ func (u *User) AddPredictId(c appengine.Context, pId int64) error {
 	return nil
 }
 
-// Adds a tournament Id in the TournamentId array.
+// AddTournamentId adds a tournament Id in the TournamentId array.
 func (u *User) AddTournamentId(c appengine.Context, tId int64) error {
-	log.Infof(c, "User Add tournament id")
 	if hasTournament, _ := u.ContainsTournamentId(tId); hasTournament {
 		return fmt.Errorf("AddTournamentId, allready a member")
 	}
-	log.Infof(c, "User Add tournament id append")
+
 	u.TournamentIds = append(u.TournamentIds, tId)
 	if err := u.Update(c); err != nil {
-		log.Infof(c, "User Add tournament id unable to update user.")
 		return err
 	}
-	log.Infof(c, "User Add tournament id all good")
 	return nil
 }
 
@@ -401,14 +398,10 @@ func (u *User) RemoveTournamentId(c appengine.Context, tId int64) error {
 	return nil
 }
 
+// ContainsTournamentId indicates if a tournament ID exists for a user.
+// If the tournament ID exists, its position in the slice is returned otherwise -1.
 func (u *User) ContainsTournamentId(id int64) (bool, int) {
-
-	for i, tId := range u.TournamentIds {
-		if tId == id {
-			return true, i
-		}
-	}
-	return false, -1
+	return helpers.Contains(u.TournamentIds, id)
 }
 
 // from a user return an array of tournament the user is involved in.

@@ -265,9 +265,9 @@ func TestUserKeysByIds(t *testing.T) {
 	}
 }
 
-// TestDestroyUser tests that you can destroy a user.
+// TestUserDestroy tests that you can destroy a user.
 //
-func TestDestroyUser(t *testing.T) {
+func TestUserDestroy(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -444,9 +444,9 @@ func TestUserUpdate(t *testing.T) {
 	}
 }
 
-// TestUserSigninUser tests that you can signin a user.
+// TestSigninUser tests that you can signin a user.
 //
-func TestUserSigninUser(t *testing.T) {
+func TestSigninUser(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -569,9 +569,9 @@ func TestUserTeams(t *testing.T) {
 	}
 }
 
-// TestTeamsByPage tests that you can get teams by page.
+// TestUserTeamsByPage tests that you can get teams by page.
 //
-func TestTeamsByPage(t *testing.T) {
+func TestUserTeamsByPage(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -671,9 +671,9 @@ func TestTeamsByPage(t *testing.T) {
 	}
 }
 
-// TestTournamentsByPage tests that you can get tournaments by page.
+// TestUserTournamentsByPage tests that you can get tournaments by page.
 //
-func TestTournamentsByPage(t *testing.T) {
+func TestUserTournamentsByPage(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -761,9 +761,152 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
-// TestRemoveTournamentId tests that tournament ID is well removed from a user entity.
+// TestUserAddPredictId tests that predict ID is well added to a user entity.
 //
-func TestRemoveTournamentId(t *testing.T) {
+func TestUserAddPredictId(t *testing.T) {
+
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title     string
+		predictID int64
+		err       string
+	}{
+		{
+			"can add predict ID to user",
+			42,
+			"",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		err = user.AddPredictId(c, test.predictID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && user.PredictIds[0] != test.predictID {
+			t.Errorf("Error: a predict ID should have been retrieved from the user")
+		}
+	}
+}
+
+// TestUserAddTournamentId tests that tournament ID is well added to a user entity.
+//
+func TestUserAddTournamentId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title        string
+		tournamentID int64
+		err          string
+	}{
+		{
+			"can add tournament ID to user",
+			42,
+			"",
+		},
+		{
+			"cannot add twice same tournament ID to user",
+			42,
+			"AddTournamentId, allready a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+		err = user.AddTournamentId(c, test.tournamentID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && user.TournamentIds[0] != test.tournamentID {
+			t.Errorf("Error: a tournament ID should have been retrieved from the user")
+		}
+	}
+}
+
+// TestUserContainsTournamentId tests if a tournament ID exists for a user entity.
+//
+func TestUserContainsTournamentId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title        string
+		tournamentID int64
+		contains     bool
+		index        int
+	}{
+		{
+			"contains tournament ID from user",
+			42,
+			true,
+			0,
+		},
+		{
+			"does not contain tournament ID from user",
+			54,
+			false,
+			-1,
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTournamentId(c, tests[0].tournamentID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		contains, index := user.ContainsTournamentId(test.tournamentID)
+
+		if contains != test.contains {
+			t.Errorf("Error: want contains: %t, got: %t", test.contains, contains)
+		} else if index != test.index {
+			t.Errorf("Error: want index: %d, got: %d", test.index, index)
+		}
+	}
+}
+
+// TestUserRemoveTournamentId tests that tournament ID is well removed from a user entity.
+//
+func TestUserRemoveTournamentId(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
