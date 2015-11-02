@@ -202,7 +202,7 @@ func TestFindAllTeams(t *testing.T) {
 
 	got := FindAllTeams(c)
 	if len(got) != len(teamIDs) {
-		t.Errorf("lenght of expected(%v) and actual(%v) teams are different", len(teamIDs), len(got))
+		t.Errorf("length of expected(%v) and actual(%v) teams are different", len(teamIDs), len(got))
 	}
 
 }
