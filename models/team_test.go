@@ -60,9 +60,9 @@ func TestCreateTeam(t *testing.T) {
 	}
 }
 
-// TestDestroyTeam test that you can destroy a team.
+// TestTeamDestroy test that you can destroy a team.
 //
-func TestDestroyTeam(t *testing.T) {
+func TestTeamDestroy(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
