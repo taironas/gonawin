@@ -595,6 +595,67 @@ func TestTeamJoined(t *testing.T) {
 	}
 }
 
+// TestTeamJoin test that a user can join a team.
+//
+func TestTeamJoin(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testTeams := createTestTeams(10)
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
+
+	tests := []struct {
+		title       string
+		userTeamIDs []int64
+	}{
+		{
+			title:       "user has joined multiple teams",
+			userTeamIDs: []int64{0, 2, 4, 6},
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+			t.Errorf("test %v - error: %v", i, err)
+		}
+
+		// make user join selected teams
+		for _, id := range test.userTeamIDs {
+			var team *Team
+			if team, err = TeamById(c, teamIDs[id]); err != nil {
+				t.Errorf("test %v - team not found - %v", i, err)
+			}
+			if err = team.Join(c, user); err != nil {
+				t.Errorf("test %v - %v", i, err)
+			}
+		}
+
+		for _, id := range test.userTeamIDs {
+			if ok, _ := user.ContainsTeamId(teamIDs[id]); !ok {
+				t.Errorf("test %v - team Id %v is not part of user teamIds", i, teamIDs[id])
+			}
+			var team *Team
+			if team, err = TeamById(c, teamIDs[id]); err != nil {
+				t.Errorf("test %v - team not found - %v", i, err)
+			}
+			if ok, _ := team.ContainsUserId(user.Id); !ok {
+				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.Id)
+			}
+		}
+
+	}
+
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
