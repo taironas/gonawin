@@ -515,7 +515,84 @@ func TestGetNotJoinedTeams(t *testing.T) {
 			}
 		}
 	}
+}
 
+// TestTeamJoined test team.Joined function
+//
+func TestTeamJoined(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testTeams := createTestTeams(10)
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
+
+	tests := []struct {
+		title            string
+		userTeamIDs      []int64
+		notJoinedTeamIDs []int64
+		expected         bool
+	}{
+		{
+			title:            "user has not join any team",
+			userTeamIDs:      []int64{},
+			notJoinedTeamIDs: []int64{0, 1, 2},
+			expected:         false,
+		},
+		{
+			title:            "user has join one team",
+			userTeamIDs:      []int64{0},
+			notJoinedTeamIDs: []int64{0},
+			expected:         true,
+		},
+		{
+			title:            "user has join multiple team - check true",
+			userTeamIDs:      []int64{0, 2, 4, 6, 8},
+			notJoinedTeamIDs: []int64{0, 2, 4, 6, 8},
+			expected:         true,
+		},
+		{
+			title:            "user has join multiple team - check false",
+			userTeamIDs:      []int64{0, 2, 4, 6},
+			notJoinedTeamIDs: []int64{1, 3, 5, 7},
+			expected:         false,
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		var user *User
+		if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+			t.Errorf("test %v - error: %v", i, err)
+		}
+
+		// make user join selected teams
+		for _, id := range test.userTeamIDs {
+			var team *Team
+			if team, err = TeamById(c, teamIDs[id]); err != nil {
+				t.Errorf("test %v - team not found - %v", i, err)
+			}
+			if err = team.Join(c, user); err != nil {
+				t.Errorf("test %v - %v", i, err)
+			}
+		}
+
+		for _, id := range test.notJoinedTeamIDs {
+			var team *Team
+			if team, err = TeamById(c, teamIDs[id]); err != nil {
+				t.Errorf("test %v - team not found - %v", i, err)
+			}
+			if team.Joined(c, user) != test.expected {
+				t.Errorf("test %v - joined %v - want %v", i, team.Joined(c, user), test.expected)
+			}
+		}
+	}
 }
 
 // checkTeam checks that the team passed has the same fields as the testTeam object.
