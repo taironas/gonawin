@@ -274,8 +274,9 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 	return nil
 }
 
-// make a user leave a team
+// Leave makes a user leave a team.
 // Todo: Should we check that the user is indeed a memeber of the team?
+//
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamId(c, t.Id); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
