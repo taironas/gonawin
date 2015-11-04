@@ -724,6 +724,61 @@ func TestTeamLeave(t *testing.T) {
 	}
 }
 
+// TestIsTeamAdmin test if a user is admin of a team.
+//
+func TestIsTeamAdmin(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("test %v - error: %v", 0, err)
+	}
+
+	testTeams := createTestTeams(1)
+	testTeams[0].adminId = user.Id
+	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
+
+	tests := []struct {
+		title    string
+		teamID   int64
+		userID   int64
+		expected bool
+	}{
+		{
+			title:    "user is admin",
+			teamID:   teamID,
+			userID:   user.Id,
+			expected: true,
+		},
+		{
+			title:    "user is not admin",
+			teamID:   teamID,
+			userID:   -1,
+			expected: false,
+		},
+		{
+			title:    "team does not exist",
+			teamID:   -1,
+			userID:   user.Id,
+			expected: false,
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		if got := IsTeamAdmin(c, test.teamID, test.userID); got != test.expected {
+			t.Errorf("test %v - isTeamAdmin got %v want %v", i, got, test.expected)
+		}
+	}
+}
+
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
 func checkTeam(got *Team, want testTeam) error {
