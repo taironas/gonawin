@@ -185,6 +185,28 @@ func TestFindTeams(t *testing.T) {
 	}
 }
 
+// TestFindAllTeams tests that you can find all teams in the datastore.
+//
+func TestFindAllTeams(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testTeams := createTestTeams(10)
+	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
+
+	got := FindAllTeams(c)
+	if len(got) != len(teamIDs) {
+		t.Errorf("length of expected(%v) and actual(%v) teams are different", len(teamIDs), len(got))
+	}
+
+}
+
 // TestTeamById tests TeamById function.
 //
 func TestTeamById(t *testing.T) {
