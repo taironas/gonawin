@@ -261,11 +261,11 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 	log.Infof(c, "Team.Join: user")
 	log.Infof(c, "Team.Join: add team id to user entity")
 	if err := u.AddTeamId(c, t.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err)
+		return fmt.Errorf(" Team.Join, error joining team for user:%v Error: %v", u.Id, err)
 	}
 	log.Infof(c, "Team.Join: add user id to team entity")
 	if err := t.AddUserId(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining tournament for user:%v Error: %v", u.Id, err)
+		return fmt.Errorf(" Team.Join, error joining team for user:%v Error: %v", u.Id, err)
 	}
 	log.Infof(c, "Team.Join: add user id to tournaments")
 	if err := t.AddUserToTournaments(c, u.Id); err != nil {
@@ -274,8 +274,9 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 	return nil
 }
 
-// make a user leave a team
+// Leave makes a user leave a team.
 // Todo: Should we check that the user is indeed a memeber of the team?
+//
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamId(c, t.Id); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
