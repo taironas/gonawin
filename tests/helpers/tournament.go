@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"appengine/aetest"
+
 	mdl "github.com/taironas/gonawin/models"
 )
 
