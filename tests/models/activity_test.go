@@ -1,4 +1,4 @@
-package models
+package gonawintest
 
 import (
 	"testing"
@@ -7,48 +7,52 @@ import (
 	"appengine/aetest"
 
 	"github.com/taironas/gonawin/helpers/log"
+
+	mdl "github.com/taironas/gonawin/models"
 )
 
-func TestSaveActivity(t *testing.T) {
+func TestActivitySaveActivities(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer c.Close()
 
-	log.Infof(c, "Test Save Activity")
+	log.Infof(c, "Test Activity.SaveActivities")
 
 	tests := []struct {
 		name     string
-		activity Activity
-		want     *Activity
+		activity mdl.Activity
+		want     *mdl.Activity
 	}{
 		{
 			name: "Simple save",
-			activity: Activity{
+			activity: mdl.Activity{
 				Type:      "Team",
 				Verb:      "created",
-				Actor:     ActivityEntity{1, "user", "John Smith"},
-				Object:    ActivityEntity{10, "team", "TeamFoo"},
-				Target:    ActivityEntity{100, "foo", "TargetFoo"},
+				Actor:     mdl.ActivityEntity{1, "user", "John Smith"},
+				Object:    mdl.ActivityEntity{10, "team", "TeamFoo"},
+				Target:    mdl.ActivityEntity{100, "foo", "TargetFoo"},
 				Published: time.Now(),
 				CreatorID: 1,
 			},
-			want: &Activity{
+			want: &mdl.Activity{
 				Type:      "Team",
 				Verb:      "created",
-				Actor:     ActivityEntity{1, "user", "John Smith"},
-				Object:    ActivityEntity{10, "team", "TeamFoo"},
-				Target:    ActivityEntity{100, "foo", "TargetFoo"},
+				Actor:     mdl.ActivityEntity{1, "user", "John Smith"},
+				Object:    mdl.ActivityEntity{10, "team", "TeamFoo"},
+				Target:    mdl.ActivityEntity{100, "foo", "TargetFoo"},
 				Published: time.Now(),
 				CreatorID: 1,
 			},
 		},
 	}
+
 	for _, test := range tests {
-		err := test.activity.save(c)
+		activities := []*mdl.Activity{&test.activity}
+		err := mdl.SaveActivities(c, activities)
 		if err != nil {
-			t.Errorf("TestSaveActivity(%q): got '%v' error wanted no err", test.name, err)
+			t.Errorf("TestActivitySaveActivities(%s): got '%v' error wanted no err", test.name, err)
 		}
 	}
 }
