@@ -1,4 +1,4 @@
-package models
+package gonawintest
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/taironas/gonawin/helpers"
-	"github.com/taironas/gonawin/test"
+	"github.com/taironas/gonawin/tests/helpers"
 
 	"appengine/aetest"
 )

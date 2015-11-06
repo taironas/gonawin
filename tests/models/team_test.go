@@ -1,4 +1,4 @@
-package models
+package gonawintest
 
 import (
 	"errors"
@@ -6,10 +6,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/taironas/gonawin/helpers"
-	"github.com/taironas/gonawin/test"
-
 	"appengine/aetest"
+
+	"github.com/taironas/gonawin/helpers"
+	mdl "github.com/taironas/gonawin/models"
+	"github.com/taironas/gonawin/tests/helpers"
 )
 
 type testTeam struct {
@@ -47,8 +48,8 @@ func TestCreateTeam(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		var got *mdl.Team
+		if got, err = mdl.CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.team); err != nil {
@@ -450,7 +451,7 @@ func TestTeamsKeysByIds(t *testing.T) {
 
 // checkTeam checks that the team passed has the same fields as the testTeam object.
 //
-func checkTeam(got *Team, want testTeam) error {
+func checkTeam(got *mdl.Team, want testTeam) error {
 	var s string
 	if got.Name != want.name {
 		s = fmt.Sprintf("want name == %s, got %s", want.name, got.Name)
