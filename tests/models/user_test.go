@@ -491,12 +491,12 @@ func TestUserTeams(t *testing.T) {
 	tests := []struct {
 		title       string
 		user        gonawintest.TestUser
-		teams       []testTeam
+		teams       []gonawintest.TestTeam
 		missingTeam bool
 	}{
 		{"can get teams",
 			gonawintest.TestUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			[]testTeam{
+			[]gonawintest.TestTeam{
 				{"night's watch", "guards of the wall", 10, false},
 				{"Unsullied", "former slaves", 10, false},
 				{"Wildlings", "we lived beyond the wall", 10, false},
@@ -505,12 +505,12 @@ func TestUserTeams(t *testing.T) {
 		},
 		{"user with no team",
 			gonawintest.TestUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			[]testTeam{},
+			[]gonawintest.TestTeam{},
 			false,
 		},
 		{"user with missing team",
 			gonawintest.TestUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			[]testTeam{
+			[]gonawintest.TestTeam{
 				{"night's watch", "guards of the wall", 10, false},
 				{"Unsullied", "former slaves", 10, false},
 				{"Wildlings", "we lived beyond the wall", 10, false},
@@ -529,7 +529,7 @@ func TestUserTeams(t *testing.T) {
 
 		for _, team := range test.teams {
 			var newTeam *mdl.Team
-			if newTeam, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			if newTeam, err = mdl.CreateTeam(c, team.Name, team.Description, team.AdminID, team.Private); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 
@@ -552,7 +552,7 @@ func TestUserTeams(t *testing.T) {
 		}
 
 		for i, team := range test.teams {
-			if err = checkTeam(got[i], team); err != nil {
+			if err = gonawintest.CheckTeam(got[i], team); err != nil {
 				t.Errorf("test %v - Error: %v", i, err)
 			}
 		}
@@ -574,34 +574,34 @@ func TestTeamsByPage(t *testing.T) {
 	tests := []struct {
 		title          string
 		user           gonawintest.TestUser
-		paginatedTeams [][]testTeam
+		paginatedTeams [][]gonawintest.TestTeam
 		count          int64
 		page           int64
 	}{
 		{
 			title: "can get teams by page",
 			user:  gonawintest.TestUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			paginatedTeams: [][]testTeam{
+			paginatedTeams: [][]gonawintest.TestTeam{
 				{
 					{
-						name:        "night's watch",
-						description: "guards of the wall",
-						adminId:     10,
-						private:     false,
+						Name:        "night's watch",
+						Description: "guards of the wall",
+						AdminID:     10,
+						Private:     false,
 					},
 				},
 				{
 					{
-						name:        "Unsullied",
-						description: "former slaves",
-						adminId:     10,
-						private:     false,
+						Name:        "Unsullied",
+						Description: "former slaves",
+						AdminID:     10,
+						Private:     false,
 					},
 					{
-						name:        "Wildlings",
-						description: "we lived beyond the wall",
-						adminId:     10,
-						private:     false,
+						Name:        "Wildlings",
+						Description: "we lived beyond the wall",
+						AdminID:     10,
+						Private:     false,
 					},
 				},
 			},
@@ -621,7 +621,7 @@ func TestTeamsByPage(t *testing.T) {
 		for _, teams := range test.paginatedTeams {
 			for _, team := range teams {
 				var newTeam *mdl.Team
-				if newTeam, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				if newTeam, err = mdl.CreateTeam(c, team.Name, team.Description, team.AdminID, team.Private); err != nil {
 					t.Errorf("Error: %v", err)
 				}
 
@@ -653,7 +653,7 @@ func TestTeamsByPage(t *testing.T) {
 			for j, team := range test.paginatedTeams[paginatedIndex] {
 				// pagination is reversted to creation order
 				gotIndex := len(got) - j - 1
-				if err = checkTeam(got[gotIndex], team); err != nil {
+				if err = gonawintest.CheckTeam(got[gotIndex], team); err != nil {
 					t.Errorf("page %v - Error: %v", i, err)
 				}
 			}
