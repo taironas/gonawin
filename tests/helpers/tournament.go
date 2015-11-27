@@ -1,67 +1,41 @@
 package gonawintest
 
 import (
+	"errors"
 	"fmt"
-	"testing"
 	"time"
-
-	"appengine/aetest"
 
 	mdl "github.com/taironas/gonawin/models"
 )
 
 // TestTournament represents a testing tournament
 type TestTournament struct {
-	name        string
-	description string
-	start       time.Time
-	end         time.Time
-	adminID     int64
+	Name        string
+	Description string
+	Start       time.Time
+	End         time.Time
+	AdminID     int64
+	UserIDs     []int64
 }
 
-// CreateTestTournaments creates n test tournaments
-func CreateTestTournaments(n int) (testTournaments []TestTournament) {
-	for i := 0; i < n; i++ {
-		newTournament := TestTournament{
-			name:        fmt.Sprintf("tournament %v", i),
-			description: fmt.Sprintf("description %v", i),
-			start:       time.Now(),
-			end:         time.Now(),
-			adminID:     10,
-		}
-		testTournaments = append(testTournaments, newTournament)
+// CheckTournament checks that a given tournament is equivalent to a test tournament
+func CheckTournament(got *mdl.Tournament, want TestTournament) error {
+	var s string
+	if got.Name != want.Name {
+		s = fmt.Sprintf("want Name == %s, got %s", want.Name, got.Name)
+	} else if got.Description != want.Description {
+		s = fmt.Sprintf("want Description == %s, got %s", want.Description, got.Description)
+	} else if got.Start.Sub(want.Start).Hours() > 0 {
+		s = fmt.Sprintf("want Start == %v, got %v", want.Start, got.Start)
+	} else if got.End.Sub(want.End).Hours() > 0 {
+		s = fmt.Sprintf("want End == %v, got %v", want.End, got.End)
+	} else if got.AdminIds[0] != want.AdminID {
+		s = fmt.Sprintf("want AdminId == %d, got %d", want.AdminID, got.AdminIds[0])
+	} else if len(got.UserIds) != len(want.UserIDs) {
+		s = fmt.Sprintf("want UserIds count == %d, got %d", len(want.UserIDs), len(got.UserIds))
+	} else {
+		return nil
 	}
-	return
-}
 
-// CreateTournaments stores tournaments from test tournaments into the dastore
-func CreateTournaments(t *testing.T, c aetest.Context, testTournaments []TestTournament) (tournamentIDs []int64) {
-	var err error
-	for i, tournament := range testTournaments {
-		var got *mdl.Tournament
-		if got, err = mdl.CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
-			t.Errorf("tournament %v error: %v", i, err)
-		}
-
-		tournamentIDs = append(tournamentIDs, got.Id)
-	}
-	return
-}
-
-// CreateAndJoinTournaments stores tournaments from test tournaments into the dastore and join a given user
-func CreateAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []TestTournament, user *mdl.User) (tournamentIDs []int64) {
-	var err error
-	for i, tournament := range testTournaments {
-		var got *mdl.Tournament
-		if got, err = mdl.CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
-			t.Errorf("tournament %v error: %v", i, err)
-		}
-
-		if err = got.Join(c, user); err != nil {
-			t.Errorf("tournament %v error: %v", i, err)
-		}
-
-		tournamentIDs = append(tournamentIDs, got.Id)
-	}
-	return
+	return errors.New(s)
 }
