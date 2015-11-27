@@ -1,8 +1,6 @@
 package gonawintest
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -11,6 +9,8 @@ import (
 
 	"github.com/taironas/gonawin/helpers"
 	"github.com/taironas/gonawin/helpers/log"
+	mdl "github.com/taironas/gonawin/models"
+	"github.com/taironas/gonawin/tests/helpers"
 )
 
 func TestCreateTournament(t *testing.T) {
@@ -24,41 +24,36 @@ func TestCreateTournament(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		tournament Tournament
-		want       *Tournament
+		tournament mdl.Tournament
+		want       *gonawintest.TestTournament
 	}{
 		{
 			name: "Simple create",
-			tournament: Tournament{
+			tournament: mdl.Tournament{
 				Name:        "Foo",
 				Description: "Foo description",
 				Start:       time.Now(),
 				End:         time.Now(),
-				AdminIds:    make([]int64, 1),
+				AdminIds:    []int64{1},
 			},
-			want: &Tournament{
-				Name:            "Foo",
-				Description:     "Foo description",
-				Start:           time.Now(),
-				End:             time.Now(),
-				AdminIds:        make([]int64, 1),
-				GroupIds:        make([]int64, 0),
-				Matches1stStage: make([]int64, 0),
-				Matches2ndStage: make([]int64, 0),
-				UserIds:         make([]int64, 0),
-				TeamIds:         make([]int64, 0),
+			want: &gonawintest.TestTournament{
+				Name:        "Foo",
+				Description: "Foo description",
+				Start:       time.Now(),
+				End:         time.Now(),
+				AdminID:     1,
 			},
 		},
 	}
 	for i, test := range tests {
-		got, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
+		got, _ := mdl.CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
 		if got == nil && test.want != nil {
-			t.Errorf("TestCreateTournament(%q): got nil wanted %v", test.name, *test.want)
+			t.Errorf("TestCreateTournament(%q): got nil wanted %v", test.name, test.want)
 		} else if got != nil && test.want == nil {
-			t.Errorf("TestCreateTournament(%q): got %v wanted nil", test.name, *got)
+			t.Errorf("TestCreateTournament(%q): got %v wanted nil", test.name, got)
 		} else if got == nil && test.want == nil {
 			// This is OK
-		} else if err = checkTournament(got, test.want); err != nil {
+		} else if err = gonawintest.CheckTournament(got, *test.want); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
@@ -75,11 +70,11 @@ func TestDestroyTournament(t *testing.T) {
 
 	test := struct {
 		name       string
-		tournament Tournament
-		want       *Tournament
+		tournament mdl.Tournament
+		want       *mdl.Tournament
 	}{
 		name: "destroy tournament",
-		tournament: Tournament{
+		tournament: mdl.Tournament{
 			Name:        "Foo",
 			Description: "Foo description",
 			Start:       time.Now(),
@@ -90,11 +85,11 @@ func TestDestroyTournament(t *testing.T) {
 	}
 
 	// create tournament
-	tournament, _ := CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
+	tournament, _ := mdl.CreateTournament(c, test.tournament.Name, test.tournament.Description, test.tournament.Start, test.tournament.End, test.tournament.AdminIds[0])
 
 	// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
-	dummy := Tournament{}
-	key := TournamentKeyById(c, tournament.Id)
+	dummy := mdl.Tournament{}
+	key := mdl.TournamentKeyById(c, tournament.Id)
 	if err := datastore.Get(c, key, &dummy); err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +100,7 @@ func TestDestroyTournament(t *testing.T) {
 	}
 
 	// make a query on datastore to be sure it is not there.
-	if got, err1 := TournamentById(c, tournament.Id); err1 == nil {
+	if got, err1 := mdl.TournamentById(c, tournament.Id); err1 == nil {
 		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
 	}
 }
@@ -120,22 +115,22 @@ func TestFindTournaments(t *testing.T) {
 
 	log.Infof(c, "Test Find Tournament")
 
-	tournaments := []Tournament{
-		Tournament{
+	tournaments := []mdl.Tournament{
+		mdl.Tournament{
 			Name:        "bar",
 			Description: "Foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
 			AdminIds:    make([]int64, 1),
 		},
-		Tournament{
+		mdl.Tournament{
 			Name:        "foobar",
 			Description: "foo description",
 			Start:       time.Now(),
 			End:         time.Now(),
 			AdminIds:    make([]int64, 1),
 		},
-		Tournament{
+		mdl.Tournament{
 			Name:        "foobarfoo",
 			Description: "Foo description",
 			Start:       time.Now(),
@@ -146,7 +141,7 @@ func TestFindTournaments(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		tournaments []Tournament
+		tournaments []mdl.Tournament
 		queries     []string
 		want        struct {
 			Len   int
@@ -155,7 +150,7 @@ func TestFindTournaments(t *testing.T) {
 	}{
 		{
 			name:        "find tournaments in empty datastore",
-			tournaments: make([]Tournament, 0),
+			tournaments: make([]mdl.Tournament, 0),
 			queries:     []string{"foo"},
 			want: struct {
 				Len   int
@@ -181,8 +176,8 @@ func TestFindTournaments(t *testing.T) {
 
 	// create tournaments
 	for _, test := range tests {
-		for i, _ := range test.tournaments {
-			if got, err1 := CreateTournament(
+		for i := range test.tournaments {
+			if got, err1 := mdl.CreateTournament(
 				c,
 				test.tournaments[i].Name,
 				test.tournaments[i].Description,
@@ -192,8 +187,8 @@ func TestFindTournaments(t *testing.T) {
 				t.Errorf("TestFindTournaments(%q): error creating tournaments: %v", test.name, err1)
 			} else {
 				// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
-				dummy := Tournament{}
-				key := TournamentKeyById(c, got.Id)
+				dummy := mdl.Tournament{}
+				key := mdl.TournamentKeyById(c, got.Id)
 				if err := datastore.Get(c, key, &dummy); err != nil {
 					t.Fatal(err)
 				}
@@ -205,7 +200,7 @@ func TestFindTournaments(t *testing.T) {
 	log.Infof(c, "Test Find Tournament: start search ok tournaments")
 	for _, test := range tests {
 		for _, query := range test.queries {
-			got := FindTournaments(c, "KeyName", query)
+			got := mdl.FindTournaments(c, "KeyName", query)
 			if test.want.Len != len(got) {
 				t.Errorf("TestFindTournaments(%q): got array of %v  wanted %v: query:%v t:%v", test.name, len(got), test.want.Len, query, got)
 			}
@@ -216,29 +211,4 @@ func TestFindTournaments(t *testing.T) {
 			}
 		}
 	}
-}
-
-func checkTournament(got *Tournament, want *Tournament) error {
-	var s string
-	if got.Name != want.Name {
-		s = fmt.Sprintf("want Name == %s, got %s", want.Name, got.Name)
-	} else if got.Description != want.Description {
-		s = fmt.Sprintf("want Description == %s, got %s", want.Description, got.Description)
-	} else if len(got.AdminIds) != len(want.AdminIds) {
-		s = fmt.Sprintf("want AdminIds count == %d, got %d", len(want.AdminIds), len(got.AdminIds))
-	} else if len(got.GroupIds) != len(want.GroupIds) {
-		s = fmt.Sprintf("want GroupIds count == %d, got %d", len(want.GroupIds), len(got.GroupIds))
-	} else if len(got.Matches1stStage) != len(want.Matches1stStage) {
-		s = fmt.Sprintf("want Matches1stStage count == %d, got %d", len(want.Matches1stStage), len(got.Matches1stStage))
-	} else if len(got.Matches2ndStage) != len(want.Matches2ndStage) {
-		s = fmt.Sprintf("want Matches2ndStage count == %d, got %d", len(want.Matches2ndStage), len(got.Matches2ndStage))
-	} else if len(got.UserIds) != len(want.UserIds) {
-		s = fmt.Sprintf("want UserIds count == %d, got %d", len(want.UserIds), len(got.UserIds))
-	} else if len(got.TeamIds) != len(want.TeamIds) {
-		s = fmt.Sprintf("want TeamIds count == %d, got %d", len(want.TeamIds), len(got.TeamIds))
-	} else {
-		return nil
-	}
-
-	return errors.New(s)
 }
