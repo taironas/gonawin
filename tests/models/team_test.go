@@ -95,8 +95,8 @@ func TestDestroyTeam(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		var got *mdl.Team
+		if got, err = mdl.CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
@@ -112,8 +112,8 @@ func TestDestroyTeam(t *testing.T) {
 			}
 		}
 
-		var team *Team
-		if team, err = TeamById(c, got.Id); team != nil {
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, got.Id); team != nil {
 			t.Errorf("test %v - Error: team found, not properly destroyed - %v", i, err)
 		}
 
@@ -174,13 +174,13 @@ func TestFindTeams(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		for _, team := range test.teams {
-			if _, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			if _, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
 				t.Errorf("test %v - Error: %v", i, err)
 			}
 		}
 
-		var got []*Team
-		if got = FindTeams(c, "Name", test.query); len(got) != test.want {
+		var got []*mdl.Team
+		if got = mdl.FindTeams(c, "Name", test.query); len(got) != test.want {
 			t.Errorf("test %v - found %v teams expected %v with query %v by Name", i, test.want, len(got), test.query)
 		}
 	}
@@ -200,8 +200,8 @@ func TestTeamById(t *testing.T) {
 
 	tTeam := testTeam{"my team", "description", 10, false}
 
-	var team *Team
-	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	var team *mdl.Team
+	if team, err = mdl.CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -226,8 +226,8 @@ func TestTeamById(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		var got *Team
-		if got, err = TeamById(c, test.Id); err != nil {
+		var got *mdl.Team
+		if got, err = mdl.TeamById(c, test.Id); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
 			} else if !strings.Contains(gonawintest.ErrorString(err), test.err) {
@@ -264,7 +264,7 @@ func TestTeamKeyById(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		if got := TeamKeyById(c, test.id); got == nil {
+		if got := mdl.TeamKeyById(c, test.id); got == nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 	}
@@ -284,8 +284,8 @@ func TestTeamUpdate(t *testing.T) {
 
 	tTeam := testTeam{"my team", "description", 10, false}
 
-	var newTeam *Team
-	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	var newTeam *mdl.Team
+	if newTeam, err = mdl.CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -314,8 +314,8 @@ func TestTeamUpdate(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		var team *Team
-		if team, err = TeamById(c, test.id); err != nil {
+		var team *mdl.Team
+		if team, err = mdl.TeamById(c, test.id); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
@@ -337,8 +337,8 @@ func TestTeamUpdate(t *testing.T) {
 			continue
 		}
 
-		var got *Team
-		if got, err = TeamById(c, team.Id); err != nil {
+		var got *mdl.Team
+		if got, err = mdl.TeamById(c, team.Id); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.updateTeam); err != nil {
@@ -406,8 +406,8 @@ func TestTeamsByIds(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		var teams []*Team
-		teams, err = TeamsByIds(c, test.teamIDs)
+		var teams []*mdl.Team
+		teams, err = mdl.TeamsByIds(c, test.teamIDs)
 
 		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("test %v error: want err: %s, got: %q", i, test.err, err)
@@ -442,7 +442,7 @@ func TestTeamsKeysByIds(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		keys := TeamsKeysByIds(c, test.ids)
+		keys := mdl.TeamsKeysByIds(c, test.ids)
 		if len(keys) != len(test.ids) {
 			t.Errorf("test %v: keys lenght does not match, expected: %v, got: %v", i, len(test.ids), len(keys))
 		}
@@ -470,12 +470,12 @@ func checkTeam(got *mdl.Team, want testTeam) error {
 // checkTeamInvertedIndex checks that the team is present in the datastore when
 // performing a search.
 //
-func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want testTeam) error {
+func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *mdl.Team, want testTeam) error {
 
 	var ids []int64
 	var err error
 	words := helpers.SetOfStrings(want.name)
-	if ids, err = GetTeamInvertedIndexes(c, words); err != nil {
+	if ids, err = mdl.GetTeamInvertedIndexes(c, words); err != nil {
 		return fmt.Errorf("failed calling GetTeamInvertedIndexes %v", err)
 	}
 	for _, id := range ids {
@@ -491,8 +491,8 @@ func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTe
 
 	var err error
 	for i, team := range testTeams {
-		var got *Team
-		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+		var got *mdl.Team
+		if got, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
 			t.Errorf("team %v error: %v", i, err)
 		}
 
