@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/taironas/gonawin/helpers"
+	mdl "github.com/taironas/gonawin/models"
 	"github.com/taironas/gonawin/tests/helpers"
 
 	"appengine/aetest"
@@ -43,8 +44,8 @@ func TestCreateUser(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		var got *User
-		if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+		var got *mdl.User
+		if got, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkUser(got, test.user); err != nil {
@@ -68,8 +69,8 @@ func TestUserById(t *testing.T) {
 	}
 	defer c.Close()
 
-	var u *User
-	if u, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+	var u *mdl.User
+	if u, err = mdl.CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -86,9 +87,9 @@ func TestUserById(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var got *User
+		var got *mdl.User
 
-		got, err = UserById(c, test.userID)
+		got, err = mdl.UserById(c, test.userID)
 
 		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
@@ -124,8 +125,8 @@ func TestUsersByIds(t *testing.T) {
 	var gotIDs []int64
 
 	for _, testUser := range testUsers {
-		var got *User
-		if got, err = CreateUser(c, testUser.email, testUser.username, testUser.name, testUser.alias, testUser.isAdmin, testUser.auth); err != nil {
+		var got *mdl.User
+		if got, err = mdl.CreateUser(c, testUser.email, testUser.username, testUser.name, testUser.alias, testUser.isAdmin, testUser.auth); err != nil {
 			t.Errorf("Error: %v", err)
 		}
 
@@ -180,9 +181,9 @@ func TestUsersByIds(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var users []*User
+		var users []*mdl.User
 
-		users, err = UsersByIds(c, test.userIDs)
+		users, err = mdl.UsersByIds(c, test.userIDs)
 
 		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
@@ -218,7 +219,7 @@ func TestUserKeyById(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		key := UserKeyById(c, test.userID)
+		key := mdl.UserKeyById(c, test.userID)
 
 		if key.IntID() != test.userID {
 			t.Errorf("Error: want key ID: %v, got: %v", test.userID, key.IntID())
@@ -251,7 +252,7 @@ func TestUserKeysByIds(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		keys := UserKeysByIds(c, test.userIDs)
+		keys := mdl.UserKeysByIds(c, test.userIDs)
 
 		if len(keys) != len(test.userIDs) {
 			t.Errorf("Error: want number of user IDs: %d, got: %d", len(test.userIDs), len(keys))
@@ -285,8 +286,8 @@ func TestDestroyUser(t *testing.T) {
 	}
 
 	t.Log(test.title)
-	var got *User
-	if got, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+	var got *mdl.User
+	if got, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -294,8 +295,8 @@ func TestDestroyUser(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	var u *User
-	if u, err = UserById(c, got.Id); u != nil {
+	var u *mdl.User
+	if u, err = mdl.UserById(c, got.Id); u != nil {
 		t.Errorf("Error: user found, not properly destroyed")
 	}
 	if err = checkUserInvertedIndex(t, c, got, test.user); err == nil {
@@ -324,20 +325,20 @@ func TestFindUser(t *testing.T) {
 
 	t.Log(test.title)
 
-	if _, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+	if _, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
-	var got *User
-	if got = FindUser(c, "Username", "john.snow"); got == nil {
+	var got *mdl.User
+	if got = mdl.FindUser(c, "Username", "john.snow"); got == nil {
 		t.Errorf("Error: user not found by Username")
 	}
 
-	if got = FindUser(c, "Name", "john snow"); got == nil {
+	if got = mdl.FindUser(c, "Name", "john snow"); got == nil {
 		t.Errorf("Error: user not found by Name")
 	}
 
-	if got = FindUser(c, "Alias", "crow"); got == nil {
+	if got = mdl.FindUser(c, "Alias", "crow"); got == nil {
 		t.Errorf("Error: user not found by Alias")
 	}
 }
@@ -369,13 +370,13 @@ func TestFindAllUsers(t *testing.T) {
 	t.Log(test.title)
 
 	for _, user := range test.users {
-		if _, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
+		if _, err = mdl.CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
 			t.Errorf("Error: %v", err)
 		}
 	}
 
-	var got []*User
-	if got = FindAllUsers(c); got == nil {
+	var got []*mdl.User
+	if got = mdl.FindAllUsers(c); got == nil {
 		t.Errorf("Error: users not found")
 	}
 
@@ -403,8 +404,8 @@ func TestUserUpdate(t *testing.T) {
 	defer c.Close()
 
 	/*Test data: saved user*/
-	var user *User
-	if user, err = CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
+	var user *mdl.User
+	if user, err = mdl.CreateUser(c, "foo@bar.com", "john.snow", "john snow", "crow", false, ""); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -413,7 +414,7 @@ func TestUserUpdate(t *testing.T) {
 
 	tests := []struct {
 		title        string
-		userToUpdate *User
+		userToUpdate *mdl.User
 		updatedUser  testUser
 		err          string
 	}{
@@ -430,7 +431,7 @@ func TestUserUpdate(t *testing.T) {
 
 		err = test.userToUpdate.Update(c)
 
-		updatedUser, _ := UserById(c, test.userToUpdate.Id)
+		updatedUser, _ := mdl.UserById(c, test.userToUpdate.Id)
 
 		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
@@ -470,9 +471,9 @@ func TestUserSigninUser(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var got *User
+		var got *mdl.User
 
-		got, err = SigninUser(c, test.queryName, test.user.email, test.user.username, test.user.name)
+		got, err = mdl.SigninUser(c, test.queryName, test.user.email, test.user.username, test.user.name)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
@@ -532,14 +533,14 @@ func TestUserTeams(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var user *User
-		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+		var user *mdl.User
+		if user, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("Error: %v", err)
 		}
 
 		for _, team := range test.teams {
-			var newTeam *Team
-			if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			var newTeam *mdl.Team
+			if newTeam, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 
@@ -554,7 +555,7 @@ func TestUserTeams(t *testing.T) {
 			}
 		}
 
-		var got []*Team
+		var got []*mdl.Team
 		got = user.Teams(c)
 
 		if len(got) != len(test.teams) {
@@ -623,15 +624,15 @@ func TestTeamsByPage(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test.title)
 
-		var user *User
-		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+		var user *mdl.User
+		if user, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("Error: %v", err)
 		}
 
 		for _, teams := range test.paginatedTeams {
 			for _, team := range teams {
-				var newTeam *Team
-				if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				var newTeam *mdl.Team
+				if newTeam, err = mdl.CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
 					t.Errorf("Error: %v", err)
 				}
 
@@ -643,7 +644,7 @@ func TestTeamsByPage(t *testing.T) {
 
 		for i := int64(1); i <= test.page; i++ {
 			t.Log(fmt.Sprintf("test page %v", i))
-			var got []*Team
+			var got []*mdl.Team
 			got = user.TeamsByPage(c, test.count, i)
 
 			// pagination is reversted to creation order
@@ -686,20 +687,20 @@ func TestTournamentsByPage(t *testing.T) {
 	tests := []struct {
 		title                string
 		user                 testUser
-		paginatedTournaments [][]Tournament
+		paginatedTournaments [][]gonawintest.TestTournament
 		count                int64
 		page                 int64
 	}{
 		{
 			title: "can get tournaments by page",
 			user:  testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			paginatedTournaments: [][]Tournament{
+			paginatedTournaments: [][]gonawintest.TestTournament{
 				{
-					{Name: "2014 FIFA World Cup", Description: "football world cup in Brazil", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{Name: "2014 FIFA World Cup", Description: "football world cup in Brazil", Start: time.Now(), End: time.Now(), AdminID: 1},
 				},
 				{
-					{Name: "2018 FIFA World Cup", Description: "football world cup in Russia", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
-					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{Name: "2018 FIFA World Cup", Description: "football world cup in Russia", Start: time.Now(), End: time.Now(), AdminID: 1},
+					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminID: 1},
 				},
 			},
 			count: 2,
@@ -710,15 +711,15 @@ func TestTournamentsByPage(t *testing.T) {
 	for ti, test := range tests {
 		t.Log(test.title)
 
-		var user *User
-		if user, err = CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
+		var user *mdl.User
+		if user, err = mdl.CreateUser(c, test.user.email, test.user.username, test.user.name, test.user.alias, test.user.isAdmin, test.user.auth); err != nil {
 			t.Errorf("test %v Error: %v", ti, err)
 		}
 
 		for pti, tournaments := range test.paginatedTournaments {
 			for tsi, tournament := range tournaments {
-				var newTournament *Tournament
-				if newTournament, err = CreateTournament(c, tournament.Name, tournament.Description, tournament.Start, tournament.End, tournament.AdminIds[0]); err != nil {
+				var newTournament *mdl.Tournament
+				if newTournament, err = mdl.CreateTournament(c, tournament.Name, tournament.Description, tournament.Start, tournament.End, tournament.AdminID); err != nil {
 					t.Errorf("test %v Error: %v", ti, err)
 				}
 
@@ -727,24 +728,16 @@ func TestTournamentsByPage(t *testing.T) {
 				}
 				// need to upate userIds in test structure.
 				// cannot go this before as we need to user.Id.
-				test.paginatedTournaments[pti][tsi].UserIds = []int64{user.Id}
+				test.paginatedTournaments[pti][tsi].UserIDs = []int64{user.Id}
 			}
 		}
 
 		for i := int64(1); i <= test.page; i++ {
-			t.Log(fmt.Sprintf("test page %v", i))
-			var got []*Tournament
+			var got []*mdl.Tournament
 			got = user.TournamentsByPage(c, test.count, i)
 
 			// pagination is reversed to creation order
 			paginatedIndex := int64(len(test.paginatedTournaments)) - i
-
-			t.Log(fmt.Sprintf("expected tournaments %+v", test.paginatedTournaments[paginatedIndex]))
-			gotTournamentsStr := fmt.Sprintf("got tournaments:\n")
-			for _, tt := range got {
-				gotTournamentsStr += fmt.Sprintf("%+v\n", *tt)
-			}
-			t.Log(gotTournamentsStr)
 
 			if len(got) != len(test.paginatedTournaments[paginatedIndex]) {
 				t.Errorf("test %v page %v Error: want tournaments count == %d, got %d", ti, i, len(test.paginatedTournaments[paginatedIndex]), len(got))
@@ -753,7 +746,7 @@ func TestTournamentsByPage(t *testing.T) {
 			for j, tournament := range test.paginatedTournaments[paginatedIndex] {
 				// pagination is reversed to creation order
 				gotIndex := len(got) - j - 1
-				if err = checkTournament(got[gotIndex], &tournament); err != nil {
+				if err = gonawintest.CheckTournament(got[gotIndex], tournament); err != nil {
 					t.Errorf("test %v - page %v - Error: %v", ti, i, err)
 				}
 			}
@@ -761,60 +754,7 @@ func TestTournamentsByPage(t *testing.T) {
 	}
 }
 
-// TestTournaments tests that you can get a list of tournaments for a user.
-//
-func TestTournaments(t *testing.T) {
-	var c aetest.Context
-	var err error
-	options := aetest.Options{StronglyConsistentDatastore: true}
-
-	if c, err = aetest.NewContext(&options); err != nil {
-		t.Fatal(err)
-	}
-	defer c.Close()
-
-	var user *User
-	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
-		t.Errorf("Error: %v", err)
-	}
-
-	testTournaments := gonawintest.CreateTestTournaments(3)
-
-	tournamentIDs := CreateAndJoinTournaments(t, c, testTournaments, user)
-
-	tests := []struct {
-		title         string
-		tournamentIDs []int64
-		tournaments   []gonawintest.TestTournament
-		err           string
-	}{
-		{
-			"can get tournaments",
-			tournamentIDs,
-			testTournaments,
-			"",
-		},
-	}
-
-	for i, test := range tests {
-		t.Log(test.title)
-
-		tournaments := user.Tournaments(c)
-
-		if len(tournaments) != len(test.tournaments) {
-			t.Errorf("Error: want tournaments count: %d, got: %d", len(test.tournaments), len(tournaments))
-		} else if test.err == "" && len(tournaments) > 0 {
-			for i, tournament := range test.tournaments {
-				if err = checkTournament(tournaments[i], tournament); err != nil {
-					t.Errorf("test %v error: want tournament: %v, got: %v", i, tournament, tournaments[i][i])
-				}
-			}
-		}
-	}
-
-}
-
-func checkUser(got *User, want testUser) error {
+func checkUser(got *mdl.User, want testUser) error {
 	var s string
 	if got.Email != want.email {
 		s = fmt.Sprintf("want Email == %s, got %s", want.email, got.Email)
@@ -835,12 +775,12 @@ func checkUser(got *User, want testUser) error {
 // checkUserInvertedIndex checks that the user is present in the datastore when
 // performing a search.
 //
-func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User, want testUser) error {
+func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *mdl.User, want testUser) error {
 
 	var ids []int64
 	var err error
 	words := helpers.SetOfStrings(want.username)
-	if ids, err = GetUserInvertedIndexes(c, words); err != nil {
+	if ids, err = mdl.GetUserInvertedIndexes(c, words); err != nil {
 		return fmt.Errorf("failed calling GetUserInvertedIndexes %v", err)
 	}
 	for _, id := range ids {
@@ -853,8 +793,8 @@ func checkUserInvertedIndex(t *testing.T, c aetest.Context, got *User, want test
 
 }
 
-func createNonSavedUser(email, username, name, alias string, isAdmin bool) User {
-	return User{
+func createNonSavedUser(email, username, name, alias string, isAdmin bool) mdl.User {
+	return mdl.User{
 		5,
 		email,
 		username,
@@ -868,7 +808,7 @@ func createNonSavedUser(email, username, name, alias string, isAdmin bool) User 
 		[]int64{},
 		[]int64{},
 		0,
-		[]ScoreOfTournament{},
+		[]mdl.ScoreOfTournament{},
 		[]int64{},
 		time.Now(),
 	}
