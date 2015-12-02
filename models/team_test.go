@@ -1,23 +1,13 @@
 package models
 
 import (
-	"errors"
-	"fmt"
 	"strings"
 	"testing"
 
-	"github.com/taironas/gonawin/helpers"
 	"github.com/taironas/gonawin/test"
 
 	"appengine/aetest"
 )
-
-type testTeam struct {
-	name        string
-	description string
-	adminId     int64
-	private     bool
-}
 
 // TestCreateTeam tests that you can create a team.
 //
@@ -48,7 +38,7 @@ func TestCreateTeam(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminID, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.team); err != nil {
@@ -95,7 +85,7 @@ func TestTeamDestroy(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminID, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
@@ -173,7 +163,7 @@ func TestFindTeams(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		for _, team := range test.teams {
-			if _, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			if _, err = CreateTeam(c, team.name, team.description, team.adminID, team.private); err != nil {
 				t.Errorf("test %v - Error: %v", i, err)
 			}
 		}
@@ -222,7 +212,7 @@ func TestTeamById(t *testing.T) {
 	tTeam := testTeam{"my team", "description", 10, false}
 
 	var team *Team
-	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -306,7 +296,7 @@ func TestTeamUpdate(t *testing.T) {
 	tTeam := testTeam{"my team", "description", 10, false}
 
 	var newTeam *Team
-	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -342,7 +332,7 @@ func TestTeamUpdate(t *testing.T) {
 
 		team.Name = test.updateTeam.name
 		team.Description = test.updateTeam.description
-		team.AdminIds[0] = test.updateTeam.adminId
+		team.AdminIds[0] = test.updateTeam.adminID
 		team.Private = test.updateTeam.private
 
 		if test.overrideId {
@@ -764,7 +754,7 @@ func TestIsTeamAdmin(t *testing.T) {
 	}
 
 	testTeams := createTestTeams(1)
-	testTeams[0].adminId = user.Id
+	testTeams[0].adminID = user.Id
 	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
 
 	tests := []struct {
@@ -799,69 +789,4 @@ func TestIsTeamAdmin(t *testing.T) {
 			t.Errorf("test %v - isTeamAdmin got %v want %v", i, got, test.expected)
 		}
 	}
-}
-
-// checkTeam checks that the team passed has the same fields as the testTeam object.
-//
-func checkTeam(got *Team, want testTeam) error {
-	var s string
-	if got.Name != want.name {
-		s = fmt.Sprintf("want name == %s, got %s", want.name, got.Name)
-	} else if got.Description != want.description {
-		s = fmt.Sprintf("want Description == %s, got %s", want.description, got.Description)
-	} else if got.AdminIds[0] != want.adminId {
-		s = fmt.Sprintf("want AdminId == %s, got %s", want.adminId, got.AdminIds[0])
-	} else if got.Private != want.private {
-		s = fmt.Sprintf("want Private == %s, got %s", want.private, got.Private)
-	} else {
-		return nil
-	}
-	return errors.New(s)
-}
-
-// checkTeamInvertedIndex checks that the team is present in the datastore when
-// performing a search.
-//
-func checkTeamInvertedIndex(t *testing.T, c aetest.Context, got *Team, want testTeam) error {
-
-	var ids []int64
-	var err error
-	words := helpers.SetOfStrings(want.name)
-	if ids, err = GetTeamInvertedIndexes(c, words); err != nil {
-		return fmt.Errorf("failed calling GetTeamInvertedIndexes %v", err)
-	}
-	for _, id := range ids {
-		if id == got.Id {
-			return nil
-		}
-	}
-
-	return errors.New("team not found")
-}
-
-func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTeam) (teamIDs []int64) {
-
-	var err error
-	for i, team := range testTeams {
-		var got *Team
-		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
-			t.Errorf("team %v error: %v", i, err)
-		}
-
-		teamIDs = append(teamIDs, got.Id)
-	}
-	return
-}
-
-func createTestTeams(n int) (testTeams []testTeam) {
-	for i := 0; i < n; i++ {
-		newTeam := testTeam{
-			name:        fmt.Sprintf("team %v", i),
-			description: fmt.Sprintf("description %v", i),
-			adminId:     10,
-			private:     false,
-		}
-		testTeams = append(testTeams, newTeam)
-	}
-	return
 }
