@@ -13,7 +13,7 @@ import (
 type testTeam struct {
 	name        string
 	description string
-	adminId     int64
+	adminID     int64
 	private     bool
 }
 
@@ -26,9 +26,9 @@ func checkTeam(got *Team, want testTeam) error {
 	} else if got.Description != want.description {
 		s = fmt.Sprintf("want Description == %s, got %s", want.description, got.Description)
 	} else if got.AdminIds[0] != want.adminId {
-		s = fmt.Sprintf("want AdminId == %s, got %s", want.adminId, got.AdminIds[0])
+		s = fmt.Sprintf("want AdminId == %d, got %d", want.adminID, got.AdminIds[0])
 	} else if got.Private != want.private {
-		s = fmt.Sprintf("want Private == %s, got %s", want.private, got.Private)
+		s = fmt.Sprintf("want Private == %t, got %t", want.private, got.Private)
 	} else {
 		return nil
 	}
