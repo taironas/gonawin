@@ -3,26 +3,33 @@ package models
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
-func checkTournament(got *Tournament, want *Tournament) error {
+type testTournament struct {
+	name        string
+	description string
+	start       time.Time
+	end         time.Time
+	adminID     int64
+	userIDs     []int64
+}
+
+// checkTournament checks that a given tournament is equivalent to a test tournament
+func checkTournament(got *Tournament, want *testTournament) error {
 	var s string
-	if got.Name != want.Name {
-		s = fmt.Sprintf("want Name == %s, got %s", want.Name, got.Name)
-	} else if got.Description != want.Description {
-		s = fmt.Sprintf("want Description == %s, got %s", want.Description, got.Description)
-	} else if len(got.AdminIds) != len(want.AdminIds) {
-		s = fmt.Sprintf("want AdminIds count == %d, got %d", len(want.AdminIds), len(got.AdminIds))
-	} else if len(got.GroupIds) != len(want.GroupIds) {
-		s = fmt.Sprintf("want GroupIds count == %d, got %d", len(want.GroupIds), len(got.GroupIds))
-	} else if len(got.Matches1stStage) != len(want.Matches1stStage) {
-		s = fmt.Sprintf("want Matches1stStage count == %d, got %d", len(want.Matches1stStage), len(got.Matches1stStage))
-	} else if len(got.Matches2ndStage) != len(want.Matches2ndStage) {
-		s = fmt.Sprintf("want Matches2ndStage count == %d, got %d", len(want.Matches2ndStage), len(got.Matches2ndStage))
-	} else if len(got.UserIds) != len(want.UserIds) {
-		s = fmt.Sprintf("want UserIds count == %d, got %d", len(want.UserIds), len(got.UserIds))
-	} else if len(got.TeamIds) != len(want.TeamIds) {
-		s = fmt.Sprintf("want TeamIds count == %d, got %d", len(want.TeamIds), len(got.TeamIds))
+	if got.Name != want.name {
+		s = fmt.Sprintf("want Name == %s, got %s", want.name, got.Name)
+	} else if got.Description != want.description {
+		s = fmt.Sprintf("want Description == %s, got %s", want.description, got.Description)
+	} else if got.Start.Sub(want.start).Hours() > 0 {
+		s = fmt.Sprintf("want Start == %v, got %v", want.start, got.Start)
+	} else if got.End.Sub(want.end).Hours() > 0 {
+		s = fmt.Sprintf("want End == %v, got %v", want.end, got.End)
+	} else if got.AdminIds[0] != want.adminID {
+		s = fmt.Sprintf("want AdminId == %d, got %d", want.adminID, got.AdminIds[0])
+	} else if len(got.UserIds) != len(want.userIDs) {
+		s = fmt.Sprintf("want UserIds count == %d, got %d", len(want.userIDs), len(got.UserIds))
 	} else {
 		return nil
 	}

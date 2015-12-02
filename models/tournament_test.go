@@ -23,7 +23,7 @@ func TestCreateTournament(t *testing.T) {
 	tests := []struct {
 		name       string
 		tournament Tournament
-		want       *Tournament
+		want       *testTournament
 	}{
 		{
 			name: "Simple create",
@@ -32,19 +32,14 @@ func TestCreateTournament(t *testing.T) {
 				Description: "Foo description",
 				Start:       time.Now(),
 				End:         time.Now(),
-				AdminIds:    make([]int64, 1),
+				AdminIds:    []int64{1},
 			},
-			want: &Tournament{
-				Name:            "Foo",
-				Description:     "Foo description",
-				Start:           time.Now(),
-				End:             time.Now(),
-				AdminIds:        make([]int64, 1),
-				GroupIds:        make([]int64, 0),
-				Matches1stStage: make([]int64, 0),
-				Matches2ndStage: make([]int64, 0),
-				UserIds:         make([]int64, 0),
-				TeamIds:         make([]int64, 0),
+			want: &testTournament{
+				name:        "Foo",
+				description: "Foo description",
+				start:       time.Now(),
+				end:         time.Now(),
+				adminID:     1,
 			},
 		},
 	}
@@ -74,7 +69,7 @@ func TestTournamentDestroy(t *testing.T) {
 	test := struct {
 		name       string
 		tournament Tournament
-		want       *Tournament
+		want       *testTournament
 	}{
 		name: "destroy tournament",
 		tournament: Tournament{
