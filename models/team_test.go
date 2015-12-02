@@ -38,7 +38,7 @@ func TestCreateTeam(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminID, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.team); err != nil {
@@ -85,7 +85,7 @@ func TestTeamDestroy(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var got *Team
-		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminId, test.team.private); err != nil {
+		if got, err = CreateTeam(c, test.team.name, test.team.description, test.team.adminID, test.team.private); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
@@ -163,7 +163,7 @@ func TestFindTeams(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		for _, team := range test.teams {
-			if _, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			if _, err = CreateTeam(c, team.name, team.description, team.adminID, team.private); err != nil {
 				t.Errorf("test %v - Error: %v", i, err)
 			}
 		}
@@ -212,7 +212,7 @@ func TestTeamById(t *testing.T) {
 	tTeam := testTeam{"my team", "description", 10, false}
 
 	var team *Team
-	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	if team, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -296,7 +296,7 @@ func TestTeamUpdate(t *testing.T) {
 	tTeam := testTeam{"my team", "description", 10, false}
 
 	var newTeam *Team
-	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminId, tTeam.private); err != nil {
+	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
@@ -332,7 +332,7 @@ func TestTeamUpdate(t *testing.T) {
 
 		team.Name = test.updateTeam.name
 		team.Description = test.updateTeam.description
-		team.AdminIds[0] = test.updateTeam.adminId
+		team.AdminIds[0] = test.updateTeam.adminID
 		team.Private = test.updateTeam.private
 
 		if test.overrideId {
@@ -754,7 +754,7 @@ func TestIsTeamAdmin(t *testing.T) {
 	}
 
 	testTeams := createTestTeams(1)
-	testTeams[0].adminId = user.Id
+	testTeams[0].adminID = user.Id
 	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
 
 	tests := []struct {

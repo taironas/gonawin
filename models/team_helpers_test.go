@@ -25,7 +25,7 @@ func checkTeam(got *Team, want testTeam) error {
 		s = fmt.Sprintf("want name == %s, got %s", want.name, got.Name)
 	} else if got.Description != want.description {
 		s = fmt.Sprintf("want Description == %s, got %s", want.description, got.Description)
-	} else if got.AdminIds[0] != want.adminId {
+	} else if got.AdminIds[0] != want.adminID {
 		s = fmt.Sprintf("want AdminId == %d, got %d", want.adminID, got.AdminIds[0])
 	} else if got.Private != want.private {
 		s = fmt.Sprintf("want Private == %t, got %t", want.private, got.Private)
@@ -60,7 +60,7 @@ func createTeamsFromTestTeams(t *testing.T, c aetest.Context, testTeams []testTe
 	var err error
 	for i, team := range testTeams {
 		var got *Team
-		if got, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+		if got, err = CreateTeam(c, team.name, team.description, team.adminID, team.private); err != nil {
 			t.Errorf("team %v error: %v", i, err)
 		}
 
@@ -74,7 +74,7 @@ func createTestTeams(n int) (testTeams []testTeam) {
 		newTeam := testTeam{
 			name:        fmt.Sprintf("team %v", i),
 			description: fmt.Sprintf("description %v", i),
-			adminId:     10,
+			adminID:     10,
 			private:     false,
 		}
 		testTeams = append(testTeams, newTeam)
