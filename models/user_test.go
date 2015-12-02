@@ -528,7 +528,7 @@ func TestUserTeams(t *testing.T) {
 
 		for _, team := range test.teams {
 			var newTeam *Team
-			if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+			if newTeam, err = CreateTeam(c, team.name, team.description, team.adminID, team.private); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 
@@ -585,7 +585,7 @@ func TestUserTeamsByPage(t *testing.T) {
 					{
 						name:        "night's watch",
 						description: "guards of the wall",
-						adminId:     10,
+						adminID:     10,
 						private:     false,
 					},
 				},
@@ -593,13 +593,13 @@ func TestUserTeamsByPage(t *testing.T) {
 					{
 						name:        "Unsullied",
 						description: "former slaves",
-						adminId:     10,
+						adminID:     10,
 						private:     false,
 					},
 					{
 						name:        "Wildlings",
 						description: "we lived beyond the wall",
-						adminId:     10,
+						adminID:     10,
 						private:     false,
 					},
 				},
@@ -620,7 +620,7 @@ func TestUserTeamsByPage(t *testing.T) {
 		for _, teams := range test.paginatedTeams {
 			for _, team := range teams {
 				var newTeam *Team
-				if newTeam, err = CreateTeam(c, team.name, team.description, team.adminId, team.private); err != nil {
+				if newTeam, err = CreateTeam(c, team.name, team.description, team.adminID, team.private); err != nil {
 					t.Errorf("Error: %v", err)
 				}
 
@@ -675,20 +675,20 @@ func TestUserTournamentsByPage(t *testing.T) {
 	tests := []struct {
 		title                string
 		user                 testUser
-		paginatedTournaments [][]Tournament
+		paginatedTournaments [][]testTournament
 		count                int64
 		page                 int64
 	}{
 		{
 			title: "can get tournaments by page",
 			user:  testUser{"foo@bar.com", "john.snow", "john snow", "", false, ""},
-			paginatedTournaments: [][]Tournament{
+			paginatedTournaments: [][]testTournament{
 				{
-					{Name: "2014 FIFA World Cup", Description: "football world cup in Brazil", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{name: "2014 FIFA World Cup", description: "football world cup in Brazil", start: time.Now(), end: time.Now(), adminID: 1},
 				},
 				{
-					{Name: "2018 FIFA World Cup", Description: "football world cup in Russia", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
-					{Name: "2016 UEFA Euro", Description: "football euro in France", Start: time.Now(), End: time.Now(), AdminIds: make([]int64, 1)},
+					{name: "2018 FIFA World Cup", description: "football world cup in Russia", start: time.Now(), end: time.Now(), adminID: 1},
+					{name: "2016 UEFA Euro", description: "football euro in France", start: time.Now(), end: time.Now(), adminID: 1},
 				},
 			},
 			count: 2,
@@ -707,7 +707,7 @@ func TestUserTournamentsByPage(t *testing.T) {
 		for pti, tournaments := range test.paginatedTournaments {
 			for tsi, tournament := range tournaments {
 				var newTournament *Tournament
-				if newTournament, err = CreateTournament(c, tournament.Name, tournament.Description, tournament.Start, tournament.End, tournament.AdminIds[0]); err != nil {
+				if newTournament, err = CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
 					t.Errorf("test %v Error: %v", ti, err)
 				}
 
@@ -716,7 +716,7 @@ func TestUserTournamentsByPage(t *testing.T) {
 				}
 				// need to upate userIds in test structure.
 				// cannot go this before as we need to user.Id.
-				test.paginatedTournaments[pti][tsi].UserIds = []int64{user.Id}
+				test.paginatedTournaments[pti][tsi].userIDs = []int64{user.Id}
 			}
 		}
 
