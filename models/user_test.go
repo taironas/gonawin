@@ -945,3 +945,57 @@ func TestUserRemoveTournamentId(t *testing.T) {
 		}
 	}
 }
+
+// TestUserContainsTeamId tests if a team ID exists for a user entity.
+//
+func TestUserContainsTeamId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title    string
+		teamID   int64
+		contains bool
+		index    int
+	}{
+		{
+			"contains team ID from user",
+			42,
+			true,
+			0,
+		},
+		{
+			"does not contain team ID from user",
+			54,
+			false,
+			-1,
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTeamId(c, tests[0].teamID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		contains, index := user.ContainsTeamId(test.teamID)
+
+		if contains != test.contains {
+			t.Errorf("Error: want contains: %t, got: %t", test.contains, contains)
+		} else if index != test.index {
+			t.Errorf("Error: want index: %d, got: %d", test.index, index)
+		}
+	}
+}
