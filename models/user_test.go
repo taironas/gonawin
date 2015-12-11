@@ -945,3 +945,49 @@ func TestUserRemoveTournamentId(t *testing.T) {
 		}
 	}
 }
+
+// TestUserAddTeamId tests that team ID is well added to a user entity.
+//
+func TestUserAddTeamId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title  string
+		teamID int64
+		err    string
+	}{
+		{
+			"can add team ID to user",
+			42,
+			"",
+		},
+		{
+			"cannot add twice same team ID to user",
+			42,
+			"AddTeamId, allready a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+		err = user.AddTeamId(c, test.teamID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && user.TeamIds[0] != test.teamID {
+			t.Errorf("Error: a team ID should have been retrieved from the user")
+		}
+	}
+}
