@@ -964,13 +964,14 @@ func TestUserTournaments(t *testing.T) {
 	}
 
 	testTournaments := createTestTournaments(3)
+	addUserIDToTournaments(&testTournaments, user.Id)
 
 	tournamentIDs := createAndJoinTournaments(t, c, testTournaments, user)
 
 	tests := []struct {
 		title         string
 		tournamentIDs []int64
-		tournaments   []testTournament
+		tournaments   []*testTournament
 		err           string
 	}{
 		{
@@ -989,9 +990,9 @@ func TestUserTournaments(t *testing.T) {
 		if len(tournaments) != len(test.tournaments) {
 			t.Errorf("Error: want tournaments count: %d, got: %d", len(test.tournaments), len(tournaments))
 		} else if test.err == "" && len(tournaments) > 0 {
-			for i, tournament := range test.tournaments {
-				if err = checkTournament(tournaments[i], tournament); err != nil {
-					t.Errorf("test %v error: want tournament: %v, got: %v", i, tournament, tournaments[i][i])
+			for j, tournament := range test.tournaments {
+				if err = checkTournament(tournaments[j], tournament); err != nil {
+					t.Errorf("test %v error: %v", i, err)
 				}
 			}
 		}

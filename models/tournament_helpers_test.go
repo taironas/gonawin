@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"appengine/aetest"
 )
 
 type testTournament struct {
@@ -39,9 +41,9 @@ func checkTournament(got *Tournament, want *testTournament) error {
 }
 
 // createTestTournaments creates n test tournaments
-func createTestTournaments(n int) (testTournaments []testTournament) {
+func createTestTournaments(n int) (testTournaments []*testTournament) {
 	for i := 0; i < n; i++ {
-		newTournament := testTournament{
+		newTournament := &testTournament{
 			name:        fmt.Sprintf("tournament %v", i),
 			description: fmt.Sprintf("description %v", i),
 			start:       time.Now(),
@@ -57,8 +59,8 @@ func createTestTournaments(n int) (testTournaments []testTournament) {
 func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTournament) (tournamentIDs []int64) {
 	var err error
 	for i, tournament := range testTournaments {
-		var got *mdl.Tournament
-		if got, err = mdl.CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
+		var got *Tournament
+		if got, err = CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
 			t.Errorf("tournament %v error: %v", i, err)
 		}
 
@@ -68,11 +70,11 @@ func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTou
 }
 
 // createAndJoinTournaments stores tournaments from test tournaments into the dastore and join a given user
-func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []testTournament, user *mdl.User) (tournamentIDs []int64) {
+func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []*testTournament, user *User) (tournamentIDs []int64) {
 	var err error
 	for i, tournament := range testTournaments {
-		var got *mdl.Tournament
-		if got, err = mdl.CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
+		var got *Tournament
+		if got, err = CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
 			t.Errorf("tournament %v error: %v", i, err)
 		}
 
@@ -83,4 +85,10 @@ func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []
 		tournamentIDs = append(tournamentIDs, got.Id)
 	}
 	return
+}
+
+func addUserIDToTournaments(tournaments *[]*testTournament, userID int64) {
+	for _, t := range *tournaments {
+		t.userIDs = append(t.userIDs, userID)
+	}
 }
