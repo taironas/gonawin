@@ -945,3 +945,56 @@ func TestUserRemoveTournamentId(t *testing.T) {
 		}
 	}
 }
+
+// TestUserRemoveTeamId tests that team ID is well removed from a user entity.
+//
+func TestUserRemoveTeamId(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title  string
+		teamID int64
+		err    string
+	}{
+		{
+			"can remove team ID from user",
+			42,
+			"",
+		},
+		{
+			"cannot remove team ID from user",
+			54,
+			"RemoveTeamId, not a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTeamId(c, tests[0].teamID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		err = user.RemoveTeamId(c, test.teamID)
+
+		contains, _ := user.ContainsTeamId(test.teamID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+		} else if test.err == "" && contains {
+			t.Errorf("Error: team IDs should be empty")
+		}
+	}
+}
