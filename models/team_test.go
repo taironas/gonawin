@@ -803,8 +803,9 @@ func TestGetWordFrequencyForTeam(t *testing.T) {
 	}
 	defer c.Close()
 
-	testTeams := createTestTeams(1)
-	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
+	testTeams := createTestTeams(2)
+	testTeams[1].name = "word word word"
+	teamID := createTeamsFromTestTeams(t, c, testTeams)
 
 	tests := []struct {
 		title    string
@@ -813,23 +814,29 @@ func TestGetWordFrequencyForTeam(t *testing.T) {
 		expected int64
 	}{
 		{
-			title:    "can get frequency of 'team' term",
-			teamID:   teamID,
+			title:    "can get frequency of one with 'team 'term",
+			teamID:   teamID[0],
 			word:     "team",
 			expected: 1,
 		},
 		{
 			title:    "can get frequency of zero term",
-			teamID:   teamID,
+			teamID:   teamID[0],
 			word:     "aaa",
 			expected: 0,
+		},
+		{
+			title:    "can get frequency of 3 with 'word' term",
+			teamID:   teamID[1],
+			word:     "word",
+			expected: 3,
 		},
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
 		if got := GetWordFrequencyForTeam(c, test.teamID, test.word); got != test.expected {
-			t.Errorf("test %v - GetWordFrequencyForTeam got %v want %v", i, got, test.expected)
+			t.Errorf("test %v - GetWordFrequencyForTeam(%v,%v) got %v want %v", i, test.teamID, test.word, got, test.expected)
 		}
 	}
 }
