@@ -993,9 +993,9 @@ func TestUserContainsTeamId(t *testing.T) {
 		contains, index := user.ContainsTeamId(test.teamID)
 
 		if contains != test.contains {
-			t.Errorf("Error: want contains: %t, got: %t", test.contains, contains)
+			t.Errorf("test %d - Error: want contains: %t, got: %t", i, test.contains, contains)
 		} else if index != test.index {
-			t.Errorf("Error: want index: %d, got: %d", test.index, index)
+			t.Errorf("test %d - Error: want index: %d, got: %d", i, test.index, index)
 		}
 	}
 }
