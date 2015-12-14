@@ -945,3 +945,67 @@ func TestUserRemoveTournamentId(t *testing.T) {
 		}
 	}
 }
+
+// TestTournaments tests that you can get a list of tournaments for a user.
+//
+func TestUserTournaments(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	testTournaments := createTestTournaments(3)
+	addUserIDToTournaments(&testTournaments, user.Id)
+
+	createAndJoinTournaments(t, c, testTournaments, user)
+
+	var userWithNoTournament *User
+	if userWithNoTournament, err = CreateUser(c, "robb.stark@winterfell.com", "robb.stark", "robb stark", "king in the north", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	tests := []struct {
+		title       string
+		user        *User
+		tournaments []*testTournament
+		err         string
+	}{
+		{
+			"can get tournaments",
+			user,
+			testTournaments,
+			"",
+		},
+		{
+			"should get 0 tournament",
+			userWithNoTournament,
+			nil,
+			"",
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		tournaments := test.user.Tournaments(c)
+
+		if len(tournaments) != len(test.tournaments) {
+			t.Errorf("test %d - Error: want tournaments count: %d, got: %d", i, len(test.tournaments), len(tournaments))
+		} else if test.err == "" && len(tournaments) > 0 {
+			for j, tournament := range test.tournaments {
+				if err = checkTournament(tournaments[j], tournament); err != nil {
+					t.Errorf("test %d - Error: %v", i, err)
+				}
+			}
+		}
+	}
+}
