@@ -458,10 +458,11 @@ func (u *User) ContainsTeamId(id int64) (bool, int) {
 	return false, -1
 }
 
-// Update an array of users.
+// UpdateUsers updates an array of users.
+//
 func UpdateUsers(c appengine.Context, users []*User) error {
 	keys := make([]*datastore.Key, len(users))
-	for i, _ := range keys {
+	for i := range keys {
 		keys[i] = UserKeyById(c, users[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, users); err != nil {
