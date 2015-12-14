@@ -992,9 +992,9 @@ func TestUserRemoveTeamId(t *testing.T) {
 		contains, _ := user.ContainsTeamId(test.teamID)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
-			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
 		} else if test.err == "" && contains {
-			t.Errorf("Error: team IDs should be empty")
+			t.Errorf("test %d - Error: team IDs should be empty", i)
 		}
 	}
 }
