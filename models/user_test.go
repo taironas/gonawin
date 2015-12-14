@@ -966,18 +966,29 @@ func TestUserTournaments(t *testing.T) {
 	testTournaments := createTestTournaments(3)
 	addUserIDToTournaments(&testTournaments, user.Id)
 
-	tournamentIDs := createAndJoinTournaments(t, c, testTournaments, user)
+	createAndJoinTournaments(t, c, testTournaments, user)
+
+	var userWithNoTournament *User
+	if userWithNoTournament, err = CreateUser(c, "robb.stark@winterfell.com", "robb.stark", "robb stark", "king in the north", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
 
 	tests := []struct {
-		title         string
-		tournamentIDs []int64
-		tournaments   []*testTournament
-		err           string
+		title       string
+		user        *User
+		tournaments []*testTournament
+		err         string
 	}{
 		{
 			"can get tournaments",
-			tournamentIDs,
+			user,
 			testTournaments,
+			"",
+		},
+		{
+			"should get 0 tournament",
+			userWithNoTournament,
+			nil,
 			"",
 		},
 	}
@@ -985,14 +996,14 @@ func TestUserTournaments(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		tournaments := user.Tournaments(c)
+		tournaments := test.user.Tournaments(c)
 
 		if len(tournaments) != len(test.tournaments) {
-			t.Errorf("Error: want tournaments count: %d, got: %d", len(test.tournaments), len(tournaments))
+			t.Errorf("test %d - Error: want tournaments count: %d, got: %d", i, len(test.tournaments), len(tournaments))
 		} else if test.err == "" && len(tournaments) > 0 {
 			for j, tournament := range test.tournaments {
 				if err = checkTournament(tournaments[j], tournament); err != nil {
-					t.Errorf("test %v error: %v", i, err)
+					t.Errorf("test %d - Error: %v", i, err)
 				}
 			}
 		}
