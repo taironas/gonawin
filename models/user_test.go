@@ -980,14 +980,14 @@ func TestUserAddTeamId(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		t.Log(test.title)
 		err = user.AddTeamId(c, test.teamID)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
-			t.Errorf("Error: want err: %s, got: %q", test.err, err)
+			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
 		} else if test.err == "" && user.TeamIds[0] != test.teamID {
-			t.Errorf("Error: a team ID should have been retrieved from the user")
+			t.Errorf("test %d - Error: a team ID should have been retrieved from the user", i)
 		}
 	}
 }
