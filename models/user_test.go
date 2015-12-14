@@ -946,6 +946,171 @@ func TestUserRemoveTournamentId(t *testing.T) {
 	}
 }
 
+// TestTournaments tests that you can get a list of tournaments for a user.
+//
+func TestUserTournaments(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	testTournaments := createTestTournaments(3)
+	addUserIDToTournaments(&testTournaments, user.Id)
+
+	createAndJoinTournaments(t, c, testTournaments, user)
+
+	var userWithNoTournament *User
+	if userWithNoTournament, err = CreateUser(c, "robb.stark@winterfell.com", "robb.stark", "robb stark", "king in the north", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	tests := []struct {
+		title       string
+		user        *User
+		tournaments []*testTournament
+		err         string
+	}{
+		{
+			"can get tournaments",
+			user,
+			testTournaments,
+			"",
+		},
+		{
+			"should get 0 tournament",
+			userWithNoTournament,
+			nil,
+			"",
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		tournaments := test.user.Tournaments(c)
+
+		if len(tournaments) != len(test.tournaments) {
+			t.Errorf("test %d - Error: want tournaments count: %d, got: %d", i, len(test.tournaments), len(tournaments))
+		} else if test.err == "" && len(tournaments) > 0 {
+			for j, tournament := range test.tournaments {
+				if err = checkTournament(tournaments[j], tournament); err != nil {
+					t.Errorf("test %d - Error: %v", i, err)
+				}
+			}
+		}
+	}
+}
+
+// TestUserAddTeamId tests that team ID is well added to a user entity.
+//
+func TestUserAddTeamId(t *testing.T) {
+
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title  string
+		teamID int64
+		err    string
+	}{
+		{
+			"can add team ID to user",
+			42,
+			"",
+		},
+		{
+			"cannot add twice same team ID to user",
+			42,
+			"AddTeamId, allready a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		err = user.AddTeamId(c, test.teamID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
+		} else if test.err == "" && user.TeamIds[0] != test.teamID {
+			t.Errorf("test %d - Error: a team ID should have been retrieved from the user", i)
+		}
+	}
+}
+
+// TestUserRemoveTeamId tests that team ID is well removed from a user entity.
+//
+func TestUserRemoveTeamId(t *testing.T) {
+
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	tests := []struct {
+		title  string
+		teamID int64
+		err    string
+	}{
+		{
+			"can remove team ID from user",
+			42,
+			"",
+		},
+		{
+			"cannot remove team ID from user",
+			54,
+			"RemoveTeamId, not a member",
+		},
+	}
+
+	var user *User
+	if user, err = CreateUser(c, "john.snow@winterfell.com", "john.snow", "John Snow", "Crow", false, ""); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	if err = user.AddTeamId(c, tests[0].teamID); err != nil {
+		t.Errorf("Error: %v", err)
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+
+		err = user.RemoveTeamId(c, test.teamID)
+
+		contains, _ := user.ContainsTeamId(test.teamID)
+
+		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
+			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
+		} else if test.err == "" && contains {
+			t.Errorf("test %d - Error: team IDs should be empty", i)
+		}
+	}
+}
+
 // TestUserContainsTeamId tests if a team ID exists for a user entity.
 //
 func TestUserContainsTeamId(t *testing.T) {
@@ -987,7 +1152,7 @@ func TestUserContainsTeamId(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		t.Log(test.title)
 
 		contains, index := user.ContainsTeamId(test.teamID)

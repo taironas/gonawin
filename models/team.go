@@ -310,7 +310,9 @@ func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
 	}
 }
 
-// Given a id, and a word, get the frequency of that word in the team terms.
+// GetWordFrequencyForTeam will get the frequency of that word in the team terms
+// given a id, and a word.
+//
 func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
 
 	if teams := FindTeams(c, "Id", id); teams != nil {
