@@ -790,3 +790,53 @@ func TestIsTeamAdmin(t *testing.T) {
 		}
 	}
 }
+
+// TestGetWordFrequencyForTeam test word frequency in team entity.
+//
+func TestGetWordFrequencyForTeam(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testTeams := createTestTeams(2)
+	testTeams[1].name = "word word word"
+	teamID := createTeamsFromTestTeams(t, c, testTeams)
+
+	tests := []struct {
+		title    string
+		teamID   int64
+		word     string
+		expected int64
+	}{
+		{
+			title:    "can get frequency of one with 'team 'term",
+			teamID:   teamID[0],
+			word:     "team",
+			expected: 1,
+		},
+		{
+			title:    "can get frequency of zero term",
+			teamID:   teamID[0],
+			word:     "aaa",
+			expected: 0,
+		},
+		{
+			title:    "can get frequency of 3 with 'word' term",
+			teamID:   teamID[1],
+			word:     "word",
+			expected: 3,
+		},
+	}
+
+	for i, test := range tests {
+		t.Log(test.title)
+		if got := GetWordFrequencyForTeam(c, test.teamID, test.word); got != test.expected {
+			t.Errorf("test %v - GetWordFrequencyForTeam(%v,%v) got %v want %v", i, test.teamID, test.word, got, test.expected)
+		}
+	}
+}
