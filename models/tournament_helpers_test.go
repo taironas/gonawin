@@ -3,7 +3,10 @@ package models
 import (
 	"errors"
 	"fmt"
+	"testing"
 	"time"
+
+	"appengine/aetest"
 )
 
 type testTournament struct {
@@ -35,4 +38,57 @@ func checkTournament(got *Tournament, want *testTournament) error {
 	}
 
 	return errors.New(s)
+}
+
+// createTestTournaments creates n test tournaments
+func createTestTournaments(n int) (testTournaments []*testTournament) {
+	for i := 0; i < n; i++ {
+		newTournament := &testTournament{
+			name:        fmt.Sprintf("tournament %v", i),
+			description: fmt.Sprintf("description %v", i),
+			start:       time.Now(),
+			end:         time.Now(),
+			adminID:     10,
+		}
+		testTournaments = append(testTournaments, newTournament)
+	}
+	return
+}
+
+// createTournaments stores tournaments from test tournaments into the dastore
+func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTournament) (tournamentIDs []int64) {
+	var err error
+	for i, tournament := range testTournaments {
+		var got *Tournament
+		if got, err = CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
+			t.Errorf("tournament %v error: %v", i, err)
+		}
+
+		tournamentIDs = append(tournamentIDs, got.Id)
+	}
+	return
+}
+
+// createAndJoinTournaments stores tournaments from test tournaments into the dastore and join a given user
+func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []*testTournament, user *User) (tournamentIDs []int64) {
+	var err error
+	for i, tournament := range testTournaments {
+		var got *Tournament
+		if got, err = CreateTournament(c, tournament.name, tournament.description, tournament.start, tournament.end, tournament.adminID); err != nil {
+			t.Errorf("tournament %v error: %v", i, err)
+		}
+
+		if err = got.Join(c, user); err != nil {
+			t.Errorf("tournament %v error: %v", i, err)
+		}
+
+		tournamentIDs = append(tournamentIDs, got.Id)
+	}
+	return
+}
+
+func addUserIDToTournaments(tournaments *[]*testTournament, userID int64) {
+	for _, t := range *tournaments {
+		t.userIDs = append(t.userIDs, userID)
+	}
 }
