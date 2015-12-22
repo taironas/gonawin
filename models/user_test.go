@@ -11,9 +11,9 @@ import (
 	"github.com/taironas/gonawin/test"
 )
 
-// TestCreateUser tests that you can create a user.
+// TestUserCreateUser tests that you can create a user.
 //
-func TestCreateUser(t *testing.T) {
+func TestUserCreateUser(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -292,9 +292,9 @@ func TestUserDestroy(t *testing.T) {
 	}
 }
 
-// TestFindUser tests that you can find a user.
+// TestUserFindUser tests that you can find a user.
 //
-func TestFindUser(t *testing.T) {
+func TestUserFindUser(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -331,9 +331,9 @@ func TestFindUser(t *testing.T) {
 	}
 }
 
-// TestFindAllUsers tests that you can find all the users.
+// TestUserFindAllUsers tests that you can find all the users.
 //
-func TestFindAllUsers(t *testing.T) {
+func TestUserFindAllUsers(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -433,9 +433,9 @@ func TestUserUpdate(t *testing.T) {
 	}
 }
 
-// TestSigninUser tests that you can signin a user.
+// TestUserSigninUser tests that you can signin a user.
 //
-func TestSigninUser(t *testing.T) {
+func TestUserSigninUser(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -946,7 +946,7 @@ func TestUserRemoveTournamentId(t *testing.T) {
 	}
 }
 
-// TestTournaments tests that you can get a list of tournaments for a user.
+// TestUserTournaments tests that you can get a list of tournaments for a user.
 //
 func TestUserTournaments(t *testing.T) {
 	var c aetest.Context
