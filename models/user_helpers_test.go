@@ -79,3 +79,32 @@ func createNonSavedUser(email, username, name, alias string, isAdmin bool) User 
 		Created:               time.Now(),
 	}
 }
+
+func createUsersFromTestUsers(t *testing.T, c aetest.Context, testUsers []testUser) (userIDs []int64) {
+
+	var err error
+	for i, user := range testUsers {
+		var got *User
+		if got, err = CreateUser(c, user.email, user.username, user.name, user.alias, user.isAdmin, user.auth); err != nil {
+			t.Errorf("user %d error: %v", i, err)
+		}
+
+		userIDs = append(userIDs, got.Id)
+	}
+	return
+}
+
+func createTestUsers(n int) (testUsers []testUser) {
+	for i := 0; i < n; i++ {
+		newUser := testUser{
+			email:    fmt.Sprintf("foo%d@foo.com", i),
+			username: fmt.Sprintf("foo_%d", i),
+			name:     fmt.Sprintf("foo %d", i),
+			alias:    fmt.Sprintf("alias foo %d", i),
+			isAdmin:  false,
+			auth:     "",
+		}
+		testUsers = append(testUsers, newUser)
+	}
+	return
+}
