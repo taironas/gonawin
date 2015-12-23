@@ -16,19 +16,18 @@
           <p><input type="text" class="form-control input-md" id="{{m.IdNumber}}" ng-model="result2" placeholder=""></p>
       	</div>
       	<div class="col-md-1">
-          <button type="submit" class="btn btn-danger btn-xs" ng-click="cancelPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon-remove-circle"> cancel</span></button>
+          <button type="submit" class="btn btn-danger btn-xs" ng-click="cancelPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon-remove-circle"></span> cancel</button>
       	</div>
       </div>
     </div> <!-- / want to predict -->
     <div class="row">
       <div class="col-md-offset-4 col-md-2">
-      	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="!tournamentData.Joined && !m.Finished"><span class="glyphicon glyphicon glyphicon-edit"></span> gonawin</button>
-      	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && !m.Ready"><span class="glyphicon glyphicon glyphicon-time"></span> gonawin</button>
-      	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && m.Ready && !m.CanPredict && !m.Finished && !m.HasPredict"><span class="glyphicon glyphicon glyphicon-time"></span> gonawin</button>
-      	<button class="btn btn-primary btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && !m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"></span> gonawin</button>
-      	<button class="btn btn-primary btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && !m.Finished && m.wantToPredict" ng-click="predictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon glyphicon-edit"></span> save</button>
-      	<button class="btn btn-success btn-xs btn-block" ng-show="tournamentData.Joined && m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-check"></span> {{m.Predict}}</button>
-      	<button class="btn btn-success btn-xs btn-block" disabled="disabled" ng-show="tournamentData.Joined && m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && !m.CanPredict"><span class="glyphicon glyphicon glyphicon-check"></span> {{m.Predict}}</button>
+      	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="!m.Ready"><span class="glyphicon glyphicon glyphicon-time"></span> gonawin</button>
+      	<button class="btn btn-primary btn-xs btn-block" disabled="disabled" ng-show="m.Ready && !m.CanPredict && !m.Finished && !m.HasPredict"><span class="glyphicon glyphicon glyphicon-time"></span> gonawin</button>
+      	<button class="btn btn-primary btn-xs btn-block" ng-show="m.Ready && !m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-edit"></span> gonawin</button>
+      	<button class="btn btn-primary btn-xs btn-block" ng-show="m.Ready && !m.Finished && m.wantToPredict" ng-click="predictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index, result1, result2)"><span class="glyphicon glyphicon glyphicon-edit"></span> save</button>
+      	<button class="btn btn-success btn-xs btn-block" ng-show="m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && m.CanPredict" ng-click="activatePredictPhase(m.IdNumber, $index, $parent.$parent.$index, $parent.$parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-check"></span> {{m.Predict}}</button>
+      	<button class="btn btn-success btn-xs btn-block" disabled="disabled" ng-show="m.Ready && m.HasPredict && !m.Finished && !m.wantToPredict && !m.CanPredict"><span class="glyphicon glyphicon glyphicon-check"></span> {{m.Predict}}</button>
       	<button class="btn btn-default btn-xs btn-block active" disabled="disabled" ng-show="m.Finished"><span class="glyphicon glyphicon glyphicon-check"></span> {{m.Predict}}</button>
       </div>
     </div> <!-- / row -->
