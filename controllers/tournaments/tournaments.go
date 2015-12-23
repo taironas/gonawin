@@ -584,7 +584,11 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// check if user joined the tournament
 	if !tournament.Joined(c, u) {
-		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotAllowedToSetPrediction)}
+		// add user as participant
+		if err = tournament.Join(c, u); err != nil {
+			log.Errorf(c, "%s error on Join tournament: %v", desc, err)
+			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
+		}
 	}
 
 	// get match id number
