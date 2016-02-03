@@ -1190,12 +1190,7 @@ func TestUserUpdateUsers(t *testing.T) {
 		{
 			"update users successfully",
 			users,
-			[]testUser{
-				{"foo0@foo.com", "white.walkers", "white walkers", "dead", false, ""},
-				{"foo1@foo.com", "white.walkers", "white walkers", "dead", false, ""},
-				{"foo2@foo.com", "white.walkers", "white walkers", "dead", false, ""},
-				{"foo3@foo.com", "white.walkers", "white walkers", "dead", false, ""},
-			},
+			createTestUsers(4),
 			"",
 		},
 	}
