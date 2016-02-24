@@ -1164,3 +1164,60 @@ func TestUserContainsTeamId(t *testing.T) {
 		}
 	}
 }
+
+// TestUserUpdateUsers tests if users are updated.
+//
+func TestUserUpdateUsers(t *testing.T) {
+	var c aetest.Context
+	var err error
+	options := aetest.Options{StronglyConsistentDatastore: true}
+
+	if c, err = aetest.NewContext(&options); err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+
+	testUsers := createTestUsers(4)
+	userIDs := createUsersFromTestUsers(t, c, testUsers)
+	users, _ := UsersByIds(c, userIDs)
+
+	tests := []struct {
+		title         string
+		usersToUpdate []*User
+		updatedUsers  []testUser
+		err           string
+	}{
+		{
+			"update users successfully",
+			users,
+			createTestUsers(4),
+			"",
+		},
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+
+		for j, userToUpdate := range test.usersToUpdate {
+			userToUpdate.Username = test.updatedUsers[j].username
+			userToUpdate.Name = test.updatedUsers[j].name
+			userToUpdate.Alias = test.updatedUsers[j].alias
+		}
+
+		err = UpdateUsers(c, test.usersToUpdate)
+
+		for j, userToUpdate := range test.usersToUpdate {
+			updatedUser, _ := UserById(c, userToUpdate.Id)
+
+			if gonawintest.ErrorString(err) != test.err {
+				t.Errorf("Error: want err: %s, got: %q", test.err, err)
+			} else if test.err == "" && err != nil {
+				t.Errorf("Error: user should have been properly updated")
+			} else if test.err == "" && updatedUser != nil {
+				if err = checkUser(updatedUser, test.updatedUsers[j]); err != nil {
+					t.Errorf("Error: want user: %v, got: %v", test.updatedUsers[j], updatedUser)
+				}
+			}
+		}
+	}
+}
