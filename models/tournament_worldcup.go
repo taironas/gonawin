@@ -265,7 +265,7 @@ func (wct WorldCupTournament) ArrayOfPhases() []string {
 // Round of 16: matches 49 to 56
 // Quarte-finals: matches 57 to 60
 // Semi-finals: matches 61 to 62
-// Thrid Place: match 63
+// Third Place: match 63
 // Finals: match 64
 func (wct WorldCupTournament) MapOfPhaseIntervals() map[string][]int64 {
 

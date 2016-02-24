@@ -617,7 +617,7 @@ func (t *Tournament) Entity() ActivityEntity {
 }
 
 // The progression is a number between 0 and 1 with the progression of the tournament
-// with respect of todays date and start and end date of tournament.
+// with respect of today's date and start and end date of tournament.
 func (t *Tournament) Progress(c appengine.Context) float64 {
 	now := time.Now()
 	if now.Before(t.Start) {

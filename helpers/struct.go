@@ -60,7 +60,7 @@ func CopyToPointerStructure(tSrc interface{}, tDest interface{}) {
 }
 
 // Set to nil all fields of t structure not present in array
-// we supose that t is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
+// we suppose that t is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
 func KeepFields(t interface{}, fieldsToKeep arrayOfStrings) {
 	s := reflect.ValueOf(t).Elem()
 	typeOfT := s.Type()
@@ -89,7 +89,7 @@ func KeepFields(t interface{}, fieldsToKeep arrayOfStrings) {
 // }
 // use source structure to build destination structure
 // and at the same time set to nil all fields of Destination structure not present in array fieldsToKeep
-// we supose that pDest is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
+// we suppose that pDest is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
 func InitPointerStructure(pSrc interface{}, pDest interface{}, fieldsToKeep arrayOfStrings) {
 	s1 := reflect.ValueOf(pSrc).Elem()
 	s2 := reflect.ValueOf(pDest).Elem()

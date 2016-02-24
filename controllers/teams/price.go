@@ -34,7 +34,7 @@ import (
 
 // Prices handler, use it to get the team's prices.
 //  GET	/j/teams/[0-9]+/prices/     Get the prices of a team team with the given team id.
-// Reponse: array of JSON formatted prices.
+// Response: array of JSON formatted prices.
 //
 func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -70,7 +70,7 @@ func buildTeamPricesViewModel(prices []*mdl.Price) teamPricesViewModel {
 
 // PriceByTournament handler, use it to get the price of a team for a specific tournament.
 //	GET	/j/teams/[0-9]+/prices/[0-9]+/		Retrieves price of a team with the given id for the specified tournament.
-// Reponse: JSON formatted price.
+// Response: JSON formatted price.
 //
 func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method == "GET" {
@@ -103,7 +103,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 // UpdatePrice handler, use it to update the price of a team for a specific tournament.
 //	POST	/j/teams/[0-9]+/prices/update/[0-9]+/		Updates price of a team with the given id for the specified tournament.
-// Reponse: JSON formatted price.
+// Response: JSON formatted price.
 //
 func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
