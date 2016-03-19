@@ -183,8 +183,6 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		q := datastore.NewQuery("Secret")
 		var secrets []string
 		if keys, err := q.GetAll(c, &secrets); err == nil && len(secrets) > 0 {
-			secret = secrets[0]
-
 			// delete secret from datastore
 			if err = datastore.Delete(c, keys[0]); err != nil {
 				log.Errorf(c, "%s Error when trying to delete 'secret' key in Datastore: %v", desc, err)
