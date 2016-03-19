@@ -36,7 +36,7 @@ import (
 //
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 //
-// Reponse: a JSON formatted team.
+// Response: a JSON formatted team.
 //
 func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 

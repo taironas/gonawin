@@ -32,7 +32,7 @@ import (
 
 // RequestInvite handler, use it to request an invitation to a team.
 //  POST	/j/teams/requestinvite/[0-9]+/     Request an invitation to a private team with the given id.
-// Reponse: a JSON formatted status message.
+// Response: a JSON formatted status message.
 //
 func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -66,7 +66,7 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // SendInvite handler, use it to send an invitation to gonawin.
 //	POST	/j/teams/sendinvite/[0-9]+/			Send an invitation to a user with the given team id and user id.
 // An activity is published when the invitation is sent.
-// Reponse: a JSON formatted status message.
+// Response: a JSON formatted status message.
 //
 func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -103,7 +103,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // Invited handler, use it to get all the users who were invited to a team.
 //	GET  /j/teams/invited/[0-9]+/			Get list of users invited to a given team id.
-// Reponse: array of JSON formatted users.
+// Response: array of JSON formatted users.
 //
 func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -165,7 +165,7 @@ func buildTeamInvitedViewModel(users []*mdl.User) teamInvitedViewModel {
 // AllowRequest handler, use it to allow a user to join a team.
 //	GET  /j/teams/allow/[0-9]+/			Allow a request send by a user on a team.
 // After this, the user that send the request will be part of the team.
-// Reponse: a JSON formatted status message.
+// Response: a JSON formatted status message.
 //
 func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -206,7 +206,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 // DenyRequest handler, use it to not allow a user to join a team.
 //	GET  /j/teams/deny/[0-9]+/			Deny a request send by a user on a team.
 // After this, the user will not be able to be part of the team.
-// Reponse: a JSON formatted status message.
+// Response: a JSON formatted status message.
 //
 func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {

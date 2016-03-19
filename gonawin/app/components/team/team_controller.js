@@ -181,7 +181,7 @@ teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$loc
     console.log('TeamNewCtrl: AddTeam');
     Team.save($scope.team,
 	      function(response) {
-		// set message information in root scope to retreive it in team show controller.
+		// set message information in root scope to retrieve it in team show controller.
 		// http://stackoverflow.com/questions/13740885/angularjs-location-scope
 		$rootScope.messageInfo = response.MessageInfo;
 		$location.path('/teams/' + response.Team.Id);

@@ -492,7 +492,7 @@ func sendTaskDeleteUserPredictions(c appengine.Context, desc string, u *mdl.User
 	}
 }
 
-// Teams handler, use this to retreive the teams of the current user.
+// Teams handler, use this to retrieve the teams of the current user.
 // count parameter: default 12
 // page parameter: default 1
 //

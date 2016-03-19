@@ -92,7 +92,7 @@ func TestTournamentDestroy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// destory it
+	// destroy it
 	if got := tournament.Destroy(c); got != nil {
 		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
 	}

@@ -275,7 +275,7 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 }
 
 // Leave makes a user leave a team.
-// Todo: Should we check that the user is indeed a memeber of the team?
+// Todo: Should we check that the user is indeed a member of the team?
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamId(c, t.Id); err != nil {
@@ -775,7 +775,7 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 	accs := make([]AccuracyOverall, 0)
 	for _, aot := range t.AccOfTournaments {
 		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
-			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retreive accuracy entity from id, ", err)
+			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
 			a.Id = aot.AccuracyId
@@ -812,7 +812,7 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 			continue
 		}
 		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
-			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retreive accuracy entity from id, ", err)
+			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
 			a.Id = aot.AccuracyId

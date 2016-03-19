@@ -18,19 +18,19 @@
 //
 // It provides the following methods
 //
-//	GET	/j/teams/				Retreives all teams.
+//	GET	/j/teams/				Retrieves all teams.
 //	POST	/j/teams/new/				Creates a new team.
-//	GET	/j/teams/show/[0-9]+/			Retreives the team with the given id.
+//	GET	/j/teams/show/[0-9]+/			Retrieves the team with the given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
 //	POST	/j/teams/allow/[0-9]+/			Allow a user to be a member of a team with the given id.
 //	POST	/j/teams/deny/[0-9]+/			Deny entrance of user to be a member of a team with the given id.
 //	POST	/j/teams/join/[0-9]+/			Make a user join a team with the given id.
 //	GET	/j/teams/search/			Search for all teams respecting the query "q"
-//	GET	/j/teams/[0-9]+/members/		Retreives all members of a team with the given id.
-//	GET	/j/teams/[0-9]+/ranking/		Retreives the ranking of a team with the given id.
-//	GET	/j/teams/[0-9]+/accuracies/		Retreives all the tournament accuracies of a team with the given id.
-//	GET	/j/teams/[0-9]+/accuracies/[0-9]+/	Retreives accuracies of a team with the given id for the specified tournament.
+//	GET	/j/teams/[0-9]+/members/		Retrieves all members of a team with the given id.
+//	GET	/j/teams/[0-9]+/ranking/		Retrieves the ranking of a team with the given id.
+//	GET	/j/teams/[0-9]+/accuracies/		Retrieves all the tournament accuracies of a team with the given id.
+//	GET	/j/teams/[0-9]+/accuracies/[0-9]+/	Retrieves accuracies of a team with the given id for the specified tournament.
 //
 //
 // Every method below gives more information about every API call, its parameters, and its resutls.
@@ -69,7 +69,7 @@ type PriceData struct {
 // Parameters:
 //   'page' a int indicating the page number.
 //   'count' a int indicating the number of teams per page number. default value is 25
-// Reponse: array of JSON formatted teams.
+// Response: array of JSON formatted teams.
 //
 func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -134,7 +134,7 @@ func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 
 // New handler, use it to create a new team.
 //	POST	/j/teams/new/		Creates a new team.
-// Reponse: JSON formatted team.
+// Response: JSON formatted team.
 //
 func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
@@ -211,7 +211,7 @@ func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
 
 // Show handler, use it to get the team data to show.
 //	GET	/j/teams/show/[0-9]+/		Retrieves the team with the given id.
-// Reponse: JSON formatted team.
+// Response: JSON formatted team.
 //
 func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
@@ -318,7 +318,7 @@ func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tourna
 
 // Update handler, use it to update a team from a given id.
 //	POST	/j/teams/update/[0-9]+/			Updates the team with the given id.
-// Reponse: JSON formatted team.
+// Response: JSON formatted team.
 //
 func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -405,7 +405,7 @@ func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
 
 // Destroy handler, use to to destroy a team.
 //	POST	/j/teams/destroy/[0-9]+/		Destroys the team with the given id.
-// Reponse: JSON formatted message.
+// Response: JSON formatted message.
 //
 func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
@@ -477,7 +477,7 @@ func buildDestroyTeamsViewModel(team *mdl.Team) destroyTeamViewModel {
 
 // Members handler, use it to get all members of a team.
 //	/j/teams/[0-9]+/members/	GET			use this handler to get members of a team.
-// Reponse: array of JSON formatted users.
+// Response: array of JSON formatted users.
 //
 func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {

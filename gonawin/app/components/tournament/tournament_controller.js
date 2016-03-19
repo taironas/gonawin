@@ -26,7 +26,7 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
     });
 
     // show more tournaments function:
-    // retreive tournaments by page and increment page.
+    // retrieve tournaments by page and increment page.
     $scope.moreTournaments = function(){
 	console.log('more tournaments');
 	$scope.pageTournaments = $scope.pageTournaments + 1;

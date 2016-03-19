@@ -15,6 +15,6 @@
  */
 
 // Package helpers provides a set of utility functions
-// used accross gonawin app.
+// used across gonawin app.
 //
 package helpers
