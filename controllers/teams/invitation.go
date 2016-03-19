@@ -116,7 +116,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var teamId int64
 	var err error
-	teamId, err = extract.TeamId()
+	teamId, err = extract.TeamID()
 	if err != nil {
 		return err
 	}

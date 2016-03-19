@@ -109,7 +109,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var teamId int64
-	if teamId, err = extract.TeamId(); err != nil {
+	if teamId, err = extract.TeamID(); err != nil {
 		return err
 	}
 
@@ -167,7 +167,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var teamId int64
-	if teamId, err = extract.TeamId(); err != nil {
+	if teamId, err = extract.TeamID(); err != nil {
 		return err
 	}
 

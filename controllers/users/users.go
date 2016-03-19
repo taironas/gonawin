@@ -288,7 +288,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	var userId int64
 	var err error
 
-	if userId, err = extract.UserId(); err != nil {
+	if userId, err = extract.UserID(); err != nil {
 		return err
 	} else if userId != u.Id {
 		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userId, u.Id)

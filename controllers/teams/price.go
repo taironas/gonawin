@@ -89,7 +89,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 
 	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
+	tournamentId, err = extract.TournamentID()
 	if err != nil {
 		return err
 	}
@@ -122,7 +122,7 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
+	tournamentId, err = extract.TournamentID()
 	if err != nil {
 		return err
 	}

@@ -52,7 +52,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var userId int64
-	if userId, err = extract.UserId(); err != nil {
+	if userId, err = extract.UserID(); err != nil {
 		return err
 	}
 
@@ -107,7 +107,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var userId int64
-	if userId, err = extract.UserId(); err != nil {
+	if userId, err = extract.UserID(); err != nil {
 		return err
 	}
 
