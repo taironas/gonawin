@@ -26,8 +26,10 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tgroup represents the group of teams of a tournament
+//
 type Tgroup struct {
-	Id      int64
+	ID      int64
 	Name    string
 	Teams   []Tteam
 	Matches []Tmatch
@@ -36,10 +38,11 @@ type Tgroup struct {
 	GoalsA  []int64
 }
 
-// Get a Tgroup entity by id.
-func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
+// GroupByID gets a Tgroup entity by id.
+//
+func GroupByID(c appengine.Context, groupID int64) (*Tgroup, error) {
 	var g Tgroup
-	key := datastore.NewKey(c, "Tgroup", "", groupId, nil)
+	key := datastore.NewKey(c, "Tgroup", "", groupID, nil)
 
 	if err := datastore.Get(c, key, &g); err != nil {
 		log.Errorf(c, "group not found : %v", err)
@@ -48,16 +51,17 @@ func GroupById(c appengine.Context, groupId int64) (*Tgroup, error) {
 	return &g, nil
 }
 
-// Get an array of groups entities (Tgroup) from an array of group ids.
-func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
+// Groups gets an array of groups entities (Tgroup) from an array of group ids.
+//
+func Groups(c appengine.Context, groupIDs []int64) []*Tgroup {
 
 	var groups []*Tgroup
 
-	for _, groupId := range groupIds {
+	for _, groupID := range groupIDs {
 
-		g, err := GroupById(c, groupId)
+		g, err := GroupByID(c, groupID)
 		if err != nil {
-			log.Errorf(c, " Groups, cannot find group with ID=%", groupId)
+			log.Errorf(c, " Groups, cannot find group with ID=%", groupID)
 		} else {
 			groups = append(groups, g)
 		}
@@ -65,18 +69,20 @@ func Groups(c appengine.Context, groupIds []int64) []*Tgroup {
 	return groups
 }
 
-// Get pointer to a group key given a group id.
-func GroupKeyById(c appengine.Context, id int64) *datastore.Key {
+// GroupKeyByID gets pointer to a group key given a group id.
+//
+func GroupKeyByID(c appengine.Context, ID int64) *datastore.Key {
 
-	key := datastore.NewKey(c, "Tgroup", "", id, nil)
+	key := datastore.NewKey(c, "Tgroup", "", ID, nil)
 	return key
 }
 
-// Update an array of groups.
+// UpdateGroups updates an array of groups.
+//
 func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 	keys := make([]*datastore.Key, len(groups))
-	for i, _ := range keys {
-		keys[i] = GroupKeyById(c, groups[i].Id)
+	for i := range keys {
+		keys[i] = GroupKeyByID(c, groups[i].ID)
 	}
 	if _, err := datastore.PutMulti(c, keys, groups); err != nil {
 		return err
@@ -84,9 +90,10 @@ func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 	return nil
 }
 
-// Update a group.
+// UpdateGroup updates a group.
+//
 func UpdateGroup(c appengine.Context, g *Tgroup) error {
-	k := GroupKeyById(c, g.Id)
+	k := GroupKeyByID(c, g.ID)
 	oldGroup := new(Tgroup)
 	if err := datastore.Get(c, k, oldGroup); err == nil {
 		if _, err = datastore.Put(c, k, g); err != nil {
@@ -96,11 +103,12 @@ func UpdateGroup(c appengine.Context, g *Tgroup) error {
 	return nil
 }
 
-// Destroy an array of groups.
-func DestroyGroups(c appengine.Context, groupIds []int64) error {
-	keys := make([]*datastore.Key, len(groupIds))
-	for i, _ := range keys {
-		keys[i] = GroupKeyById(c, groupIds[i])
+// DestroyGroups destroys an array of groups.
+//
+func DestroyGroups(c appengine.Context, groupIDs []int64) error {
+	keys := make([]*datastore.Key, len(groupIDs))
+	for i := range keys {
+		keys[i] = GroupKeyByID(c, groupIDs[i])
 	}
 	if err := datastore.DeleteMulti(c, keys); err != nil {
 		return err
@@ -108,14 +116,15 @@ func DestroyGroups(c appengine.Context, groupIds []int64) error {
 	return nil
 }
 
-// Update points in group with result of match.
+// UpdatePointsAndGoals update points in group with result of match.
+//
 func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
 	for i, t := range g.Teams {
 		if t.Id == m.TeamId1 {
 			if m.Result1 > m.Result2 {
 				g.Points[i] += 3
 			} else if m.Result1 == m.Result2 {
-				g.Points[i] += 1
+				g.Points[i]++
 			}
 			g.GoalsF[i] += m.Result1
 			g.GoalsA[i] += m.Result2
@@ -123,7 +132,7 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 			if m.Result2 > m.Result1 {
 				g.Points[i] += 3
 			} else if m.Result2 == m.Result1 {
-				g.Points[i] += 1
+				g.Points[i]++
 			}
 			g.GoalsF[i] += m.Result2
 			g.GoalsA[i] += m.Result1
@@ -132,7 +141,8 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 	return nil
 }
 
-// Check if the match is part of a group phase in the current tournament.
+// IsMatchInGroup checks if the match is part of a group phase in the current tournament.
+//
 func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgroup) {
 	groups := Groups(c, t.GroupIds)
 	for i, g := range groups {
@@ -145,7 +155,8 @@ func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgro
 	return false, nil
 }
 
-// Get team with highest rank in group based on group points, goals for and goals against.
+// getFirstTeamInGroup gets team with highest rank in group based on group points, goals for and goals against.
+//
 func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
 
 	points := make([]int64, len(g.Points))
@@ -156,7 +167,7 @@ func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
 	argmax2, max2 := helpers.ArgMaxInt64(points)
 	if max1 == max2 { // points equal try by difference
 		diff := make([]int64, len(points))
-		for i, _ := range points {
+		for i := range points {
 			diff[i] = g.GoalsF[i] - g.GoalsA[i]
 		}
 		if diff[argmax1] > diff[argmax2] {
@@ -180,7 +191,7 @@ func getFirstTeamInGroup(c appengine.Context, g *Tgroup) (*Tteam, int) {
 	}
 }
 
-// Get team with second highest rank in group based on points, goals for and against.
+// getSecondTeamInGroup gets team with second highest rank in group based on points, goals for and against.
 func getSecondTeamInGroup(c appengine.Context, g *Tgroup, indexOfFirst int) (*Tteam, int) {
 
 	points := make([]int64, len(g.Points))
@@ -193,7 +204,7 @@ func getSecondTeamInGroup(c appengine.Context, g *Tgroup, indexOfFirst int) (*Tt
 	argmax2, max2 := helpers.ArgMaxInt64(points)
 	if max1 == max2 { // points equal try by difference
 		diff := make([]int64, len(points))
-		for i, _ := range points {
+		for i := range points {
 			diff[i] = g.GoalsF[i] - g.GoalsA[i]
 		}
 		if diff[argmax1] > diff[argmax2] {

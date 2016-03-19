@@ -325,7 +325,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
 		log.Infof(c, "%s: Group: %v New Key ok", desc, groupName)
 
-		group.Id = groupID
+		group.ID = groupID
 		groups[groupIndex] = group
 		_, err := datastore.Put(c, groupkey, &group)
 		if err != nil {
@@ -337,7 +337,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	// build array of group ids
 	groupIds := make([]int64, len(groups))
 	for i := range groupIds {
-		groupIds[i] = groups[i].Id
+		groupIds[i] = groups[i].ID
 	}
 
 	log.Infof(c, "%s: build of groups ids complete: %v", desc, groupIds)
