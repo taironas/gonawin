@@ -26,16 +26,19 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tteam represents a tournament team.
+//
 type Tteam struct {
-	Id   int64
+	ID   int64
 	Name string
 	Iso  string
 }
 
-// Get a Tteam entity by id.
-func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
+// TTeamByID gets a Tteam entity by id.
+//
+func TTeamByID(c appengine.Context, teamID int64) (*Tteam, error) {
 	var t Tteam
-	key := datastore.NewKey(c, "Tteam", "", teamId, nil)
+	key := datastore.NewKey(c, "Tteam", "", teamID, nil)
 
 	if err := datastore.Get(c, key, &t); err != nil {
 		log.Errorf(c, "team not found : %v", err)
@@ -44,8 +47,9 @@ func TTeamById(c appengine.Context, teamId int64) (*Tteam, error) {
 	return &t, nil
 }
 
-// Update tournament team.
+// UpdateTournamentTeam updates a tournament team.
 // From a phase an old name and a new, update the next phases of the tournament.
+//
 func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldName, newName string) error {
 
 	var tb TournamentBuilder
@@ -53,26 +57,26 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		return fmt.Errorf("TournamentBuilder not found")
 	}
 
-	mapIdTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIdTeams(c, t)
 	limits := tb.MapOfPhaseIntervals()
 
-	oldTeamId := int64(0)
-	newTeamId := int64(0)
-	for k, v := range mapIdTeams {
+	oldTeamID := int64(0)
+	newTeamID := int64(0)
+	for k, v := range mapIDTeams {
 		if v == oldName {
-			oldTeamId = k
+			oldTeamID = k
 		}
 		if v == newName {
-			newTeamId = k
+			newTeamID = k
 		}
-		if newTeamId > 0 && oldTeamId > 0 {
+		if newTeamID > 0 && oldTeamID > 0 {
 			break
 		}
 	}
 
 	// special treatment when old name is prefixed by "TBD"
 	// or if the old name was not found in the list of teams.
-	if strings.Contains(oldName, "TBD") || (oldTeamId == 0) {
+	if strings.Contains(oldName, "TBD") || (oldTeamID == 0) {
 		// get matches of phase
 		matches := GetMatchesByPhase(c, t, phaseName)
 
@@ -82,11 +86,11 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 
 			if rule[0] == oldName {
 				rule[0] = newName
-				m.TeamId1 = newTeamId
+				m.TeamId1 = newTeamID
 				updateMatch = true
 			} else if rule[len(rule)-1] == oldName {
 				rule[len(rule)-1] = newName
-				m.TeamId2 = newTeamId
+				m.TeamId2 = newTeamID
 				updateMatch = true
 			}
 
@@ -108,13 +112,13 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 			}
 			updateMatch := false
 			// update teams
-			if m.TeamId1 == oldTeamId {
+			if m.TeamId1 == oldTeamID {
 				updateMatch = true
-				m.TeamId1 = newTeamId
+				m.TeamId1 = newTeamID
 			}
-			if m.TeamId2 == oldTeamId {
+			if m.TeamId2 == oldTeamID {
 				updateMatch = true
-				m.TeamId2 = newTeamId
+				m.TeamId2 = newTeamID
 			}
 			// update rules if needed.
 			rule := strings.Split(m.Rule, " ")

@@ -120,7 +120,7 @@ func DestroyGroups(c appengine.Context, groupIDs []int64) error {
 //
 func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
 	for i, t := range g.Teams {
-		if t.Id == m.TeamId1 {
+		if t.ID == m.TeamId1 {
 			if m.Result1 > m.Result2 {
 				g.Points[i] += 3
 			} else if m.Result1 == m.Result2 {
@@ -128,7 +128,7 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 			}
 			g.GoalsF[i] += m.Result1
 			g.GoalsA[i] += m.Result2
-		} else if t.Id == m.TeamId2 {
+		} else if t.ID == m.TeamId2 {
 			if m.Result2 > m.Result1 {
 				g.Points[i] += 3
 			} else if m.Result2 == m.Result1 {
