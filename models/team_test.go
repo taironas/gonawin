@@ -522,7 +522,7 @@ func TestGetNotJoinedTeams(t *testing.T) {
 		for _, team := range notJoinedTeams {
 			for _, id := range test.userTeamIDs {
 				if teamIDs[id] == team.Id {
-					t.Errorf("test %v - team  %v is in both collections: NotJoined and UserTeams", i)
+					t.Errorf("test %d - team %d is in both collections: NotJoined and UserTeams", i, team.Id)
 				}
 			}
 		}
