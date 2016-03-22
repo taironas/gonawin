@@ -61,32 +61,34 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	// add admin to tournament
 	if err = tournament.AddAdmin(c, newAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	// send response
-	var tJson mdl.TournamentJson
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
-	}{
-		msg,
-		tJson,
-	}
-
-	return templateshlp.RenderJson(w, c, data)
+	vm := buildTournamentAddAdminViewModel(tournament, newAdmin)
+	return templateshlp.RenderJson(w, c, vm)
 }
 
-// RemoveAdmin handler lets you remove an admin from a tournament.
+type tournamentAddAdminViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Tournament  mdl.TournamentJson
+}
+
+func buildTournamentAddAdminViewModel(tournament *mdl.Tournament, newAdmin *mdl.User) tournamentAddAdminViewModel {
+
+	var t mdl.TournamentJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(tournament, &t, fieldsToKeep)
+
+	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
+	return tournamentAddAdminViewModel{msg, t}
+}
+
+// RemoveAdmin handler, use it to remove an admin from a tournament.
 //
 // Use this handler to remove a user as admin of the current tournament.
+//
 //	GET	/j/tournaments/[0-9]+/admin/remove/
 //
 func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
@@ -121,25 +123,29 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	var tJson mdl.TournamentJson
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
-
-	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
-	data := struct {
-		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
-	}{
-		msg,
-		tJson,
-	}
-	return templateshlp.RenderJson(w, c, data)
+	vm := buildTournamentRemoveAdminViewModel(tournament, oldAdmin)
+	return templateshlp.RenderJson(w, c, vm)
 }
 
-// ActivatePhase handler let you  activate phase of tournament.
+type tournamentRemoveAdminViewModel struct {
+	MessageInfo string `json:",omitempty"`
+	Tournament  mdl.TournamentJson
+}
+
+func buildTournamentRemoveAdminViewModel(tournament *mdl.Tournament, oldAdmin *mdl.User) tournamentRemoveAdminViewModel {
+	var t mdl.TournamentJson
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	helpers.InitPointerStructure(tournament, &t, fieldsToKeep)
+
+	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
+	return tournamentRemoveAdminViewModel{msg, t}
+}
+
+// ActivatePhase handler, use it to activate the phase of tournament.
 //
 // Use this handler to activate all the matches of given phase in tournament.
-//	GET	/j/tournaments/[0-9]+/admin/activatephase/
+//
+//	POST	/j/tournaments/[0-9]+/admin/activatephase/
 //
 func ActivatePhase(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
