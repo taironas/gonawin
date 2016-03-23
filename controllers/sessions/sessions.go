@@ -75,7 +75,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	c := appengine.NewContext(r)
 
-	userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
+	userInfo := authhlp.UserInfo{ID: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
 
 	var verifyURL string
 	if r.FormValue("provider") == "google" {
@@ -219,7 +219,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetUserInfo)}
 	}
 
-	if user, err = mdl.SigninUser(c, "Username", "", userInfo.Screen_name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(c, "Username", "", userInfo.ScreenName, userInfo.Name); err != nil {
 		log.Errorf(c, "%s Unable to signin user %s. %v", desc, userInfo.Name, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
