@@ -317,7 +317,7 @@ func (u *User) Teams(c appengine.Context) []*Team {
 	var teams []*Team
 
 	for _, tID := range u.TeamIds {
-		t, err := TeamById(c, tID)
+		t, err := TeamByID(c, tID)
 		if err != nil {
 			log.Errorf(c, "Teams, cannot find team with ID=%v", tID)
 		} else {
@@ -654,8 +654,8 @@ func (u *User) Invitations(c appengine.Context) []*Team {
 
 	var teams []*Team
 	var err error
-	if teams, err = TeamsByIds(c, ids); err != nil {
-		log.Errorf(c, "User.Invitations: something failed when calling TeamsByIds: %v", err)
+	if teams, err = TeamsByIDs(c, ids); err != nil {
+		log.Errorf(c, "User.Invitations: something failed when calling TeamsByIDs: %v", err)
 	}
 	return teams
 }

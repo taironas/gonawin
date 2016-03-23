@@ -129,7 +129,7 @@ func WasTeamRequestSent(c appengine.Context, teamId int64, userId int64) bool {
 func TeamsRequests(c appengine.Context, teams []*Team) []*TeamRequest {
 	var teamRequests []*TeamRequest
 	for _, team := range teams {
-		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.Id)...)
+		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.ID)...)
 	}
 	return teamRequests
 }

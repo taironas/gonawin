@@ -185,7 +185,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	participantsJson := make([]mdl.UserJson, len(participants))
 	helpers.TransformFromArrayOfPointers(&participants, &participantsJson, participantFieldsToKeep)
 
-	teamsJson := make([]mdl.TeamJson, len(teams))
+	teamsJson := make([]mdl.TeamJSON, len(teams))
 	helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 
 	progress := tournament.Progress(c)
@@ -203,7 +203,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament    mdl.TournamentJson
 		Joined        bool
 		Participants  []mdl.UserJson
-		Teams         []mdl.TeamJson
+		Teams         []mdl.TeamJSON
 		Progress      float64
 		Start         string
 		End           string
@@ -459,8 +459,8 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// query teams
 	var teams []*mdl.Team
 	for _, teamId := range u.TeamIds {
-		if team, err1 := mdl.TeamById(c, teamId); err1 == nil {
-			for _, aId := range team.AdminIds {
+		if team, err1 := mdl.TeamByID(c, teamId); err1 == nil {
+			for _, aId := range team.AdminIDs {
 				if aId == u.Id {
 					teams = append(teams, team)
 				}
@@ -471,7 +471,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	type canditateType struct {
-		Team   mdl.TeamJson
+		Team   mdl.TeamJSON
 		Joined bool
 	}
 
@@ -479,7 +479,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	candidatesData := make([]canditateType, len(teams))
 
 	for counterCandidate, team := range teams {
-		var tJson mdl.TeamJson
+		var tJson mdl.TeamJSON
 		helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 		var canditate canditateType
 		canditate.Team = tJson

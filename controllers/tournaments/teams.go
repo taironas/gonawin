@@ -32,11 +32,11 @@ import (
 
 type teamsByPhase struct {
 	Name  string
-	Teams []teamJson
+	Teams []teamJSON
 }
 
-// A teamJson is a variable to hold of team information.
-type teamJson struct {
+// A teamJSON is a variable to hold of team information.
+type teamJSON struct {
 	Name string
 	Iso  string
 }
@@ -108,14 +108,14 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
-		teams := make([]teamJson, 0)
+		teams := make([]teamJSON, 0)
 		for _, m := range filteredMatches {
 			if !teamContains(teams, m.Team1) {
-				t := teamJson{Name: m.Team1, Iso: m.Iso1}
+				t := teamJSON{Name: m.Team1, Iso: m.Iso1}
 				teams = append(teams, t)
 			}
 			if !teamContains(teams, m.Team2) {
-				t := teamJson{Name: m.Team2, Iso: m.Iso2}
+				t := teamJSON{Name: m.Team2, Iso: m.Iso2}
 				teams = append(teams, t)
 			}
 		}
@@ -124,7 +124,7 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
 	return phases
 }
 
-func teamContains(teams []teamJson, name string) bool {
+func teamContains(teams []teamJSON, name string) bool {
 	for _, t := range teams {
 		if t.Name == name {
 			return true

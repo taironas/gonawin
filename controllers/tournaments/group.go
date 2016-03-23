@@ -33,12 +33,12 @@ import (
 // We use it to group tournament teams information by group to meet world cup organization.
 type GroupJson struct {
 	Name  string
-	Teams []TeamJson
+	Teams []TeamJSON
 }
 
-// A TeamJson is a variable to hold the basic information of a Team:
+// A TeamJSON is a variable to hold the basic information of a Team:
 // The name of the team, the number of points recorded in the group phase, the goals for and against.
-type TeamJson struct {
+type TeamJSON struct {
 	Name   string
 	Points int64
 	GoalsF int64
@@ -81,7 +81,7 @@ func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 	groupsJson := make([]GroupJson, len(groups))
 	for i, g := range groups {
 		groupsJson[i].Name = g.Name
-		teams := make([]TeamJson, len(g.Teams))
+		teams := make([]TeamJSON, len(g.Teams))
 		for j, t := range g.Teams {
 			teams[j].Name = t.Name
 			teams[j].Points = g.Points[j]

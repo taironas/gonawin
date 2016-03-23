@@ -8,14 +8,14 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-func TestTTeamById(t *testing.T) {
+func TestTTeamByID(t *testing.T) {
 	c, err := aetest.NewContext(nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer c.Close()
 
-	log.Infof(c, "Tteam TeamById")
+	log.Infof(c, "Tteam TeamByID")
 
 	tests := []struct {
 		name string
@@ -29,15 +29,15 @@ func TestTTeamById(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		got, _ := TTeamById(c, test.id)
+		got, _ := TTeamByID(c, test.id)
 		if got == nil && test.want != nil {
-			t.Errorf("TTeamById(%q): got nil wanted %v", test.name, *test.want)
+			t.Errorf("TTeamByID(%q): got nil wanted %v", test.name, *test.want)
 		} else if got != nil && test.want == nil {
-			t.Errorf("TTeamById(%q): got %v wanted nil", test.name, *got)
+			t.Errorf("TTeamByID(%q): got %v wanted nil", test.name, *got)
 		} else if got == nil && test.want == nil {
 			// This is OK
 		} else if *got != *test.want {
-			t.Errorf("TTeamById(%q): got %v wanted %v", test.name, *got, *test.want)
+			t.Errorf("TTeamByID(%q): got %v wanted %v", test.name, *got, *test.want)
 		}
 	}
 }

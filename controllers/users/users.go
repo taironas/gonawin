@@ -100,7 +100,7 @@ type showViewModel struct {
 	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
 	Tournaments     []showTournamentViewModel      `json:",omitempty"`
 	TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
-	Invitations     []mdl.TeamJson                 `json:",omitempty"`
+	Invitations     []mdl.TeamJSON                 `json:",omitempty"`
 	ImageURL        string                         `json:",omitempty"`
 }
 
@@ -196,11 +196,11 @@ type showTeamViewModel struct {
 func buildShowTeamViewModel(teams []*mdl.Team) []showTeamViewModel {
 	ts := make([]showTeamViewModel, len(teams))
 	for i, t := range teams {
-		ts[i].Id = t.Id
+		ts[i].Id = t.ID
 		ts[i].Name = t.Name
 		ts[i].MembersCount = t.MembersCount
 		ts[i].Private = t.Private
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.ID)
 	}
 	return ts
 }
@@ -256,10 +256,10 @@ func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamR
 	return trs
 }
 
-func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJson {
+func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJSON {
 
 	fieldsToKeep := []string{"Id", "Name"}
-	inv := make([]mdl.TeamJson, len(invitations))
+	inv := make([]mdl.TeamJSON, len(invitations))
 	helpers.TransformFromArrayOfPointers(&invitations, &inv, fieldsToKeep)
 	return inv
 }
@@ -427,7 +427,7 @@ func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUs
 	for _, teamId := range requestUser.TeamIds {
 		if mdl.IsTeamAdmin(c, teamId, currentUser.Id) {
 			var team *mdl.Team
-			if team, err = mdl.TeamById(c, teamId); err != nil {
+			if team, err = mdl.TeamByID(c, teamId); err != nil {
 				log.Errorf(c, "%s team %d not found", desc, teamId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 			}
@@ -522,12 +522,12 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type TeamsUserViewModel struct {
-	Teams []mdl.TeamJson `json:",omitempty"`
+	Teams []mdl.TeamJSON `json:",omitempty"`
 }
 
 func buildTeamsUserViewModel(teams []*mdl.Team) TeamsUserViewModel {
 	teamsFieldsToKeep := []string{"Id", "Name"}
-	teamsJson := make([]mdl.TeamJson, len(teams))
+	teamsJson := make([]mdl.TeamJSON, len(teams))
 	helpers.TransformFromArrayOfPointers(&teams, &teamsJson, teamsFieldsToKeep)
 
 	return TeamsUserViewModel{teamsJson}
@@ -592,7 +592,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// find user request
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
@@ -619,12 +619,12 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 type allowInvitationUserViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildAllowInvitationUserViewModel(team *mdl.Team) allowInvitationUserViewModel {
 
-	var json mdl.TeamJson
+	var json mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &json, fieldsToKeep)
 
@@ -653,7 +653,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 

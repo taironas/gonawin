@@ -114,7 +114,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var team *mdl.Team
-	if team, err = mdl.TeamById(c, teamId); err != nil {
+	if team, err = mdl.TeamByID(c, teamId); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -130,7 +130,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// publish new activity
 	var updatedTeam *mdl.Team
-	if updatedTeam, err = mdl.TeamById(c, teamId); err != nil {
+	if updatedTeam, err = mdl.TeamByID(c, teamId); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -172,7 +172,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var team *mdl.Team
-	if team, err = mdl.TeamById(c, teamId); err != nil {
+	if team, err = mdl.TeamByID(c, teamId); err != nil {
 		log.Errorf(c, "team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -189,7 +189,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// publish new activity
 	var updatedTeam *mdl.Team
-	if updatedTeam, err = mdl.TeamById(c, teamId); err != nil {
+	if updatedTeam, err = mdl.TeamByID(c, teamId); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	} else {

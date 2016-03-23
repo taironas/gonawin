@@ -57,8 +57,8 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	log.Infof(c, "%s result from TeamScore: %v", desc, result)
 
 	var teams []*mdl.Team
-	if teams, err = mdl.TeamsByIds(c, result); err != nil {
-		log.Infof(c, "%v something failed when calling TeamsByIds: %v", desc, err)
+	if teams, err = mdl.TeamsByIDs(c, result); err != nil {
+		log.Infof(c, "%v something failed when calling TeamsByIDs: %v", desc, err)
 		return notFound(c, w, keywords)
 	}
 
@@ -90,13 +90,13 @@ type teamSearchTeamViewModel struct {
 func buildTeamSearchViewModel(teams []*mdl.Team) teamSearchViewModel {
 	tvm := make([]teamSearchTeamViewModel, len(teams))
 	for i, t := range teams {
-		tvm[i].Id = t.Id
+		tvm[i].Id = t.ID
 		tvm[i].Name = t.Name
-		tvm[i].AdminIds = t.AdminIds
+		tvm[i].AdminIds = t.AdminIDs
 		tvm[i].Private = t.Private
 		tvm[i].Accuracy = t.Accuracy
 		tvm[i].MembersCount = t.MembersCount
-		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.ID)
 	}
 	return teamSearchViewModel{Teams: tvm}
 }

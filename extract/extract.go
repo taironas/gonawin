@@ -51,13 +51,13 @@ func (c Context) UserID() (int64, error) {
 //
 func (c Context) User() (*mdl.User, error) {
 
-	userId, err := c.UserID()
+	userID, err := c.UserID()
 	if err != nil {
 		return nil, err
 	}
 
 	var u *mdl.User
-	if u, err = mdl.UserById(c.c, userId); err != nil {
+	if u, err = mdl.UserById(c.c, userID); err != nil {
 		log.Errorf(c.c, "%s user not found", c.desc)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}
 	}
@@ -101,15 +101,15 @@ func (c Context) TeamID() (int64, error) {
 //
 func (c Context) Team() (*mdl.Team, error) {
 
-	teamId, err := c.TeamID()
+	teamID, err := c.TeamID()
 	if err != nil {
 		return nil, err
 	}
 
 	var t *mdl.Team
-	t, err = mdl.TeamById(c.c, teamId)
+	t, err = mdl.TeamByID(c.c, teamID)
 	if err != nil {
-		log.Errorf(c.c, "%s team with id:%v was not found %v", c.desc, teamId, err)
+		log.Errorf(c.c, "%s team with id:%v was not found %v", c.desc, teamID, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
 	return t, nil
