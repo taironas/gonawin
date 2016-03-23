@@ -554,7 +554,7 @@ func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Sc
 	for _, s := range u.ScoreOfTournaments {
 		if s.TournamentId == tournament.Id {
 			log.Infof(c, "User.TournamentScore tournament found in ScoreOfTournaments array")
-			return ScoreById(c, s.ScoreId)
+			return ScoreByID(c, s.ScoreId)
 		}
 	}
 	log.Infof(c, "User.TournamentScore score entity not found")
@@ -600,7 +600,7 @@ func (u *User) Scores(c appengine.Context) []*Score {
 
 	scores := make([]*Score, 0)
 	for _, s := range u.ScoreOfTournaments {
-		if score, err := ScoreById(c, s.ScoreId); err != nil {
+		if score, err := ScoreByID(c, s.ScoreId); err != nil {
 			log.Errorf(c, "User.Scores: error when calling ScoreById")
 		} else {
 			scores = append(scores, score)
@@ -614,7 +614,7 @@ func (u *User) Scores(c appengine.Context) []*Score {
 func (u *User) ScoreByTournament(c appengine.Context, tId int64) int64 {
 	for _, s := range u.ScoreOfTournaments {
 		if s.TournamentId == tId {
-			if score, err := ScoreById(c, s.ScoreId); err == nil {
+			if score, err := ScoreByID(c, s.ScoreId); err == nil {
 				return sumInt64(&score.Scores)
 			}
 		}
@@ -627,13 +627,13 @@ func (u *User) TournamentsScores(c appengine.Context) []*ScoreOverall {
 
 	scores := make([]*ScoreOverall, 0)
 	for _, s := range u.ScoreOfTournaments {
-		if score, err := ScoreById(c, s.ScoreId); err != nil {
+		if score, err := ScoreByID(c, s.ScoreId); err != nil {
 			log.Errorf(c, "User.Scores: error when calling ScoreById")
 		} else {
 			var so ScoreOverall
-			so.Id = score.Id
-			so.UserId = score.UserId
-			so.TournamentId = score.TournamentId
+			so.ID = score.ID
+			so.UserID = score.UserID
+			so.TournamentID = score.TournamentID
 			so.Score = sumInt64(&score.Scores)
 			if len(score.Scores) > 0 {
 				so.LastProgression = score.Scores[len(score.Scores)-1]

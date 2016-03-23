@@ -310,7 +310,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 			log.Errorf(c, "%s cannot find user with id=%d", desc, id)
 		} else {
 			log.Infof(c, "%s score ready add it to tournament %v", desc, scores[i])
-			u.AddTournamentScore(c, scores[i].Id, scores[i].TournamentId)
+			u.AddTournamentScore(c, scores[i].ID, scores[i].TournamentID)
 			users = append(users, u)
 		}
 	}
