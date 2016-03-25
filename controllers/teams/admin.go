@@ -68,12 +68,12 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type teamAddAdminViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildTeamAddAdminViewModel(team *mdl.Team, newAdmin *mdl.User) teamAddAdminViewModel {
 
-	var t mdl.TeamJson
+	var t mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
@@ -119,11 +119,11 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type teamRemoveAdminViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildTeamRemoveAdminViewModel(team *mdl.Team, oldAdmin *mdl.User) teamRemoveAdminViewModel {
-	var t mdl.TeamJson
+	var t mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 

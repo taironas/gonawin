@@ -88,10 +88,10 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	q := make([]float64, len(setOfWords))
 	for i, w := range setOfWords {
 		dft := 0
-		if invId, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
+		if invID, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TeamScore, unable to find KeyName=%s: %v", w, err)
-		} else if invId != nil {
-			dft = len(strings.Split(string(invId.TeamIds), " "))
+		} else if invID != nil {
+			dft = len(strings.Split(string(invID.TeamIDs), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 	}

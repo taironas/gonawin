@@ -21,29 +21,31 @@ import (
 	"strings"
 )
 
-// merge ids in slice of byte with id if it is not already there
-// if id is already in the slice return empty string
+// MergeIds merges ids in slice of byte with id if it is not already there
+// if id is already in the slice return empty string.
+//
 func MergeIds(teamIds []byte, id int64) string {
 
 	strTeamIds := string(teamIds)
 	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
+	strID := strconv.FormatInt(id, 10)
 	for _, i := range strIds {
-		if i == strId {
+		if i == strID {
 			return ""
 		}
 	}
-	return strTeamIds + " " + strId
+	return strTeamIds + " " + strID
 }
 
-// remove id from slice of byte with ids.
+// RemovefromIds removes id from slice of byte with ids.
+//
 func RemovefromIds(teamIds []byte, id int64) (string, error) {
 	strTeamIds := string(teamIds)
 	strIds := strings.Split(strTeamIds, " ")
-	strId := strconv.FormatInt(id, 10)
+	strID := strconv.FormatInt(id, 10)
 	strRet := ""
 	for _, val := range strIds {
-		if val != strId {
+		if val != strID {
 			if len(strRet) == 0 {
 				strRet = val
 			} else {

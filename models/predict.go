@@ -26,25 +26,27 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// A Predict entity is defined by the result of a Match: Result1 and Result2 a match id and a user id.
+// Predict is an entity defined by the result of a Match: Result1 and Result2 a match id and a user id.
+//
 type Predict struct {
-	Id      int64     // predict id
-	UserId  int64     // user id, a prediction is binded to a single user.
+	ID      int64     `json:"Id"`     // predict id
+	UserID  int64     `json:"UserId"` // user id, a prediction is binded to a single user.
 	Result1 int64     // result of first team
 	Result2 int64     // result of second team
-	MatchId int64     // match id in tournament
+	MatchID int64     `json:"MatchId"` // match id in tournament
 	Created time.Time // date of creation
 }
 
-// Create a Predict entity given a name, a user id, a result and a match id admin id and a private mode.
-func CreatePredict(c appengine.Context, userId, result1, result2, matchId int64) (*Predict, error) {
+// CreatePredict creates a Predict entity given a name, a user id, a result and a match id admin id and a private mode.
+//
+func CreatePredict(c appengine.Context, userID, result1, result2, matchID int64) (*Predict, error) {
 
-	pId, _, err := datastore.AllocateIDs(c, "Predict", nil, 1)
+	pID, _, err := datastore.AllocateIDs(c, "Predict", nil, 1)
 	if err != nil {
 		return nil, err
 	}
-	key := datastore.NewKey(c, "Predict", "", pId, nil)
-	p := &Predict{pId, userId, result1, result2, matchId, time.Now()}
+	key := datastore.NewKey(c, "Predict", "", pID, nil)
+	p := &Predict{pID, userID, result1, result2, matchID, time.Now()}
 	if _, err = datastore.Put(c, key, p); err != nil {
 		return nil, err
 	}
@@ -52,18 +54,20 @@ func CreatePredict(c appengine.Context, userId, result1, result2, matchId int64)
 }
 
 // Destroy a Predict entity.
+//
 func (p *Predict) Destroy(c appengine.Context) error {
 
-	if _, err := PredictById(c, p.Id); err != nil {
-		return fmt.Errorf("Cannot find predict with Id=%d", p.Id)
-	} else {
-		key := datastore.NewKey(c, "Predict", "", p.Id, nil)
-
-		return datastore.Delete(c, key)
+	if _, err := PredictByID(c, p.ID); err != nil {
+		return fmt.Errorf("Cannot find predict with Id=%d", p.ID)
 	}
+
+	key := datastore.NewKey(c, "Predict", "", p.ID, nil)
+
+	return datastore.Delete(c, key)
 }
 
 // DestroyPredicts destroys a list of predicts.
+//
 func DestroyPredicts(c appengine.Context, predictIds []int64) error {
 	var keys []*datastore.Key
 	for _, id := range predictIds {
@@ -73,28 +77,30 @@ func DestroyPredicts(c appengine.Context, predictIds []int64) error {
 	return datastore.DeleteMulti(c, keys)
 }
 
-// Search for all Predict entities with respect to a filter and a value.
+// FindPredicts searches for all Predict entities with respect to a filter and a value.
+//
 func FindPredicts(c appengine.Context, filter string, value interface{}) []*Predict {
 
 	q := datastore.NewQuery("Predict").Filter(filter+" =", value)
 
 	var predicts []*Predict
 
-	if _, err := q.GetAll(c, &predicts); err == nil {
-		return predicts
-	} else {
+	if _, err := q.GetAll(c, &predicts); err != nil {
 		log.Errorf(c, " Predict.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
+
+	return predicts
 }
 
-// Search for a Predict entity given a userId and a matchId.
+// FindPredictByUserMatch searches for a Predict entity given a userId and a matchId.
 // The pair (user id , match id) should be unique. So if the query returns more than one entity we return 'nil' and write in the error log.
-func FindPredictByUserMatch(c appengine.Context, userId, matchId int64) *Predict {
+//
+func FindPredictByUserMatch(c appengine.Context, userID, matchID int64) *Predict {
 	desc := "Predict.FindPredictByUserMatch:"
 	q := datastore.NewQuery("Predict").
-		Filter("UserId"+" =", userId).
-		Filter("MatchId"+" =", matchId)
+		Filter("UserId"+" =", userID).
+		Filter("MatchId"+" =", matchID)
 
 	var predicts []*Predict
 
@@ -113,8 +119,9 @@ func FindPredictByUserMatch(c appengine.Context, userId, matchId int64) *Predict
 	}
 }
 
-// Get a Predict given an id.
-func PredictById(c appengine.Context, id int64) (*Predict, error) {
+// PredictByID gets a Predict given an id.
+//
+func PredictByID(c appengine.Context, id int64) (*Predict, error) {
 
 	var p Predict
 	key := datastore.NewKey(c, "Predict", "", id, nil)
@@ -126,8 +133,9 @@ func PredictById(c appengine.Context, id int64) (*Predict, error) {
 	return &p, nil
 }
 
-// Get a Predict key given an id.
-func PredictKeyById(c appengine.Context, id int64) *datastore.Key {
+// PredictKeyByID gets a Predict key given an id.
+//
+func PredictKeyByID(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Predict", "", id, nil)
 
@@ -135,8 +143,9 @@ func PredictKeyById(c appengine.Context, id int64) *datastore.Key {
 }
 
 // Update a Predict entity.
+//
 func (p *Predict) Update(c appengine.Context) error {
-	k := PredictKeyById(c, p.Id)
+	k := PredictKeyByID(c, p.ID)
 	old := new(Predict)
 	if err := datastore.Get(c, k, old); err == nil {
 		if _, err = datastore.Put(c, k, p); err != nil {
@@ -146,7 +155,8 @@ func (p *Predict) Update(c appengine.Context) error {
 	return nil
 }
 
-// Get all Predicts in datastore.
+// FindAllPredicts gets all Predicts in datastore.
+//
 func FindAllPredicts(c appengine.Context) []*Predict {
 	q := datastore.NewQuery("Predict")
 
@@ -194,16 +204,20 @@ func PredictsByIds(c appengine.Context, ids []int64) ([]*Predict, error) {
 func PredictKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 	keys := make([]*datastore.Key, len(ids))
 	for i, id := range ids {
-		keys[i] = PredictKeyById(c, id)
+		keys[i] = PredictKeyByID(c, id)
 	}
 	return keys
 }
 
+// Predicts holds an array of Predict entity.
+//
 type Predicts []*Predict
 
-func (a Predicts) ContainsMatchId(id int64) (bool, int) {
+// ContainsMatchID indicates if a match id exists in the array of predicts
+//
+func (a Predicts) ContainsMatchID(id int64) (bool, int) {
 	for i, e := range a {
-		if e.MatchId == id {
+		if e.MatchID == id {
 			return true, i
 		}
 	}

@@ -77,11 +77,11 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type TeamJoinViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildTeamJoinViewModel(team *mdl.Team) TeamJoinViewModel {
-	var t mdl.TeamJson
+	var t mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
@@ -109,7 +109,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if mdl.IsTeamAdmin(c, team.Id, u.Id) {
+	if mdl.IsTeamAdmin(c, team.ID, u.Id) {
 		log.Errorf(c, "%s Team administrator cannot leave the team", desc)
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 	}
@@ -119,7 +119,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TeamJson
+	var tJson mdl.TeamJSON
 	helpers.CopyToPointerStructure(team, &tJson)
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.KeepFields(&tJson, fieldsToKeep)
@@ -134,7 +134,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	msg := fmt.Sprintf("You left team %s.", team.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Team        mdl.TeamJson
+		Team        mdl.TeamJSON
 	}{
 		msg,
 		tJson,

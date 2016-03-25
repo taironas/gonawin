@@ -51,13 +51,13 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	var userId int64
-	if userId, err = extract.UserId(); err != nil {
+	var userID int64
+	if userID, err = extract.UserID(); err != nil {
 		return err
 	}
 
 	var newAdmin *mdl.User
-	if newAdmin, err = extract.Admin(userId); err != nil {
+	if newAdmin, err = extract.Admin(userID); err != nil {
 		return err
 	}
 
@@ -68,9 +68,9 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// send response
-	var tJson mdl.TournamentJson
+	var tJSON mdl.TournamentJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
 	data := struct {
@@ -78,7 +78,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament  mdl.TournamentJson
 	}{
 		msg,
-		tJson,
+		tJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
@@ -106,13 +106,13 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	var userId int64
-	if userId, err = extract.UserId(); err != nil {
+	var userID int64
+	if userID, err = extract.UserID(); err != nil {
 		return err
 	}
 
 	var oldAdmin *mdl.User
-	if oldAdmin, err = extract.Admin(userId); err != nil {
+	if oldAdmin, err = extract.Admin(userID); err != nil {
 		return err
 	}
 
@@ -121,9 +121,9 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	var tJson mdl.TournamentJson
+	var tJSON mdl.TournamentJson
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
 	data := struct {
@@ -131,7 +131,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament  mdl.TournamentJson
 	}{
 		msg,
-		tJson,
+		tJSON,
 	}
 	return templateshlp.RenderJson(w, c, data)
 }

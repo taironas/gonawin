@@ -31,8 +31,9 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// Simulate the scores of a phase in a tournament.
+// SimulateMatches simulates the scores of a phase in a tournament.
 //    POST /j/tournaments/[0-9]+/matches/simulate?phase=:phaseName
+//
 func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -52,8 +53,8 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	allMatches := mdl.GetAllMatchesFromTournament(c, t)
 	phases := mdl.MatchesGroupByPhase(t, allMatches)
 
-	mapIdTeams := mdl.MapOfIdTeams(c, t)
-	phaseId := -1
+	mapIDTeams := mdl.MapOfIdTeams(c, t)
+	phaseID := -1
 	var results1 []int64
 	var results2 []int64
 	var matches []*mdl.Tmatch
@@ -61,7 +62,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		if ph.Name != phase {
 			continue
 		}
-		phaseId = i
+		phaseID = i
 		for _, d := range ph.Days {
 			for j, m := range d.Matches {
 				// simulate match here (call set results)
@@ -70,7 +71,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 				results1 = append(results1, r1)
 				results2 = append(results2, r2)
 				matches = append(matches, &d.Matches[j])
-				log.Infof(c, "Tournament Simulate Matches: Match#%v: %v - %v | %v - %v", m.Id, mapIdTeams[m.TeamId1], mapIdTeams[m.TeamId2], r1, r2)
+				log.Infof(c, "Tournament Simulate Matches: Match#%v: %v - %v | %v - %v", m.Id, mapIDTeams[m.TeamId1], mapIDTeams[m.TeamId2], r1, r2)
 			}
 		}
 		// phase done we and not break
@@ -83,8 +84,8 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// publish activities:
 	for i, match := range matches {
-		object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIdTeams[match.TeamId1]}
-		target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
+		object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIDTeams[match.TeamId1]}
+		target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIDTeams[match.TeamId2]}
 		verb := ""
 		if results1[i] > results2[i] {
 			verb = fmt.Sprintf("won %d-%d against", results1[i], results2[i])
@@ -96,15 +97,15 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		t.Publish(c, "match", verb, object, target)
 	}
 
-	if phaseId >= 0 {
+	if phaseID >= 0 {
 		// only return update phase
-		matchesJson := buildMatchesFromTournament(c, t, u)
-		phasesJson := matchesGroupByPhase(t, matchesJson)
+		matchesJSON := buildMatchesFromTournament(c, t, u)
+		phasesJSON := matchesGroupByPhase(t, matchesJSON)
 
 		data := struct {
 			Phase PhaseJson
 		}{
-			phasesJson[phaseId],
+			phasesJSON[phaseID],
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}

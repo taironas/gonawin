@@ -22,17 +22,20 @@ import (
 	"appengine"
 )
 
-// information overrides the infof of appengine to be able to centralize the prefix of all logs
+// Infof overrides the infof of appengine to be able to centralize the prefix of all logs
+//
 func Infof(c appengine.Context, format string, args ...interface{}) {
 	c.Infof("gonawin: "+format, args...)
 }
 
-// error overrides the infof of appengine to be able to centralize the prefix of all logs
+// Errorf overrides the infof of appengine to be able to centralize the prefix of all logs
+//
 func Errorf(c appengine.Context, format string, args ...interface{}) {
 	c.Errorf("gonawin: "+format, args...)
 }
 
-// warning overrides the infof of appengine to be able to centralize the prefix of all logs
+// Warningf overrides the infof of appengine to be able to centralize the prefix of all logs
+//
 func Warningf(c appengine.Context, format string, args ...interface{}) {
 	c.Warningf("gonawin: "+format, args...)
 }

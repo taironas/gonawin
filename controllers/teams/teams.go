@@ -121,12 +121,12 @@ type indexTeamViewModel struct {
 func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 	ts := make([]indexTeamViewModel, len(teams))
 	for i, t := range teams {
-		ts[i].Id = t.Id
+		ts[i].Id = t.ID
 		ts[i].Name = t.Name
 		ts[i].Private = t.Private
 		ts[i].Accuracy = t.Accuracy
 		ts[i].MembersCount = t.MembersCount
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.ID)
 	}
 
 	return ts
@@ -194,11 +194,11 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type newTeamViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
-	var tJson mdl.TeamJson
+	var tJson mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -245,7 +245,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type showViewModel struct {
-	Team        mdl.TeamJson              `json:",omitempty"`
+	Team        mdl.TeamJSON              `json:",omitempty"`
 	Joined      bool                      `json:",omitempty"`
 	RequestSent bool                      `json:",omitempty"`
 	Players     []playerViewModel         `json:",omitempty"`
@@ -255,7 +255,7 @@ type showViewModel struct {
 
 func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
 	// build team json
-	var tJson mdl.TeamJson
+	var tJson mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
 	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
 
@@ -265,10 +265,10 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 	return showViewModel{
 		tJson,
 		t.Joined(c, u),
-		mdl.WasTeamRequestSent(c, t.Id, u.Id),
+		mdl.WasTeamRequestSent(c, t.ID, u.Id),
 		pvm,
 		tvm,
-		helpers.TeamImageURL(t.Name, t.Id),
+		helpers.TeamImageURL(t.Name, t.ID),
 	}
 }
 
@@ -336,7 +336,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.Id, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 	}
@@ -388,11 +388,11 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type updateTeamViewModel struct {
 	MessageInfo string `json:",omitempty"`
-	Team        mdl.TeamJson
+	Team        mdl.TeamJSON
 }
 
 func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
-	var tJson mdl.TeamJson
+	var tJson mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
 
@@ -423,7 +423,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.Id, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 	}
@@ -435,7 +435,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	for _, player := range players {
-		if err := player.RemoveTeamId(c, team.Id); err != nil {
+		if err := player.RemoveTeamId(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 		} else if u.Id == player.Id {
 			// Be sure that current user has the latest data,
@@ -447,7 +447,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
-		if err := tournament.RemoveTeamId(c, team.Id); err != nil {
+		if err := tournament.RemoveTeamId(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}

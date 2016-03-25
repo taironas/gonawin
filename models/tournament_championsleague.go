@@ -302,7 +302,7 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 // From tournament entity build map of teams.
 func (clt ChampionsLeagueTournament) MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
-	mapIdTeams := make(map[int64]string)
+	mapIDTeams := make(map[int64]string)
 
 	matches2ndStage := tournament.Matches2ndStage
 
@@ -313,21 +313,21 @@ func (clt ChampionsLeagueTournament) MapOfIdTeams(c appengine.Context, tournamen
 		if err != nil {
 			log.Errorf(c, " MapOfIdTeams, cannot find match with ID=%", matchID)
 		} else {
-			t1, err1 := TTeamById(c, m.TeamId1)
+			t1, err1 := TTeamByID(c, m.TeamId1)
 			if err1 != nil {
 				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId1)
 			} else {
-				mapIdTeams[t1.Id] = t1.Name
+				mapIDTeams[t1.ID] = t1.Name
 			}
 
-			t2, err2 := TTeamById(c, m.TeamId2)
+			t2, err2 := TTeamByID(c, m.TeamId2)
 			if err2 != nil {
 				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId2)
 			} else {
-				mapIdTeams[t2.Id] = t2.Name
+				mapIDTeams[t2.ID] = t2.Name
 			}
 		}
 	}
 
-	return mapIdTeams
+	return mapIDTeams
 }

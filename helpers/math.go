@@ -18,7 +18,8 @@ package helpers
 
 import ()
 
-// Arg max of an array of int64. Returns the index and the max value.
+// ArgMaxInt64 returns the index and the max value.
+//
 func ArgMaxInt64(arr []int64) (index int, max int64) {
 	for i, n := range arr {
 		if i == 0 || n > max {

@@ -30,106 +30,114 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// Accuracy of Tournament
-type AccOfTournament struct {
-	AccuracyId   int64 // id of accuracy entity
-	TournamentId int64 // id of tournament
+// TournamentAccuracy holds a tournament id and an accuracy id.
+//
+type TournamentAccuracy struct {
+	AccuracyID   int64 // id of accuracy entity
+	TournamentID int64 // id of tournament
 }
 
+// Team holds tournament entity data.
+//
 type Team struct {
-	Id               int64
-	KeyName          string
-	Name             string
-	Description      string
-	AdminIds         []int64 // ids of User that are admins of the team
-	Private          bool
-	Created          time.Time
-	UserIds          []int64           // ids of Users <=> members of the team.
-	TournamentIds    []int64           // ids of Tournaments <=> Tournaments the team subscribed.
-	Accuracy         float64           // Overall Team accuracy.
-	AccOfTournaments []AccOfTournament // ids of Accuracies for each tournament the team is participating on .
-	PriceIds         []int64           // ids of Prices <=> prices defined for each tournament the team participates.
-	MembersCount     int64             // number of members in team
+	ID                   int64
+	KeyName              string
+	Name                 string
+	Description          string
+	AdminIDs             []int64 // ids of User that are admins of the team
+	Private              bool
+	Created              time.Time
+	UserIDs              []int64              // ids of Users <=> members of the team.
+	TournamentIDs        []int64              // ids of Tournaments <=> Tournaments the team subscribed.
+	Accuracy             float64              // Overall Team accuracy.
+	TournamentAccuracies []TournamentAccuracy // ids of Accuracies for each tournament the team is participating on .
+	PriceIDs             []int64              // ids of Prices <=> prices defined for each tournament the team participates.
+	MembersCount         int64                // number of members in team
 }
 
-type TeamJson struct {
-	Id            *int64             `json:",omitempty"`
-	KeyName       *string            `json:",omitempty"`
-	Name          *string            `json:",omitempty"`
-	Description   *string            `json:",omitempty"`
-	AdminIds      *[]int64           `json:",omitempty"`
-	Private       *bool              `json:",omitempty"`
-	Created       *time.Time         `json:",omitempty"`
-	UserIds       *[]int64           `json:",omitempty"`
-	TournamentIds *[]int64           `json:",omitempty"`
-	Accuracy      *float64           `json:",omitempty"`
-	AccuracyIds   *[]AccOfTournament `json:",omitempty"`
-	PriceIds      *[]int64           `json:",omitempty"`
-	MembersCount  *int64             `json:",omitempty"`
+// TeamJSON is the JSON version of the Team struct.
+//
+type TeamJSON struct {
+	ID            *int64                `json:Id",omitempty"`
+	KeyName       *string               `json:",omitempty"`
+	Name          *string               `json:",omitempty"`
+	Description   *string               `json:",omitempty"`
+	AdminIds      *[]int64              `json:",omitempty"`
+	Private       *bool                 `json:",omitempty"`
+	Created       *time.Time            `json:",omitempty"`
+	UserIDs       *[]int64              `json:UserIds",omitempty"`
+	TournamentIDs *[]int64              `json:TournamentIds",omitempty"`
+	Accuracy      *float64              `json:",omitempty"`
+	AccuracyIDs   *[]TournamentAccuracy `json:AccuracyIds",omitempty"`
+	PriceIDs      *[]int64              `json:PriceIds",omitempty"`
+	MembersCount  *int64                `json:",omitempty"`
 }
 
 // CreateTeam creates a team given a name, description, an admin id and a private mode.
 //
-func CreateTeam(c appengine.Context, name string, description string, adminId int64, private bool) (*Team, error) {
+func CreateTeam(c appengine.Context, name string, description string, adminID int64, private bool) (*Team, error) {
 	// create new team
-	teamId, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
+	teamID, _, err := datastore.AllocateIDs(c, "Team", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 
-	key := datastore.NewKey(c, "Team", "", teamId, nil)
+	key := datastore.NewKey(c, "Team", "", teamID, nil)
 	admins := make([]int64, 1)
-	admins[0] = adminId
-	emptyArray := make([]int64, 0)
-	emtpyArrayOfAccOfTournament := make([]AccOfTournament, 0)
-	team := &Team{teamId, helpers.TrimLower(name), name, description, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
+	admins[0] = adminID
+	var emptyArray []int64
+	var emtpyArrayOfAccOfTournament []TournamentAccuracy
+	team := &Team{teamID, helpers.TrimLower(name), name, description, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
 
 	_, err = datastore.Put(c, key, team)
 	if err != nil {
 		return nil, err
 	}
 	// udpate inverted index
-	AddToTeamInvertedIndex(c, helpers.TrimLower(name), teamId)
+	AddToTeamInvertedIndex(c, helpers.TrimLower(name), teamID)
 
 	return team, err
 }
 
 // Destroy a team given a team id.
+//
 func (t *Team) Destroy(c appengine.Context) error {
 
-	if _, err := TeamById(c, t.Id); err != nil {
-		return fmt.Errorf("Cannot find team with Id=%d", t.Id)
-	} else {
-		key := datastore.NewKey(c, "Team", "", t.Id, nil)
-		if errd := datastore.Delete(c, key); errd != nil {
-			return errd
-		} else {
-			// remove key name.
-			return UpdateTeamInvertedIndex(c, t.KeyName, "", t.Id)
-		}
+	if _, err := TeamByID(c, t.ID); err != nil {
+		return fmt.Errorf("Cannot find team with Id=%d", t.ID)
 	}
+
+	key := datastore.NewKey(c, "Team", "", t.ID, nil)
+	if errd := datastore.Delete(c, key); errd != nil {
+		return errd
+	}
+
+	// remove key name.
+	return UpdateTeamInvertedIndex(c, t.KeyName, "", t.ID)
 }
 
-// Search for all Team entities with respect of a filter and a value.
+// FindTeams searches for all Team entities with respect of a filter and a value.
+//
 func FindTeams(c appengine.Context, filter string, value interface{}) []*Team {
 
 	q := datastore.NewQuery("Team").Filter(filter+" =", value)
 
 	var teams []*Team
 
-	if _, err := q.GetAll(c, &teams); err == nil {
-		return teams
-	} else {
+	if _, err := q.GetAll(c, &teams); err != nil {
 		log.Errorf(c, " Team.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
+
+	return teams
 }
 
-// Get a team given an id.
-func TeamById(c appengine.Context, id int64) (*Team, error) {
+// TeamByID gets a team given an id.
+//
+func TeamByID(c appengine.Context, ID int64) (*Team, error) {
 
 	var t Team
-	key := datastore.NewKey(c, "Team", "", id, nil)
+	key := datastore.NewKey(c, "Team", "", ID, nil)
 
 	if err := datastore.Get(c, key, &t); err != nil {
 		log.Errorf(c, " team not found : %v", err)
@@ -138,16 +146,18 @@ func TeamById(c appengine.Context, id int64) (*Team, error) {
 	return &t, nil
 }
 
-// Get a team key given a team id.
-func TeamKeyById(c appengine.Context, id int64) *datastore.Key {
-	return datastore.NewKey(c, "Team", "", id, nil)
+// TeamKeyByID gets a team key given a team id.
+//
+func TeamKeyByID(c appengine.Context, ID int64) *datastore.Key {
+	return datastore.NewKey(c, "Team", "", ID, nil)
 }
 
-// Update a team given an id and a team pointer.
+// Update updates a team given an id and a team pointer.
+//
 func (t *Team) Update(c appengine.Context) error {
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
-	k := TeamKeyById(c, t.Id)
+	k := TeamKeyByID(c, t.ID)
 	oldTeam := new(Team)
 	var err error
 	if err = datastore.Get(c, k, oldTeam); err == nil {
@@ -155,12 +165,13 @@ func (t *Team) Update(c appengine.Context) error {
 			return err
 		}
 		// use lower trim names as team inverted index store them like this.
-		UpdateTeamInvertedIndex(c, oldTeam.KeyName, t.KeyName, t.Id)
+		UpdateTeamInvertedIndex(c, oldTeam.KeyName, t.KeyName, t.ID)
 	}
 	return err
 }
 
-// Get all teams in datastore.
+// FindAllTeams gets all teams in datastore.
+//
 func FindAllTeams(c appengine.Context) []*Team {
 	q := datastore.NewQuery("Team")
 
@@ -200,13 +211,13 @@ func GetNotJoinedTeams(c appengine.Context, u *User, count, page int64) []*Team 
 	return paged
 }
 
-// TeamsByIds returns an array of teams from a given team IDs array.
+// TeamsByIDs returns an array of teams from a given team IDs array.
 // An error could be returned.
 //
-func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
+func TeamsByIDs(c appengine.Context, IDs []int64) ([]*Team, error) {
 
-	teams := make([]Team, len(ids))
-	keys := TeamsKeysByIds(c, ids)
+	teams := make([]Team, len(IDs))
+	keys := TeamsKeysByIDs(c, IDs)
 
 	var wrongIndexes []int
 
@@ -214,7 +225,7 @@ func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
 		if me, ok := err.(appengine.MultiError); ok {
 			for i, merr := range me {
 				if merr == datastore.ErrNoSuchEntity {
-					log.Errorf(c, "TeamsByIds, missing key: %v %v", err, keys[i].IntID())
+					log.Errorf(c, "TeamsByIDs, missing key: %v %v", err, keys[i].IntID())
 
 					wrongIndexes = append(wrongIndexes, i)
 				}
@@ -227,27 +238,28 @@ func TeamsByIds(c appengine.Context, ids []int64) ([]*Team, error) {
 	var existingTeams []*Team
 	for i := range teams {
 		if !contains(wrongIndexes, i) {
-			log.Infof(c, "TeamsByIds %v", teams[i])
+			log.Infof(c, "TeamsByIDs %v", teams[i])
 			existingTeams = append(existingTeams, &teams[i])
 		}
 	}
 	return existingTeams, nil
 }
 
-// TeamsKeysByIds returns an array of datastore keys from a given team IDs array.
+// TeamsKeysByIDs returns an array of datastore keys from a given team IDs array.
 //
-func TeamsKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
-	keys := make([]*datastore.Key, len(ids))
-	for i, id := range ids {
-		keys[i] = TeamKeyById(c, id)
+func TeamsKeysByIDs(c appengine.Context, IDs []int64) []*datastore.Key {
+	keys := make([]*datastore.Key, len(IDs))
+	for i, id := range IDs {
+		keys[i] = TeamKeyByID(c, id)
 	}
 	return keys
 }
 
-// Checks if a user has joined a team or not.
+// Joined checks if a user has joined a team or not.
+//
 func (t *Team) Joined(c appengine.Context, u *User) bool {
 
-	hasTeam, _ := u.ContainsTeamId(t.Id)
+	hasTeam, _ := u.ContainsTeamId(t.ID)
 	return hasTeam
 }
 
@@ -257,19 +269,16 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 // UserId is added to all current tournaments joined by the team entity.
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
-	// add
-	log.Infof(c, "Team.Join: user")
-	log.Infof(c, "Team.Join: add team id to user entity")
-	if err := u.AddTeamId(c, t.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining team for user:%v Error: %v", u.Id, err)
+	if err := u.AddTeamId(c, t.ID); err != nil {
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
 	}
-	log.Infof(c, "Team.Join: add user id to team entity")
-	if err := t.AddUserId(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining team for user:%v Error: %v", u.Id, err)
+
+	if err := t.AddUserID(c, u.Id); err != nil {
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
 	}
-	log.Infof(c, "Team.Join: add user id to tournaments")
+
 	if err := t.AddUserToTournaments(c, u.Id); err != nil {
-		return fmt.Errorf("Team.Join, error adding user:%v to teams tournaments Error: %v", u.Id, err)
+		return fmt.Errorf("Team.Join, error adding user:%d to teams tournaments Error: %v", u.Id, err)
 	}
 	return nil
 }
@@ -278,10 +287,10 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 // Todo: Should we check that the user is indeed a member of the team?
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
-	if err := u.RemoveTeamId(c, t.Id); err != nil {
+	if err := u.RemoveTeamId(c, t.ID); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
 	}
-	if err := t.RemoveUserId(c, u.Id); err != nil {
+	if err := t.RemoveUserID(c, u.Id); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
 	}
 	// sar: 7 mar 2014
@@ -294,58 +303,65 @@ func (t *Team) Leave(c appengine.Context, u *User) error {
 	return nil
 }
 
-// Check if user is admin of the team with id 'teamId'.
-func IsTeamAdmin(c appengine.Context, teamId int64, userId int64) bool {
+// IsTeamAdmin checks if user is admin of the team with id 'teamId'.
+//
+func IsTeamAdmin(c appengine.Context, teamID int64, userID int64) bool {
 
-	if team, err := TeamById(c, teamId); err == nil {
-		for _, aid := range team.AdminIds {
-			if aid == userId {
-				return true
-			}
-		}
-		return false
-	} else {
+	var team *Team
+	if team, err := TeamByID(c, teamID); team == nil || err != nil {
 		log.Errorf(c, " Team.IsTeamAdmin, error occurred during ById call: %v", err)
 		return false
 	}
+
+	for _, aid := range team.AdminIDs {
+		if aid == userID {
+			return true
+		}
+	}
+	return false
 }
 
 // GetWordFrequencyForTeam will get the frequency of that word in the team terms
 // given a id, and a word.
 //
-func GetWordFrequencyForTeam(c appengine.Context, id int64, word string) int64 {
+func GetWordFrequencyForTeam(c appengine.Context, ID int64, word string) int64 {
 
-	if teams := FindTeams(c, "Id", id); teams != nil {
+	if teams := FindTeams(c, "Id", ID); teams != nil {
 		return helpers.CountTerm(strings.Split(teams[0].KeyName, " "), word)
 	}
 	return 0
 }
 
-// Players return an array of users/ players that participates the given team.
+// Players returns an array of users/ players that participates the given team.
+//
 func (t *Team) Players(c appengine.Context) ([]*User, error) {
 
 	var users []*User
 	var err error
-	if users, err = UsersByIds(c, t.UserIds); err != nil {
+	if users, err = UsersByIds(c, t.UserIDs); err != nil {
 		return nil, err
 	}
 
 	return users, err
 }
 
-func (t *Team) ContainsTournamentId(id int64) (bool, int) {
+// ContainsTournamentID checks if a given tournament id exists in a team entity.
+//
+func (t *Team) ContainsTournamentID(id int64) (bool, int) {
 
-	for i, tId := range t.TournamentIds {
-		if tId == id {
+	for i, tID := range t.TournamentIDs {
+		if tID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-func (t *Team) ContainsPriceId(id int64) (bool, int) {
-	for i, pid := range t.PriceIds {
-		if pid == id {
+// ContainsPriceID checks if a given price id exists in a team entity.
+//
+func (t *Team) ContainsPriceID(id int64) (bool, int) {
+	for i, pID := range t.PriceIDs {
+		if pID == id {
 			return true, i
 		}
 	}
@@ -353,88 +369,94 @@ func (t *Team) ContainsPriceId(id int64) (bool, int) {
 
 }
 
-// Adds a tournament Id in the TournamentId array.
-func (t *Team) AddTournamentId(c appengine.Context, tId int64) error {
-	log.Infof(c, "team Add tournament id")
-	if hasTournament, _ := t.ContainsTournamentId(tId); hasTournament {
-		log.Infof(c, "team Add tournament id all ready member")
+// AddTournamentID adds a tournament Id in the TournamentId array.
+//
+func (t *Team) AddTournamentID(c appengine.Context, tID int64) error {
+	if hasTournament, _ := t.ContainsTournamentID(tID); hasTournament {
 		return fmt.Errorf("AddTournamentId, allready a member.")
 	}
-	log.Infof(c, "team Add tournament id append tournament ids")
-	t.TournamentIds = append(t.TournamentIds, tId)
+
+	t.TournamentIDs = append(t.TournamentIDs, tID)
 	if err := t.Update(c); err != nil {
 		return err
 	}
-	log.Infof(c, "team Add tournament id loop through all users and update arrays")
-	for _, uId := range t.UserIds {
-		user, err := UserById(c, uId)
+
+	for _, uID := range t.UserIDs {
+		user, err := UserById(c, uID)
 		if err != nil {
 			log.Errorf(c, "Team.AddTournamentId, user not found")
 		} else {
 			log.Infof(c, "team Add tournament id add tournament id%v", user.Id)
-			user.AddTournamentId(c, tId)
+			user.AddTournamentId(c, tID)
 		}
 	}
 	return nil
 }
 
-// Remove a tournament Id in the TournamentId array.
-func (t *Team) RemoveTournamentId(c appengine.Context, tId int64) error {
+// RemoveTournamentID removes a tournament Id in the TournamentId array.
+//
+func (t *Team) RemoveTournamentID(c appengine.Context, tID int64) error {
 
-	if hasTournament, i := t.ContainsTournamentId(tId); !hasTournament {
+	hasTournament := false
+	i := 0
+
+	if hasTournament, i = t.ContainsTournamentID(tID); !hasTournament {
 		return fmt.Errorf("RemoveTournamentId, not a member.")
-	} else {
-		// as the order of index in tournamentsId is not important,
-		// replace elem at index i with last element and resize slice.
-		t.TournamentIds[i] = t.TournamentIds[len(t.TournamentIds)-1]
-		t.TournamentIds = t.TournamentIds[0 : len(t.TournamentIds)-1]
 	}
+
+	// as the order of index in tournamentsId is not important,
+	// replace elem at index i with last element and resize slice.
+	t.TournamentIDs[i] = t.TournamentIDs[len(t.TournamentIDs)-1]
+	t.TournamentIDs = t.TournamentIDs[0 : len(t.TournamentIDs)-1]
+
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Adds a tournament Id in the TournamentId array.
-func (t *Team) AddPriceId(c appengine.Context, pId int64) error {
-	log.Infof(c, "team Add price id")
-	if hasPrice, _ := t.ContainsPriceId(pId); hasPrice {
-		log.Infof(c, "team Add price id allready member")
+// AddPriceID adds a tournament Id in the TournamentId array.
+//
+func (t *Team) AddPriceID(c appengine.Context, pID int64) error {
+
+	if hasPrice, _ := t.ContainsPriceID(pID); hasPrice {
 		return fmt.Errorf("AddPriceId, allready a member.")
 	}
-	log.Infof(c, "team Add price id append price ids")
-	t.PriceIds = append(t.PriceIds, pId)
+
+	t.PriceIDs = append(t.PriceIDs, pID)
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Remove a price Id in the PriceId array.
-func (t *Team) removePriceId(c appengine.Context, pId int64) error {
+// removePriceID removes a price ID in the PriceID array.
+//
+func (t *Team) removePriceID(c appengine.Context, pID int64) error {
 
-	if hasPrice, i := t.ContainsPriceId(pId); !hasPrice {
-		return fmt.Errorf("RemovePriceId, not a member")
-	} else {
-		// as the order of index in tournamentsId is not important,
-		// replace elem at index i with last element and resize slice.
-		t.PriceIds[i] = t.PriceIds[len(t.PriceIds)-1]
-		t.PriceIds = t.PriceIds[0 : len(t.PriceIds)-1]
+	hasPrice := false
+	i := 0
+
+	if hasPrice, i = t.ContainsPriceID(pID); !hasPrice {
+		return fmt.Errorf("removePriceId, not a member")
 	}
+
+	t.PriceIDs[i] = t.PriceIDs[len(t.PriceIDs)-1]
+	t.PriceIDs = t.PriceIDs[0 : len(t.PriceIDs)-1]
+
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Remove price enity and price id from team enity with respect to tournament id.
-func (t *Team) RemovePriceByTournamentId(c appengine.Context, tId int64) error {
-	for _, pid := range t.PriceIds {
-		log.Infof(c, "pid: %v, tid:%v, teamId:%v", pid, tId, t.Id)
-		if p, err := PriceById(c, pid); err == nil {
-			log.Infof(c, "p: %v", p)
-			if p.TeamId == t.Id && p.TournamentId == tId {
-				if err1 := t.removePriceId(c, p.Id); err1 != nil {
+// RemovePriceByTournamentID removes price enity and price id from team enity with respect to tournament id.
+//
+func (t *Team) RemovePriceByTournamentID(c appengine.Context, tID int64) error {
+	for _, pID := range t.PriceIDs {
+		if p, err := PriceById(c, pID); err == nil {
+			if p.TeamId == t.ID && p.TournamentId == tID {
+				if err1 := t.removePriceID(c, p.Id); err1 != nil {
 					return err1
 				}
 				if err1 := p.Destroy(c); err1 != nil {
@@ -444,31 +466,33 @@ func (t *Team) RemovePriceByTournamentId(c appengine.Context, tId int64) error {
 			}
 		}
 	}
-	return fmt.Errorf("RemovePriceByTournamentId price id not found. Team: %v tournament:%v", t.Id, tId)
+	return fmt.Errorf("RemovePriceByTournamentId price id not found. Team: %d tournament:%d", t.ID, tID)
 }
 
-// from a team return an array of tournament the team is involved in.
+// Tournaments return an array of tournament the team is involved in.
+//
 func (t *Team) Tournaments(c appengine.Context) []*Tournament {
 
 	var tournaments []*Tournament
 	var err error
 
-	if tournaments, err = TournamentsByIds(c, t.TournamentIds); err != nil {
-		log.Errorf(c, "Something failed when calling TournamentsByIds from team.Tournaments: %v", err)
+	if tournaments, err = TournamentsByIds(c, t.TournamentIDs); err != nil {
+		log.Errorf(c, "Something failed when calling TournamentsByIDs from team.Tournaments: %v", err)
 	}
 
 	return tournaments
 }
 
-// from a team return an array of accuracy the user is involved in.
+// Accuracies returns an array of accuracy the user is involved in.
+//
 func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 
 	var accs []*Accuracy
 
-	for _, acc := range t.AccOfTournaments {
-		a, err := AccuracyById(c, acc.AccuracyId)
+	for _, acc := range t.TournamentAccuracies {
+		a, err := AccuracyById(c, acc.AccuracyID)
 		if err != nil {
-			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccuracyId)
+			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccuracyID)
 		} else {
 			accs = append(accs, a)
 		}
@@ -476,33 +500,39 @@ func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 	return accs
 }
 
-// Remove a user Id in the UserId array.
-func (t *Team) RemoveUserId(c appengine.Context, uId int64) error {
+// RemoveUserID removes a user Id in the UserId array.
+//
+func (t *Team) RemoveUserID(c appengine.Context, uID int64) error {
 
-	if hasUser, i := t.ContainsUserId(uId); !hasUser {
-		return fmt.Errorf("RemoveUserId, not a member")
-	} else {
-		// as the order of index in usersId is not important,
-		// replace elem at index i with last element and resize slice.
-		t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
-		t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
-		t.MembersCount = int64(len(t.UserIds))
+	hasUser := false
+	i := 0
+
+	if hasUser, i = t.ContainsUserID(uID); !hasUser {
+		return fmt.Errorf("RemoveUserID, not a member")
 	}
+
+	// as the order of index in usersId is not important,
+	// replace elem at index i with last element and resize slice.
+	t.UserIDs[i] = t.UserIDs[len(t.UserIDs)-1]
+	t.UserIDs = t.UserIDs[0 : len(t.UserIDs)-1]
+	t.MembersCount = int64(len(t.UserIDs))
+
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Adds a team Id in the UserId array.
-func (t *Team) AddUserId(c appengine.Context, uId int64) error {
+// AddUserID adds a team Id in the UserId array.
+//
+func (t *Team) AddUserID(c appengine.Context, uID int64) error {
 
-	if hasUser, _ := t.ContainsUserId(uId); hasUser {
-		return fmt.Errorf("AddUserId, allready a member")
+	if hasUser, _ := t.ContainsUserID(uID); hasUser {
+		return fmt.Errorf("AddUserID, allready a member")
 	}
 
-	t.UserIds = append(t.UserIds, uId)
-	t.MembersCount = int64(len(t.UserIds))
+	t.UserIDs = append(t.UserIDs, uID)
+	t.MembersCount = int64(len(t.UserIDs))
 	if err := t.Update(c); err != nil {
 		return err
 	}
@@ -511,109 +541,108 @@ func (t *Team) AddUserId(c appengine.Context, uId int64) error {
 
 // AddUserToTournaments add user to teams current tournaments.
 //
-func (t *Team) AddUserToTournaments(c appengine.Context, uId int64) error {
-	log.Infof(c, "Team.AddUserToTournaments")
-	if len(t.TournamentIds) == 0 {
+func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
+	if len(t.TournamentIDs) == 0 {
 		return nil
 	}
 
 	var u *User
 	var err error
 
-	log.Infof(c, "Team.AddUserToTournaments get user")
-	if u, err = UserById(c, uId); err != nil {
-		log.Errorf(c, "User not found %v", uId)
+	if u, err = UserById(c, uID); err != nil {
+		log.Errorf(c, "User not found %v", uID)
 		return err
 	}
 
-	for _, tId := range t.TournamentIds {
-		if tournament, err := TournamentById(c, tId); err != nil {
-			log.Errorf(c, "Cannot find tournament with Id=%d", t.Id)
+	for _, tID := range t.TournamentIDs {
+		if tournament, err := TournamentById(c, tID); err != nil {
+			log.Errorf(c, "Cannot find tournament with Id=%d", tID)
 		} else if time.Now().Before(tournament.End) {
 
-			log.Infof(c, "Team.AddUserToTournaments add user id to tournament")
-			if err := tournament.AddUserId(c, uId); err != nil {
-				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%v to tournament:%v", uId, tId)
+			if err := tournament.AddUserId(c, uID); err != nil {
+				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
-			log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v", u.Id)
 			if err = u.AddTournamentId(c, tournament.Id); err != nil {
-				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%v to user:%v, %v", tId, uId, err)
-			} else {
-				log.Infof(c, "Team.AddUserToTournaments add tournament id for user %v successfully", u.Id)
+				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}
 	}
 	return nil
 }
 
-// Adds user to admins of current team.
+// AddAdmin adds user to admins of current team.
 // In order to be an admin of a team you should first be a member of the team.
+//
 func (t *Team) AddAdmin(c appengine.Context, id int64) error {
 
-	if ismember, _ := t.ContainsUserId(id); ismember {
-		if isadmin, _ := t.ContainsAdminId(id); isadmin {
-			return fmt.Errorf("User with %v is already an admin of team", id)
+	if isMember, _ := t.ContainsUserID(id); isMember {
+		if isAdmin, _ := t.ContainsAdminID(id); isAdmin {
+			return fmt.Errorf("User with %s is already an admin of team", id)
 		}
-		t.AdminIds = append(t.AdminIds, id)
+		t.AdminIDs = append(t.AdminIDs, id)
 		if err := t.Update(c); err != nil {
 			return err
 		}
 		return nil
 	}
-	return fmt.Errorf("User with %v is not a member of the team", id)
+	return fmt.Errorf("User with %d is not a member of the team", id)
 }
 
-// Removes user of admins array in current team.
+// RemoveAdmin remove user of admins array in current team.
 // In order to remove an admin from a team, there should be at least an admin in the array.
+//
 func (t *Team) RemoveAdmin(c appengine.Context, id int64) error {
 
-	if ismember, _ := t.ContainsUserId(id); ismember {
-		if isadmin, i := t.ContainsAdminId(id); isadmin {
-			if len(t.AdminIds) > 1 {
+	if isMember, _ := t.ContainsUserID(id); isMember {
+		if isAdmin, i := t.ContainsAdminID(id); isAdmin {
+			if len(t.AdminIDs) > 1 {
 				// as the order of index in adminIds is not important,
 				// replace elem at index i with last element and resize slice.
-				t.AdminIds[i] = t.AdminIds[len(t.AdminIds)-1]
-				t.AdminIds = t.AdminIds[0 : len(t.AdminIds)-1]
+				t.AdminIDs[i] = t.AdminIDs[len(t.AdminIDs)-1]
+				t.AdminIDs = t.AdminIDs[0 : len(t.AdminIDs)-1]
 				if err := t.Update(c); err != nil {
 					return err
 				}
 				return nil
 			}
-			return fmt.Errorf("Cannot remove admin %v as there are no admins left in team", id)
+			return fmt.Errorf("Cannot remove admin %d as there are no admins left in team", id)
 		}
-		return fmt.Errorf("User with %v is not admin of the team", id)
+		return fmt.Errorf("User with %d is not admin of the team", id)
 	}
-	return fmt.Errorf("User with %v is not a member of the team", id)
+	return fmt.Errorf("User with %d is not a member of the team", id)
 }
 
-// Checks if user is admin of team.
-func (t *Team) ContainsAdminId(id int64) (bool, int) {
+// ContainsAdminID checks if user is admin of team.
+//
+func (t *Team) ContainsAdminID(id int64) (bool, int) {
 
-	for i, aId := range t.AdminIds {
-		if aId == id {
+	for i, aID := range t.AdminIDs {
+		if aID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-// Checks if user is part of team.
-func (t *Team) ContainsUserId(id int64) (bool, int) {
+// ContainsUserID checks if user is part of team.
+//
+func (t *Team) ContainsUserID(id int64) (bool, int) {
 
-	for i, tId := range t.UserIds {
-		if tId == id {
+	for i, tID := range t.UserIDs {
+		if tID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-// Update an array of teams.
+// UpdateTeams updates an array of teams.
+//
 func UpdateTeams(c appengine.Context, teams []*Team) error {
 	keys := make([]*datastore.Key, len(teams))
-	for i, _ := range keys {
-		keys[i] = TeamKeyById(c, teams[i].Id)
+	for i := range keys {
+		keys[i] = TeamKeyByID(c, teams[i].ID)
 	}
 	if _, err := datastore.PutMulti(c, keys, teams); err != nil {
 		return err
@@ -621,6 +650,8 @@ func UpdateTeams(c appengine.Context, teams []*Team) error {
 	return nil
 }
 
+// RankingByUser returns an array of user sorted by their score.
+//
 func (t *Team) RankingByUser(c appengine.Context, limit int) []*User {
 	if limit < 0 {
 		return nil
@@ -641,29 +672,33 @@ func (t *Team) RankingByUser(c appengine.Context, limit int) []*User {
 	return users[0:limit]
 }
 
-// Sort teams by score
+// TeamByAccuracy holds array of teams sorted by their accuracy
+//
 type TeamByAccuracy []*Team
 
 func (a TeamByAccuracy) Len() int           { return len(a) }
 func (a TeamByAccuracy) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accuracy }
 
-func (t *Team) TournamentAcc(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
+// TournamentAccuracy returns the accury of a given team and for a given tournament.
+//
+func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
-	for _, acc := range t.AccOfTournaments {
-		if acc.TournamentId == tournament.Id {
-			return AccuracyById(c, acc.AccuracyId)
+	for _, acc := range t.TournamentAccuracies {
+		if acc.TournamentID == tournament.Id {
+			return AccuracyById(c, acc.AccuracyID)
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")
 }
 
-// add accuracy to team entity and run update.
-func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) error {
+// AddTournamentAccuracy adds accuracy to team entity and run update.
+//
+func (t *Team) AddTournamentAccuracy(c appengine.Context, accuracyID int64, tournamentID int64) error {
 
 	tournamentExist := false
-	for _, tid := range t.TournamentIds {
-		if tid == tourId {
+	for _, tid := range t.TournamentIDs {
+		if tid == tournamentID {
 			tournamentExist = true
 			break
 		}
@@ -672,8 +707,8 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) 
 		return errors.New("model/team: not member of tournament")
 	}
 	accExist := false
-	for _, acc := range t.AccOfTournaments {
-		if acc.AccuracyId == accId {
+	for _, acc := range t.TournamentAccuracies {
+		if acc.AccuracyID == accuracyID {
 			accExist = true
 			break
 		}
@@ -682,38 +717,38 @@ func (t *Team) AddTournamentAcc(c appengine.Context, accId int64, tourId int64) 
 		return errors.New("model/team: accuracy allready present")
 	}
 
-	var a AccOfTournament
-	a.AccuracyId = accId
-	a.TournamentId = tourId
-	t.AccOfTournaments = append(t.AccOfTournaments, a)
+	var a TournamentAccuracy
+	a.AccuracyID = accuracyID
+	a.TournamentID = tournamentID
+	t.TournamentAccuracies = append(t.TournamentAccuracies, a)
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Update the global accuracy for team, with new accuracy and accuracies of other tournaments.
+// UpdateAccuracy updates the global accuracy for team, with new accuracy and accuracies of other tournaments.
 // From all accuracies of tournaments the team participates on we sum the overall accuracies.
 // Overall accuracy is it's last element in the array of accuracies. We then normalize by the number of tournaments the teams participates on.
-func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) error {
-	log.Infof(c, "Updating accuracy of team")
+//
+func (t *Team) UpdateAccuracy(c appengine.Context, tID int64, newAccuracy float64) error {
 
 	sum := float64(0)
 	counter := 0
-	for _, accOfTournament := range t.AccOfTournaments {
-		if accOfTournament.TournamentId == tId {
-			sum += newAcc
+	for _, tournamentAccuracy := range t.TournamentAccuracies {
+		if tournamentAccuracy.TournamentID == tID {
+			sum += newAccuracy
 			counter++
 			continue
 		}
-		if acc, err := AccuracyById(c, accOfTournament.AccuracyId); err == nil && acc != nil {
+		if acc, err := AccuracyById(c, tournamentAccuracy.AccuracyID); err == nil && acc != nil {
 			// only take into account tournaments with accuracies
 			if len(acc.Accuracies) > 0 {
 				sum += acc.Accuracies[len(acc.Accuracies)-1]
 				counter++
 			}
 		} else if err != nil {
-			log.Infof(c, "Accuracy not found %v, error:", accOfTournament.AccuracyId, err)
+			log.Infof(c, "Accuracy not found %v, error:", tournamentAccuracy.AccuracyID, err)
 		}
 	}
 	if counter > 0 {
@@ -721,16 +756,17 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tId int64, newAcc float64) er
 		if err := t.Update(c); err != nil {
 			log.Infof(c, "Team.UpdateAccuracyAccuracy: unable to update team %v", err)
 			return err
-		} else {
-			// publish new activity
-			verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAcc*100)
-			t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
 		}
+
+		// publish new activity
+		verb := fmt.Sprintf("has a new accuracy of %.2f%%", newAccuracy*100)
+		t.Publish(c, "accuracy", verb, ActivityEntity{}, ActivityEntity{})
 	}
 	return nil
 }
 
-// Publish team activity
+// Publish publishes new team activity.
+//
 func (t *Team) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
@@ -739,7 +775,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
-	activity.CreatorID = t.Id
+	activity.CreatorID = t.ID
 
 	if err := activity.save(c); err != nil {
 		return err
@@ -765,21 +801,24 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	return nil
 }
 
-// Activity entity representation of a team
+// Entity is the Activity entity representation of a team
+//
 func (t *Team) Entity() ActivityEntity {
-	return ActivityEntity{Id: t.Id, Type: "team", DisplayName: t.Name}
+	return ActivityEntity{Id: t.ID, Type: "team", DisplayName: t.Name}
 }
 
-// Get an array of type accuracyOverall which holds the accuracy information and the last 5 progression of each tournament.
+// AccuraciesGroupByTournament gets an array of type accuracyOverall
+// which holds the accuracy information and the last 5 progression of each tournament.
+//
 func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]AccuracyOverall {
-	accs := make([]AccuracyOverall, 0)
-	for _, aot := range t.AccOfTournaments {
-		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
+	var accs []AccuracyOverall
+	for _, aot := range t.TournamentAccuracies {
+		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyId
-			a.TournamentId = aot.TournamentId
+			a.Id = aot.AccuracyID
+			a.TournamentId = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
@@ -804,19 +843,20 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 	return &accs
 }
 
-// Get the overall accuracy of a team in the specified tournament.
+// AccuracyByTournament gets the overall accuracy of a team in the specified tournament.
 // the progression of accuracies is in reverse order to have the most reset accuracy as first element.
+//
 func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
-	for _, aot := range t.AccOfTournaments {
-		if aot.TournamentId != tour.Id {
+	for _, aot := range t.TournamentAccuracies {
+		if aot.TournamentID != tour.Id {
 			continue
 		}
-		if acc, err := AccuracyById(c, aot.AccuracyId); err != nil {
+		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyId
-			a.TournamentId = aot.TournamentId
+			a.Id = aot.AccuracyID
+			a.TournamentId = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
@@ -835,11 +875,12 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 
 }
 
-// Get the prices of a team.
+// Prices get the prices of a team.
+//
 func (t *Team) Prices(c appengine.Context) []*Price {
-	prices := make([]*Price, len(t.PriceIds))
+	prices := make([]*Price, len(t.PriceIDs))
 
-	for i, pid := range t.PriceIds {
+	for i, pid := range t.PriceIDs {
 		if p, err := PriceById(c, pid); err == nil {
 			prices[i] = p
 		}
@@ -847,9 +888,9 @@ func (t *Team) Prices(c appengine.Context) []*Price {
 	return prices
 }
 
-//Price by  tournament.
+//PriceByTournament get the price of a tournament
 func (t *Team) PriceByTournament(c appengine.Context, tid int64) *Price {
-	for _, pid := range t.PriceIds {
+	for _, pid := range t.PriceIDs {
 		if p, err := PriceById(c, pid); err == nil {
 			if p.TournamentId == tid {
 				return p

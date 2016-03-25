@@ -32,11 +32,11 @@ import (
 
 type teamsByPhase struct {
 	Name  string
-	Teams []teamJson
+	Teams []teamJSON
 }
 
-// A teamJson is a variable to hold of team information.
-type teamJson struct {
+// A teamJSON is a variable to hold of team information.
+type teamJSON struct {
 	Name string
 	Iso  string
 }
@@ -87,7 +87,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // From an array of Matches, create an array of Phases where the teams are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
+func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
 		return []teamsByPhase{}
@@ -102,20 +102,20 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
 
-		var filteredMatches []MatchJson
+		var filteredMatches []MatchJSON
 		for _, v := range matches {
-			if v.IdNumber >= low && v.IdNumber <= high {
+			if v.IDNumber >= low && v.IDNumber <= high {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
-		teams := make([]teamJson, 0)
+		teams := make([]teamJSON, 0)
 		for _, m := range filteredMatches {
 			if !teamContains(teams, m.Team1) {
-				t := teamJson{Name: m.Team1, Iso: m.Iso1}
+				t := teamJSON{Name: m.Team1, Iso: m.Iso1}
 				teams = append(teams, t)
 			}
 			if !teamContains(teams, m.Team2) {
-				t := teamJson{Name: m.Team2, Iso: m.Iso2}
+				t := teamJSON{Name: m.Team2, Iso: m.Iso2}
 				teams = append(teams, t)
 			}
 		}
@@ -124,7 +124,7 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
 	return phases
 }
 
-func teamContains(teams []teamJson, name string) bool {
+func teamContains(teams []teamJSON, name string) bool {
 	for _, t := range teams {
 		if t.Name == name {
 			return true

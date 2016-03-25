@@ -21,10 +21,13 @@ import (
 )
 
 // TrimLower returns a lower case slice of the string s, with all leading and trailing white space removed, as defined by Unicode.
+//
 func TrimLower(s string) string {
 	return strings.TrimSpace(strings.ToLower(s))
 }
 
+// SetOfStrings returns a set of string for a given strings.
+//
 func SetOfStrings(s string) []string {
 	slice := strings.Split(TrimLower(s), " ")
 	set := ""
@@ -40,6 +43,8 @@ func SetOfStrings(s string) []string {
 	return strings.Split(set, " ")
 }
 
+// SliceContains checks if a given string exists in a slice of strings.
+//
 func SliceContains(slice []string, s string) bool {
 	for _, w := range slice {
 		if w == s {
@@ -49,6 +54,8 @@ func SliceContains(slice []string, s string) bool {
 	return false
 }
 
+// StringContains checks if a given string exists in a string.
+//
 func StringContains(strToSplit string, s string) bool {
 	slice := strings.Split(strToSplit, " ")
 	for _, w := range slice {
@@ -59,9 +66,9 @@ func StringContains(strToSplit string, s string) bool {
 	return false
 }
 
-// from two strings with format "str1 str2" and "str2 str3"
-// compute the intersection of the two strings
-// in this example the result is "str2"
+// Intersect computes the instersection of two strings.
+// From two strings with format "str1 str2" and "str2 str3" in this example the result is "str2".
+//
 func Intersect(a string, b string) string {
 	sa := SetOfStrings(a)
 	sb := SetOfStrings(b)
@@ -78,8 +85,10 @@ func Intersect(a string, b string) string {
 	return intersect
 }
 
+// CountTerm counts the occurence of a word into a slice of words.
+//
 func CountTerm(words []string, w string) int64 {
-	var c int64 = 0
+	var c int64
 	for _, wi := range words {
 		if wi == w {
 			c = c + 1

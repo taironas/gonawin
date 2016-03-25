@@ -94,11 +94,11 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := t.RankingByTeam(c, limit)
 
 		fieldsToKeep := []string{"Id", "Name", "Accuracy"}
-		teamsJson := make([]mdl.TeamJson, len(teams))
+		teamsJson := make([]mdl.TeamJSON, len(teams))
 		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
 
 		data := struct {
-			Teams []mdl.TeamJson
+			Teams []mdl.TeamJSON
 		}{
 			teamsJson,
 		}

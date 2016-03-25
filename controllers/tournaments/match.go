@@ -34,10 +34,11 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// A MatchJson is a variable to hold of match information.
-type MatchJson struct {
-	Id         int64
-	IdNumber   int64
+// MatchJSON is a variable to hold of match information.
+//
+type MatchJSON struct {
+	ID         int64 `json:"Id"`
+	IDNumber   int64 `json:"IdNumber"`
 	Date       time.Time
 	Team1      string
 	Team2      string
@@ -53,11 +54,11 @@ type MatchJson struct {
 	CanPredict bool
 }
 
-// Json tournament Matches handler
-// use this handler to get the matches of a tournament.
+// Matches is the handler allowing to get the matches of a tournament.
 // use the filter parameter to specify the matches you want:
 // if filter is equal to 'first' you wil get matches of the first phase of the tournament.
 // if filter is equal to 'second' you will get the matches of the second phase of the tournament.
+//
 func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -80,25 +81,25 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		filter = "first"
 	}
 
-	var matchesJson []MatchJson
+	var matchesJSON []MatchJSON
 
 	if filter == "first" {
-		matchesJson = buildFirstPhaseMatches(c, t, u)
+		matchesJSON = buildFirstPhaseMatches(c, t, u)
 	} else if filter == "second" {
-		matchesJson = buildSecondPhaseMatches(c, t, u)
+		matchesJSON = buildSecondPhaseMatches(c, t, u)
 	}
 	data := struct {
-		Matches []MatchJson
+		Matches []MatchJSON
 	}{
-		matchesJson,
+		matchesJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Update Match handler.
-// Update match of tournament with results information.
+// UpdateMatchResult is the handler allowing to update match of tournament with results information.
 // from parameter 'result' with format 'result1 result2' the match information is updated accordingly.
+//
 func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -143,8 +144,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 
 	// return the updated match
-	var mjson MatchJson
-	mjson.IdNumber = match.IdNumber
+	var mjson MatchJSON
+	mjson.IDNumber = match.IdNumber
 	mjson.Date = match.Date
 	rule := strings.Split(match.Rule, " ")
 
@@ -153,14 +154,14 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		log.Errorf(c, "%s TournamentBuilder not found", desc)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-	mapIdTeams := tb.MapOfIdTeams(c, tournament)
+	mapIDTeams := tb.MapOfIdTeams(c, tournament)
 
 	if len(rule) > 1 {
 		mjson.Team1 = rule[0]
 		mjson.Team2 = rule[1]
 	} else {
-		mjson.Team1 = mapIdTeams[match.TeamId1]
-		mjson.Team2 = mapIdTeams[match.TeamId2]
+		mjson.Team1 = mapIDTeams[match.TeamId1]
+		mjson.Team2 = mapIDTeams[match.TeamId2]
 	}
 	mjson.Location = match.Location
 
@@ -168,8 +169,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	mjson.Result2 = match.Result2
 
 	// publish new activity
-	object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIdTeams[match.TeamId1]}
-	target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIdTeams[match.TeamId2]}
+	object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIDTeams[match.TeamId1]}
+	target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIDTeams[match.TeamId2]}
 	verb := ""
 	if match.Result1 > match.Result2 {
 		verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
@@ -183,8 +184,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	return templateshlp.RenderJson(w, c, mjson)
 }
 
-// Block Match prediction handler.
-// Block prediction for match of tournament.
+// BlockMatchPrediction is the handler allowing to block the prediction for match of tournament.
+//
 func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -211,8 +212,8 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	}
 
 	// return the updated match
-	var mjson MatchJson
-	mjson.IdNumber = match.IdNumber
+	var mjson MatchJSON
+	mjson.IDNumber = match.IdNumber
 	mjson.Date = match.Date
 	rule := strings.Split(match.Rule, " ")
 
@@ -223,14 +224,14 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	mapIdTeams := tb.MapOfIdTeams(c, tournament)
+	mapIDTeams := tb.MapOfIdTeams(c, tournament)
 
 	if len(rule) > 1 {
 		mjson.Team1 = rule[0]
 		mjson.Team2 = rule[1]
 	} else {
-		mjson.Team1 = mapIdTeams[match.TeamId1]
-		mjson.Team2 = mapIdTeams[match.TeamId2]
+		mjson.Team1 = mapIDTeams[match.TeamId1]
+		mjson.Team2 = mapIDTeams[match.TeamId2]
 	}
 	mjson.Location = match.Location
 
@@ -240,18 +241,18 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	return templateshlp.RenderJson(w, c, mjson)
 }
 
-// From a tournament entity return an array of MatchJson data structure.
+// From a tournament entity return an array of MatchJSON data structure.
 // second phase matches will have the specific rules in there team names
-func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
-	matchesJson := buildFirstPhaseMatches(c, t, u)
+func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJSON {
+	matchesJSON := buildFirstPhaseMatches(c, t, u)
 	matches2ndPhase := buildSecondPhaseMatches(c, t, u)
-	matchesJson = append(matchesJson, matches2ndPhase...)
+	matchesJSON = append(matchesJSON, matches2ndPhase...)
 
-	return matchesJson
+	return matchesJSON
 }
 
-// From a tournament entity return an array of first phase MatchJson data structure.
-func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
+// From a tournament entity return an array of first phase MatchJSON data structure.
+func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJSON {
 	desc := "buildMatchesFromTournament"
 
 	matches := mdl.Matches(c, t.Matches1stStage)
@@ -259,113 +260,113 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 	var err error
 	if predicts, err = mdl.PredictsByIds(c, u.PredictIds); err != nil {
 		log.Errorf(c, "%s predictions not found, %v", desc, err)
-		return []MatchJson{}
+		return []MatchJSON{}
 	}
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
 		log.Errorf(c, "%s tournament builder not found", desc)
-		return []MatchJson{}
+		return []MatchJSON{}
 	}
 
-	mapIdTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIdTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 
-	matchesJson := make([]MatchJson, len(matches))
+	matchesJSON := make([]MatchJSON, len(matches))
 	for i, m := range matches {
-		matchesJson[i].Id = m.Id
-		matchesJson[i].IdNumber = m.IdNumber
-		matchesJson[i].Date = m.Date
-		matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
-		matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
-		matchesJson[i].Iso1 = mapTeamCodes[matchesJson[i].Team1]
-		matchesJson[i].Iso2 = mapTeamCodes[matchesJson[i].Team2]
+		matchesJSON[i].ID = m.Id
+		matchesJSON[i].IDNumber = m.IdNumber
+		matchesJSON[i].Date = m.Date
+		matchesJSON[i].Team1 = mapIDTeams[m.TeamId1]
+		matchesJSON[i].Team2 = mapIDTeams[m.TeamId2]
+		matchesJSON[i].Iso1 = mapTeamCodes[matchesJSON[i].Team1]
+		matchesJSON[i].Iso2 = mapTeamCodes[matchesJSON[i].Team2]
 
-		matchesJson[i].Location = m.Location
-		matchesJson[i].Result1 = m.Result1
-		matchesJson[i].Result2 = m.Result2
-		matchesJson[i].Finished = m.Finished
-		matchesJson[i].Ready = m.Ready
-		matchesJson[i].CanPredict = m.CanPredict
-		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
-			matchesJson[i].HasPredict = true
-			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
+		matchesJSON[i].Location = m.Location
+		matchesJSON[i].Result1 = m.Result1
+		matchesJSON[i].Result2 = m.Result2
+		matchesJSON[i].Finished = m.Finished
+		matchesJSON[i].Ready = m.Ready
+		matchesJSON[i].CanPredict = m.CanPredict
+		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
+			matchesJSON[i].HasPredict = true
+			matchesJSON[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
-			matchesJson[i].HasPredict = false
+			matchesJSON[i].HasPredict = false
 		}
 	}
 
-	return matchesJson
+	return matchesJSON
 }
 
-// From a tournament entity return an array of second phase MatchJson data structure.
+// From a tournament entity return an array of second phase MatchJSON data structure.
 // second phase matches will have the specific rules in there team names
-func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJson {
+func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJSON {
 
 	matches2ndPhase := mdl.Matches(c, t.Matches2ndStage)
 
 	var predicts mdl.Predicts
 	var err error
 	if predicts, err = mdl.PredictsByIds(c, u.PredictIds); err != nil {
-		return []MatchJson{}
+		return []MatchJSON{}
 	}
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
-		return []MatchJson{}
+		return []MatchJSON{}
 	}
 
-	mapIdTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIdTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 
-	matchesJson := make([]MatchJson, len(matches2ndPhase))
+	matchesJSON := make([]MatchJSON, len(matches2ndPhase))
 
 	// append 2nd round to first one
 	for i, m := range matches2ndPhase {
-		matchesJson[i].Id = m.Id
-		matchesJson[i].IdNumber = m.IdNumber
-		matchesJson[i].Date = m.Date
+		matchesJSON[i].ID = m.Id
+		matchesJSON[i].IDNumber = m.IdNumber
+		matchesJSON[i].Date = m.Date
 		rule := strings.Split(m.Rule, " ")
 		if len(rule) == 2 {
-			matchesJson[i].Team1 = rule[0]
-			matchesJson[i].Team2 = rule[1]
+			matchesJSON[i].Team1 = rule[0]
+			matchesJSON[i].Team2 = rule[1]
 			if _, ok := mapTeamCodes[rule[0]]; ok {
-				matchesJson[i].Iso1 = mapTeamCodes[rule[0]]
+				matchesJSON[i].Iso1 = mapTeamCodes[rule[0]]
 			}
 			if _, ok := mapTeamCodes[rule[1]]; ok {
-				matchesJson[i].Iso2 = mapTeamCodes[rule[1]]
+				matchesJSON[i].Iso2 = mapTeamCodes[rule[1]]
 			}
 		} else {
 			if m.TeamId1 > 0 {
-				matchesJson[i].Team1 = mapIdTeams[m.TeamId1]
+				matchesJSON[i].Team1 = mapIDTeams[m.TeamId1]
 			} else {
-				matchesJson[i].Team1 = rule[0]
+				matchesJSON[i].Team1 = rule[0]
 			}
 
 			if m.TeamId2 > 0 {
-				matchesJson[i].Team2 = mapIdTeams[m.TeamId2]
+				matchesJSON[i].Team2 = mapIDTeams[m.TeamId2]
 			} else {
-				matchesJson[i].Team2 = rule[len(rule)-1]
+				matchesJSON[i].Team2 = rule[len(rule)-1]
 			}
 
-			matchesJson[i].Iso1 = mapTeamCodes[mapIdTeams[m.TeamId1]]
-			matchesJson[i].Iso2 = mapTeamCodes[mapIdTeams[m.TeamId2]]
+			matchesJSON[i].Iso1 = mapTeamCodes[mapIDTeams[m.TeamId1]]
+			matchesJSON[i].Iso2 = mapTeamCodes[mapIDTeams[m.TeamId2]]
 
 		}
 
-		matchesJson[i].Location = m.Location
-		matchesJson[i].Result1 = m.Result1
-		matchesJson[i].Result2 = m.Result2
-		matchesJson[i].Finished = m.Finished
-		matchesJson[i].Ready = m.Ready
-		matchesJson[i].CanPredict = m.CanPredict
+		matchesJSON[i].Location = m.Location
+		matchesJSON[i].Result1 = m.Result1
+		matchesJSON[i].Result2 = m.Result2
+		matchesJSON[i].Finished = m.Finished
+		matchesJSON[i].Ready = m.Ready
+		matchesJSON[i].CanPredict = m.CanPredict
 
-		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
-			matchesJson[i].HasPredict = true
-			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
+		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
+			matchesJSON[i].HasPredict = true
+			matchesJSON[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
-			matchesJson[i].HasPredict = false
+			matchesJSON[i].HasPredict = false
 		}
 	}
-	return matchesJson
+	return matchesJSON
 }

@@ -37,7 +37,8 @@ import (
 )
 
 var (
-	config       *gwconfig.GwConfig
+	config *gwconfig.GwConfig
+	// KOfflineMode allows the set the offline mode
 	KOfflineMode bool
 )
 
@@ -50,19 +51,25 @@ func init() {
 	KOfflineMode = config.OfflineMode
 }
 
+// UserInfo represents the user infor needed for authentication.
+//
 type UserInfo struct {
-	Id    string
+	ID    string
 	Email string
 	Name  string
 }
 
+// TwitterUserInfo represents the twitter data needed for authentication.
+//
 type TwitterUserInfo struct {
-	Id          int64
-	Name        string
-	Screen_name string
+	ID         int64 `json:id",omitempty"`
+	Name       string
+	ScreenName string `json:screen_name",omitempty"`
 }
 
-// Check user validity from an accessToken string. verify if google user account is valid.
+// CheckUserValidity checks user validity from an accessToken string.
+// verify if google user account is valid.
+//
 func CheckUserValidity(r *http.Request, url string, accessToken string) bool {
 	c := appengine.NewContext(r)
 
@@ -79,8 +86,9 @@ func CheckUserValidity(r *http.Request, url string, accessToken string) bool {
 	return resp.StatusCode == 200
 }
 
-// Check if authorization information in HTTP.Request is valid,
+// CheckAuthenticationData checks if authorization information in HTTP.Request is valid,
 // ie: if it matches a user.
+//
 func CheckAuthenticationData(r *http.Request) *mdl.User {
 	return mdl.FindUser(appengine.NewContext(r), "Auth", r.Header.Get("Authorization"))
 }
@@ -93,12 +101,14 @@ func isEmailOfflineUser(email string) bool {
 	return config.OfflineUser.Email == email
 }
 
-// Is gonnawin admin checks if user is gonawin admin.
+// IsGonawinAdmin checks if user is gonawin admin.
+//
 func IsGonawinAdmin(c appengine.Context) bool {
 	return user.IsAdmin(c)
 }
 
-// unmarshal twitter response
+// FetchTwitterUserInfo unmarshals twitter response
+//
 func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	defer r.Body.Close()
 
@@ -114,7 +124,8 @@ func FetchTwitterUserInfo(r *http.Response) (*TwitterUserInfo, error) {
 	return nil, err
 }
 
-// returns pointer to current user, from authentication cookie.
+// CurrentOfflineUser returns pointer to current user, from authentication cookie.
+//
 func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	var u *mdl.User
 	if config.OfflineMode {
@@ -127,12 +138,13 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 	return u
 }
 
-// returns user information from Google Accounts user
-// if on development server only email (example@example.com) will be present.
-// So Id and Name will be added.
+// GetUserGoogleInfo returns user information from Google Accounts user.
+// If on development server only email (example@example.com) will be present.
+// So ID and Name will be added.
+//
 func GetUserGoogleInfo(u *user.User) UserInfo {
 	if appengine.IsDevAppServer() {
-		return UserInfo{Id: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
+		return UserInfo{ID: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
 	}
-	return UserInfo{Id: u.ID, Email: u.Email, Name: u.String()}
+	return UserInfo{ID: u.ID, Email: u.Email, Name: u.String()}
 }

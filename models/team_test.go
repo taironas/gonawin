@@ -102,7 +102,7 @@ func TestTeamDestroy(t *testing.T) {
 		}
 
 		var team *Team
-		if team, err = TeamById(c, got.Id); team != nil {
+		if team, err = TeamByID(c, got.Id); team != nil {
 			t.Errorf("test %v - Error: team found, not properly destroyed - %v", i, err)
 		}
 
@@ -197,9 +197,9 @@ func TestFindAllTeams(t *testing.T) {
 
 }
 
-// TestTeamById tests TeamById function.
+// TestTeamByID tests TeamByID function.
 //
-func TestTeamById(t *testing.T) {
+func TestTeamByID(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -224,7 +224,7 @@ func TestTeamById(t *testing.T) {
 	}{
 		{
 			title:  "can get team by Id",
-			Id:     team.Id,
+			Id:     team.ID,
 			wanted: testTeam{team.Name, team.Description, team.AdminIds[0], team.Private},
 		},
 		{
@@ -238,7 +238,7 @@ func TestTeamById(t *testing.T) {
 		t.Log(test.title)
 
 		var got *Team
-		if got, err = TeamById(c, test.Id); err != nil {
+		if got, err = TeamByID(c, test.Id); err != nil {
 			if len(test.err) == 0 {
 				t.Errorf("test %v - Error: %v", i, err)
 			} else if !strings.Contains(gonawintest.ErrorString(err), test.err) {
@@ -310,12 +310,12 @@ func TestTeamUpdate(t *testing.T) {
 	}{
 		{
 			title:      "can update team",
-			id:         newTeam.Id,
+			id:         newteam.ID,
 			updateTeam: testTeam{name: "updated team 1", description: "updated description 1"},
 		},
 		{
 			title:      "cannot update, team not found",
-			id:         newTeam.Id,
+			id:         newteam.ID,
 			updateTeam: testTeam{name: "updated team 2", description: "updated description 2"},
 			overrideId: true,
 			newId:      -1,
@@ -326,7 +326,7 @@ func TestTeamUpdate(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 		var team *Team
-		if team, err = TeamById(c, test.id); err != nil {
+		if team, err = TeamByID(c, test.id); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 
@@ -336,7 +336,7 @@ func TestTeamUpdate(t *testing.T) {
 		team.Private = test.updateTeam.private
 
 		if test.overrideId {
-			team.Id = test.newId
+			team.ID = test.newId
 		}
 
 		if err = team.Update(c); err != nil {
@@ -349,7 +349,7 @@ func TestTeamUpdate(t *testing.T) {
 		}
 
 		var got *Team
-		if got, err = TeamById(c, team.Id); err != nil {
+		if got, err = TeamByID(c, team.ID); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.updateTeam); err != nil {
@@ -361,9 +361,9 @@ func TestTeamUpdate(t *testing.T) {
 	}
 }
 
-// TestTeamsByIds tests that you can get a list of teams by their IDs.
+// TestTeamsByIDs tests that you can get a list of teams by their IDs.
 //
-func TestTeamsByIds(t *testing.T) {
+func TestTeamsByIDs(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -418,7 +418,7 @@ func TestTeamsByIds(t *testing.T) {
 		t.Log(test.title)
 
 		var teams []*Team
-		teams, err = TeamsByIds(c, test.teamIDs)
+		teams, err = TeamsByIDs(c, test.teamIDs)
 
 		if gonawintest.ErrorString(err) != test.err {
 			t.Errorf("test %v error: want err: %s, got: %q", i, test.err, err)
@@ -508,7 +508,7 @@ func TestGetNotJoinedTeams(t *testing.T) {
 		// make user join selected teams
 		for _, id := range test.userTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if err = team.Join(c, user); err != nil {
@@ -521,8 +521,8 @@ func TestGetNotJoinedTeams(t *testing.T) {
 		// check no team in notJoinedTeams is in user teams collection
 		for _, team := range notJoinedTeams {
 			for _, id := range test.userTeamIDs {
-				if teamIDs[id] == team.Id {
-					t.Errorf("test %d - team %d is in both collections: NotJoined and UserTeams", i, team.Id)
+				if teamIDs[id] == team.ID {
+					t.Errorf("test %d - team %d is in both collections: NotJoined and UserTeams", i, team.ID)
 				}
 			}
 		}
@@ -587,7 +587,7 @@ func TestTeamJoined(t *testing.T) {
 		// make user join selected teams
 		for _, id := range test.userTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if err = team.Join(c, user); err != nil {
@@ -597,7 +597,7 @@ func TestTeamJoined(t *testing.T) {
 
 		for _, id := range test.notJoinedTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if team.Joined(c, user) != test.expected {
@@ -643,7 +643,7 @@ func TestTeamJoin(t *testing.T) {
 		// make user join selected teams
 		for _, id := range test.userTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if err = team.Join(c, user); err != nil {
@@ -656,7 +656,7 @@ func TestTeamJoin(t *testing.T) {
 				t.Errorf("test %v - team Id %v is not part of user teamIds", i, teamIDs[id])
 			}
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if ok, _ := team.ContainsUserId(user.Id); !ok {
@@ -702,7 +702,7 @@ func TestTeamLeave(t *testing.T) {
 		// make user join selected teams
 		for _, id := range test.userTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if err = team.Join(c, user); err != nil {
@@ -713,7 +713,7 @@ func TestTeamLeave(t *testing.T) {
 		// make user leave selected teams
 		for _, id := range test.userTeamIDs {
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if err = team.Leave(c, user); err != nil {
@@ -726,7 +726,7 @@ func TestTeamLeave(t *testing.T) {
 				t.Errorf("test %v - team Id %v is part of user teamIds", i, teamIDs[id])
 			}
 			var team *Team
-			if team, err = TeamById(c, teamIDs[id]); err != nil {
+			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if ok, _ := team.ContainsUserId(user.Id); ok {

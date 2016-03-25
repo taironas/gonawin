@@ -88,13 +88,13 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		return err
 	}
 
-	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
+	var tournamentID int64
+	tournamentID, err = extract.TournamentID()
 	if err != nil {
 		return err
 	}
 
-	p := t.PriceByTournament(c, tournamentId)
+	p := t.PriceByTournament(c, tournamentID)
 
 	pvm := buildTeamPriceViewModel(p)
 
@@ -121,13 +121,13 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	var tournamentId int64
-	tournamentId, err = extract.TournamentId()
+	var tournamentID int64
+	tournamentID, err = extract.TournamentID()
 	if err != nil {
 		return err
 	}
 
-	p := t.PriceByTournament(c, tournamentId)
+	p := t.PriceByTournament(c, tournamentID)
 
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
