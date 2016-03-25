@@ -114,14 +114,14 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	extract := extract.NewContext(c, desc, r)
 
-	var teamId int64
+	var teamID int64
 	var err error
-	teamId, err = extract.TeamID()
+	teamID, err = extract.TeamID()
 	if err != nil {
 		return err
 	}
 
-	urs := mdl.FindUserRequests(c, "TeamId", teamId)
+	urs := mdl.FindUserRequests(c, "TeamId", teamID)
 	var ids []int64
 	for _, ur := range urs {
 		ids = append(ids, ur.UserId)
@@ -142,7 +142,7 @@ type teamInvitedViewModel struct {
 }
 
 type teamInvitedUserViewModel struct {
-	Id       int64
+	ID       int64 `json:Id",omitempty"`
 	Username string
 	Alias    string
 	Score    int64
@@ -152,7 +152,7 @@ type teamInvitedUserViewModel struct {
 func buildTeamInvitedViewModel(users []*mdl.User) teamInvitedViewModel {
 	uvm := make([]teamInvitedUserViewModel, len(users))
 	for i, u := range users {
-		uvm[i].Id = u.Id
+		uvm[i].ID = u.Id
 		uvm[i].Username = u.Username
 		uvm[i].Alias = u.Alias
 		uvm[i].Score = u.Score
