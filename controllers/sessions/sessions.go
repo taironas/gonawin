@@ -251,7 +251,7 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	url, err = user.LoginURL(c, "/j/auth/google/callback/")
 	if err != nil {
 		log.Errorf(c, "%s error when getting Google accounts login URL", desc)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginURL)}
 	}
 
 	loginData := struct {
