@@ -30,7 +30,7 @@ import (
 )
 
 type searchUserViewModel struct {
-	Id       int64
+	ID       int64 `json:"Id"`
 	Username string
 	Alias    string
 	Score    int64
