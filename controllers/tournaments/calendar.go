@@ -37,7 +37,7 @@ import (
 // We use it to group tournament matches information by days.
 type DayJson struct {
 	Date    time.Time
-	Matches []MatchJson
+	Matches []MatchJSON
 }
 
 type DayWithPredictionJson struct {
@@ -46,7 +46,7 @@ type DayWithPredictionJson struct {
 }
 
 type MatchWithPredictionJson struct {
-	Match        MatchJson
+	Match        MatchJSON
 	Participants []UserPredictionJson
 }
 
@@ -215,7 +215,7 @@ func matchesWithPredictions(day DayJson, players []*mdl.User, predictsByPlayer [
 	return matchesWithPredictions
 }
 
-func matchParticipants(m MatchJson, players []*mdl.User, predictsByPlayer []mdl.Predicts) []UserPredictionJson {
+func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.Predicts) []UserPredictionJson {
 
 	participants := make([]UserPredictionJson, len(players))
 	for i, p := range players {
@@ -223,7 +223,7 @@ func matchParticipants(m MatchJson, players []*mdl.User, predictsByPlayer []mdl.
 		participants[i].Username = p.Username
 		participants[i].Alias = p.Alias
 		var prediction string = "-"
-		if ok, index := predictsByPlayer[i].ContainsMatchID(m.Id); ok {
+		if ok, index := predictsByPlayer[i].ContainsMatchID(m.ID); ok {
 			prediction = fmt.Sprintf("%v - %v", predictsByPlayer[i][index].Result1, predictsByPlayer[i][index].Result2)
 		}
 		participants[i].Predict = prediction
@@ -233,7 +233,7 @@ func matchParticipants(m MatchJson, players []*mdl.User, predictsByPlayer []mdl.
 
 // From an array of Matches, create an array of Phases where the matches are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJson) []PhaseJson {
+func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []PhaseJson {
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
@@ -249,9 +249,9 @@ func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJson) []PhaseJson {
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
 
-		var filteredMatches []MatchJson
+		var filteredMatches []MatchJSON
 		for _, v := range matches {
-			if v.IdNumber >= low && v.IdNumber <= high {
+			if v.IDNumber >= low && v.IDNumber <= high {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
@@ -269,9 +269,9 @@ func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJson) []PhaseJson {
 
 // From an array of matches, create an array of Days where the matches are grouped in.
 // We use the Date of each match to do this.
-func matchesGroupByDay(t *mdl.Tournament, matches []MatchJson) []DayJson {
+func matchesGroupByDay(t *mdl.Tournament, matches []MatchJSON) []DayJson {
 
-	mapOfDays := make(map[string][]MatchJson)
+	mapOfDays := make(map[string][]MatchJSON)
 
 	const shortForm = "Jan/02/2006"
 	for _, m := range matches {
@@ -280,7 +280,7 @@ func matchesGroupByDay(t *mdl.Tournament, matches []MatchJson) []DayJson {
 		if ok {
 			mapOfDays[currentDate] = append(mapOfDays[currentDate], m)
 		} else {
-			var arrayMatches []MatchJson
+			var arrayMatches []MatchJSON
 			arrayMatches = append(arrayMatches, m)
 			mapOfDays[currentDate] = arrayMatches
 		}

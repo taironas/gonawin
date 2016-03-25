@@ -87,7 +87,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 // From an array of Matches, create an array of Phases where the teams are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
+func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
 		return []teamsByPhase{}
@@ -102,9 +102,9 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJson) []teamsByPhase {
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
 
-		var filteredMatches []MatchJson
+		var filteredMatches []MatchJSON
 		for _, v := range matches {
-			if v.IdNumber >= low && v.IdNumber <= high {
+			if v.IDNumber >= low && v.IDNumber <= high {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
