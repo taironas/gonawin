@@ -482,7 +482,7 @@ func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, err
 	}
 
 	for i, p := range predicts {
-		if p.MatchId == mId {
+		if p.MatchID == mId {
 			return predicts[i], nil
 		}
 	}

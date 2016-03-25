@@ -223,7 +223,7 @@ func matchParticipants(m MatchJson, players []*mdl.User, predictsByPlayer []mdl.
 		participants[i].Username = p.Username
 		participants[i].Alias = p.Alias
 		var prediction string = "-"
-		if ok, index := predictsByPlayer[i].ContainsMatchId(m.Id); ok {
+		if ok, index := predictsByPlayer[i].ContainsMatchID(m.Id); ok {
 			prediction = fmt.Sprintf("%v - %v", predictsByPlayer[i][index].Result1, predictsByPlayer[i][index].Result2)
 		}
 		participants[i].Predict = prediction

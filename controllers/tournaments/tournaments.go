@@ -635,7 +635,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		} else {
 			// add p.Id to User predict table.
-			if err = u.AddPredictId(c, predict.Id); err != nil {
+			if err = u.AddPredictId(c, predict.ID); err != nil {
 				log.Errorf(c, "%s unable to add predict id in user entity: error: %v", desc, err)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 			}

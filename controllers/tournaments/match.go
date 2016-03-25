@@ -287,7 +287,7 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 		matchesJson[i].Finished = m.Finished
 		matchesJson[i].Ready = m.Ready
 		matchesJson[i].CanPredict = m.CanPredict
-		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
 			matchesJson[i].HasPredict = true
 			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
@@ -360,7 +360,7 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 		matchesJson[i].Ready = m.Ready
 		matchesJson[i].CanPredict = m.CanPredict
 
-		if hasMatch, j := predicts.ContainsMatchId(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
 			matchesJson[i].HasPredict = true
 			matchesJson[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
