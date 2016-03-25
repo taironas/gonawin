@@ -28,7 +28,8 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// Update the score of the participants to the tournament.
+// UpdateUsersScore updates the score of the participants to the tournament.
+//
 func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	desc := "Update users score:"
 	// send task to update scores of user.
@@ -52,22 +53,26 @@ func (t *Tournament) UpdateUsersScore(c appengine.Context, m *Tmatch) error {
 	if _, err := taskqueue.Add(c, task, ""); err != nil {
 		log.Errorf(c, "%s unable to add task to taskqueue.", desc)
 		return err
-	} else {
-		log.Infof(c, "%s add task to taskqueue successfully", desc)
 	}
+
+	log.Infof(c, "%s add task to taskqueue successfully", desc)
+
 	return nil
 }
 
-// Update the accuracy of the teams members in a specific tournament.
+// UpdateTeamsAccuracy updates the accuracy of the teams members in a specific tournament.
+//
 func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 	desc := "Update Teams score:"
 	teams := t.Teams(c)
 
-	teamsToUpdate := make([]*Team, 0)
+	var teamsToUpdate []*Team
+
+	var err error
+
 	for _, team := range teams {
 		sumScore := int64(0)
 		var players []*User
-		var err error
 		if players, err = team.Players(c); err != nil {
 			log.Errorf(c, "%s error when calling team.Player user: %v", desc, err)
 			continue
@@ -94,29 +99,30 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 			if oldmatches > 0 {
 				oldmatches = oldmatches - 1 // do not take into account the match that triggers the update accuracy.
 			}
-			if acc1, err := CreateAccuracy(c, team.ID, t.Id, oldmatches); err != nil {
+
+			var acc1 *Accuracy
+			if acc1, err = CreateAccuracy(c, team.ID, t.Id, oldmatches); err != nil {
 				log.Errorf(c, "%s unable to create accuracy", desc)
 				return err
-			} else {
-				team.AddTournamentAccuracy(c, acc1.Id, t.Id)
-				var err error
-				if computedAcc, err = acc1.Add(c, newAcc); err != nil {
-					log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
-				}
 			}
+
+			team.AddTournamentAccuracy(c, acc1.Id, t.Id)
+			if computedAcc, err = acc1.Add(c, newAcc); err != nil {
+				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
+			}
+
 		} else {
-			var err error
 			if computedAcc, err = acc.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
 			}
 		}
 
 		// ToDo: update team overall accuracy.
-		if err := team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
+		if err = team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
 			log.Errorf(c, "%s unable to update global accuracy for team %d: %v", desc, team.ID, err)
 		}
 	}
-	if err := UpdateTeams(c, teamsToUpdate); err != nil {
+	if err = UpdateTeams(c, teamsToUpdate); err != nil {
 		log.Errorf(c, "%s unable udpate teams scores: %v", desc, err)
 		return errors.New(helpers.ErrorCodeTeamsCannotUpdate)
 	}
@@ -125,6 +131,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 }
 
 // Computes the score to be given with respect to a match and a predict.
+//
 func computeScore(c appengine.Context, m *Tmatch, p *Predict) int64 {
 	// exact result
 	if (m.Result1 == p.Result1) && (m.Result2 == p.Result2) {
