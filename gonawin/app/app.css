@@ -682,5 +682,17 @@ body {
   background: url(/app/assets/img/logo_club/rlm.png) no-repeat;
 }
 
+.flag-icon-BEN {
+  background: url(/app/assets/img/logo_club/ben.png) no-repeat;
+}
+
+.flag-icon-MCC {
+  background: url(/app/assets/img/logo_club/mcc.png) no-repeat;
+}
+
+.flag-icon-VWB {
+  background: url(/app/assets/img/logo_club/vwb.png) no-repeat;
+}
+
 /* Team Icon styles
 -------------------------------------------------- */
