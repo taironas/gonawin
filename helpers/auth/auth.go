@@ -62,9 +62,9 @@ type UserInfo struct {
 // TwitterUserInfo represents the twitter data needed for authentication.
 //
 type TwitterUserInfo struct {
-	ID         int64 `json:id",omitempty"`
+	ID         int64 `json:"id,omitempty"`
 	Name       string
-	ScreenName string `json:screen_name",omitempty"`
+	ScreenName string `json:"screen_name,omitempty"`
 }
 
 // CheckUserValidity checks user validity from an accessToken string.
