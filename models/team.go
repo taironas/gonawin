@@ -490,7 +490,7 @@ func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 	var accs []*Accuracy
 
 	for _, acc := range t.TournamentAccuracies {
-		a, err := AccuracyById(c, acc.AccuracyID)
+		a, err := AccuracyByID(c, acc.AccuracyID)
 		if err != nil {
 			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccuracyID)
 		} else {
@@ -686,7 +686,7 @@ func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (
 	//query accuracy
 	for _, acc := range t.TournamentAccuracies {
 		if acc.TournamentID == tournament.Id {
-			return AccuracyById(c, acc.AccuracyID)
+			return AccuracyByID(c, acc.AccuracyID)
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")
@@ -741,7 +741,7 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tID int64, newAccuracy float6
 			counter++
 			continue
 		}
-		if acc, err := AccuracyById(c, tournamentAccuracy.AccuracyID); err == nil && acc != nil {
+		if acc, err := AccuracyByID(c, tournamentAccuracy.AccuracyID); err == nil && acc != nil {
 			// only take into account tournaments with accuracies
 			if len(acc.Accuracies) > 0 {
 				sum += acc.Accuracies[len(acc.Accuracies)-1]
@@ -813,12 +813,12 @@ func (t *Team) Entity() ActivityEntity {
 func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]AccuracyOverall {
 	var accs []AccuracyOverall
 	for _, aot := range t.TournamentAccuracies {
-		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
+		if acc, err := AccuracyByID(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyID
-			a.TournamentId = aot.TournamentID
+			a.ID = aot.AccuracyID
+			a.TournamentID = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
@@ -851,12 +851,12 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 		if aot.TournamentID != tour.Id {
 			continue
 		}
-		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
+		if acc, err := AccuracyByID(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyID
-			a.TournamentId = aot.TournamentID
+			a.ID = aot.AccuracyID
+			a.TournamentID = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
