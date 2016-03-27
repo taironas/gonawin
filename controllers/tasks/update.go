@@ -88,16 +88,16 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	for _, u := range users {
 		var score int64
 		if score, err = u.ScoreForMatch(c, &m); err != nil {
-			log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
+			log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.ID, err)
 		} else {
 			scores = append(scores, score)
-			userIds = append(userIds, u.Id)
+			userIds = append(userIds, u.ID)
 			if score > 0 {
-				userIdsToPublish = append(userIdsToPublish, u.Id)
+				userIdsToPublish = append(userIdsToPublish, u.ID)
 			}
 		}
 		if scoreEntity, _ := u.TournamentScore(c, &t); scoreEntity == nil {
-			userIdsToCreateSE = append(userIdsToCreateSE, u.Id)
+			userIdsToCreateSE = append(userIdsToCreateSE, u.ID)
 		}
 	}
 	log.Infof(c, "%s the data is ready.", desc)
@@ -240,7 +240,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s get users", desc)
 	usersToUpdate := make([]*mdl.User, 0)
 	for i, id := range userIds {
-		if u, err := mdl.UserById(c, id); err != nil {
+		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
 		} else {
 			u.Score += scores[i]
@@ -306,7 +306,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	}
 	log.Infof(c, "%s get users", desc)
 	for i, id := range userIds {
-		if u, err := mdl.UserById(c, id); err != nil {
+		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%d", desc, id)
 		} else {
 			log.Infof(c, "%s score ready add it to tournament %v", desc, scores[i])
@@ -366,7 +366,7 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	tournamentScores := make([]*mdl.Score, len(userIds))
 	log.Infof(c, "%s get users", desc)
 	for i, id := range userIds {
-		if u, err := mdl.UserById(c, id); err != nil {
+		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
 		} else {
 			users[i] = u

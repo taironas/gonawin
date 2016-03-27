@@ -652,15 +652,15 @@ func TestTeamJoin(t *testing.T) {
 		}
 
 		for _, id := range test.userTeamIDs {
-			if ok, _ := user.ContainsTeamId(teamIDs[id]); !ok {
+			if ok, _ := user.ContainsTeamID(teamIDs[id]); !ok {
 				t.Errorf("test %v - team Id %v is not part of user teamIds", i, teamIDs[id])
 			}
 			var team *Team
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
-			if ok, _ := team.ContainsUserId(user.Id); !ok {
-				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.Id)
+			if ok, _ := team.ContainsUserId(user.ID); !ok {
+				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.ID)
 			}
 		}
 	}
@@ -722,15 +722,15 @@ func TestTeamLeave(t *testing.T) {
 		}
 
 		for _, id := range test.userTeamIDs {
-			if ok, _ := user.ContainsTeamId(teamIDs[id]); ok {
+			if ok, _ := user.ContainsTeamID(teamIDs[id]); ok {
 				t.Errorf("test %v - team Id %v is part of user teamIds", i, teamIDs[id])
 			}
 			var team *Team
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
-			if ok, _ := team.ContainsUserId(user.Id); ok {
-				t.Errorf("test %v - user Id %v is part of team userIds", i, user.Id)
+			if ok, _ := team.ContainsUserId(user.ID); ok {
+				t.Errorf("test %v - user Id %v is part of team userIds", i, user.ID)
 			}
 		}
 	}
@@ -754,7 +754,7 @@ func TestIsTeamAdmin(t *testing.T) {
 	}
 
 	testTeams := createTestTeams(1)
-	testTeams[0].adminID = user.Id
+	testTeams[0].adminID = user.ID
 	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
 
 	tests := []struct {
@@ -766,7 +766,7 @@ func TestIsTeamAdmin(t *testing.T) {
 		{
 			title:    "user is admin",
 			teamID:   teamID,
-			userID:   user.Id,
+			userID:   user.ID,
 			expected: true,
 		},
 		{
@@ -778,7 +778,7 @@ func TestIsTeamAdmin(t *testing.T) {
 		{
 			title:    "team does not exist",
 			teamID:   -1,
-			userID:   user.Id,
+			userID:   user.ID,
 			expected: false,
 		},
 	}

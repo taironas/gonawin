@@ -54,12 +54,16 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
+// TeamData holds basic information of a Team entity.
+//
 type TeamData struct {
 	Name        string
 	Description string
 	Visibility  string
 }
 
+// PriceData holds basic information of a Price entity.
+//
 type PriceData struct {
 	Description string
 }
@@ -110,7 +114,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type indexTeamViewModel struct {
-	Id           int64
+	ID           int64 `json:"Id"`
 	Name         string
 	Private      bool
 	Accuracy     float64
@@ -121,7 +125,7 @@ type indexTeamViewModel struct {
 func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 	ts := make([]indexTeamViewModel, len(teams))
 	for i, t := range teams {
-		ts[i].Id = t.ID
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].Private = t.Private
 		ts[i].Accuracy = t.Accuracy
@@ -169,7 +173,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 	}
 
-	team, err := mdl.CreateTeam(c, tData.Name, tData.Description, u.Id, tData.Visibility == "Private")
+	team, err := mdl.CreateTeam(c, tData.Name, tData.Description, u.ID, tData.Visibility == "Private")
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
@@ -180,8 +184,8 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 	}
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
+	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
+		log.Errorf(c, "User not found %v", u.ID)
 	} else {
 		updatedUser.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
 	}
@@ -198,13 +202,13 @@ type newTeamViewModel struct {
 }
 
 func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
 
-	tvm := newTeamViewModel{MessageInfo: msg, Team: tJson}
+	tvm := newTeamViewModel{MessageInfo: msg, Team: tJSON}
 
 	return tvm
 }
@@ -255,17 +259,17 @@ type showViewModel struct {
 
 func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
 	// build team json
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
-	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(t, &tJSON, fieldsToKeep)
 
 	pvm := buildPlayersViewModel(c, players)
 	tvm := buildShowTournamentViewModel(c, tournaments)
 
 	return showViewModel{
-		tJson,
+		tJSON,
 		t.Joined(c, u),
-		mdl.WasTeamRequestSent(c, t.ID, u.Id),
+		mdl.WasTeamRequestSent(c, t.ID, u.ID),
 		pvm,
 		tvm,
 		helpers.TeamImageURL(t.Name, t.ID),
@@ -273,7 +277,7 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 }
 
 type playerViewModel struct {
-	Id       int64
+	ID       int64 `json:"Id"`
 	Username string
 	Alias    string
 	Score    int64
@@ -283,19 +287,19 @@ type playerViewModel struct {
 func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
 	pvm := make([]playerViewModel, len(players))
 	for i, p := range players {
-		pvm[i].Id = p.Id
+		pvm[i].ID = p.ID
 		pvm[i].Username = p.Username
 		pvm[i].Alias = p.Alias
 		pvm[i].Score = p.Score
-		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.ID)
 	}
 
 	return pvm
 }
 
 type showTournamentViewModel struct {
-	Id                int64  `json:",omitempty"`
-	Name              string `json:",omitempty"`
+	ID                int64 `json:Id"`
+	Name              string
 	ParticipantsCount int
 	TeamsCount        int
 	Progress          float64
@@ -305,7 +309,7 @@ type showTournamentViewModel struct {
 func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
 	tvm := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tvm[i].Id = t.Id
+		tvm[i].ID = t.Id
 		tvm[i].Name = t.Name
 		tvm[i].ParticipantsCount = len(t.UserIds)
 		tvm[i].TeamsCount = len(t.TeamIds)
@@ -336,7 +340,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 	}
@@ -392,13 +396,13 @@ type updateTeamViewModel struct {
 }
 
 func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
 
-	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJson}
+	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJSON}
 
 	return tvm
 }
@@ -423,7 +427,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 	}
@@ -435,9 +439,9 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	for _, player := range players {
-		if err := player.RemoveTeamId(c, team.ID); err != nil {
+		if err := player.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-		} else if u.Id == player.Id {
+		} else if u.ID == player.ID {
 			// Be sure that current user has the latest data,
 			// as the u.Publish method will update again the user,
 			// we don't want to override the team ID removal.
@@ -447,7 +451,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
-		if err := tournament.RemoveTeamId(c, team.ID); err != nil {
+		if err := tournament.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}
@@ -507,8 +511,8 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type memberViewModel struct {
-	Id       int64  `json:",omitempty"`
-	Username string `json:",omitempty"`
+	ID       int64 `json:"Id"`
+	Username string
 	Alias    string
 	Score    int64
 	ImageURL string
@@ -521,11 +525,11 @@ type membersViewModel struct {
 func buildMembersViewModel(c appengine.Context, members []*mdl.User) membersViewModel {
 	mvm := make([]memberViewModel, len(members))
 	for i, m := range members {
-		mvm[i].Id = m.Id
+		mvm[i].ID = m.ID
 		mvm[i].Username = m.Username
 		mvm[i].Alias = m.Alias
 		mvm[i].Score = m.Score
-		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.Id)
+		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.ID)
 	}
 
 	return membersViewModel{Members: mvm}

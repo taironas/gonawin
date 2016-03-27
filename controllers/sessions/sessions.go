@@ -94,7 +94,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User
@@ -224,7 +224,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User
@@ -251,7 +251,7 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	url, err = user.LoginURL(c, "/j/auth/google/callback/")
 	if err != nil {
 		log.Errorf(c, "%s error when getting Google accounts login URL", desc)
-		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginUrl)}
+		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetGoogleLoginURL)}
 	}
 
 	loginData := struct {
@@ -310,7 +310,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User

@@ -27,7 +27,9 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
+// TournamentScore computes a score vector, given a query string and an array of ids,
+// that has the doc ids and the score of each id with respect to the query.
+//
 func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -38,16 +40,16 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	q := make([]float64, len(setOfWords))
 	for i, w := range setOfWords {
 		dft := 0
-		if invId, err := FindTournamentInvertedIndex(c, "KeyName", w); err != nil {
+		if invID, err := FindTournamentInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TournamentScore, unable to find KeyName=%s: %v", w, err)
-		} else if invId != nil {
-			dft = len(strings.Split(string(invId.TournamentIds), " "))
+		} else if invID != nil {
+			dft = len(strings.Split(string(invID.TournamentIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTournamentWords+1)/float64(dft+1))
 	}
 
 	// d vector
-	vec_d := make([][]float64, len(ids))
+	dVect := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords {
@@ -61,15 +63,15 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 
 			d[j] = math.Log10(float64(1+wordFreqByTournament)) * math.Log10(float64(nbTournamentWords+1)/float64(tournamentFreqForWord+1))
 		}
-		vec_d[i] = make([]float64, len(setOfWords))
-		vec_d[i] = d
+		dVect[i] = make([]float64, len(setOfWords))
+		dVect[i] = d
 	}
 
 	// compute score vector
 	var score map[int64]float64
 	score = make(map[int64]float64)
-	for i, vec_di := range vec_d {
-		score[ids[i]] = dotProduct(vec_di, q)
+	for i, dVectIndex := range dVect {
+		score[ids[i]] = dotProduct(dVectIndex, q)
 	}
 
 	sortedScore := sortMapByValueDesc(score)
@@ -77,7 +79,9 @@ func TournamentScore(c appengine.Context, query string, ids []int64) []int64 {
 	return getKeysFrompairList(sortedScore)
 }
 
-// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
+// TeamScore computes a score vector, given a query string and an array of ids,
+//  that has the doc ids and the score of each id with respect to the query.
+//
 func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -97,7 +101,7 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	}
 
 	// d vector
-	vec_d := make([][]float64, len(ids))
+	dVect := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords {
@@ -111,15 +115,15 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 
 			d[j] = math.Log10(float64(1+wordFreqByTeam)) * math.Log10(float64(nbTeamWords+1)/float64(teamFreqForWord+1))
 		}
-		vec_d[i] = make([]float64, len(setOfWords))
-		vec_d[i] = d
+		dVect[i] = make([]float64, len(setOfWords))
+		dVect[i] = d
 	}
 
 	// compute score vector
 	var score map[int64]float64
 	score = make(map[int64]float64)
-	for i, vec_di := range vec_d {
-		score[ids[i]] = dotProduct(vec_di, q)
+	for i, dVectIndex := range dVect {
+		score[ids[i]] = dotProduct(dVectIndex, q)
 	}
 
 	sortedScore := sortMapByValueDesc(score)
@@ -127,7 +131,9 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 	return getKeysFrompairList(sortedScore)
 }
 
-// Given a query string and an array of ids, computes a score vector that has the doc ids and the score of each id with respect to the query.
+// UserScore computes a score vector, given a query string and an array of ids,
+// that has the doc ids and the score of each id with respect to the query.
+//
 func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 
 	words := strings.Split(query, " ")
@@ -138,16 +144,16 @@ func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 	q := make([]float64, len(setOfWords))
 	for i, w := range setOfWords {
 		dft := 0
-		if invId, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
+		if invID, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, "search.UserScore, unable to find KeyName=%s: %v", w, err)
-		} else if invId != nil {
-			dft = len(strings.Split(string(invId.UserIds), " "))
+		} else if invID != nil {
+			dft = len(strings.Split(string(invID.UserIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbUserWords+1)/float64(dft+1))
 	}
 
 	// d vector
-	vec_d := make([][]float64, len(ids))
+	dVect := make([][]float64, len(ids))
 	for i, id := range ids {
 		d := make([]float64, len(setOfWords))
 		for j, wi := range setOfWords {
@@ -161,15 +167,15 @@ func UserScore(c appengine.Context, query string, ids []int64) []int64 {
 
 			d[j] = math.Log10(float64(1+wordFreqByUser)) * math.Log10(float64(nbUserWords+1)/float64(userFreqForWord+1))
 		}
-		vec_d[i] = make([]float64, len(setOfWords))
-		vec_d[i] = d
+		dVect[i] = make([]float64, len(setOfWords))
+		dVect[i] = d
 	}
 
 	// compute score vector
 	var score map[int64]float64
 	score = make(map[int64]float64)
-	for i, vec_di := range vec_d {
-		score[ids[i]] = dotProduct(vec_di, q)
+	for i, dVectIndex := range dVect {
+		score[ids[i]] = dotProduct(dVectIndex, q)
 	}
 
 	sortedScore := sortMapByValueDesc(score)
@@ -229,11 +235,11 @@ func getKeysFrompairList(p pairList) []int64 {
 func dotProduct(vec1 []float64, vec2 []float64) float64 {
 	if len(vec1) != len(vec2) {
 		return 0
-	} else {
-		sum := float64(0)
-		for i, _ := range vec1 {
-			sum = sum + vec1[i]*vec2[i]
-		}
-		return sum
 	}
+
+	sum := float64(0)
+	for i := range vec1 {
+		sum = sum + vec1[i]*vec2[i]
+	}
+	return sum
 }

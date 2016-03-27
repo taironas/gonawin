@@ -85,7 +85,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		max := 3 * len(players) // maximum score for team in current match.
 		for _, u := range players {
 			if score, err := u.ScoreForMatch(c, m); err != nil {
-				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
+				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.ID, err)
 			} else {
 				sumScore += score
 			}
@@ -106,7 +106,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 				return err
 			}
 
-			team.AddTournamentAccuracy(c, acc1.Id, t.Id)
+			team.AddTournamentAccuracy(c, acc1.ID, t.Id)
 			if computedAcc, err = acc1.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
 			}

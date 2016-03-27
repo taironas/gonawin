@@ -33,7 +33,7 @@ const (
 	ErrorCodeSessionsCannotGetSecretValue     = "Error getting 'secret' value"
 	ErrorCodeSessionsCannotGetRequestToken    = "Error getting request token"
 	ErrorCodeSessionsCannotGetUserInfo        = "Error getting user info from Twitter"
-	ErrorCodeSessionsCannotGetGoogleLoginUrl  = "Error getting Google accounts login URL"
+	ErrorCodeSessionsCannotGetGoogleLoginURL  = "Error getting Google accounts login URL"
 
 	// users
 	ErrorCodeUserNotFound                      = "User not found"

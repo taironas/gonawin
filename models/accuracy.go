@@ -23,7 +23,7 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// Accuracy entity is a placeholder for progression of the accuracy of a team in a tournament.
+// Accuracy is a placeholder for progression of the accuracy of a team in a tournament.
 // Teams should have a global accuracy as well as an accuracy for each tournament they participate in.
 // Teams should be able to see the evolution of their accuracy for each tournament.
 //
@@ -32,47 +32,54 @@ import (
 //
 // If some participants arrive later to the tournament, previous accuracies count as 0, and this does not impact previous teams accuracy.
 type Accuracy struct {
-	Id           int64
-	TeamId       int64
-	TournamentId int64
+	ID           int64
+	TeamID       int64
+	TournamentID int64
 	Accuracies   []float64
 }
 
+// AccuracyOverall represents the accuracy for a tournament and its progression.
+//
 type AccuracyOverall struct {
-	Id           int64
-	TournamentId int64
+	ID           int64
+	TournamentID int64
 	Accuracy     float64       // overall accuracy
 	Progression  []Progression // progression of accuracies of team in tournament. (right now the last 5 accuracy logs)
 }
 
+// Progression holds the progression of an accuracy
+//
 type Progression struct {
 	Value float64
 }
 
-// The Json version
-type AccuracyJson struct {
-	Id           *int64     `json:",omitempty"`
-	TeamId       *int64     `json:",omitempty"`
-	TournamentId *int64     `json:",omitempty"`
+// AccuracyJSON is the JSON representation of the Accuracy entity.
+//
+type AccuracyJSON struct {
+	ID           *int64     `json:"Id,omitempty"`
+	TeamID       *int64     `json:"TeamId,omitempty"`
+	TournamentID *int64     `json:"TournamentId,omitempty"`
 	Accuracies   *[]float64 `json:",omitempty"`
 }
 
-// Create an Accuracy entity.
-func CreateAccuracy(c appengine.Context, teamId int64, tournamentId int64, oldmatches int) (*Accuracy, error) {
-	aId, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
+// CreateAccuracy creates an Accuracy entity.
+//
+func CreateAccuracy(c appengine.Context, teamID int64, tournamentID int64, oldmatches int) (*Accuracy, error) {
+	accuracyID, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
 	if err != nil {
 		return nil, err
 	}
-	key := datastore.NewKey(c, "Accuracy", "", aId, nil)
-	accs := make([]float64, oldmatches)
-	a := &Accuracy{aId, teamId, tournamentId, accs}
+	key := datastore.NewKey(c, "Accuracy", "", accuracyID, nil)
+	accuracies := make([]float64, oldmatches)
+	a := &Accuracy{accuracyID, teamID, tournamentID, accuracies}
 	if _, err = datastore.Put(c, key, a); err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
-// Add accuracy to array of accuracies in Accuracy entity
+// Add accuracy to array of accuracies in Accuracy entity.
+//
 func (a *Accuracy) Add(c appengine.Context, acc float64) (float64, error) {
 	// add acc with previous acc / # item + 1
 	sum := sumFloat64(&a.Accuracies)
@@ -82,8 +89,9 @@ func (a *Accuracy) Add(c appengine.Context, acc float64) (float64, error) {
 }
 
 // Update a team given an id and a team pointer.
+//
 func (a *Accuracy) Update(c appengine.Context) error {
-	k := AccuracyKeyById(c, a.Id)
+	k := AccuracyKeyByID(c, a.ID)
 	oldAcc := new(Accuracy)
 	if err := datastore.Get(c, k, oldAcc); err == nil {
 		if _, err = datastore.Put(c, k, a); err != nil {
@@ -107,20 +115,22 @@ func sumInt64(a *[]int64) (sum int64) {
 	return
 }
 
-// Get an accuracy key given an id.
-func AccuracyKeyById(c appengine.Context, id int64) *datastore.Key {
+// AccuracyKeyByID gets an accuracy key given an id.
+//
+func AccuracyKeyByID(c appengine.Context, id int64) *datastore.Key {
 	key := datastore.NewKey(c, "Accuracy", "", id, nil)
 	return key
 }
 
-// Get a team given an id.
-func AccuracyById(c appengine.Context, id int64) (*Accuracy, error) {
+// AccuracyByID gets a team given an id.
+//
+func AccuracyByID(c appengine.Context, id int64) (*Accuracy, error) {
 
 	var a Accuracy
 	key := datastore.NewKey(c, "Accuracy", "", id, nil)
 
 	if err := datastore.Get(c, key, &a); err != nil {
-		log.Errorf(c, " AccuracyById: accuracy not found : %v", err)
+		log.Errorf(c, " AccuracyByID: accuracy not found : %v", err)
 		return &a, err
 	}
 	return &a, nil
