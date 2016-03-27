@@ -53,7 +53,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	allMatches := mdl.GetAllMatchesFromTournament(c, t)
 	phases := mdl.MatchesGroupByPhase(t, allMatches)
 
-	mapIDTeams := mdl.MapOfIdTeams(c, t)
+	mapIDTeams := mdl.MapOfIDTeams(c, t)
 	phaseID := -1
 	var results1 []int64
 	var results2 []int64

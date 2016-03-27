@@ -632,7 +632,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s TournamentBuilder not found")
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-	mapIDTeams := tb.MapOfIdTeams(c, tournament)
+	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 	var p *mdl.Predict
 	if p = mdl.FindPredictByUserMatch(c, u.ID, match.Id); p == nil {
 

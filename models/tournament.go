@@ -75,7 +75,7 @@ type TournamentBuilder interface {
 	MapOfGroupMatches() map[string][][]string
 	MapOf2ndRoundMatches() map[string][][]string
 	MapOfPhaseIntervals() map[string][]int64
-	MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string
+	MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string
 }
 
 // Create tournament entity given a name and description.
@@ -398,7 +398,7 @@ func (t *Tournament) Reset(c appengine.Context) error {
 	mapMatches2ndRound := tb.MapOf2ndRoundMatches()
 
 	const (
-		cMatchId       = 0
+		cMatchID       = 0
 		cMatchDate     = 1
 		cMatchTeam1    = 2
 		cMatchTeam2    = 3
@@ -409,7 +409,7 @@ func (t *Tournament) Reset(c appengine.Context) error {
 	const shortForm = "Jan/02/2006"
 	for _, roundMatches := range mapMatches2ndRound {
 		for _, matchData := range roundMatches {
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
 			m := GetMatchByIdNumber(c, *t, int64(matchInternalId))
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			m.Rule = rule
@@ -648,12 +648,12 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	return tb
 }
 
-func MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+func MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	var tb TournamentBuilder
 
 	if tb = GetTournamentBuilder(tournament); tb == nil {
 		return nil
 	}
-	return tb.MapOfIdTeams(c, tournament)
+	return tb.MapOfIDTeams(c, tournament)
 }

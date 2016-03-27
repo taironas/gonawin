@@ -57,7 +57,7 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		return fmt.Errorf("TournamentBuilder not found")
 	}
 
-	mapIDTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIDTeams(c, t)
 	limits := tb.MapOfPhaseIntervals()
 
 	oldTeamID := int64(0)
