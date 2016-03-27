@@ -236,7 +236,7 @@ func TournamentKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 // Checks if a user has joined a tournament.
 func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
-	hasTournament, _ := u.ContainsTournamentId(t.Id)
+	hasTournament, _ := u.ContainsTournamentID(t.Id)
 	return hasTournament
 }
 
@@ -244,11 +244,11 @@ func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
-	if err := u.AddTournamentId(c, t.Id); err != nil {
-		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
+	if err := u.AddTournamentID(c, t.Id); err != nil {
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.ID, err)
 	}
-	if err := t.AddUserId(c, u.Id); err != nil {
-		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
+	if err := t.AddUserId(c, u.ID); err != nil {
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.ID, err)
 	}
 
 	return nil
@@ -330,7 +330,7 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	if err := team.AddTournamentID(c, t.Id); err != nil {
 		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.ID, err)
 	}
-	if err := t.AddTeamId(c, team.ID); err != nil {
+	if err := t.AddTeamID(c, team.ID); err != nil {
 		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", t.Id, err)
 	}
 	if err := t.AddUserIds(c, team.UserIDs); err != nil {
@@ -352,7 +352,7 @@ func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
 	if err := team.RemoveTournamentID(c, t.Id); err != nil {
 		return fmt.Errorf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.ID, err)
 	}
-	if err := t.RemoveTeamId(c, team.ID); err != nil {
+	if err := t.RemoveTeamID(c, team.ID); err != nil {
 		return fmt.Errorf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.ID, err)
 	}
 	if err := team.RemovePriceByTournamentID(c, t.Id); err != nil {
@@ -429,7 +429,7 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 	var users []*User
 
 	for _, uId := range t.UserIds {
-		user, err := UserById(c, uId)
+		user, err := UserByID(c, uId)
 		if err != nil {
 			log.Errorf(c, " Participants, cannot find user with ID=%v", uId)
 		} else {
@@ -456,10 +456,10 @@ func (t *Tournament) Teams(c appengine.Context) []*Team {
 }
 
 // Adds a team Id in the TeamId array.
-func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
+func (t *Tournament) RemoveTeamID(c appengine.Context, tId int64) error {
 
-	if hasTeam, i := t.ContainsTeamId(tId); !hasTeam {
-		return fmt.Errorf("RemoveTeamId, not a member")
+	if hasTeam, i := t.ContainsTeamID(tId); !hasTeam {
+		return fmt.Errorf("RemoveTeamID, not a member")
 	} else {
 		// as the order of index in teamsId is not important,
 		// replace elem at index i with last element and resize slice.
@@ -473,10 +473,10 @@ func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
 }
 
 // Adds a team Id in the TeamId array.
-func (t *Tournament) AddTeamId(c appengine.Context, tId int64) error {
+func (t *Tournament) AddTeamID(c appengine.Context, tId int64) error {
 
-	if hasTeam, _ := t.ContainsTeamId(tId); hasTeam {
-		return fmt.Errorf("AddTeamId, allready a member")
+	if hasTeam, _ := t.ContainsTeamID(tId); hasTeam {
+		return fmt.Errorf("AddTeamID, allready a member")
 	}
 
 	t.TeamIds = append(t.TeamIds, tId)
@@ -527,7 +527,7 @@ func (t *Tournament) AddUserIds(c appengine.Context, uIds []int64) error {
 }
 
 // Checks if a team is part of a tournament.
-func (t *Tournament) ContainsTeamId(id int64) (bool, int) {
+func (t *Tournament) ContainsTeamID(id int64) (bool, int) {
 
 	for i, tId := range t.TeamIds {
 		if tId == id {

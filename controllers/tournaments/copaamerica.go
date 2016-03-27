@@ -41,7 +41,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "NewCopaAmetrica Handler:"
 
-	tournament, err := mdl.CreateCopaAmerica(c, u.Id)
+	tournament, err := mdl.CreateCopaAmerica(c, u.ID)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}

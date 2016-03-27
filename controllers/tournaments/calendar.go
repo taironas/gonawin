@@ -171,7 +171,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	for i, p := range players {
 		var predicts []*mdl.Predict
 		if predicts, err = mdl.PredictsByIds(c, p.PredictIds); err != nil {
-			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
+			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.ID, err)
 			continue
 		}
 		predictsByPlayer[i] = predicts
@@ -229,7 +229,7 @@ func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.
 
 	participants := make([]UserPredictionJSON, len(players))
 	for i, p := range players {
-		participants[i].ID = p.Id
+		participants[i].ID = p.ID
 		participants[i].Username = p.Username
 		participants[i].Alias = p.Alias
 		prediction := "-"

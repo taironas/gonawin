@@ -50,11 +50,11 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if mdl.WasTeamRequestSent(c, team.ID, u.Id) {
+	if mdl.WasTeamRequestSent(c, team.ID, u.ID) {
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamRequestAlreadySent)}
 	}
 
-	if _, err := mdl.CreateTeamRequest(c, team.ID, team.Name, u.Id, u.Username); err != nil {
+	if _, err := mdl.CreateTeamRequest(c, team.ID, team.Name, u.ID, u.Username); err != nil {
 		log.Errorf(c, "%s teams.Invite, error when trying to create a team request: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
 	}
@@ -90,7 +90,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if _, err := mdl.CreateUserRequest(c, team.ID, user.Id); err != nil {
+	if _, err := mdl.CreateUserRequest(c, team.ID, user.ID); err != nil {
 		log.Errorf(c, "%s teams.SendInvite, error when trying to create a user request: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotInvite)}
 	}
@@ -152,11 +152,11 @@ type teamInvitedUserViewModel struct {
 func buildTeamInvitedViewModel(users []*mdl.User) teamInvitedViewModel {
 	uvm := make([]teamInvitedUserViewModel, len(users))
 	for i, u := range users {
-		uvm[i].ID = u.Id
+		uvm[i].ID = u.ID
 		uvm[i].Username = u.Username
 		uvm[i].Alias = u.Alias
 		uvm[i].Score = u.Score
-		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
+		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.ID)
 	}
 
 	return teamInvitedViewModel{Users: uvm}
@@ -190,7 +190,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamId, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
-	user, err := mdl.UserById(c, teamRequest.UserId)
+	user, err := mdl.UserByID(c, teamRequest.UserId)
 	if err != nil {
 		log.Errorf(c, "%s user not found, err: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}

@@ -94,7 +94,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User
@@ -224,7 +224,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User
@@ -310,7 +310,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.Id)
+	imageURL := helpers.UserImageURL(user.Username, user.ID)
 
 	userData := struct {
 		User     *mdl.User

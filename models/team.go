@@ -259,7 +259,7 @@ func TeamsKeysByIDs(c appengine.Context, IDs []int64) []*datastore.Key {
 //
 func (t *Team) Joined(c appengine.Context, u *User) bool {
 
-	hasTeam, _ := u.ContainsTeamId(t.ID)
+	hasTeam, _ := u.ContainsTeamID(t.ID)
 	return hasTeam
 }
 
@@ -269,16 +269,16 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 // UserId is added to all current tournaments joined by the team entity.
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
-	if err := u.AddTeamId(c, t.ID); err != nil {
-		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
+	if err := u.AddTeamID(c, t.ID); err != nil {
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
 	}
 
-	if err := t.AddUserID(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
+	if err := t.AddUserID(c, u.ID); err != nil {
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
 	}
 
-	if err := t.AddUserToTournaments(c, u.Id); err != nil {
-		return fmt.Errorf("Team.Join, error adding user:%d to teams tournaments Error: %v", u.Id, err)
+	if err := t.AddUserToTournaments(c, u.ID); err != nil {
+		return fmt.Errorf("Team.Join, error adding user:%d to teams tournaments Error: %v", u.ID, err)
 	}
 	return nil
 }
@@ -287,18 +287,18 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 // Todo: Should we check that the user is indeed a member of the team?
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
-	if err := u.RemoveTeamId(c, t.ID); err != nil {
-		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
+	if err := u.RemoveTeamID(c, t.ID); err != nil {
+		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
 	}
-	if err := t.RemoveUserID(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
+	if err := t.RemoveUserID(c, u.ID); err != nil {
+		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
 	}
 	// sar: 7 mar 2014
 	// when a user leaves a team should we unsubscribe him from the tournaments of that team?
 	// for now I would say no.
 
 	// if err := t.RemoveUserFromTournaments(c, u); err != nil{
-	// 	return fmt.Errorf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.Id, err)
+	// 	return fmt.Errorf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.ID, err)
 	// }
 	return nil
 }
@@ -373,7 +373,7 @@ func (t *Team) ContainsPriceID(id int64) (bool, int) {
 //
 func (t *Team) AddTournamentID(c appengine.Context, tID int64) error {
 	if hasTournament, _ := t.ContainsTournamentID(tID); hasTournament {
-		return fmt.Errorf("AddTournamentId, allready a member.")
+		return fmt.Errorf("AddTournamentID, allready a member.")
 	}
 
 	t.TournamentIDs = append(t.TournamentIDs, tID)
@@ -382,12 +382,12 @@ func (t *Team) AddTournamentID(c appengine.Context, tID int64) error {
 	}
 
 	for _, uID := range t.UserIDs {
-		user, err := UserById(c, uID)
+		user, err := UserByID(c, uID)
 		if err != nil {
-			log.Errorf(c, "Team.AddTournamentId, user not found")
+			log.Errorf(c, "Team.AddTournamentID, user not found")
 		} else {
-			log.Infof(c, "team Add tournament id add tournament id%v", user.Id)
-			user.AddTournamentId(c, tID)
+			log.Infof(c, "team Add tournament id add tournament id%v", user.ID)
+			user.AddTournamentID(c, tID)
 		}
 	}
 	return nil
@@ -401,7 +401,7 @@ func (t *Team) RemoveTournamentID(c appengine.Context, tID int64) error {
 	i := 0
 
 	if hasTournament, i = t.ContainsTournamentID(tID); !hasTournament {
-		return fmt.Errorf("RemoveTournamentId, not a member.")
+		return fmt.Errorf("RemoveTournamentID, not a member.")
 	}
 
 	// as the order of index in tournamentsId is not important,
@@ -549,7 +549,7 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 	var u *User
 	var err error
 
-	if u, err = UserById(c, uID); err != nil {
+	if u, err = UserByID(c, uID); err != nil {
 		log.Errorf(c, "User not found %v", uID)
 		return err
 	}
@@ -563,7 +563,7 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
-			if err = u.AddTournamentId(c, tournament.Id); err != nil {
+			if err = u.AddTournamentID(c, tournament.Id); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}

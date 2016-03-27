@@ -173,7 +173,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamAlreadyExists)}
 	}
 
-	team, err := mdl.CreateTeam(c, tData.Name, tData.Description, u.Id, tData.Visibility == "Private")
+	team, err := mdl.CreateTeam(c, tData.Name, tData.Description, u.ID, tData.Visibility == "Private")
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
@@ -184,8 +184,8 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTeamCannotCreate)}
 	}
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
+	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
+		log.Errorf(c, "User not found %v", u.ID)
 	} else {
 		updatedUser.Publish(c, "team", "created a new team", team.Entity(), mdl.ActivityEntity{})
 	}
@@ -269,7 +269,7 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 	return showViewModel{
 		tJSON,
 		t.Joined(c, u),
-		mdl.WasTeamRequestSent(c, t.ID, u.Id),
+		mdl.WasTeamRequestSent(c, t.ID, u.ID),
 		pvm,
 		tvm,
 		helpers.TeamImageURL(t.Name, t.ID),
@@ -287,11 +287,11 @@ type playerViewModel struct {
 func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
 	pvm := make([]playerViewModel, len(players))
 	for i, p := range players {
-		pvm[i].ID = p.Id
+		pvm[i].ID = p.ID
 		pvm[i].Username = p.Username
 		pvm[i].Alias = p.Alias
 		pvm[i].Score = p.Score
-		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.Id)
+		pvm[i].ImageURL = helpers.UserImageURL(p.Name, p.ID)
 	}
 
 	return pvm
@@ -340,7 +340,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamUpdateForbiden)}
 	}
@@ -427,7 +427,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTeamAdmin(c, team.ID, u.Id) {
+	if !mdl.IsTeamAdmin(c, team.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamDeleteForbiden)}
 	}
@@ -439,9 +439,9 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	for _, player := range players {
-		if err := player.RemoveTeamId(c, team.ID); err != nil {
+		if err := player.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
-		} else if u.Id == player.Id {
+		} else if u.ID == player.ID {
 			// Be sure that current user has the latest data,
 			// as the u.Publish method will update again the user,
 			// we don't want to override the team ID removal.
@@ -451,7 +451,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
-		if err := tournament.RemoveTeamId(c, team.ID); err != nil {
+		if err := tournament.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}
@@ -525,11 +525,11 @@ type membersViewModel struct {
 func buildMembersViewModel(c appengine.Context, members []*mdl.User) membersViewModel {
 	mvm := make([]memberViewModel, len(members))
 	for i, m := range members {
-		mvm[i].ID = m.Id
+		mvm[i].ID = m.ID
 		mvm[i].Username = m.Username
 		mvm[i].Alias = m.Alias
 		mvm[i].Score = m.Score
-		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.Id)
+		mvm[i].ImageURL = helpers.UserImageURL(m.Name, m.ID)
 	}
 
 	return membersViewModel{Members: mvm}

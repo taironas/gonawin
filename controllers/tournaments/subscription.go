@@ -67,8 +67,8 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
 	var updatedUser *mdl.User
-	if updatedUser, err = mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
+	if updatedUser, err = mdl.UserByID(c, u.ID); err != nil {
+		log.Errorf(c, "User not found %v", u.ID)
 	} else {
 		updatedUser.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 	}

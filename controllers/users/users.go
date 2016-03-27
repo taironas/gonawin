@@ -52,9 +52,9 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return templateshlp.RenderJson(w, c, vm)
 }
 
-func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJson {
+func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJSON {
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
-	usersJSON := make([]mdl.UserJson, len(users))
+	usersJSON := make([]mdl.UserJSON, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJSON, fieldsToKeep)
 	return usersJSON
 }
@@ -95,7 +95,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type showViewModel struct {
-	User            mdl.UserJson                   `json:",omitempty"`
+	User            mdl.UserJSON                   `json:",omitempty"`
 	Teams           []showTeamViewModel            `json:",omitempty"`
 	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
 	Tournaments     []showTournamentViewModel      `json:",omitempty"`
@@ -114,7 +114,7 @@ func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tou
 	ivm := buildShowInvitationsViewModel(invs)
 
 	// imageURL
-	imageURL := helpers.UserImageURL(u.Username, u.Id)
+	imageURL := helpers.UserImageURL(u.Username, u.ID)
 
 	return showViewModel{
 		uvm,
@@ -127,7 +127,7 @@ func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tou
 	}
 }
 
-func buildShowUserViewModel(user *mdl.User) (u mdl.UserJson) {
+func buildShowUserViewModel(user *mdl.User) (u mdl.UserJSON) {
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 
 	helpers.InitPointerStructure(user, &u, fieldsToKeep)
@@ -290,8 +290,8 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if userID, err = extract.UserID(); err != nil {
 		return err
-	} else if userID != u.Id {
-		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userID, u.Id)
+	} else if userID != u.ID {
+		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userID, u.ID)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 	}
 
@@ -326,13 +326,13 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 type updateViewModel struct {
 	MessageInfo string       `json:",omitempty"`
-	User        mdl.UserJson `json:",omitempty"`
+	User        mdl.UserJSON `json:",omitempty"`
 }
 
 func buildUpdateViewModel(u *mdl.User) updateViewModel {
 
 	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
-	var uJSON mdl.UserJson
+	var uJSON mdl.UserJSON
 	helpers.InitPointerStructure(u, &uJSON, fieldsToKeep)
 
 	return updateViewModel{
@@ -425,18 +425,18 @@ func buildDestroyUserViewModel(user *mdl.User) destroyUserViewModel {
 func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
 	var err error
 	for _, teamID := range requestUser.TeamIds {
-		if mdl.IsTeamAdmin(c, teamID, currentUser.Id) {
+		if mdl.IsTeamAdmin(c, teamID, currentUser.ID) {
 			var team *mdl.Team
 			if team, err = mdl.TeamByID(c, teamID); err != nil {
 				log.Errorf(c, "%s team %d not found", desc, teamID)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 			}
-			if err = team.RemoveAdmin(c, requestUser.Id); err != nil {
+			if err = team.RemoveAdmin(c, requestUser.ID); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
 			}
 		} else {
-			if err = requestUser.RemoveTeamId(c, teamID); err != nil {
+			if err = requestUser.RemoveTeamID(c, teamID); err != nil {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 			}
 		}
@@ -450,18 +450,18 @@ func removeTournameUserRels(c appengine.Context, desc string, requestUser, curre
 
 	var err error
 	for _, tournamentID := range requestUser.TournamentIds {
-		if mdl.IsTournamentAdmin(c, tournamentID, currentUser.Id) {
+		if mdl.IsTournamentAdmin(c, tournamentID, currentUser.ID) {
 			var tournament *mdl.Tournament
 			if tournament, err = mdl.TournamentById(c, tournamentID); err != nil {
 				log.Errorf(c, "%s tournament %d not found", desc, tournamentID)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
-			if err = tournament.RemoveAdmin(c, requestUser.Id); err != nil {
+			if err = tournament.RemoveAdmin(c, requestUser.ID); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
 			}
 		} else {
-			if err := requestUser.RemoveTournamentId(c, tournamentID); err != nil {
+			if err := requestUser.RemoveTournamentID(c, tournamentID); err != nil {
 				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 			}
 		}
@@ -592,7 +592,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// find user request
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.Id); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.ID); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
@@ -609,7 +609,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 
 	// publish activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err == nil && updatedUser != nil {
+	if updatedUser, err := mdl.UserByID(c, u.ID); err == nil && updatedUser != nil {
 		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
 
@@ -653,7 +653,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.Id); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.ID); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
