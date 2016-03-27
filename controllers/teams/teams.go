@@ -54,12 +54,16 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
+// TeamData holds basic information of a Team entity.
+//
 type TeamData struct {
 	Name        string
 	Description string
 	Visibility  string
 }
 
+// PriceData holds basic information of a Price entity.
+//
 type PriceData struct {
 	Description string
 }
@@ -110,7 +114,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type indexTeamViewModel struct {
-	Id           int64
+	ID           int64 `json:"Id"`
 	Name         string
 	Private      bool
 	Accuracy     float64
@@ -121,7 +125,7 @@ type indexTeamViewModel struct {
 func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
 	ts := make([]indexTeamViewModel, len(teams))
 	for i, t := range teams {
-		ts[i].Id = t.ID
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].Private = t.Private
 		ts[i].Accuracy = t.Accuracy
@@ -198,13 +202,13 @@ type newTeamViewModel struct {
 }
 
 func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
 
-	tvm := newTeamViewModel{MessageInfo: msg, Team: tJson}
+	tvm := newTeamViewModel{MessageInfo: msg, Team: tJSON}
 
 	return tvm
 }
@@ -255,15 +259,15 @@ type showViewModel struct {
 
 func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
 	// build team json
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
-	helpers.InitPointerStructure(t, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(t, &tJSON, fieldsToKeep)
 
 	pvm := buildPlayersViewModel(c, players)
 	tvm := buildShowTournamentViewModel(c, tournaments)
 
 	return showViewModel{
-		tJson,
+		tJSON,
 		t.Joined(c, u),
 		mdl.WasTeamRequestSent(c, t.ID, u.Id),
 		pvm,
@@ -273,7 +277,7 @@ func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players [
 }
 
 type playerViewModel struct {
-	Id       int64
+	ID       int64 `json:"Id"`
 	Username string
 	Alias    string
 	Score    int64
@@ -283,7 +287,7 @@ type playerViewModel struct {
 func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerViewModel {
 	pvm := make([]playerViewModel, len(players))
 	for i, p := range players {
-		pvm[i].Id = p.Id
+		pvm[i].ID = p.Id
 		pvm[i].Username = p.Username
 		pvm[i].Alias = p.Alias
 		pvm[i].Score = p.Score
@@ -294,8 +298,8 @@ func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerVie
 }
 
 type showTournamentViewModel struct {
-	Id                int64  `json:",omitempty"`
-	Name              string `json:",omitempty"`
+	ID                int64 `json:Id"`
+	Name              string
 	ParticipantsCount int
 	TeamsCount        int
 	Progress          float64
@@ -305,7 +309,7 @@ type showTournamentViewModel struct {
 func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
 	tvm := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tvm[i].Id = t.Id
+		tvm[i].ID = t.Id
 		tvm[i].Name = t.Name
 		tvm[i].ParticipantsCount = len(t.UserIds)
 		tvm[i].TeamsCount = len(t.TeamIds)
@@ -392,13 +396,13 @@ type updateTeamViewModel struct {
 }
 
 func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
-	var tJson mdl.TeamJSON
+	var tJSON mdl.TeamJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.InitPointerStructure(team, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)
 
-	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJson}
+	tvm := updateTeamViewModel{MessageInfo: msg, Team: tJSON}
 
 	return tvm
 }
@@ -507,8 +511,8 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type memberViewModel struct {
-	Id       int64  `json:",omitempty"`
-	Username string `json:",omitempty"`
+	ID       int64 `json:"Id"`
+	Username string
 	Alias    string
 	Score    int64
 	ImageURL string
@@ -521,7 +525,7 @@ type membersViewModel struct {
 func buildMembersViewModel(c appengine.Context, members []*mdl.User) membersViewModel {
 	mvm := make([]memberViewModel, len(members))
 	for i, m := range members {
-		mvm[i].Id = m.Id
+		mvm[i].ID = m.Id
 		mvm[i].Username = m.Username
 		mvm[i].Alias = m.Alias
 		mvm[i].Score = m.Score
