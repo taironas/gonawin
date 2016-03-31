@@ -27,11 +27,15 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tday represents a tournament day. It holds the date of the day and the array of matches.
+//
 type Tday struct {
 	Date    time.Time
 	Matches []Tmatch
 }
 
+// Tphase represents a tournament phase. It holds the name of the phase and the array of Tday.
+//
 type Tphase struct {
 	Name string
 	Days []Tday
