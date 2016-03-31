@@ -321,20 +321,20 @@ func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournamen
 	for i := 0; i < 4; i++ {
 		matchID := matches2ndStage[i]
 
-		m, err := MatchById(c, matchID)
+		m, err := MatchByID(c, matchID)
 		if err != nil {
 			log.Errorf(c, " MapOfIDTeams, cannot find match with ID=%", matchID)
 		} else {
-			t1, err1 := TTeamByID(c, m.TeamId1)
+			t1, err1 := TTeamByID(c, m.TeamID1)
 			if err1 != nil {
-				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId1)
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID1)
 			} else {
 				mapIDTeams[t1.ID] = t1.Name
 			}
 
-			t2, err2 := TTeamByID(c, m.TeamId2)
+			t2, err2 := TTeamByID(c, m.TeamID2)
 			if err2 != nil {
-				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId2)
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID2)
 			} else {
 				mapIDTeams[t2.ID] = t2.Name
 			}

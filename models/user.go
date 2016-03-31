@@ -491,12 +491,12 @@ func (u *User) PredictFromMatchId(c appengine.Context, mId int64) (*Predict, err
 
 func (u *User) ScoreForMatch(c appengine.Context, m *Tmatch) (int64, error) {
 	desc := "Score for match:"
-	log.Infof(c, "%s teamA: %v - teamB: %v", desc, m.TeamId1, m.TeamId2)
+	log.Infof(c, "%s teamA: %v - teamB: %v", desc, m.TeamID1, m.TeamID2)
 	log.Infof(c, "%s result: %v - %v", desc, m.Result1, m.Result2)
 	var p *Predict
 	var err1 error
-	if p, err1 = u.PredictFromMatchId(c, m.Id); err1 == nil && p == nil {
-		log.Infof(c, "%s no predict for match %v was found in user %v account", desc, m.Id, u.Id)
+	if p, err1 = u.PredictFromMatchId(c, m.ID); err1 == nil && p == nil {
+		log.Infof(c, "%s no predict for match %v was found in user %v account", desc, m.ID, u.Id)
 		return 0, nil
 	} else if err1 != nil {
 		log.Errorf(c, "%s unable to get predict for current user %v: %v", desc, u.Id, err1)

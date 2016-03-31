@@ -410,7 +410,7 @@ func (t *Tournament) Reset(c appengine.Context) error {
 	for _, roundMatches := range mapMatches2ndRound {
 		for _, matchData := range roundMatches {
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
-			m := GetMatchByIdNumber(c, *t, int64(matchInternalId))
+			m := GetMatchByIDNumber(c, *t, int64(matchInternalId))
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			m.Rule = rule
 			m.Result1 = 0

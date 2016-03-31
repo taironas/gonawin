@@ -73,7 +73,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	}
 
 	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
-	log.Infof(c, "%s value of match id: %v", desc, m.Id)
+	log.Infof(c, "%s value of match id: %v", desc, m.ID)
 
 	users := t.Participants(c)
 

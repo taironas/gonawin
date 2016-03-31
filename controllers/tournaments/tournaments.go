@@ -610,7 +610,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
 	}
 
-	match := mdl.GetMatchByIdNumber(c, *tournament, matchIDNumber)
+	match := mdl.GetMatchByIDNumber(c, *tournament, matchIDNumber)
 	if match == nil {
 		log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIDNumber)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
@@ -634,13 +634,13 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 	var p *mdl.Predict
-	if p = mdl.FindPredictByUserMatch(c, u.Id, match.Id); p == nil {
+	if p = mdl.FindPredictByUserMatch(c, u.Id, match.ID); p == nil {
 
 		var predict *mdl.Predict
 		var err1 error
 
-		if predict, err1 = mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.Id); err1 != nil {
-			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
+		if predict, err1 = mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.ID); err1 != nil {
+			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.ID, err1)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 
@@ -651,7 +651,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		p = predict
 
-		msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIDTeams[match.TeamId1], p.Result1, p.Result2, mapIDTeams[match.TeamId2])
+		msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIDTeams[match.TeamID1], p.Result1, p.Result2, mapIDTeams[match.TeamID2])
 
 	} else {
 		// predict already exist so just update resulst.
@@ -661,7 +661,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
-		msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIDTeams[match.TeamId1], p.Result1, p.Result2, mapIDTeams[match.TeamId2])
+		msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIDTeams[match.TeamID1], p.Result1, p.Result2, mapIDTeams[match.TeamID2])
 	}
 
 	data := struct {
@@ -674,7 +674,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// publish activity
 	verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
-	object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIDTeams[match.TeamId1] + "-" + mapIDTeams[match.TeamId2]}
+	object := mdl.ActivityEntity{Id: match.ID, Type: "match", DisplayName: mapIDTeams[match.TeamID1] + "-" + mapIDTeams[match.TeamID2]}
 	u.Publish(c, "predict", verb, object, tournament.Entity())
 
 	return templateshlp.RenderJson(w, c, data)

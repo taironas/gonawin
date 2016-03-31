@@ -205,7 +205,7 @@ func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 	}
 
-	match := mdl.GetMatchByIdNumber(c.c, *tournament, matchIDNumber)
+	match := mdl.GetMatchByIDNumber(c.c, *tournament, matchIDNumber)
 	if match == nil {
 		log.Errorf(c.c, "%s unable to get match with id number :%v", c.desc, matchIDNumber)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}
