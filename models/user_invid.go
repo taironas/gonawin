@@ -28,23 +28,30 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// UserInvertedIndex holds informations needed for User indexing.
+//
 type UserInvertedIndex struct {
-	Id      int64
+	ID      int64
 	KeyName string
 	UserIds []byte
 }
 
-type UserInvertedIndexJson struct {
-	Id      *int64  `json:",omitempty"`
+// UserInvertedIndexJSON is the JSON representation of UserInvertedIndex.
+//
+type UserInvertedIndexJSON struct {
+	ID      *int64  `json:"Id,omitempty"`
 	KeyName *string `json:",omitempty"`
 	UserIds *[]byte `json:",omitempty"`
 }
 
+// WordCountUser holds a word counter for User entities.
+//
 type WordCountUser struct {
 	Count int64
 }
 
-// Create a userinvertedindex entity given a word and a list of ids as a string.
+// CreateUserInvertedIndex creates a userinvertedindex entity given a word and a list of ids as a string.
+//
 func CreateUserInvertedIndex(c appengine.Context, word string, ids string) (*UserInvertedIndex, error) {
 
 	id, _, err := datastore.AllocateIDs(c, "UserInvertedIndex", nil, 1)
@@ -84,17 +91,17 @@ func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 	words := strings.Split(name, " ")
 	for _, w := range words {
 
-		if invId, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
+		if invID, err := FindUserInvertedIndex(c, "KeyName", w); err != nil {
 			return fmt.Errorf(" userinvid.Add, unable to find KeyName=%s: %v", w, err)
-		} else if invId == nil {
+		} else if invID == nil {
 			CreateUserInvertedIndex(c, w, strconv.FormatInt(id, 10))
 		} else {
 			// update row with new info
-			k := UserInvertedIndexKeyById(c, invId.Id)
+			k := UserInvertedIndexKeyByID(c, invID.ID)
 
-			if newIds := helpers.MergeIds(invId.UserIds, id); len(newIds) > 0 {
-				invId.UserIds = []byte(newIds)
-				if _, err := datastore.Put(c, k, invId); err != nil {
+			if newIds := helpers.MergeIds(invID.UserIds, id); len(newIds) > 0 {
+				invID.UserIds = []byte(newIds)
+				if _, err := datastore.Put(c, k, invID); err != nil {
 					return err
 				}
 			}
@@ -104,19 +111,21 @@ func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 	return nil
 }
 
+// UpdateUserInvertedIndex updates the User inverted index.
 // From the old user name and the new user name we handle the removal of the words that are no longer present and the addition of new words.
+//
 func UpdateUserInvertedIndex(c appengine.Context, oldname string, newname string, id int64) error {
 
 	var err error
 
 	// if word in old and new do nothing
-	old_w := strings.Split(oldname, " ")
-	new_w := strings.Split(newname, " ")
+	oldW := strings.Split(oldname, " ")
+	newW := strings.Split(newname, " ")
 
 	// remove id  from words in old name that are not present in new name
-	for _, wo := range old_w {
+	for _, wo := range oldW {
 		innew := false
-		for _, wn := range new_w {
+		for _, wn := range newW {
 			if wo == wn {
 				innew = true
 			}
@@ -127,9 +136,9 @@ func UpdateUserInvertedIndex(c appengine.Context, oldname string, newname string
 	}
 
 	// add all id words in new name
-	for _, wn := range new_w {
+	for _, wn := range newW {
 		inold := false
-		for _, wo := range old_w {
+		for _, wo := range oldW {
 			if wo == wn {
 				inold = true
 			}
@@ -142,17 +151,18 @@ func UpdateUserInvertedIndex(c appengine.Context, oldname string, newname string
 }
 
 // if the removal of the id makes the entity useless (no more ids in it)
-// we will remove the entity as well
+// we will remove the entity as well.
+//
 func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error {
 
-	invId, err := FindUserInvertedIndex(c, "KeyName", w)
+	invID, err := FindUserInvertedIndex(c, "KeyName", w)
 	if err != nil {
 		return fmt.Errorf(" userinvid.removeWord, unable to find KeyName=%s: %v", w, err)
-	} else if invId != nil {
+	} else if invID != nil {
 		// update row with new info
-		k := UserInvertedIndexKeyById(c, invId.Id)
+		k := UserInvertedIndexKeyByID(c, invID.ID)
 
-		if newIds, err := helpers.RemovefromIds(invId.UserIds, id); err == nil {
+		if newIds, err := helpers.RemovefromIds(invID.UserIds, id); err == nil {
 			if len(newIds) == 0 {
 				// this entity does not have ids so remove it from the datastore.
 				datastore.Delete(c, k)
@@ -166,8 +176,8 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 					return fmt.Errorf(" Error decrementing WordCountUser: %v", errDec)
 				}
 			} else {
-				invId.UserIds = []byte(newIds)
-				if _, err1 := datastore.Put(c, k, invId); err1 != nil {
+				invID.UserIds = []byte(newIds)
+				if _, err1 := datastore.Put(c, k, invID); err1 != nil {
 					return fmt.Errorf(" RemoveWordFromUserInvertedIndex error on update: %v", err)
 				}
 			}
@@ -179,34 +189,38 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 }
 
 // add word to user inverted index is handled the same way as AddToUserInvertedIndex.
-// we add this function for clarity
+// we add this function for clarity.
+//
 func userInvertedIndexAddWord(c appengine.Context, word string, id int64) error {
 	return AddToUserInvertedIndex(c, word, id)
 }
 
-// given a filter and a value look for an entity in the datastore
+// FindUserInvertedIndex looks for an entity in the datastore given a filter and a value .
+//
 func FindUserInvertedIndex(c appengine.Context, filter string, value interface{}) (*UserInvertedIndex, error) {
 	q := datastore.NewQuery("UserInvertedIndex").Filter(filter+" =", value).Limit(1)
 
 	var u []*UserInvertedIndex
 
-	if _, err := q.GetAll(c, &u); err == nil && len(u) > 0 {
-		return u[0], nil
-	} else {
+	if _, err := q.GetAll(c, &u); err != nil || len(u) <= 0 {
 		return nil, err
 	}
+
+	return u[0], nil
 }
 
-// Given an id returns a pointer to the corresponding key of a user inverted index entity if found.
-func UserInvertedIndexKeyById(c appengine.Context, id int64) *datastore.Key {
+// UserInvertedIndexKeyByID returns, given an id, a pointer to the corresponding key of a user inverted index entity if found.
+//
+func UserInvertedIndexKeyByID(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "UserInvertedIndex", "", id, nil)
 	return key
 }
 
-// Given an array of words, return an array of indexes that correspond to the user ids of the users that use these words.
+// GetUserInvertedIndexes returns, Given an array of words, an array of indexes that correspond to the user ids of the users that use these words.
+//
 func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error) {
-	var err1 error = nil
+	var err1 error
 	strMerge := ""
 	for _, w := range words {
 		l := ""
@@ -231,7 +245,7 @@ func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 	}
 	// no need to continue if no results were found, just return emtpy array
 	if len(strMerge) == 0 {
-		intIds := make([]int64, 0)
+		var intIds []int64
 		return intIds, err1
 	}
 	strIds := strings.Split(strMerge, " ")
@@ -249,6 +263,7 @@ func GetUserInvertedIndexes(c appengine.Context, words []string) ([]int64, error
 }
 
 // increment the word count user counter.
+//
 func incrementWordCountUser(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountUser
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -262,6 +277,7 @@ func incrementWordCountUser(c appengine.Context, key *datastore.Key) (int64, err
 }
 
 // decrement the word count user counter.
+//
 func decrementWordCountUser(c appengine.Context, key *datastore.Key) (int64, error) {
 	var x WordCountUser
 	if err := datastore.Get(c, key, &x); err != nil && err != datastore.ErrNoSuchEntity {
@@ -274,7 +290,8 @@ func decrementWordCountUser(c appengine.Context, key *datastore.Key) (int64, err
 	return x.Count, nil
 }
 
-// Returns the current number of words on user names.
+// UserInvertedIndexGetWordCount returns the current number of words on user names.
+//
 func UserInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	key := datastore.NewKey(c, "WordCountUser", "singleton", 0, nil)
 	var x WordCountUser
@@ -284,14 +301,15 @@ func UserInvertedIndexGetWordCount(c appengine.Context) (int64, error) {
 	return x.Count, nil
 }
 
-// Get the number of users that have 'word' in their name.
+// GetUserFrequencyForWord gets the number of users that have 'word' in their name.
+//
 func GetUserFrequencyForWord(c appengine.Context, word string) (int64, error) {
 
-	if invId, err := FindUserInvertedIndex(c, "KeyName", word); err != nil {
+	if invID, err := FindUserInvertedIndex(c, "KeyName", word); err != nil {
 		return 0, fmt.Errorf(" userinvid.GetUserFrequencyForWord, unable to find KeyName=%s: %v", word, err)
-	} else if invId == nil {
+	} else if invID == nil {
 		return 0, nil
 	} else {
-		return int64(len(strings.Split(string(invId.UserIds), " "))), nil
+		return int64(len(strings.Split(string(invID.UserIds), " "))), nil
 	}
 }

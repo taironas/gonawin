@@ -204,7 +204,7 @@ func FindTeamInvertedIndex(c appengine.Context, filter string, value interface{}
 
 	var t []*TeamInvertedIndex
 
-	if _, err := q.GetAll(c, &t); err != nil {
+	if _, err := q.GetAll(c, &t); err != nil || len(t) <= 0 {
 		return nil, err
 	}
 

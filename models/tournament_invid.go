@@ -31,7 +31,7 @@ import (
 // TournamentInvertedIndex represents the indexing date for tournament.
 //
 type TournamentInvertedIndex struct {
-	ID 						int64
+	ID            int64
 	KeyName       string
 	TournamentIds []byte
 }
@@ -220,7 +220,7 @@ func FindTournamentInvertedIndex(c appengine.Context, filter string, value inter
 
 	var t []*TournamentInvertedIndex
 
-	if _, err := q.GetAll(c, &t); err != nil && len(t) <= 0 {
+	if _, err := q.GetAll(c, &t); err != nil || len(t) <= 0 {
 		return nil, err
 	}
 
