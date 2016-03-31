@@ -674,7 +674,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// publish activity
 	verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
-	object := mdl.ActivityEntity{Id: match.ID, Type: "match", DisplayName: mapIDTeams[match.TeamID1] + "-" + mapIDTeams[match.TeamID2]}
+	object := mdl.ActivityEntity{ID: match.ID, Type: "match", DisplayName: mapIDTeams[match.TeamID1] + "-" + mapIDTeams[match.TeamID2]}
 	u.Publish(c, "predict", verb, object, tournament.Entity())
 
 	return templateshlp.RenderJson(w, c, data)

@@ -789,8 +789,8 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	}
 
 	for _, p := range players {
-		if err := activity.AddNewActivityId(c, p); err != nil {
-			log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
+		if err := activity.AddNewActivityID(c, p); err != nil {
+			log.Errorf(c, "model/team, Publish: error occurred during AddNewActivityID call: %v", err)
 		} else {
 			if err1 := p.Update(c); err1 != nil {
 				log.Errorf(c, "model/team, Publish: error occurred during update call: %v", err1)
@@ -804,7 +804,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 // Entity is the Activity entity representation of a team
 //
 func (t *Team) Entity() ActivityEntity {
-	return ActivityEntity{Id: t.ID, Type: "team", DisplayName: t.Name}
+	return ActivityEntity{ID: t.ID, Type: "team", DisplayName: t.Name}
 }
 
 // AccuraciesGroupByTournament gets an array of type accuracyOverall

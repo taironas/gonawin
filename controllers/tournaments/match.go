@@ -169,8 +169,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	mjson.Result2 = match.Result2
 
 	// publish new activity
-	object := mdl.ActivityEntity{Id: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
-	target := mdl.ActivityEntity{Id: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
+	object := mdl.ActivityEntity{ID: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
+	target := mdl.ActivityEntity{ID: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
 	verb := ""
 	if match.Result1 > match.Result2 {
 		verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)

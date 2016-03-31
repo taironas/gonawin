@@ -74,7 +74,7 @@ type activitiesViewModel struct {
 	PerPage     int64
 	CurrentPage int64
 	LastPage    int64
-	Activities  []mdl.ActivityJson
+	Activities  []mdl.ActivityJSON
 }
 
 func buildActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, lastPage int64) activitiesViewModel {
@@ -87,9 +87,9 @@ func buildActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, 
 	}
 }
 
-func buildJSONActivities(activities []*mdl.Activity) []mdl.ActivityJson {
+func buildJSONActivities(activities []*mdl.Activity) []mdl.ActivityJSON {
 	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
-	json := make([]mdl.ActivityJson, len(activities))
+	json := make([]mdl.ActivityJSON, len(activities))
 	helpers.TransformFromArrayOfPointers(&activities, &json, fieldsToKeep)
 	return json
 }

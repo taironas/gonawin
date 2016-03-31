@@ -445,7 +445,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s add activity ids", desc)
 	for i := range activities {
 		if activities[i] != nil && users[i] != nil {
-			activities[i].AddNewActivityId(c, users[i])
+			activities[i].AddNewActivityID(c, users[i])
 		}
 	}
 

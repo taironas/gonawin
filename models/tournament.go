@@ -598,8 +598,8 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	}
 	// add new activity id in user activity table for each participant of the tournament
 	for _, p := range t.Participants(c) {
-		if err := activity.AddNewActivityId(c, p); err != nil {
-			log.Errorf(c, "model/tournament, Publish: error occurred during addNewActivityId call: %v", err)
+		if err := activity.AddNewActivityID(c, p); err != nil {
+			log.Errorf(c, "model/tournament, Publish: error occurred during AddNewActivityID call: %v", err)
 		} else {
 			if err1 := p.Update(c); err1 != nil {
 				log.Errorf(c, "model/tournament, Publish: error occurred during update call: %v", err1)
@@ -613,7 +613,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 
 // Activity entity representation of a tournament
 func (t *Tournament) Entity() ActivityEntity {
-	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: t.Name}
+	return ActivityEntity{ID: t.Id, Type: "tournament", DisplayName: t.Name}
 }
 
 // The progression is a number between 0 and 1 with the progression of the tournament

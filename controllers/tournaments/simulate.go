@@ -84,8 +84,8 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// publish activities:
 	for i, match := range matches {
-		object := mdl.ActivityEntity{Id: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
-		target := mdl.ActivityEntity{Id: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
+		object := mdl.ActivityEntity{ID: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
+		target := mdl.ActivityEntity{ID: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
 		verb := ""
 		if results1[i] > results2[i] {
 			verb = fmt.Sprintf("won %d-%d against", results1[i], results2[i])

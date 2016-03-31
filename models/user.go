@@ -521,7 +521,7 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 		return err
 	}
 	// add new activity id in user activity table
-	activity.AddNewActivityId(c, u)
+	activity.AddNewActivityID(c, u)
 
 	return u.Update(c)
 }
@@ -540,13 +540,13 @@ func (u *User) BuildActivity(c appengine.Context, activityType string, verb stri
 		log.Errorf(c, " BuildActivity: error occurred during AllocateIDs call: %v", err1)
 		return nil
 	}
-	activity.Id = id
+	activity.ID = id
 	return &activity
 }
 
 // Activity entity representation of an user
 func (u *User) Entity() ActivityEntity {
-	return ActivityEntity{Id: u.Id, Type: "user", DisplayName: u.Username}
+	return ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
 }
 
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {
