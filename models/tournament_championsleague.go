@@ -28,23 +28,29 @@ import (
 )
 
 const (
-	cMatchId       = 0
+	cMatchID       = 0
 	cMatchDate     = 1
 	cMatchTeam1    = 2
 	cMatchTeam2    = 3
 	cMatchLocation = 4
 )
 
+// ChampionsLeagueTournament represetns the Champions League tournament.
+//
 type ChampionsLeagueTournament struct{}
 
-// Map of groups, key: group name, value: string array of teams.
+// MapOfGroups is a map containing the groups of a tournament.
+// key: group name, value: string array of teams.
+//
 func (clt ChampionsLeagueTournament) MapOfGroups() map[string][]string {
 	mapWCGroups := make(map[string][]string)
 	return mapWCGroups
 }
 
-// Map of team codes, key: team name, value: code
+// MapOfTeamCodes is map containing the team codes.
+// key: team name, value: code
 // example: Paris Saint-Germain: PSG
+//
 func (clt ChampionsLeagueTournament) MapOfTeamCodes() map[string]string {
 
 	var codes map[string]string
@@ -62,12 +68,14 @@ func (clt ChampionsLeagueTournament) MapOfTeamCodes() map[string]string {
 	return codes
 }
 
+// MapOfGroupMatches is a map containing the matches accessible by group.
+//
 func (clt ChampionsLeagueTournament) MapOfGroupMatches() map[string][][]string {
 	mapGroupMatches := make(map[string][][]string)
 	return mapGroupMatches
 }
 
-// Returns the Map of 2nd round matches, of the world cup tournament.
+// MapOf2ndRoundMatches returns the Map of 2nd round matches, of the world cup tournament.
 // key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
 //
 // Example:
@@ -109,16 +117,18 @@ func (clt ChampionsLeagueTournament) MapOf2ndRoundMatches() map[string][][]strin
 	return mapMatches2ndStage
 }
 
-// Return an array of the phases names of champions league tournament: (QuarterFinals, SemiFinals, Finals)
+// ArrayOfPhases returns an array of the phases names of champions league tournament: (QuarterFinals, SemiFinals, Finals).
+//
 func (clt ChampionsLeagueTournament) ArrayOfPhases() []string {
 	return []string{cQuarterFinals, cSemiFinals, cFinals}
 }
 
-// Build a map with key the corresponding phase in the champions league tournament
+// MapOfPhaseIntervals builds a map with key the corresponding phase in the champions league tournament
 // at value a tuple that represent the match number interval in which the phase take place:
 // Quarter-finals: matches 1 to 8
 // Semi-finals: matches 9 to 12
 // Finals: match 13
+//
 func (clt ChampionsLeagueTournament) MapOfPhaseIntervals() map[string][]int64 {
 
 	limits := make(map[string][]int64)
@@ -128,12 +138,13 @@ func (clt ChampionsLeagueTournament) MapOfPhaseIntervals() map[string][]int64 {
 	return limits
 }
 
-// Create champions league tournament entity 2015.
-func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, error) {
+// CreateChampionsLeague create champions league tournament entity 2016.
+//
+func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, error) {
 	// create new tournament
 	log.Infof(c, "Champions League: start")
 
-	mapTeamId := make(map[string]int64)
+	mapTeamID := make(map[string]int64)
 
 	// for date parsing
 	const shortForm = "Jan/02/2006"
@@ -147,9 +158,9 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 	clMapTeamCodes := clt.MapOfTeamCodes()
 
 	// matches 2nd stage
-	matches2ndStageIds := make([]int64, 0)
-	userIds := make([]int64, 0)
-	teamIds := make([]int64, 0)
+	var matches2ndStageIds []int64
+	var userIds []int64
+	var teamIds []int64
 
 	log.Infof(c, "Champions League: maps ready")
 
@@ -173,7 +184,7 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 			return nil, err
 		}
 		log.Infof(c, "Champions League: team: %v put in datastore ok", teamName)
-		mapTeamId[teamName] = teamID
+		mapTeamID[teamName] = teamID
 	}
 
 	// build tmatches quarter finals
@@ -192,16 +203,16 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 		log.Infof(c, "Champions League: match: new key ok")
 
 		matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-		matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+		matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
 
 		rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 		emptyresult := int64(0)
 		match := &Tmatch{
 			matchID,
-			int64(matchInternalId),
+			int64(matchInternalID),
 			matchTime,
-			mapTeamId[matchData[cMatchTeam1]],
-			mapTeamId[matchData[cMatchTeam2]],
+			mapTeamID[matchData[cMatchTeam1]],
+			mapTeamID[matchData[cMatchTeam2]],
 			matchData[cMatchLocation],
 			rule,
 			emptyresult,
@@ -240,13 +251,13 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 			log.Infof(c, "Champions League: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
-				int64(matchInternalId),
+				int64(matchInternalID),
 				matchTime,
 				0, // second round matches start with ids at 0
 				0, // second round matches start with ids at 0
@@ -273,25 +284,25 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 	tstart, _ := time.Parse(shortForm, "Apr/14/2015")
 	tend, _ := time.Parse(shortForm, "Jun/06/2015")
 	adminIds := make([]int64, 1)
-	adminIds[0] = adminId
+	adminIds[0] = adminID
 	name := "2014-2015 UEFA Champions League"
 	description := ""
 	var tournament *Tournament
 	var err error
-	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {
+	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminID); err != nil {
 		log.Infof(c, "Champions League: something went wrong when creating tournament.")
 		return nil, err
-	} else {
-		tournament.GroupIds = make([]int64, 0)
-		tournament.Matches1stStage = make([]int64, 0)
-		tournament.Matches2ndStage = matches2ndStageIds
-		tournament.UserIds = userIds
-		tournament.TeamIds = teamIds
-		tournament.TwoLegged = false
-		tournament.IsFirstStageComplete = false
-		if err1 := tournament.Update(c); err1 != nil {
-			log.Infof(c, "Champions League: unable to udpate tournament.")
-		}
+	}
+
+	tournament.GroupIds = make([]int64, 0)
+	tournament.Matches1stStage = make([]int64, 0)
+	tournament.Matches2ndStage = matches2ndStageIds
+	tournament.UserIds = userIds
+	tournament.TeamIds = teamIds
+	tournament.TwoLegged = false
+	tournament.IsFirstStageComplete = false
+	if err1 := tournament.Update(c); err1 != nil {
+		log.Infof(c, "Champions League: unable to udpate tournament.")
 	}
 
 	log.Infof(c, "Champions League: instance of tournament ready")
@@ -299,8 +310,9 @@ func CreateChampionsLeague(c appengine.Context, adminId int64) (*Tournament, err
 	return tournament, nil
 }
 
-// From tournament entity build map of teams.
-func (clt ChampionsLeagueTournament) MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+// MapOfIDTeams builds a map of teams from tournament entity.
+//
+func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)
 
@@ -311,18 +323,18 @@ func (clt ChampionsLeagueTournament) MapOfIdTeams(c appengine.Context, tournamen
 
 		m, err := MatchById(c, matchID)
 		if err != nil {
-			log.Errorf(c, " MapOfIdTeams, cannot find match with ID=%", matchID)
+			log.Errorf(c, " MapOfIDTeams, cannot find match with ID=%", matchID)
 		} else {
 			t1, err1 := TTeamByID(c, m.TeamId1)
 			if err1 != nil {
-				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId1)
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId1)
 			} else {
 				mapIDTeams[t1.ID] = t1.Name
 			}
 
 			t2, err2 := TTeamByID(c, m.TeamId2)
 			if err2 != nil {
-				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId2)
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId2)
 			} else {
 				mapIDTeams[t2.ID] = t2.Name
 			}

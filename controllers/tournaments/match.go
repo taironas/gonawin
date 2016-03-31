@@ -154,7 +154,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		log.Errorf(c, "%s TournamentBuilder not found", desc)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
-	mapIDTeams := tb.MapOfIdTeams(c, tournament)
+	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 
 	if len(rule) > 1 {
 		mjson.Team1 = rule[0]
@@ -224,7 +224,7 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	mapIDTeams := tb.MapOfIdTeams(c, tournament)
+	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 
 	if len(rule) > 1 {
 		mjson.Team1 = rule[0]
@@ -269,7 +269,7 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 		return []MatchJSON{}
 	}
 
-	mapIDTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIDTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 
 	matchesJSON := make([]MatchJSON, len(matches))
@@ -316,7 +316,7 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 		return []MatchJSON{}
 	}
 
-	mapIDTeams := tb.MapOfIdTeams(c, t)
+	mapIDTeams := tb.MapOfIDTeams(c, t)
 	mapTeamCodes := tb.MapOfTeamCodes()
 
 	matchesJSON := make([]MatchJSON, len(matches2ndPhase))

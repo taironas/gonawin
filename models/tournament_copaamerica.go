@@ -77,7 +77,7 @@ func (cat CopaAmericaTournament) MapOfGroupMatches() map[string][][]string {
 	mapGroupMatches := make(map[string][][]string)
 
 	const (
-		cMatchId       = 0
+		cMatchID       = 0
 		cMatchDate     = 1
 		cMatchTeam1    = 2
 		cMatchTeam2    = 3
@@ -207,7 +207,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	mapGroupMatches := cat.MapOfGroupMatches()
 
 	const (
-		cMatchId       = 0
+		cMatchID       = 0
 		cMatchDate     = 1
 		cMatchTeam1    = 2
 		cMatchTeam2    = 3
@@ -284,7 +284,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
 			emptyrule := ""
 			emptyresult := int64(0)
 			match := &Tmatch{
@@ -370,7 +370,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
@@ -427,9 +427,9 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	return tournament, nil
 }
 
-// MapOfIdTeams returns a map of team IDs as keys and team names as values.
+// MapOfIDTeams returns a map of team IDs as keys and team names as values.
 //
-func (cat CopaAmericaTournament) MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+func (cat CopaAmericaTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)
 
