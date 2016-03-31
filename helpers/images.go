@@ -22,16 +22,22 @@ var (
 	themes = []string{"frogideas", "bythepool", "heatwave", "summerwarmth"}
 )
 
+// UserImageURL returns the user image URL for a given name and id.
+//
 func UserImageURL(name string, id int64) string {
 	t := themes[id%4]
 	return fmt.Sprintf("http://www.tinygraphs.com/spaceinvaders/%s?theme=%s&numcolors=%d", name, t, (id%2)+2)
 }
 
+// TournamentImageURL returns the tournament image URL for a given name and id.
+//
 func TournamentImageURL(name string, id int64) string {
 	t := themes[id%4]
 	return fmt.Sprintf("http://www.tinygraphs.com/labs/isogrids/hexa/%s?theme=%s&numcolors=%d", name, t, (id%2)+2)
 }
 
+// TeamImageURL returns the team image URL for a given name and id.
+//
 func TeamImageURL(name string, id int64) string {
 	t := themes[id%4]
 	return fmt.Sprintf("http://www.tinygraphs.com/labs/isogrids/hexa16/%s?theme=%s&numcolors=%d", name, t, (id%2)+2)
