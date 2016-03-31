@@ -97,7 +97,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 type showViewModel struct {
 	User            mdl.UserJson                   `json:",omitempty"`
 	Teams           []showTeamViewModel            `json:",omitempty"`
-	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
+	TeamRequests    []mdl.TeamRequestJSON          `json:",omitempty"`
 	Tournaments     []showTournamentViewModel      `json:",omitempty"`
 	TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
 	Invitations     []mdl.TeamJSON                 `json:",omitempty"`
@@ -248,10 +248,10 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 	return tournaments2
 }
 
-func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJson {
+func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJSON {
 
 	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
-	trs := make([]mdl.TeamRequestJson, len(teamRequests))
+	trs := make([]mdl.TeamRequestJSON, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
 	return trs
 }

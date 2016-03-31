@@ -26,35 +26,40 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// TeamRequest represents a request to join a team.
+//
 type TeamRequest struct {
-	Id       int64
-	TeamId   int64
+	ID       int64
+	TeamID   int64
 	TeamName string
-	UserId   int64
+	UserID   int64
 	UserName string
 	Created  time.Time
 }
 
-type TeamRequestJson struct {
-	Id       *int64     `json:",omitempty"`
-	TeamId   *int64     `json:",omitempty"`
+// TeamRequestJSON is JSON representation of the TeamRequest entity.
+//
+type TeamRequestJSON struct {
+	ID       *int64     `json:"Id,omitempty"`
+	TeamID   *int64     `json:"TeamId,omitempty"`
 	TeamName *string    `json:",omitempty"`
-	UserId   *int64     `json:",omitempty"`
+	UserID   *int64     `json:"UserId,omitempty"`
 	UserName *string    `json:",omitempty"`
 	Created  *time.Time `json:",omitempty"`
 }
 
-// Create a teamrequest with params teamid and userid
-func CreateTeamRequest(c appengine.Context, teamId int64, teamName string, userId int64, userName string) (*TeamRequest, error) {
+// CreateTeamRequest creates a teamrequest with params teamid and userid.
+//
+func CreateTeamRequest(c appengine.Context, teamID int64, teamName string, userID int64, userName string) (*TeamRequest, error) {
 	// create new team request
-	teamRequestId, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
+	teamRequestID, _, err := datastore.AllocateIDs(c, "TeamRequest", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 
-	key := datastore.NewKey(c, "TeamRequest", "", teamRequestId, nil)
+	key := datastore.NewKey(c, "TeamRequest", "", teamRequestID, nil)
 
-	teamRequest := &TeamRequest{teamRequestId, teamId, teamName, userId, userName, time.Now()}
+	teamRequest := &TeamRequest{teamRequestID, teamID, teamName, userID, userName, time.Now()}
 
 	_, err = datastore.Put(c, key, teamRequest)
 	if err != nil {
@@ -64,19 +69,24 @@ func CreateTeamRequest(c appengine.Context, teamId int64, teamName string, userI
 	return teamRequest, nil
 }
 
-// destroy a team request given a teamrequestid
+// Destroy a team request given a teamrequestid.
+//
 func (tr *TeamRequest) Destroy(c appengine.Context) error {
 
-	if teamRequest, err := TeamRequestById(c, tr.Id); err != nil {
-		return fmt.Errorf("Cannot find team request with teamRequestId=%d", tr.Id)
-	} else {
-		key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
+	var teamRequest *TeamRequest
+	var err error
 
-		return datastore.Delete(c, key)
+	if teamRequest, err = TeamRequestByID(c, tr.ID); err != nil {
+		return fmt.Errorf("Cannot find team request with teamRequestId=%d", tr.ID)
 	}
+
+	key := datastore.NewKey(c, "TeamRequest", "", teamRequest.ID, nil)
+
+	return datastore.Delete(c, key)
 }
 
-// Search for all TeamRequest entities with respect of a filter and a value.
+// FindTeamRequest searches for all TeamRequest entities with respect of a filter and a value.
+//
 func FindTeamRequest(c appengine.Context, filter string, value interface{}) []*TeamRequest {
 
 	q := datastore.NewQuery("TeamRequest").Filter(filter+" =", value)
@@ -90,25 +100,27 @@ func FindTeamRequest(c appengine.Context, filter string, value interface{}) []*T
 	return teamRequests
 }
 
-// search a request by team id and user id pair
-func findByTeamIdAndUserId(c appengine.Context, teamId int64, userId int64) *TeamRequest {
+// findByTeamIDAndUserID searches a request by team id and user id pair.
+//
+func findByTeamIDAndUserID(c appengine.Context, teamID int64, userID int64) *TeamRequest {
 
-	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
+	q := datastore.NewQuery("TeamRequest").Filter("TeamId =", teamID).Filter("UserId =", userID).Limit(1)
 
 	var teamRequests []*TeamRequest
 
 	if _, err := q.GetAll(c, &teamRequests); err == nil && len(teamRequests) > 0 {
 		return teamRequests[0]
 	} else if len(teamRequests) == 0 {
-		log.Infof(c, " teamrequest.findByTeamIdAndUserId, no teamRequests found during GetAll")
+		log.Infof(c, " teamrequest.findByTeamIDAndUserID, no teamRequests found during GetAll")
 	} else {
-		log.Errorf(c, " teamrequest.findByTeamIdAndUserId, error occurred during GetAll: %v", err)
+		log.Errorf(c, " teamrequest.findByTeamIDAndUserID, error occurred during GetAll: %v", err)
 	}
 	return nil
 }
 
-// return a teamrequest if it exist given a teamrequestid
-func TeamRequestById(c appengine.Context, id int64) (*TeamRequest, error) {
+// TeamRequestByID returns a teamrequest if it exist given a teamrequestid.
+//
+func TeamRequestByID(c appengine.Context, id int64) (*TeamRequest, error) {
 
 	var tr TeamRequest
 	key := datastore.NewKey(c, "TeamRequest", "", id, nil)
@@ -120,12 +132,14 @@ func TeamRequestById(c appengine.Context, id int64) (*TeamRequest, error) {
 	return &tr, nil
 }
 
-// checks if for a team id, user id pair, a request was sent
-func WasTeamRequestSent(c appengine.Context, teamId int64, userId int64) bool {
-	return findByTeamIdAndUserId(c, teamId, userId) != nil
+// WasTeamRequestSent checks if for a team id, user id pair, a request was sent.
+//
+func WasTeamRequestSent(c appengine.Context, teamID int64, userID int64) bool {
+	return findByTeamIDAndUserID(c, teamID, userID) != nil
 }
 
-// Return an array of teamRequest entities from an array of teams.
+// TeamsRequests returns an array of teamRequest entities from an array of teams.
+//
 func TeamsRequests(c appengine.Context, teams []*Team) []*TeamRequest {
 	var teamRequests []*TeamRequest
 	for _, team := range teams {

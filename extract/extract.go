@@ -144,7 +144,7 @@ func (c Context) TeamRequest() (*mdl.TeamRequest, error) {
 	}
 
 	var teamRequest *mdl.TeamRequest
-	if teamRequest, err = mdl.TeamRequestById(c.c, requestID); err != nil {
+	if teamRequest, err = mdl.TeamRequestByID(c.c, requestID); err != nil {
 		log.Errorf(c.c, "%s teams.DenyRequest, team request not found: %v", c.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
