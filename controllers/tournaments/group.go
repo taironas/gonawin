@@ -29,9 +29,9 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// A GroupJson is a variable to hold a the name of a group and an array of Teams.
+// A GroupJSON is a variable to hold a the name of a group and an array of Teams.
 // We use it to group tournament teams information by group to meet world cup organization.
-type GroupJson struct {
+type GroupJSON struct {
 	Name  string
 	Teams []TeamJSON
 }
@@ -64,23 +64,24 @@ func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	groups := mdl.Groups(c, tournament.GroupIds)
-	groupsJson := formatGroupsJson(groups)
+	groupsJSON := formatGroupsJSON(groups)
 
 	data := struct {
-		Groups []GroupJson
+		Groups []GroupJSON
 	}{
-		groupsJson,
+		groupsJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
 }
 
-// Format a TGroup array into a GroupJson array.
-func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
+// Format a TGroup array into a GroupJSON array.
+//
+func formatGroupsJSON(groups []*mdl.Tgroup) []GroupJSON {
 
-	groupsJson := make([]GroupJson, len(groups))
+	groupsJSON := make([]GroupJSON, len(groups))
 	for i, g := range groups {
-		groupsJson[i].Name = g.Name
+		groupsJSON[i].Name = g.Name
 		teams := make([]TeamJSON, len(g.Teams))
 		for j, t := range g.Teams {
 			teams[j].Name = t.Name
@@ -89,7 +90,7 @@ func formatGroupsJson(groups []*mdl.Tgroup) []GroupJson {
 			teams[j].GoalsA = g.GoalsA[j]
 			teams[j].Iso = t.Iso
 		}
-		groupsJson[i].Teams = teams
+		groupsJSON[i].Teams = teams
 	}
-	return groupsJson
+	return groupsJSON
 }

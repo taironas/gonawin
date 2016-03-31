@@ -557,12 +557,12 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	groups := mdl.Groups(c, t.GroupIds)
-	groupsJSON := formatGroupsJson(groups)
+	groupsJSON := formatGroupsJSON(groups)
 
 	msg := fmt.Sprintf("Tournament is now reset.")
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Groups      []GroupJson
+		Groups      []GroupJSON
 	}{
 		msg,
 		groupsJSON,
