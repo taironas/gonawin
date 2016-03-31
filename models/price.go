@@ -27,24 +27,26 @@ import (
 )
 
 // A Price entity is defined by a description of the price that the winner gets for a specific tournament.
+//
 type Price struct {
-	Id             int64     // price id
-	TeamId         int64     // team id, a price is binded to a single team.
-	TournamentId   int64     // tournament id, a price is binded to a single team.
+	ID             int64     `json:"Id"`           // price id
+	TeamID         int64     `json:"TeamId"`       // team id, a price is binded to a single team.
+	TournamentID   int64     `json:"TournamentId"` // tournament id, a price is binded to a single team.
 	TournamentName string    // tournament name.
 	Description    string    // the description of the price
 	Created        time.Time // date of creation
 }
 
-// Create a Price entity given a description, a team id and a tournament id.
-func CreatePrice(c appengine.Context, teamId, tournamentId int64, tournamentName string, description string) (*Price, error) {
+// CreatePrice creates a Price entity given a description, a team id and a tournament id.
+//
+func CreatePrice(c appengine.Context, teamID, tournamentID int64, tournamentName string, description string) (*Price, error) {
 
-	pId, _, err := datastore.AllocateIDs(c, "Price", nil, 1)
+	pID, _, err := datastore.AllocateIDs(c, "Price", nil, 1)
 	if err != nil {
 		return nil, err
 	}
-	key := datastore.NewKey(c, "Price", "", pId, nil)
-	p := &Price{pId, teamId, tournamentId, tournamentName, description, time.Now()}
+	key := datastore.NewKey(c, "Price", "", pID, nil)
+	p := &Price{pID, teamID, tournamentID, tournamentName, description, time.Now()}
 	if _, err = datastore.Put(c, key, p); err != nil {
 		return nil, err
 	}
@@ -52,40 +54,43 @@ func CreatePrice(c appengine.Context, teamId, tournamentId int64, tournamentName
 }
 
 // Destroy a Price entity.
+//
 func (p *Price) Destroy(c appengine.Context) error {
 
-	if _, err := PriceById(c, p.Id); err != nil {
-		return fmt.Errorf("Cannot find price with Id=%d", p.Id)
-	} else {
-		key := datastore.NewKey(c, "Price", "", p.Id, nil)
-
-		return datastore.Delete(c, key)
+	if _, err := PriceByID(c, p.ID); err != nil {
+		return fmt.Errorf("Cannot find price with Id=%d", p.ID)
 	}
+
+	key := datastore.NewKey(c, "Price", "", p.ID, nil)
+
+	return datastore.Delete(c, key)
 }
 
-// Search for a Predict entity given a userId and a matchId.
+// FindPricesByTeam searches for a Predict entity given a userId and a matchId.
 // The pair (user id , match id) should be unique. So if the query returns more than one entity we return 'nil' and write in the error log.
-func FindPricesByTeam(c appengine.Context, teamId int64) []*Price {
+//
+func FindPricesByTeam(c appengine.Context, teamID int64) []*Price {
 	desc := "Price.FindPriceByTeam:"
 	q := datastore.NewQuery("Price").
-		Filter("TeamId"+" =", teamId)
+		Filter("TeamId"+" =", teamID)
 
 	var prices []*Price
 
-	if _, err := q.GetAll(c, &prices); err == nil {
-		if len(prices) == 0 {
-			return nil
-		} else {
-			return prices
-		}
-	} else {
+	if _, err := q.GetAll(c, &prices); err != nil {
 		log.Errorf(c, "%s an error occurred during GetAll: %v", desc, err)
 		return nil
 	}
+
+	if len(prices) == 0 {
+		return nil
+	}
+
+	return prices
 }
 
-// Get a Price given an id.
-func PriceById(c appengine.Context, id int64) (*Price, error) {
+// PriceByID gets a Price given an id.
+//
+func PriceByID(c appengine.Context, id int64) (*Price, error) {
 
 	var p Price
 	key := datastore.NewKey(c, "Price", "", id, nil)
@@ -97,16 +102,18 @@ func PriceById(c appengine.Context, id int64) (*Price, error) {
 	return &p, nil
 }
 
-// Get a Price key given an id.
-func PriceKeyById(c appengine.Context, id int64) *datastore.Key {
+// PriceKeyByID gets a Price key given an id.
+//
+func PriceKeyByID(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Price", "", id, nil)
 	return key
 }
 
 // Update a Predict entity.
+//
 func (p *Price) Update(c appengine.Context) error {
-	k := PriceKeyById(c, p.Id)
+	k := PriceKeyByID(c, p.ID)
 	old := new(Price)
 	if err := datastore.Get(c, k, old); err == nil {
 		if _, err = datastore.Put(c, k, p); err != nil {
@@ -116,12 +123,13 @@ func (p *Price) Update(c appengine.Context) error {
 	return nil
 }
 
-// Get an array of pointers to Price entities with respect to an array of ids.
+// PricesByIds gets an array of pointers to Price entities with respect to an array of ids.
+//
 func PricesByIds(c appengine.Context, ids []int64) []*Price {
 
 	var prices []*Price
 	for _, id := range ids {
-		if p, err := PriceById(c, id); err == nil {
+		if p, err := PriceByID(c, id); err == nil {
 			prices = append(prices, p)
 		} else {
 			log.Errorf(c, " Prices.ByIds, error occurred during ByIds call: %v", err)

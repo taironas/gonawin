@@ -339,7 +339,7 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	if p, errp := CreatePrice(c, team.ID, t.Id, t.Name, ""); errp != nil {
 		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp)
 	} else {
-		if err := team.AddPriceID(c, p.Id); err != nil {
+		if err := team.AddPriceID(c, p.ID); err != nil {
 			return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.ID, err)
 		}
 	}

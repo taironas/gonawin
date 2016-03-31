@@ -454,9 +454,9 @@ func (t *Team) removePriceID(c appengine.Context, pID int64) error {
 //
 func (t *Team) RemovePriceByTournamentID(c appengine.Context, tID int64) error {
 	for _, pID := range t.PriceIDs {
-		if p, err := PriceById(c, pID); err == nil {
-			if p.TeamId == t.ID && p.TournamentId == tID {
-				if err1 := t.removePriceID(c, p.Id); err1 != nil {
+		if p, err := PriceByID(c, pID); err == nil {
+			if p.TeamID == t.ID && p.TournamentID == tID {
+				if err1 := t.removePriceID(c, p.ID); err1 != nil {
 					return err1
 				}
 				if err1 := p.Destroy(c); err1 != nil {
@@ -881,7 +881,7 @@ func (t *Team) Prices(c appengine.Context) []*Price {
 	prices := make([]*Price, len(t.PriceIDs))
 
 	for i, pid := range t.PriceIDs {
-		if p, err := PriceById(c, pid); err == nil {
+		if p, err := PriceByID(c, pid); err == nil {
 			prices[i] = p
 		}
 	}
@@ -891,8 +891,8 @@ func (t *Team) Prices(c appengine.Context) []*Price {
 //PriceByTournament get the price of a tournament
 func (t *Team) PriceByTournament(c appengine.Context, tid int64) *Price {
 	for _, pid := range t.PriceIDs {
-		if p, err := PriceById(c, pid); err == nil {
-			if p.TournamentId == tid {
+		if p, err := PriceByID(c, pid); err == nil {
+			if p.TournamentID == tid {
 				return p
 			}
 		}
