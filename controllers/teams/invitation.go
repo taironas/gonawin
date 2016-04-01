@@ -190,11 +190,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		log.Errorf(c, "%s team not found. id: %v, err: %v", desc, teamRequest.TeamID, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
-<<<<<<< HEAD
-	user, err := mdl.UserById(c, teamRequest.UserID)
-=======
-	user, err := mdl.UserByID(c, teamRequest.UserId)
->>>>>>> master
+	user, err := mdl.UserByID(c, teamRequest.UserID)
 	if err != nil {
 		log.Errorf(c, "%s user not found, err: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeUserNotFound)}

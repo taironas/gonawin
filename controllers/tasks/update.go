@@ -366,13 +366,8 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	tournamentScores := make([]*mdl.Score, len(userIds))
 	log.Infof(c, "%s get users", desc)
 	for i, id := range userIds {
-<<<<<<< HEAD
-		if u, err := mdl.UserById(c, id); err != nil {
-			log.Errorf(c, "%s cannot find user with id=%d", desc, id)
-=======
 		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
->>>>>>> master
 		} else {
 			users[i] = u
 		}

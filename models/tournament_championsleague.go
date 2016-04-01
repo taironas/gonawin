@@ -203,11 +203,7 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 		log.Infof(c, "Champions League: match: new key ok")
 
 		matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-<<<<<<< HEAD
 		matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
-=======
-		matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
->>>>>>> master
 
 		rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 		emptyresult := int64(0)
@@ -255,11 +251,7 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 			log.Infof(c, "Champions League: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-<<<<<<< HEAD
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
-=======
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
->>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
@@ -292,13 +284,8 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 	tstart, _ := time.Parse(shortForm, "Apr/05/2016")
 	tend, _ := time.Parse(shortForm, "May/28/2016")
 	adminIds := make([]int64, 1)
-<<<<<<< HEAD
 	adminIds[0] = adminID
-	name := "2014-2015 UEFA Champions League"
-=======
-	adminIds[0] = adminId
 	name := "2015-2016 UEFA Champions League"
->>>>>>> master
 	description := ""
 	var tournament *Tournament
 	var err error
@@ -323,12 +310,8 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 	return tournament, nil
 }
 
-<<<<<<< HEAD
 // MapOfIDTeams builds a map of teams from tournament entity.
 //
-=======
-// From tournament entity build map of teams.
->>>>>>> master
 func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)
@@ -344,22 +327,14 @@ func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournamen
 		} else {
 			t1, err1 := TTeamByID(c, m.TeamID1)
 			if err1 != nil {
-<<<<<<< HEAD
 				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID1)
-=======
-				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId1)
->>>>>>> master
 			} else {
 				mapIDTeams[t1.ID] = t1.Name
 			}
 
 			t2, err2 := TTeamByID(c, m.TeamID2)
 			if err2 != nil {
-<<<<<<< HEAD
 				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID2)
-=======
-				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId2)
->>>>>>> master
 			} else {
 				mapIDTeams[t2.ID] = t2.Name
 			}

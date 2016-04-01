@@ -106,11 +106,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 				return err
 			}
 
-<<<<<<< HEAD
-			team.AddTournamentAccuracy(c, acc1.Id, t.ID)
-=======
-			team.AddTournamentAccuracy(c, acc1.ID, t.Id)
->>>>>>> master
+			team.AddTournamentAccuracy(c, acc1.ID, t.ID)
 			if computedAcc, err = acc1.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
 			}

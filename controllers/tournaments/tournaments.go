@@ -246,22 +246,14 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-<<<<<<< HEAD
-	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
-=======
-	if !mdl.IsTournamentAdmin(c, tournament.Id, u.ID) {
->>>>>>> master
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 	}
 
 	// delete all tournament-user relationships
 	for _, participant := range tournament.Participants(c) {
-<<<<<<< HEAD
-		if err := participant.RemoveTournamentId(c, tournament.ID); err != nil {
-=======
-		if err := participant.RemoveTournamentID(c, tournament.Id); err != nil {
->>>>>>> master
+		if err := participant.RemoveTournamentID(c, tournament.ID); err != nil {
 			log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
 		} else if u.ID == participant.ID {
 			// Be sure that current user has the latest data,
@@ -329,11 +321,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-<<<<<<< HEAD
-	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
-=======
-	if !mdl.IsTournamentAdmin(c, tournament.Id, u.ID) {
->>>>>>> master
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.ID) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
 	}
@@ -646,22 +634,13 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 	var p *mdl.Predict
-<<<<<<< HEAD
-	if p = mdl.FindPredictByUserMatch(c, u.Id, match.ID); p == nil {
-=======
-	if p = mdl.FindPredictByUserMatch(c, u.ID, match.Id); p == nil {
->>>>>>> master
+	if p = mdl.FindPredictByUserMatch(c, u.ID, match.ID); p == nil {
 
 		var predict *mdl.Predict
 		var err1 error
 
-<<<<<<< HEAD
-		if predict, err1 = mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.ID); err1 != nil {
+		if predict, err1 = mdl.CreatePredict(c, u.ID, int64(r1), int64(r2), match.ID); err1 != nil {
 			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.ID, err1)
-=======
-		if predict, err1 = mdl.CreatePredict(c, u.ID, int64(r1), int64(r2), match.Id); err1 != nil {
-			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
->>>>>>> master
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 

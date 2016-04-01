@@ -270,11 +270,7 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
 	if err := u.AddTeamID(c, t.ID); err != nil {
-<<<<<<< HEAD
-		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
-=======
 		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
->>>>>>> master
 	}
 
 	if err := t.AddUserID(c, u.ID); err != nil {
@@ -292,11 +288,7 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamID(c, t.ID); err != nil {
-<<<<<<< HEAD
-		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
-=======
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
->>>>>>> master
 	}
 	if err := t.RemoveUserID(c, u.ID); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
@@ -571,11 +563,7 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
-<<<<<<< HEAD
-			if err = u.AddTournamentId(c, tournament.ID); err != nil {
-=======
-			if err = u.AddTournamentID(c, tournament.Id); err != nil {
->>>>>>> master
+			if err = u.AddTournamentID(c, tournament.ID); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}
@@ -697,13 +685,8 @@ func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accura
 func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
 	for _, acc := range t.TournamentAccuracies {
-<<<<<<< HEAD
 		if acc.TournamentID == tournament.ID {
-			return AccuracyById(c, acc.AccuracyID)
-=======
-		if acc.TournamentID == tournament.Id {
 			return AccuracyByID(c, acc.AccuracyID)
->>>>>>> master
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")

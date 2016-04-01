@@ -309,11 +309,7 @@ type showTournamentViewModel struct {
 func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
 	tvm := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-<<<<<<< HEAD
-		tvm[i].Id = t.ID
-=======
-		tvm[i].ID = t.Id
->>>>>>> master
+		tvm[i].ID = t.ID
 		tvm[i].Name = t.Name
 		tvm[i].ParticipantsCount = len(t.UserIds)
 		tvm[i].TeamsCount = len(t.TeamIds)
