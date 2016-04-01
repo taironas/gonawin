@@ -31,7 +31,7 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// Tournament ranking handler:
+// Ranking is the Tournament ranking handler:
 // Use this handler to get the ranking of a tournament.
 // The ranking is an array of users (members) or teams,
 // You can specify the rankby parameter to be "users" or "teams".
@@ -78,13 +78,13 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		users := t.RankingByUser(c, limit)
 
 		fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-		usersJson := make([]mdl.UserJson, len(users))
-		helpers.TransformFromArrayOfPointers(&users, &usersJson, fieldsToKeep)
+		usersJSON := make([]mdl.UserJson, len(users))
+		helpers.TransformFromArrayOfPointers(&users, &usersJSON, fieldsToKeep)
 
 		data := struct {
 			Users []mdl.UserJson
 		}{
-			usersJson,
+			usersJSON,
 		}
 
 		return templateshlp.RenderJson(w, c, data)
@@ -94,13 +94,13 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		teams := t.RankingByTeam(c, limit)
 
 		fieldsToKeep := []string{"Id", "Name", "Accuracy"}
-		teamsJson := make([]mdl.TeamJSON, len(teams))
-		helpers.TransformFromArrayOfPointers(&teams, &teamsJson, fieldsToKeep)
+		teamsJSON := make([]mdl.TeamJSON, len(teams))
+		helpers.TransformFromArrayOfPointers(&teams, &teamsJSON, fieldsToKeep)
 
 		data := struct {
 			Teams []mdl.TeamJSON
 		}{
-			teamsJson,
+			teamsJSON,
 		}
 		return templateshlp.RenderJson(w, c, data)
 	}
