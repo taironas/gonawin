@@ -85,7 +85,7 @@ func Intersect(a string, b string) string {
 	return intersect
 }
 
-// CountTerm counts the occurence of a word into a slice of words.
+// CountTerm counts the occurrence of a word into a slice of words.
 //
 func CountTerm(words []string, w string) int64 {
 	var c int64

@@ -20,7 +20,7 @@ type GwConfig struct {
 	GooglePlus  GooglePlus `json:"googlePlus"`
 }
 
-// User is the user sturcture used for authentication.
+// User is the user structure used for authentication.
 //
 type User struct {
 	Email    string `json:"email"`
