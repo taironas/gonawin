@@ -39,9 +39,9 @@ type TeamInvertedIndex struct {
 // TeamInvertedIndexJSON is the JSON representation of TeamInvertedIndex.
 //
 type TeamInvertedIndexJSON struct {
-	ID      *int64  `json:Id",omitempty"`
+	ID      *int64  `json:"Id,omitempty"`
 	KeyName *string `json:",omitempty"`
-	TeamIDs *[]byte `json:TeamIds",omitempty"`
+	TeamIDs *[]byte `json:"TeamIds,omitempty"`
 }
 
 // WordCountTeam holds a word counter for Team entities.

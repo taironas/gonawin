@@ -59,10 +59,10 @@ func (clt ChampionsLeagueTournament) MapOfTeamCodes() map[string]string {
 	codes["Club Athletico de Madrid"] = "ATM"
 	codes["FC Barcelona"] = "FCB"
 	codes["FC Bayern Munchen"] = "BYM"
-	codes["Juventus"] = "JUV"
-	codes["AS Monaco FC"] = "ASM"
+	codes["Benfica"] = "BEN"
+	codes["Manchester City FC"] = "MCC"
 	codes["Paris Saint-Germain"] = "PSG"
-	codes["FC Porto"] = "POR"
+	codes["Vfl Wolfsburg"] = "VWB"
 	codes["Real Madrid CF"] = "RLM"
 
 	return codes
@@ -85,21 +85,21 @@ func (clt ChampionsLeagueTournament) MapOfGroupMatches() map[string][][]string {
 func (clt ChampionsLeagueTournament) MapOf2ndRoundMatches() map[string][][]string {
 
 	// Quarter-finals
-	m2nd1 := []string{"1", "Apr/14/2014", "Juventus", "AS Monaco FC", "Juventus Stadium, Turin"}
-	m2nd2 := []string{"2", "Apr/14/2014", "FC Porto", "FC Bayern Munchen", "Estádio do Dragão, Porto"}
-	m2nd3 := []string{"3", "Apr/15/2014", "Paris Saint-Germain", "FC Barcelona", "Parc des Princes, Paris"}
-	m2nd4 := []string{"4", "Apr/15/2014", "Club Athletico de Madrid", "Real Madrid CF", "Stade Vicente-Calderón, Madrid"}
-	m2nd5 := []string{"5", "Apr/21/2014", "AS Monaco FC", "Juventus", "Stade Louis-II, Monaco"}
-	m2nd6 := []string{"6", "Apr/21/2014", "FC Bayern Munchen", "FC Porto", "Allianz Arena, Munchen"}
-	m2nd7 := []string{"7", "Apr/22/2014", "FC Barcelona", "Paris Saint-Germain", "Camp Nou, Barcelona"}
-	m2nd8 := []string{"8", "Apr/22/2014", "Real Madrid CF", "Club Athletico de Madrid", "Stade Santiago Bernabéu, Madrid"}
+	m2nd1 := []string{"1", "Apr/05/2016", "FC Bayern Munchen", "Benfica", "Allianz Arena, Munchen"}
+	m2nd2 := []string{"2", "Apr/05/2016", "FC Barcelona", "Club Athletico de Madrid", "Camp Nou, Barcelona"}
+	m2nd3 := []string{"3", "Apr/06/2016", "Paris Saint-Germain", "Manchester City FC", "Parc des Princes, Paris"}
+	m2nd4 := []string{"4", "Apr/06/2016", "Vfl Wolfsburg", "Real Madrid CF", "Volkswagen-Arena, Wolfsburg"}
+	m2nd5 := []string{"5", "Apr/12/2016", "Real Madrid CF", "Vfl Worlfsburg", "Estadio Santiago Bernabéu, Madrid"}
+	m2nd6 := []string{"6", "Apr/12/2016", "Manchester City FC", "Paris Saint-Germain", "Etihad Stadium, Manchester"}
+	m2nd7 := []string{"7", "Apr/13/2016", "Benfica", "FC Bayern Munchen", "Estadio da Luz, Lisbon"}
+	m2nd8 := []string{"8", "Apr/13/2016", "Club Athletico de Madrid", "FC Barcelona", "Estadio Vicente Calderon, Madrid"}
 	// Semi-finals
-	m2nd9 := []string{"9", "May/05/2014", "TBD1", "TBD2", "TBD"}
-	m2nd10 := []string{"10", "May/06/2014", "TBD3", "TBD4", "TBD"}
-	m2nd11 := []string{"11", "May/12/2014", "TBD5", "TBD6", "TBD"}
-	m2nd12 := []string{"12", "May/13/2014", "TBD7", "TBD8", "TBD"}
+	m2nd9 := []string{"9", "Apr/26/2016", "TBD1", "TBD2", "TBD"}
+	m2nd10 := []string{"10", "Apr/27/2016", "TBD3", "TBD4", "TBD"}
+	m2nd11 := []string{"11", "May/03/2016", "TBD5", "TBD6", "TBD"}
+	m2nd12 := []string{"12", "May/04/2016", "TBD7", "TBD8", "TBD"}
 	// Final
-	m2nd13 := []string{"13", "Jun/06/2015", "TBD9", "TBD10", "Olympiastadion, Berlin"}
+	m2nd13 := []string{"13", "May/28/2016", "TBD9", "TBD10", "San Siro Milan"}
 
 	var quarterFinals [][]string
 	var semiFinals [][]string
@@ -203,7 +203,11 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 		log.Infof(c, "Champions League: match: new key ok")
 
 		matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 		matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
+		matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 		rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 		emptyresult := int64(0)
@@ -251,7 +255,11 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 			log.Infof(c, "Champions League: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
@@ -281,11 +289,16 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 		}
 	}
 
-	tstart, _ := time.Parse(shortForm, "Apr/14/2015")
-	tend, _ := time.Parse(shortForm, "Jun/06/2015")
+	tstart, _ := time.Parse(shortForm, "Apr/05/2016")
+	tend, _ := time.Parse(shortForm, "May/28/2016")
 	adminIds := make([]int64, 1)
+<<<<<<< HEAD
 	adminIds[0] = adminID
 	name := "2014-2015 UEFA Champions League"
+=======
+	adminIds[0] = adminId
+	name := "2015-2016 UEFA Champions League"
+>>>>>>> master
 	description := ""
 	var tournament *Tournament
 	var err error
@@ -310,8 +323,12 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 	return tournament, nil
 }
 
+<<<<<<< HEAD
 // MapOfIDTeams builds a map of teams from tournament entity.
 //
+=======
+// From tournament entity build map of teams.
+>>>>>>> master
 func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)
@@ -327,14 +344,22 @@ func (clt ChampionsLeagueTournament) MapOfIDTeams(c appengine.Context, tournamen
 		} else {
 			t1, err1 := TTeamByID(c, m.TeamID1)
 			if err1 != nil {
+<<<<<<< HEAD
 				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID1)
+=======
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId1)
+>>>>>>> master
 			} else {
 				mapIDTeams[t1.ID] = t1.Name
 			}
 
 			t2, err2 := TTeamByID(c, m.TeamID2)
 			if err2 != nil {
+<<<<<<< HEAD
 				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamID2)
+=======
+				log.Errorf(c, " MapOfIDTeams, cannot find tteam with ID=%", m.TeamId2)
+>>>>>>> master
 			} else {
 				mapIDTeams[t2.ID] = t2.Name
 			}

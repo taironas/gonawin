@@ -57,12 +57,12 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type teamRankingViewModel struct {
-	Users []mdl.UserJson
+	Users []mdl.UserJSON
 }
 
 func buildTeamRankingViewModel(users []*mdl.User) teamRankingViewModel {
 	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
-	u := make([]mdl.UserJson, len(users))
+	u := make([]mdl.UserJSON, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &u, fieldsToKeep)
 
 	return teamRankingViewModel{u}

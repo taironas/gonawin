@@ -384,7 +384,11 @@ func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 			log.Infof(c, "World Cup: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 			emptyrule := ""
 			emptyresult := int64(0)
 			match := &Tmatch{
@@ -468,7 +472,11 @@ func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 			log.Infof(c, "World Cup: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
@@ -525,8 +533,12 @@ func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 	return tournament, nil
 }
 
+<<<<<<< HEAD
 // MapOfIDTeams builds a map of teams from tournament entity.
 //
+=======
+// From tournament entity build map of teams.
+>>>>>>> master
 func (wct WorldCupTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)

@@ -41,7 +41,7 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	c := appengine.NewContext(r)
 	desc := "New Champions League Handler:"
 
-	tournament, err := mdl.CreateChampionsLeague(c, u.Id)
+	tournament, err := mdl.CreateChampionsLeague(c, u.ID)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -61,7 +61,7 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	c := appengine.NewContext(r)
 	desc := "Get Champions League Handler:"
 
-	tournaments := mdl.FindTournaments(c, "Name", "2014-2015 UEFA Champions League")
+	tournaments := mdl.FindTournaments(c, "Name", "2015-2016 UEFA Champions League")
 	if tournaments == nil {
 		log.Errorf(c, "%s Champions League tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

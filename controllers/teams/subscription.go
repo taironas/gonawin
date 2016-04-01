@@ -65,8 +65,8 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "%s  User not found %v", desc, u.Id)
+	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
+		log.Errorf(c, "%s  User not found %v", desc, u.ID)
 	} else {
 		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
@@ -111,7 +111,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if mdl.IsTeamAdmin(c, team.ID, u.Id) {
+	if mdl.IsTeamAdmin(c, team.ID, u.ID) {
 		log.Errorf(c, "%s Team administrator cannot leave the team", desc)
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 	}
@@ -127,8 +127,8 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	helpers.KeepFields(&tJSON, fieldsToKeep)
 
 	// publish new activity
-	if updatedUser, err := mdl.UserById(c, u.Id); err != nil {
-		log.Errorf(c, "User not found %v", u.Id)
+	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
+		log.Errorf(c, "User not found %v", u.ID)
 	} else {
 		updatedUser.Publish(c, "team", "left team", team.Entity(), mdl.ActivityEntity{})
 	}

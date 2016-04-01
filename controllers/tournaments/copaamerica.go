@@ -41,7 +41,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "NewCopaAmetrica Handler:"
 
-	tournament, err := mdl.CreateCopaAmerica(c, u.Id)
+	tournament, err := mdl.CreateCopaAmerica(c, u.ID)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -63,7 +63,7 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tournaments := mdl.FindTournaments(c, "Name", "2015 Copa America")
 	if tournaments == nil {
-		log.Errorf(c, "%s Champions League tournament was not found.", desc)
+		log.Errorf(c, "%s Copa America tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
@@ -71,8 +71,13 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// tournament
 	fieldsToKeep := []string{"Id", "Name", "Description"}
+<<<<<<< HEAD
 	var TournamentJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
+=======
+	var tournamentJSON mdl.TournamentJson
+	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
+>>>>>>> master
 	// formatted start and end
 	const layout = "2 January 2006"
 	start := tournament.Start.Format(layout)
@@ -86,7 +91,11 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		End           string
 		RemainingDays int64
 	}{
+<<<<<<< HEAD
 		TournamentJSON,
+=======
+		tournamentJSON,
+>>>>>>> master
 		start,
 		end,
 		remainingDays,

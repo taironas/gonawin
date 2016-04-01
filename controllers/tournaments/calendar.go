@@ -33,35 +33,44 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// A DayJson is a variable to hold a date and match field.
+// DayJSON is a variable to hold a date and match field.
 // We use it to group tournament matches information by days.
-type DayJson struct {
+//
+type DayJSON struct {
 	Date    time.Time
 	Matches []MatchJSON
 }
 
-type DayWithPredictionJson struct {
+// DayWithPredictionJSON is a variable to hold a date and match with prediction.
+//
+type DayWithPredictionJSON struct {
 	Date    time.Time
-	Matches []MatchWithPredictionJson
+	Matches []MatchWithPredictionJSON
 }
 
-type MatchWithPredictionJson struct {
+// MatchWithPredictionJSON is a variable to hold a match and an array of participants
+// who put a predict on the match.
+//
+type MatchWithPredictionJSON struct {
 	Match        MatchJSON
-	Participants []UserPredictionJson
+	Participants []UserPredictionJSON
 }
 
-type UserPredictionJson struct {
-	Id       int64
+// UserPredictionJSON is a variable to hold user data and a prediction.
+//
+type UserPredictionJSON struct {
+	ID       int64 `json:"Id,omitempty"`
 	Username string
 	Alias    string
 	Predict  string
 }
 
-// A PhaseJson is a variable to hold a the name of a phase and an array of days.
+// PhaseJSON is a variable to hold a the name of a phase and an array of days.
 // We use it to group tournament matches information by phases.
-type PhaseJson struct {
+//
+type PhaseJSON struct {
 	Name      string
-	Days      []DayJson
+	Days      []DayJSON
 	Completed bool
 }
 
@@ -74,6 +83,7 @@ type PhaseJson struct {
 // by default the data returned is grouped by days.This means we will return an array of days, each of which can have an array of matches.
 // You can also specify the 'groupby' parameter to be 'day' or 'phase' in which case you would have an array of phases,
 // each of which would have an array of days who would have an array of matches.
+//
 func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -98,12 +108,12 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	if groupby == "day" {
-		matchesJson := buildMatchesFromTournament(c, t, u)
+		matchesJSON := buildMatchesFromTournament(c, t, u)
 
-		days := matchesGroupByDay(t, matchesJson)
+		days := matchesGroupByDay(t, matchesJSON)
 
 		data := struct {
-			Days []DayJson
+			Days []DayJSON
 		}{
 			days,
 		}
@@ -111,10 +121,10 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return templateshlp.RenderJSON(w, c, data)
 
 	} else if groupby == "phase" {
-		matchesJson := buildMatchesFromTournament(c, t, u)
-		phases := matchesGroupByPhase(t, matchesJson)
+		matchesJSON := buildMatchesFromTournament(c, t, u)
+		phases := matchesGroupByPhase(t, matchesJSON)
 		data := struct {
-			Phases []PhaseJson
+			Phases []PhaseJSON
 		}{
 			phases,
 		}
@@ -161,7 +171,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	for i, p := range players {
 		var predicts []*mdl.Predict
 		if predicts, err = mdl.PredictsByIds(c, p.PredictIds); err != nil {
-			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
+			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.ID, err)
 			continue
 		}
 		predictsByPlayer[i] = predicts
@@ -185,7 +195,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 }
 
 type tournamentCalendarViewModel struct {
-	Days []DayWithPredictionJson
+	Days []DayWithPredictionJSON
 }
 
 func buildTournamentCalendarViewModel(c appengine.Context, t *mdl.Tournament, u *mdl.User, predictsByPlayer []mdl.Predicts, players []*mdl.User) tournamentCalendarViewModel {
@@ -193,7 +203,7 @@ func buildTournamentCalendarViewModel(c appengine.Context, t *mdl.Tournament, u 
 	matches := buildMatchesFromTournament(c, t, u)
 	matchesByDay := matchesGroupByDay(t, matches)
 
-	daysWithPredictions := make([]DayWithPredictionJson, len(matchesByDay))
+	daysWithPredictions := make([]DayWithPredictionJSON, len(matchesByDay))
 
 	for i, day := range matchesByDay {
 		daysWithPredictions[i].Date = day.Date
@@ -203,9 +213,9 @@ func buildTournamentCalendarViewModel(c appengine.Context, t *mdl.Tournament, u 
 	return tournamentCalendarViewModel{daysWithPredictions}
 }
 
-func matchesWithPredictions(day DayJson, players []*mdl.User, predictsByPlayer []mdl.Predicts) []MatchWithPredictionJson {
+func matchesWithPredictions(day DayJSON, players []*mdl.User, predictsByPlayer []mdl.Predicts) []MatchWithPredictionJSON {
 
-	matchesWithPredictions := make([]MatchWithPredictionJson, len(day.Matches))
+	matchesWithPredictions := make([]MatchWithPredictionJSON, len(day.Matches))
 
 	for i, m := range day.Matches {
 		matchesWithPredictions[i].Match = m
@@ -215,14 +225,14 @@ func matchesWithPredictions(day DayJson, players []*mdl.User, predictsByPlayer [
 	return matchesWithPredictions
 }
 
-func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.Predicts) []UserPredictionJson {
+func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.Predicts) []UserPredictionJSON {
 
-	participants := make([]UserPredictionJson, len(players))
+	participants := make([]UserPredictionJSON, len(players))
 	for i, p := range players {
-		participants[i].Id = p.Id
+		participants[i].ID = p.ID
 		participants[i].Username = p.Username
 		participants[i].Alias = p.Alias
-		var prediction string = "-"
+		prediction := "-"
 		if ok, index := predictsByPlayer[i].ContainsMatchID(m.ID); ok {
 			prediction = fmt.Sprintf("%v - %v", predictsByPlayer[i][index].Result1, predictsByPlayer[i][index].Result2)
 		}
@@ -233,18 +243,18 @@ func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.
 
 // From an array of Matches, create an array of Phases where the matches are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
-func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []PhaseJson {
+func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []PhaseJSON {
 
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
-		return []PhaseJson{}
+		return []PhaseJSON{}
 	}
 
 	limits := tb.MapOfPhaseIntervals()
 	phaseNames := tb.ArrayOfPhases()
 
-	phases := make([]PhaseJson, len(limits))
-	for i, _ := range phases {
+	phases := make([]PhaseJSON, len(limits))
+	for i := range phases {
 		phases[i].Name = phaseNames[i]
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
@@ -269,7 +279,7 @@ func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []PhaseJson {
 
 // From an array of matches, create an array of Days where the matches are grouped in.
 // We use the Date of each match to do this.
-func matchesGroupByDay(t *mdl.Tournament, matches []MatchJSON) []DayJson {
+func matchesGroupByDay(t *mdl.Tournament, matches []MatchJSON) []DayJSON {
 
 	mapOfDays := make(map[string][]MatchJSON)
 
@@ -286,8 +296,8 @@ func matchesGroupByDay(t *mdl.Tournament, matches []MatchJSON) []DayJson {
 		}
 	}
 
-	var days []DayJson
-	days = make([]DayJson, len(mapOfDays))
+	var days []DayJSON
+	days = make([]DayJSON, len(mapOfDays))
 	i := 0
 	for key, value := range mapOfDays {
 		days[i].Date, _ = time.Parse(shortForm, key)
@@ -299,8 +309,8 @@ func matchesGroupByDay(t *mdl.Tournament, matches []MatchJSON) []DayJson {
 	return days
 }
 
-// ByDate type implements the sort.Interface for []DayJson based on the date field.
-type ByDate []DayJson
+// ByDate type implements the sort.Interface for []DayJSON based on the date field.
+type ByDate []DayJSON
 
 func (a ByDate) Len() int           { return len(a) }
 func (a ByDate) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }

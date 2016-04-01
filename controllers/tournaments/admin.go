@@ -62,7 +62,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// add admin to tournament
-	if err = tournament.AddAdmin(c, newAdmin.Id); err != nil {
+	if err = tournament.AddAdmin(c, newAdmin.ID); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
@@ -116,7 +116,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if err = tournament.RemoveAdmin(c, oldAdmin.Id); err != nil {
+	if err = tournament.RemoveAdmin(c, oldAdmin.ID); err != nil {
 		log.Errorf(c, "%s error on RemoveAdmin to tournament: %v.", desc, err)
 		return &helpers.InternalServerError{Err: err}
 	}

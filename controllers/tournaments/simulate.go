@@ -103,7 +103,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		phasesJSON := matchesGroupByPhase(t, matchesJSON)
 
 		data := struct {
-			Phase PhaseJson
+			Phase PhaseJSON
 		}{
 			phasesJSON[phaseID],
 		}

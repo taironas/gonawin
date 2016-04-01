@@ -53,10 +53,10 @@ type ScoreOverall struct {
 // ScoreJSON is the Json version of the Score struct
 //
 type ScoreJSON struct {
-	ID           *int64   `json:Id",omitempty"`
-	UserID       *int64   `json:UserId",omitempty"`
-	TournamentID *int64   `json:TournamentId",omitempty"`
-	Scores       *[]int64 `json:Scores",omitempty"`
+	ID           *int64   `json:"Id,omitempty"`
+	UserID       *int64   `json:"UserId,omitempty"`
+	TournamentID *int64   `json:"TournamentId,omitempty"`
+	Scores       *[]int64 `json:"Scores,omitempty"`
 }
 
 // CreateScore creates a Score entity.

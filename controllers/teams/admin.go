@@ -57,7 +57,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	if err = team.AddAdmin(c, newAdmin.Id); err != nil {
+	if err = team.AddAdmin(c, newAdmin.ID); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
@@ -108,7 +108,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	if err = team.RemoveAdmin(c, oldAdmin.Id); err != nil {
+	if err = team.RemoveAdmin(c, oldAdmin.ID); err != nil {
 		log.Errorf(c, "%s error on RemoveAdmin to team: %v.", desc, err)
 		return &helpers.InternalServerError{Err: err}
 	}

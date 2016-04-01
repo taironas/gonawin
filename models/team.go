@@ -58,18 +58,18 @@ type Team struct {
 // TeamJSON is the JSON version of the Team struct.
 //
 type TeamJSON struct {
-	ID            *int64                `json:Id",omitempty"`
+	ID            *int64                `json:"Id,omitempty"`
 	KeyName       *string               `json:",omitempty"`
 	Name          *string               `json:",omitempty"`
 	Description   *string               `json:",omitempty"`
 	AdminIds      *[]int64              `json:",omitempty"`
 	Private       *bool                 `json:",omitempty"`
 	Created       *time.Time            `json:",omitempty"`
-	UserIDs       *[]int64              `json:UserIds",omitempty"`
-	TournamentIDs *[]int64              `json:TournamentIds",omitempty"`
+	UserIDs       *[]int64              `json:"UserIds,omitempty"`
+	TournamentIDs *[]int64              `json:"TournamentIds,omitempty"`
 	Accuracy      *float64              `json:",omitempty"`
-	AccuracyIDs   *[]TournamentAccuracy `json:AccuracyIds",omitempty"`
-	PriceIDs      *[]int64              `json:PriceIds",omitempty"`
+	AccuracyIDs   *[]TournamentAccuracy `json:"AccuracyIds,omitempty"`
+	PriceIDs      *[]int64              `json:"PriceIds,omitempty"`
 	MembersCount  *int64                `json:",omitempty"`
 }
 
@@ -270,15 +270,19 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
 	if err := u.AddTeamID(c, t.ID); err != nil {
+<<<<<<< HEAD
 		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
+=======
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
+>>>>>>> master
 	}
 
-	if err := t.AddUserID(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
+	if err := t.AddUserID(c, u.ID); err != nil {
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
 	}
 
-	if err := t.AddUserToTournaments(c, u.Id); err != nil {
-		return fmt.Errorf("Team.Join, error adding user:%d to teams tournaments Error: %v", u.Id, err)
+	if err := t.AddUserToTournaments(c, u.ID); err != nil {
+		return fmt.Errorf("Team.Join, error adding user:%d to teams tournaments Error: %v", u.ID, err)
 	}
 	return nil
 }
@@ -288,17 +292,21 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamID(c, t.ID); err != nil {
+<<<<<<< HEAD
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
+=======
+		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
+>>>>>>> master
 	}
-	if err := t.RemoveUserID(c, u.Id); err != nil {
-		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
+	if err := t.RemoveUserID(c, u.ID); err != nil {
+		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
 	}
 	// sar: 7 mar 2014
 	// when a user leaves a team should we unsubscribe him from the tournaments of that team?
 	// for now I would say no.
 
 	// if err := t.RemoveUserFromTournaments(c, u); err != nil{
-	// 	return fmt.Errorf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.Id, err)
+	// 	return fmt.Errorf("Team.Leave, error leaving teams tournaments for user:%v Error: %v", u.ID, err)
 	// }
 	return nil
 }
@@ -373,7 +381,7 @@ func (t *Team) ContainsPriceID(id int64) (bool, int) {
 //
 func (t *Team) AddTournamentID(c appengine.Context, tID int64) error {
 	if hasTournament, _ := t.ContainsTournamentID(tID); hasTournament {
-		return fmt.Errorf("AddTournamentId, allready a member.")
+		return fmt.Errorf("AddTournamentID, allready a member.")
 	}
 
 	t.TournamentIDs = append(t.TournamentIDs, tID)
@@ -382,12 +390,12 @@ func (t *Team) AddTournamentID(c appengine.Context, tID int64) error {
 	}
 
 	for _, uID := range t.UserIDs {
-		user, err := UserById(c, uID)
+		user, err := UserByID(c, uID)
 		if err != nil {
-			log.Errorf(c, "Team.AddTournamentId, user not found")
+			log.Errorf(c, "Team.AddTournamentID, user not found")
 		} else {
-			log.Infof(c, "team Add tournament id add tournament id%v", user.Id)
-			user.AddTournamentId(c, tID)
+			log.Infof(c, "team Add tournament id add tournament id%v", user.ID)
+			user.AddTournamentID(c, tID)
 		}
 	}
 	return nil
@@ -401,7 +409,7 @@ func (t *Team) RemoveTournamentID(c appengine.Context, tID int64) error {
 	i := 0
 
 	if hasTournament, i = t.ContainsTournamentID(tID); !hasTournament {
-		return fmt.Errorf("RemoveTournamentId, not a member.")
+		return fmt.Errorf("RemoveTournamentID, not a member.")
 	}
 
 	// as the order of index in tournamentsId is not important,
@@ -490,7 +498,7 @@ func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 	var accs []*Accuracy
 
 	for _, acc := range t.TournamentAccuracies {
-		a, err := AccuracyById(c, acc.AccuracyID)
+		a, err := AccuracyByID(c, acc.AccuracyID)
 		if err != nil {
 			log.Errorf(c, " Accuracies, cannot find accuracy with ID=%", acc.AccuracyID)
 		} else {
@@ -549,7 +557,7 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 	var u *User
 	var err error
 
-	if u, err = UserById(c, uID); err != nil {
+	if u, err = UserByID(c, uID); err != nil {
 		log.Errorf(c, "User not found %v", uID)
 		return err
 	}
@@ -563,7 +571,11 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
+<<<<<<< HEAD
 			if err = u.AddTournamentId(c, tournament.ID); err != nil {
+=======
+			if err = u.AddTournamentID(c, tournament.Id); err != nil {
+>>>>>>> master
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}
@@ -685,8 +697,13 @@ func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accura
 func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
 	for _, acc := range t.TournamentAccuracies {
+<<<<<<< HEAD
 		if acc.TournamentID == tournament.ID {
 			return AccuracyById(c, acc.AccuracyID)
+=======
+		if acc.TournamentID == tournament.Id {
+			return AccuracyByID(c, acc.AccuracyID)
+>>>>>>> master
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")
@@ -741,7 +758,7 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tID int64, newAccuracy float6
 			counter++
 			continue
 		}
-		if acc, err := AccuracyById(c, tournamentAccuracy.AccuracyID); err == nil && acc != nil {
+		if acc, err := AccuracyByID(c, tournamentAccuracy.AccuracyID); err == nil && acc != nil {
 			// only take into account tournaments with accuracies
 			if len(acc.Accuracies) > 0 {
 				sum += acc.Accuracies[len(acc.Accuracies)-1]
@@ -813,12 +830,12 @@ func (t *Team) Entity() ActivityEntity {
 func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]AccuracyOverall {
 	var accs []AccuracyOverall
 	for _, aot := range t.TournamentAccuracies {
-		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
+		if acc, err := AccuracyByID(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyID
-			a.TournamentId = aot.TournamentID
+			a.ID = aot.AccuracyID
+			a.TournamentID = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {
@@ -851,12 +868,12 @@ func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *Accu
 		if aot.TournamentID != tour.ID {
 			continue
 		}
-		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {
+		if acc, err := AccuracyByID(c, aot.AccuracyID); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
 			var a AccuracyOverall
-			a.Id = aot.AccuracyID
-			a.TournamentId = aot.TournamentID
+			a.ID = aot.AccuracyID
+			a.TournamentID = aot.TournamentID
 			if len(acc.Accuracies) > 0 {
 				a.Accuracy = acc.Accuracies[len(acc.Accuracies)-1]
 			} else {

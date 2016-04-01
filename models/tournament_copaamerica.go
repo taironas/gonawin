@@ -27,10 +27,13 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// CopaAmericaTournament is a placeholder for the Copa America Tournament.
+//
 type CopaAmericaTournament struct {
 }
 
-// Map of groups, key: group name, value: string array of teams.
+// MapOfGroups represents the groupsof a tournament, key: group name, value: string array of teams.
+//
 func (cat CopaAmericaTournament) MapOfGroups() map[string][]string {
 	var mapCAGroups map[string][]string
 	mapCAGroups = make(map[string][]string)
@@ -41,8 +44,9 @@ func (cat CopaAmericaTournament) MapOfGroups() map[string][]string {
 	return mapCAGroups
 }
 
-// Map of country codes, key: team name, value: ISO code
+// MapOfTeamCodes is the map of country codes, key: team name, value: ISO code
 // example: Brazil: BR
+//
 func (cat CopaAmericaTournament) MapOfTeamCodes() map[string]string {
 
 	var codes map[string]string
@@ -188,8 +192,9 @@ func (cat CopaAmericaTournament) MapOfPhaseIntervals() map[string][]int64 {
 	return limits
 }
 
-// Create Copa America tournament entity 2015.
-func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) {
+// CreateCopaAmerica create Copa America tournament entity 2015.
+//
+func CreateCopaAmerica(c appengine.Context, adminID int64) (*Tournament, error) {
 	desc := "Copa America"
 	// create new tournament
 	log.Infof(c, "%s: start", desc)
@@ -198,7 +203,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 
 	mapCATGroups := cat.MapOfGroups()
 	mapCountryCodes := cat.MapOfTeamCodes()
-	mapTeamId := make(map[string]int64)
+	mapTeamID := make(map[string]int64)
 
 	// mapGroupMatches is a map where the key is a string which represent the group
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
@@ -261,7 +266,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			}
 			log.Infof(c, "%s: team: %v put in datastore ok", desc, teamName)
 			group.Teams[i] = *team
-			mapTeamId[teamName] = teamID
+			mapTeamID[teamName] = teamID
 		}
 
 		// build group matches:
@@ -284,15 +289,19 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+=======
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 			emptyrule := ""
 			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
-				int64(matchInternalId),
+				int64(matchInternalID),
 				matchTime,
-				mapTeamId[matchData[cMatchTeam1]],
-				mapTeamId[matchData[cMatchTeam2]],
+				mapTeamID[matchData[cMatchTeam1]],
+				mapTeamID[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
 				emptyrule,
 				emptyresult,
@@ -312,7 +321,7 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			group.Matches[matchIndex] = *match
 
 			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
-			matches1stStageIds[int64(matchInternalId)-1] = matchID
+			matches1stStageIds[int64(matchInternalID)-1] = matchID
 		}
 
 		groupID, _, err1 := datastore.AllocateIDs(c, "Tgroup", nil, 1)
@@ -343,9 +352,9 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	log.Infof(c, "%s: build of groups ids complete: %v", desc, groupIds)
 
 	// matches 2nd stage
-	matches2ndStageIds := make([]int64, 0)
-	userIds := make([]int64, 0)
-	teamIds := make([]int64, 0)
+	var matches2ndStageIds []int64
+	var userIds []int64
+	var teamIds []int64
 
 	// mapMatches2ndRound  is a map where the key is a string which represent the rounds
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
@@ -370,13 +379,17 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+=======
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
-				int64(matchInternalId),
+				int64(matchInternalID),
 				matchTime,
 				0, // second round matches start with ids at 0
 				0, // second round matches start with ids at 0
@@ -403,12 +416,12 @@ func CreateCopaAmerica(c appengine.Context, adminId int64) (*Tournament, error) 
 	tstart, _ := time.Parse(shortForm, "Jun/11/2015")
 	tend, _ := time.Parse(shortForm, "Jul/04/2015")
 	adminIds := make([]int64, 1)
-	adminIds[0] = adminId
+	adminIds[0] = adminID
 	name := "2015 Copa America"
 	description := "Chile"
 	var tournament *Tournament
 	var err error
-	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {
+	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminID); err != nil {
 		log.Infof(c, "%s: something went wrong when creating tournament.", desc)
 	} else {
 		tournament.GroupIds = groupIds
