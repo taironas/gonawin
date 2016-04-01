@@ -62,9 +62,9 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TournamentJSON
+	var tJSON mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	var updatedUser *mdl.User
 	if updatedUser, err = mdl.UserById(c, u.Id); err != nil {
@@ -78,7 +78,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament  mdl.TournamentJSON
 	}{
 		fmt.Sprintf("You joined tournament %s.", tournament.Name),
-		tJson,
+		tJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
@@ -108,13 +108,13 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.Forbidden{Err: errors.New("Tournament has ended, a team cannot join an old tournament")}
 	}
 
-	var teamId int64
-	if teamId, err = extract.TeamID(); err != nil {
+	var teamID int64
+	if teamID, err = extract.TeamID(); err != nil {
 		return err
 	}
 
 	var team *mdl.Team
-	if team, err = mdl.TeamByID(c, teamId); err != nil {
+	if team, err = mdl.TeamByID(c, teamID); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -124,13 +124,13 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TournamentJSON
+	var tJSON mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity
 	var updatedTeam *mdl.Team
-	if updatedTeam, err = mdl.TeamByID(c, teamId); err != nil {
+	if updatedTeam, err = mdl.TeamByID(c, teamID); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -142,7 +142,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament  mdl.TournamentJSON
 	}{
 		msg,
-		tJson,
+		tJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
@@ -166,13 +166,13 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	var teamId int64
-	if teamId, err = extract.TeamID(); err != nil {
+	var teamID int64
+	if teamID, err = extract.TeamID(); err != nil {
 		return err
 	}
 
 	var team *mdl.Team
-	if team, err = mdl.TeamByID(c, teamId); err != nil {
+	if team, err = mdl.TeamByID(c, teamID); err != nil {
 		log.Errorf(c, "team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 	}
@@ -183,18 +183,18 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	// return the left tournament
 
-	var tJson mdl.TournamentJSON
+	var tJSON mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
-	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
+	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity
 	var updatedTeam *mdl.Team
-	if updatedTeam, err = mdl.TeamByID(c, teamId); err != nil {
+	if updatedTeam, err = mdl.TeamByID(c, teamID); err != nil {
 		log.Errorf(c, "%s team not found: %v", desc, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
-	} else {
-		updatedTeam.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
 	}
+
+	updatedTeam.Publish(c, "tournament", "left tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 	msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
 	data := struct {
@@ -202,7 +202,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Tournament  mdl.TournamentJSON
 	}{
 		msg,
-		tJson,
+		tJSON,
 	}
 
 	return templateshlp.RenderJson(w, c, data)
