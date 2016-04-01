@@ -171,7 +171,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 	if err := t.UpdateTournamentTeam(c, phaseName, oldName, newName); err != nil {
-		log.Errorf(c, "%s something when wrong while updating a team in the tournament %v. %v", desc, t.Id, err)
+		log.Errorf(c, "%s something when wrong while updating a team in the tournament %d. %v", desc, t.ID, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 

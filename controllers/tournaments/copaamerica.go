@@ -71,8 +71,8 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// tournament
 	fieldsToKeep := []string{"Id", "Name", "Description"}
-	var tournamentJson mdl.TournamentJson
-	helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 	// formatted start and end
 	const layout = "2 January 2006"
 	start := tournament.Start.Format(layout)
@@ -81,12 +81,12 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 	// data
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Start         string
 		End           string
 		RemainingDays int64
 	}{
-		tournamentJson,
+		TournamentJSON,
 		start,
 		end,
 		remainingDays,

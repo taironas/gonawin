@@ -181,7 +181,7 @@ func (c Context) Tournament() (*mdl.Tournament, error) {
 	}
 
 	var tournament *mdl.Tournament
-	if tournament, err = mdl.TournamentById(c.c, tournamentID); err != nil {
+	if tournament, err = mdl.TournamentByID(c.c, tournamentID); err != nil {
 		log.Errorf(c.c, "%s tournament not found: %v", c.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}

@@ -538,7 +538,7 @@ func TestUserTeams(t *testing.T) {
 		}
 
 		if test.missingTeam {
-			if err = user.AddTeamId(c, 666 /*extra team ID*/); err != nil {
+			if err = user.AddTeamID(c, 666 /*extra team ID*/); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 		}
@@ -964,7 +964,7 @@ func TestUserTournaments(t *testing.T) {
 	}
 
 	testTournaments := createTestTournaments(3)
-	addUserIDToTournaments(&testTournaments, user.Id)
+	AddUserIDToTournaments(&testTournaments, user.Id)
 
 	createAndJoinTournaments(t, c, testTournaments, user)
 
@@ -1010,9 +1010,9 @@ func TestUserTournaments(t *testing.T) {
 	}
 }
 
-// TestUserAddTeamId tests that team ID is well added to a user entity.
+// TestUserAddTeamID tests that team ID is well added to a user entity.
 //
-func TestUserAddTeamId(t *testing.T) {
+func TestUserAddTeamID(t *testing.T) {
 
 	var c aetest.Context
 	var err error
@@ -1036,7 +1036,7 @@ func TestUserAddTeamId(t *testing.T) {
 		{
 			"cannot add twice same team ID to user",
 			42,
-			"AddTeamId, allready a member",
+			"AddTeamID, allready a member",
 		},
 	}
 
@@ -1047,7 +1047,7 @@ func TestUserAddTeamId(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		err = user.AddTeamId(c, test.teamID)
+		err = user.AddTeamID(c, test.teamID)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
@@ -1057,9 +1057,9 @@ func TestUserAddTeamId(t *testing.T) {
 	}
 }
 
-// TestUserRemoveTeamId tests that team ID is well removed from a user entity.
+// TestUserRemoveTeamID tests that team ID is well removed from a user entity.
 //
-func TestUserRemoveTeamId(t *testing.T) {
+func TestUserRemoveTeamID(t *testing.T) {
 
 	var c aetest.Context
 	var err error
@@ -1083,7 +1083,7 @@ func TestUserRemoveTeamId(t *testing.T) {
 		{
 			"cannot remove team ID from user",
 			54,
-			"RemoveTeamId, not a member",
+			"RemoveTeamID, not a member",
 		},
 	}
 
@@ -1092,16 +1092,16 @@ func TestUserRemoveTeamId(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	if err = user.AddTeamId(c, tests[0].teamID); err != nil {
+	if err = user.AddTeamID(c, tests[0].teamID); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
 
-		err = user.RemoveTeamId(c, test.teamID)
+		err = user.RemoveTeamID(c, test.teamID)
 
-		contains, _ := user.ContainsTeamId(test.teamID)
+		contains, _ := user.ContainsTeamID(test.teamID)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
@@ -1111,9 +1111,9 @@ func TestUserRemoveTeamId(t *testing.T) {
 	}
 }
 
-// TestUserContainsTeamId tests if a team ID exists for a user entity.
+// TestUserContainsTeamID tests if a team ID exists for a user entity.
 //
-func TestUserContainsTeamId(t *testing.T) {
+func TestUserContainsTeamID(t *testing.T) {
 	var c aetest.Context
 	var err error
 	options := aetest.Options{StronglyConsistentDatastore: true}
@@ -1148,14 +1148,14 @@ func TestUserContainsTeamId(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	if err = user.AddTeamId(c, tests[0].teamID); err != nil {
+	if err = user.AddTeamID(c, tests[0].teamID); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
 
-		contains, index := user.ContainsTeamId(test.teamID)
+		contains, index := user.ContainsTeamID(test.teamID)
 
 		if contains != test.contains {
 			t.Errorf("test %d - Error: want contains: %t, got: %t", i, test.contains, contains)

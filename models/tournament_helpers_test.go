@@ -87,7 +87,7 @@ func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []
 	return
 }
 
-func addUserIDToTournaments(tournaments *[]*testTournament, userID int64) {
+func AddUserIDToTournaments(tournaments *[]*testTournament, userID int64) {
 	for _, t := range *tournaments {
 		t.userIDs = append(t.userIDs, userID)
 	}

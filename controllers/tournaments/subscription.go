@@ -62,7 +62,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TournamentJson
+	var tJson mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
@@ -75,7 +75,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		fmt.Sprintf("You joined tournament %s.", tournament.Name),
 		tJson,
@@ -124,7 +124,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TournamentJson
+	var tJson mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
@@ -139,7 +139,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	msg := fmt.Sprintf("Team %s joined tournament %s.", team.Name, tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJson,
@@ -183,7 +183,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	// return the left tournament
 
-	var tJson mdl.TournamentJson
+	var tJson mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJson, fieldsToKeep)
 
@@ -199,7 +199,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	msg := fmt.Sprintf("Team %s left tournament %s.", team.Name, tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJson,

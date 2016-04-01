@@ -30,8 +30,10 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tournament holds tournament entity data.
+//
 type Tournament struct {
-	Id                   int64
+	ID                   int64
 	KeyName              string
 	Name                 string
 	Description          string
@@ -49,8 +51,10 @@ type Tournament struct {
 	Official             bool
 }
 
-type TournamentJson struct {
-	Id                   *int64     `json:",omitempty"`
+// TournamentJSON is the JSON version of the Tournament struct.
+//
+type TournamentJSON struct {
+	ID                   *int64     `json:"Id,omitempty"`
 	KeyName              *string    `json:",omitempty"`
 	Name                 *string    `json:",omitempty"`
 	Description          *string    `json:",omitempty"`
@@ -68,6 +72,8 @@ type TournamentJson struct {
 	Official             *bool      `json:",omitempty"`
 }
 
+// TournamentBuilder is interface used to build a tournament
+//
 type TournamentBuilder interface {
 	MapOfTeamCodes() map[string]string
 	ArrayOfPhases() []string
@@ -78,8 +84,9 @@ type TournamentBuilder interface {
 	MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string
 }
 
-// Create tournament entity given a name and description.
-func CreateTournament(c appengine.Context, name string, description string, start time.Time, end time.Time, adminId int64) (*Tournament, error) {
+// CreateTournament creates tournament entity given a name and description.
+//
+func CreateTournament(c appengine.Context, name string, description string, start time.Time, end time.Time, adminID int64) (*Tournament, error) {
 
 	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	if err != nil {
@@ -89,9 +96,9 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
 
 	// empty groups and tournaments for now
-	emptyArray := make([]int64, 0)
+	var emptyArray []int64
 	admins := make([]int64, 1)
-	admins[0] = adminId
+	admins[0] = adminID
 	twoLegged := false
 	official := false
 
@@ -107,36 +114,39 @@ func CreateTournament(c appengine.Context, name string, description string, star
 }
 
 // Destroy a tournament entity given a tournament id.
+//
 func (t *Tournament) Destroy(c appengine.Context) error {
 
-	if _, err := TournamentById(c, t.Id); err != nil {
-		return fmt.Errorf("Cannot find tournament with Id=%d", t.Id)
-	} else {
-		key := datastore.NewKey(c, "Tournament", "", t.Id, nil)
-		if errd := datastore.Delete(c, key); errd != nil {
-			return errd
-		} else {
-			// remove key name.
-			return UpdateTournamentInvertedIndex(c, t.KeyName, "", t.Id)
-		}
+	if _, err := TournamentByID(c, t.ID); err != nil {
+		return fmt.Errorf("Cannot find tournament with Id=%d", t.ID)
 	}
+
+	key := datastore.NewKey(c, "Tournament", "", t.ID, nil)
+	if errd := datastore.Delete(c, key); errd != nil {
+		return errd
+	}
+
+	// remove key name.
+	return UpdateTournamentInvertedIndex(c, t.KeyName, "", t.ID)
 }
 
-// Find all entity tournaments with respect of a filter and value.
+// FindTournaments finds all entity tournaments with respect of a filter and value.
+//
 func FindTournaments(c appengine.Context, filter string, value interface{}) []*Tournament {
 
 	q := datastore.NewQuery("Tournament").Filter(filter+" =", value)
 	var tournaments []*Tournament
-	if _, err := q.GetAll(c, &tournaments); err == nil {
-		return tournaments
-	} else {
+	if _, err := q.GetAll(c, &tournaments); err != nil {
 		log.Errorf(c, " Tournament.Find, error occurred during GetAll: %v", err)
 		return nil
 	}
+
+	return tournaments
 }
 
-// Get a pointer to a tournament given a tournament id.
-func TournamentById(c appengine.Context, id int64) (*Tournament, error) {
+// TournamentByID gets a pointer to a tournament given a tournament id.
+//
+func TournamentByID(c appengine.Context, id int64) (*Tournament, error) {
 
 	var t Tournament
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
@@ -147,31 +157,34 @@ func TournamentById(c appengine.Context, id int64) (*Tournament, error) {
 	return &t, nil
 }
 
-// Get a pointer to a tournament key given a tournament id.
-func TournamentKeyById(c appengine.Context, id int64) *datastore.Key {
+// TournamentKeyByID gets a pointer to a tournament key given a tournament id.
+//
+func TournamentKeyByID(c appengine.Context, id int64) *datastore.Key {
 
 	key := datastore.NewKey(c, "Tournament", "", id, nil)
 	return key
 }
 
 // Update a tournament given a tournament id and a tournament pointer.
+//
 func (t *Tournament) Update(c appengine.Context) error {
 
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
-	k := TournamentKeyById(c, t.Id)
+	k := TournamentKeyByID(c, t.ID)
 	oldTournament := new(Tournament)
 	if err := datastore.Get(c, k, oldTournament); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
 		// use name with trim lower as tournament inverted index stores lower key names.
-		UpdateTournamentInvertedIndex(c, oldTournament.KeyName, t.KeyName, t.Id)
+		UpdateTournamentInvertedIndex(c, oldTournament.KeyName, t.KeyName, t.ID)
 	}
 	return nil
 }
 
-// Find all tournaments in the datastore.
+// FindAllTournaments finds all tournaments in the datastore.
+//
 func FindAllTournaments(c appengine.Context, count, page int64) []*Tournament {
 	desc := "tournament.FindAllTournaments"
 	q := datastore.NewQuery("Tournament")
@@ -193,7 +206,8 @@ func FindAllTournaments(c appengine.Context, count, page int64) []*Tournament {
 	return paged
 }
 
-// Find all tournaments with respect to array of ids.
+// TournamentsByIds finds all tournaments with respect to array of ids.
+//
 func TournamentsByIds(c appengine.Context, ids []int64) ([]*Tournament, error) {
 
 	tournaments := make([]Tournament, len(ids))
@@ -225,18 +239,21 @@ func TournamentsByIds(c appengine.Context, ids []int64) ([]*Tournament, error) {
 	return existingTournaments, nil
 }
 
+// TournamentKeysByIds finds tournaments keys from an array of ids.
+//
 func TournamentKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 	keys := make([]*datastore.Key, len(ids))
 	for i, id := range ids {
-		keys[i] = TournamentKeyById(c, id)
+		keys[i] = TournamentKeyByID(c, id)
 	}
 	return keys
 }
 
-// Checks if a user has joined a tournament.
+// Joined checks if a user has joined a tournament.
+//
 func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
-	hasTournament, _ := u.ContainsTournamentId(t.Id)
+	hasTournament, _ := u.ContainsTournamentId(t.ID)
 	return hasTournament
 }
 
@@ -244,21 +261,22 @@ func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
-	if err := u.AddTournamentId(c, t.Id); err != nil {
+	if err := u.AddTournamentId(c, t.ID); err != nil {
 		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
-	if err := t.AddUserId(c, u.Id); err != nil {
+	if err := t.AddUserID(c, u.Id); err != nil {
 		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
 
 	return nil
 }
 
-// Checks if user is admin of tournament with id 'tournamentId'.
-func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bool {
-	if tournament, err := TournamentById(c, tournamentId); err == nil {
+// IsTournamentAdmin checks if user is admin of tournament with id 'tournamentId'.
+//
+func IsTournamentAdmin(c appengine.Context, tournamentID int64, userID int64) bool {
+	if tournament, err := TournamentByID(c, tournamentID); err == nil {
 		for _, aid := range tournament.AdminIds {
-			if aid == userId {
+			if aid == userID {
 				return true
 			}
 		}
@@ -266,12 +284,13 @@ func IsTournamentAdmin(c appengine.Context, tournamentId int64, userId int64) bo
 	return false
 }
 
-// Adds user to admins of current tournament.
+// AddAdmin sdds user to admins of current tournament.
 // In order to be an admin of a tournament you should first be a member of the tournament.
+//
 func (t *Tournament) AddAdmin(c appengine.Context, id int64) error {
 
-	if ismember, _ := t.ContainsUserId(id); ismember {
-		if isadmin, _ := t.ContainsAdminId(id); isadmin {
+	if ismember, _ := t.ContainsUserID(id); ismember {
+		if isadmin, _ := t.ContainsAdminID(id); isadmin {
 			return fmt.Errorf("User with %v is already an admin of tournament", id)
 		}
 		t.AdminIds = append(t.AdminIds, id)
@@ -283,85 +302,102 @@ func (t *Tournament) AddAdmin(c appengine.Context, id int64) error {
 	return fmt.Errorf("User with %v is not a member of the tournament", id)
 }
 
-// Removes user of admins array in current tournament.
+// RemoveAdmin removes user of admins array in current tournament.
 // In order to remove an admin from a team, there should be at least an admin in the array.
+//
 func (t *Tournament) RemoveAdmin(c appengine.Context, id int64) error {
 
-	if ismember, _ := t.ContainsUserId(id); ismember {
-		if isadmin, i := t.ContainsAdminId(id); isadmin {
-			if len(t.AdminIds) > 1 {
-				// as the order of index in adminIds is not important,
-				// replace elem at index i with last element and resize slice.
-				t.AdminIds[i] = t.AdminIds[len(t.AdminIds)-1]
-				t.AdminIds = t.AdminIds[0 : len(t.AdminIds)-1]
-				if err := t.Update(c); err != nil {
-					return err
-				}
-				return nil
-			}
-			return fmt.Errorf("Cannot remove admin %v as there are no admins left in tournament", id)
-		}
+	if ismember, _ := t.ContainsUserID(id); !ismember {
+		return fmt.Errorf("User with %v is not a member of the tournament", id)
+	}
+
+	isAdmin := false
+	i := 0
+
+	if isAdmin, i = t.ContainsAdminID(id); !isAdmin {
 		return fmt.Errorf("User with %v is not admin of the tournament", id)
 	}
-	return fmt.Errorf("User with %v is not a member of the tournament", id)
+
+	if len(t.AdminIds) <= 1 {
+		return fmt.Errorf("Cannot remove admin %v as there are no admins left in tournament", id)
+	}
+
+	// as the order of index in adminIds is not important,
+	// replace elem at index i with last element and resize slice.
+	t.AdminIds[i] = t.AdminIds[len(t.AdminIds)-1]
+	t.AdminIds = t.AdminIds[0 : len(t.AdminIds)-1]
+	if err := t.Update(c); err != nil {
+		return err
+	}
+	return nil
 }
 
-// Checks if user is admin of team.
-func (t *Tournament) ContainsAdminId(id int64) (bool, int) {
+// ContainsAdminID checks if user is admin of team.
+//
+func (t *Tournament) ContainsAdminID(id int64) (bool, int) {
 
-	for i, aId := range t.AdminIds {
-		if aId == id {
+	for i, aID := range t.AdminIds {
+		if aID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-// Check if a Team has joined the tournament.
+// TeamJoined checks if a Team has joined the tournament.
+//
 func (t *Tournament) TeamJoined(c appengine.Context, team *Team) bool {
 	// change in contains
-	hasTournament, _ := team.ContainsTournamentID(t.Id)
+	hasTournament, _ := team.ContainsTournamentID(t.ID)
 	return hasTournament
 }
 
-// Team joins the Tournament.
+// TeamJoin joins a teams to the Tournament.
+//
 func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
+	var err error
+
 	// add
-	if err := team.AddTournamentID(c, t.Id); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%v Error: %v", team.ID, err)
+	if err = team.AddTournamentID(c, t.ID); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%d Error: %v", team.ID, err)
 	}
-	if err := t.AddTeamId(c, team.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%v Error: %v", t.Id, err)
+	if err = t.AddTeamID(c, team.ID); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%d Error: %v", t.ID, err)
 	}
-	if err := t.AddUserIds(c, team.UserIDs); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding user ids to tournament entity:%v Error: %v", t.Id, err)
+	if err = t.AddUserIDs(c, team.UserIDs); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding user ids to tournament entity:%d Error: %v", t.ID, err)
 	}
-	if p, errp := CreatePrice(c, team.ID, t.Id, t.Name, ""); errp != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%v Error: %v", t.Id, errp)
-	} else {
-		if err := team.AddPriceID(c, p.ID); err != nil {
-			return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%v Error: %v", team.ID, err)
-		}
+
+	var price *Price
+	if price, err = CreatePrice(c, team.ID, t.ID, t.Name, ""); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%d Error: %v", t.ID, err)
 	}
+
+	if err = team.AddPriceID(c, price.ID); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%d Error: %v", team.ID, err)
+	}
+
 	return nil
 }
 
-// Team leaves the Tournament.
+// TeamLeave leaves a team from the Tournament.
+//
 func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
 	// find and remove
-	if err := team.RemoveTournamentID(c, t.Id); err != nil {
+	if err := team.RemoveTournamentID(c, t.ID); err != nil {
 		return fmt.Errorf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.ID, err)
 	}
-	if err := t.RemoveTeamId(c, team.ID); err != nil {
+	if err := t.RemoveTeamID(c, team.ID); err != nil {
 		return fmt.Errorf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.ID, err)
 	}
-	if err := team.RemovePriceByTournamentID(c, t.Id); err != nil {
+	if err := team.RemovePriceByTournamentID(c, t.ID); err != nil {
 		return fmt.Errorf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.ID, err)
 	}
 	return nil
 }
 
-// Get the frequency of given word with respect to tournament id.
+// GetWordFrequencyForTournament gets the frequency of given word with respect to tournament id.
+//
 func GetWordFrequencyForTournament(c appengine.Context, id int64, word string) int64 {
 
 	if tournaments := FindTournaments(c, "Id", id); tournaments != nil {
@@ -409,8 +445,8 @@ func (t *Tournament) Reset(c appengine.Context) error {
 	const shortForm = "Jan/02/2006"
 	for _, roundMatches := range mapMatches2ndRound {
 		for _, matchData := range roundMatches {
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
-			m := GetMatchByIDNumber(c, *t, int64(matchInternalId))
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+			m := GetMatchByIDNumber(c, *t, int64(matchInternalID))
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			m.Rule = rule
 			m.Result1 = 0
@@ -424,14 +460,15 @@ func (t *Tournament) Reset(c appengine.Context) error {
 	return nil
 }
 
-// From a tournament returns an array of the users that participate in it.
+// Participants returns an array, from the tournament, of the users that participate in it.
+//
 func (t *Tournament) Participants(c appengine.Context) []*User {
 	var users []*User
 
-	for _, uId := range t.UserIds {
-		user, err := UserById(c, uId)
+	for _, uID := range t.UserIds {
+		user, err := UserById(c, uID)
 		if err != nil {
-			log.Errorf(c, " Participants, cannot find user with ID=%v", uId)
+			log.Errorf(c, " Participants, cannot find user with ID=%d", uID)
 		} else {
 			users = append(users, user)
 		}
@@ -440,14 +477,15 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 	return users
 }
 
-// from a tournamentid returns an array of teams involved in tournament
+// Teams returns an array of teams involved in tournament, from a tournament.
+//
 func (t *Tournament) Teams(c appengine.Context) []*Team {
 
 	var teams []*Team
-	for _, tId := range t.TeamIds {
-		team, err := TeamByID(c, tId)
+	for _, tID := range t.TeamIds {
+		team, err := TeamByID(c, tID)
 		if err != nil {
-			log.Errorf(c, " Teams, cannot find team with ID=%", tId)
+			log.Errorf(c, " Teams, cannot find team with ID=%", tID)
 		} else {
 			teams = append(teams, team)
 		}
@@ -455,102 +493,118 @@ func (t *Tournament) Teams(c appengine.Context) []*Team {
 	return teams
 }
 
-// Adds a team Id in the TeamId array.
-func (t *Tournament) RemoveTeamId(c appengine.Context, tId int64) error {
+// RemoveTeamID adds a team Id in the TeamId array.
+//
+func (t *Tournament) RemoveTeamID(c appengine.Context, tID int64) error {
 
-	if hasTeam, i := t.ContainsTeamId(tId); !hasTeam {
-		return fmt.Errorf("RemoveTeamId, not a member")
-	} else {
-		// as the order of index in teamsId is not important,
-		// replace elem at index i with last element and resize slice.
-		t.TeamIds[i] = t.TeamIds[len(t.TeamIds)-1]
-		t.TeamIds = t.TeamIds[0 : len(t.TeamIds)-1]
+	hasTeam := false
+	i := 0
+
+	if hasTeam, i = t.ContainsTeamID(tID); !hasTeam {
+		return fmt.Errorf("RemoveTeamID, not a member")
 	}
+
+	// as the order of index in teamsId is not important,
+	// replace elem at index i with last element and resize slice.
+	t.TeamIds[i] = t.TeamIds[len(t.TeamIds)-1]
+	t.TeamIds = t.TeamIds[0 : len(t.TeamIds)-1]
+
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Adds a team Id in the TeamId array.
-func (t *Tournament) AddTeamId(c appengine.Context, tId int64) error {
+// AddTeamID adds a team Id in the TeamId array.
+//
+func (t *Tournament) AddTeamID(c appengine.Context, tID int64) error {
 
-	if hasTeam, _ := t.ContainsTeamId(tId); hasTeam {
-		return fmt.Errorf("AddTeamId, allready a member")
+	if hasTeam, _ := t.ContainsTeamID(tID); hasTeam {
+		return fmt.Errorf("AddTeamID, allready a member")
 	}
 
-	t.TeamIds = append(t.TeamIds, tId)
+	t.TeamIds = append(t.TeamIds, tID)
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Remove a user Id in the UserId array.
-func (t *Tournament) RemoveUserId(c appengine.Context, uId int64) error {
+// RemoveUserID removes a user Id in the UserId array.
+//
+func (t *Tournament) RemoveUserID(c appengine.Context, uID int64) error {
 
-	if hasUser, i := t.ContainsUserId(uId); !hasUser {
-		return fmt.Errorf("RemoveUserId, not a member")
-	} else {
-		// as the order of index in usersId is not important,
-		// replace elem at index i with last element and resize slice.
-		t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
-		t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
+	hasUser := false
+	i := 0
+
+	if hasUser, i = t.ContainsUserID(uID); !hasUser {
+		return fmt.Errorf("RemoveUserID, not a member")
 	}
+
+	// as the order of index in usersId is not important,
+	// replace elem at index i with last element and resize slice.
+	t.UserIds[i] = t.UserIds[len(t.UserIds)-1]
+	t.UserIds = t.UserIds[0 : len(t.UserIds)-1]
+
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Adds a user Id in the UserId array.
-func (t *Tournament) AddUserId(c appengine.Context, uId int64) error {
-	if hasUser, _ := t.ContainsUserId(uId); hasUser {
-		return fmt.Errorf("AddUserId, allready a member")
+// AddUserID adds a user Id in the UserId array.
+//
+func (t *Tournament) AddUserID(c appengine.Context, uID int64) error {
+	if hasUser, _ := t.ContainsUserID(uID); hasUser {
+		return fmt.Errorf("AddUserID, allready a member")
 	}
 
-	t.UserIds = append(t.UserIds, uId)
+	t.UserIds = append(t.UserIds, uID)
 	if err := t.Update(c); err != nil {
 		return err
 	}
 	return nil
 }
 
-// Add user ids in the tournament entity.
-func (t *Tournament) AddUserIds(c appengine.Context, uIds []int64) error {
-	for _, uId := range uIds {
-		if err := t.AddUserId(c, uId); err != nil {
-			log.Errorf(c, "Tournament.AddUserIds, error adding user id to tournament entity: %v", err)
+// AddUserIDs adds user ids in the tournament entity.
+//
+func (t *Tournament) AddUserIDs(c appengine.Context, uIds []int64) error {
+	for _, uID := range uIds {
+		if err := t.AddUserID(c, uID); err != nil {
+			log.Errorf(c, "Tournament.AddUserIDs, error adding user id to tournament entity: %v", err)
 		}
 	}
 	return nil
 }
 
-// Checks if a team is part of a tournament.
-func (t *Tournament) ContainsTeamId(id int64) (bool, int) {
+// ContainsTeamID checks if a team is part of a tournament.
+//
+func (t *Tournament) ContainsTeamID(id int64) (bool, int) {
 
-	for i, tId := range t.TeamIds {
-		if tId == id {
+	for i, tID := range t.TeamIds {
+		if tID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-// Checks if user is part of the tournament.
-func (t *Tournament) ContainsUserId(id int64) (bool, int) {
+// ContainsUserID checks if user is part of the tournament.
+//
+func (t *Tournament) ContainsUserID(id int64) (bool, int) {
 
-	for i, tId := range t.UserIds {
-		if tId == id {
+	for i, tID := range t.UserIds {
+		if tID == id {
 			return true, i
 		}
 	}
 	return false, -1
 }
 
-// Rank users with respect to their score in current tournament.
+// RankingByUser ranks users with respect to their score in current tournament.
 // Sets the user score to the current tournament score and return array of users
 // sorted by that score.
+//
 func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 	if limit < 0 {
 		return nil
@@ -558,7 +612,7 @@ func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 	users := t.Participants(c)
 	// set score of user to score of tournament without persisting it.
 	for i, u := range users {
-		users[i].Score = u.ScoreByTournament(c, t.Id)
+		users[i].Score = u.ScoreByTournament(c, t.ID)
 	}
 
 	sort.Sort(UserByScore(users))
@@ -569,6 +623,8 @@ func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 	return users[len(users)-limit:]
 }
 
+// RankingByTeam ranks teams with respect ot their accuracy in the current tournament.
+//
 func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
 	if limit < 0 {
 		return nil
@@ -577,12 +633,13 @@ func (t *Tournament) RankingByTeam(c appengine.Context, limit int) []*Team {
 	sort.Sort(TeamByAccuracy(teams))
 	if len(teams) <= limit {
 		return teams
-	} else {
-		return teams[len(teams)-limit:]
 	}
+
+	return teams[len(teams)-limit:]
 }
 
-// Publish tournament activity
+// Publish tournament activity.
+//
 func (t *Tournament) Publish(c appengine.Context, activityType string, verb string, object ActivityEntity, target ActivityEntity) error {
 	var activity Activity
 	activity.Type = activityType
@@ -591,7 +648,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
-	activity.CreatorID = t.Id
+	activity.CreatorID = t.ID
 
 	if err := activity.save(c); err != nil {
 		return err
@@ -611,13 +668,16 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	return nil
 }
 
-// Activity entity representation of a tournament
+// Entity is the Activity entity representation of a tournament.
+//
 func (t *Tournament) Entity() ActivityEntity {
-	return ActivityEntity{ID: t.Id, Type: "tournament", DisplayName: t.Name}
+	return ActivityEntity{ID: t.ID, Type: "tournament", DisplayName: t.Name}
 }
 
+// Progress is the progression of the tournament.
 // The progression is a number between 0 and 1 with the progression of the tournament
 // with respect of today's date and start and end date of tournament.
+//
 func (t *Tournament) Progress(c appengine.Context) float64 {
 	now := time.Now()
 	if now.Before(t.Start) {
@@ -632,6 +692,8 @@ func (t *Tournament) Progress(c appengine.Context) float64 {
 	return d.Seconds() / dt.Seconds()
 }
 
+// GetTournamentBuilder gets the tournament builder of a given tournament.
+//
 func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	var tb TournamentBuilder
 	if t.Name == "2014 FIFA World Cup" {
@@ -648,6 +710,8 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	return tb
 }
 
+// MapOfIDTeams is the map of team IDs of a given tournament.
+//
 func MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	var tb TournamentBuilder

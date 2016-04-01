@@ -418,10 +418,10 @@ func (u *User) Tournaments(c appengine.Context) []*Tournament {
 }
 
 // Adds a team Id in the TeamId array.
-func (u *User) AddTeamId(c appengine.Context, tId int64) error {
+func (u *User) AddTeamID(c appengine.Context, tId int64) error {
 
-	if hasTeam, _ := u.ContainsTeamId(tId); hasTeam {
-		return fmt.Errorf("AddTeamId, allready a member")
+	if hasTeam, _ := u.ContainsTeamID(tId); hasTeam {
+		return fmt.Errorf("AddTeamID, allready a member")
 	}
 
 	u.TeamIds = append(u.TeamIds, tId)
@@ -432,10 +432,10 @@ func (u *User) AddTeamId(c appengine.Context, tId int64) error {
 }
 
 // Removes a team Id in the TeamId array.
-func (u *User) RemoveTeamId(c appengine.Context, tId int64) error {
+func (u *User) RemoveTeamID(c appengine.Context, tId int64) error {
 
-	if hasTeam, i := u.ContainsTeamId(tId); !hasTeam {
-		return fmt.Errorf("RemoveTeamId, not a member")
+	if hasTeam, i := u.ContainsTeamID(tId); !hasTeam {
+		return fmt.Errorf("RemoveTeamID, not a member")
 	} else {
 		// as the order of index in teamsId is not important,
 		// replace elem at index i with last element and resize slice.
@@ -448,7 +448,7 @@ func (u *User) RemoveTeamId(c appengine.Context, tId int64) error {
 	return nil
 }
 
-func (u *User) ContainsTeamId(id int64) (bool, int) {
+func (u *User) ContainsTeamID(id int64) (bool, int) {
 
 	for i, tId := range u.TeamIds {
 		if tId == id {
@@ -552,7 +552,7 @@ func (u *User) Entity() ActivityEntity {
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {
 	//query score
 	for _, s := range u.ScoreOfTournaments {
-		if s.TournamentId == tournament.Id {
+		if s.TournamentId == tournament.ID {
 			log.Infof(c, "User.TournamentScore tournament found in ScoreOfTournaments array")
 			return ScoreByID(c, s.ScoreId)
 		}

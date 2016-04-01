@@ -157,13 +157,13 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamID1 = val.ID
 			} else {
-				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.ID)
 			}
 			if val, ok := mapOfTeams[rule[1]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
 				matches[i].TeamID2 = val.ID
 			} else {
-				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.ID)
 			}
 			matches[i].Rule = ""
 			matches[i].Ready = true

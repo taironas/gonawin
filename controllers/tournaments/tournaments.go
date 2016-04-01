@@ -91,12 +91,12 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	ts := make([]tournament, len(tournaments))
 	for i, t := range tournaments {
-		ts[i].ID = t.Id
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].ParticipantsCount = len(t.UserIds)
 		ts[i].TeamsCount = len(t.TeamIds)
 		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 
 	return templateshlp.RenderJson(w, c, ts)
@@ -141,7 +141,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	// return the newly created tournament
 	fieldsToKeep := []string{"Id", "Name"}
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	u.Publish(c, "tournament", "created a tournament", tournament.Entity(), mdl.ActivityEntity{})
@@ -149,7 +149,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
@@ -180,8 +180,8 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	teams := tournament.Teams(c)
 
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
-	var tournamentJSON mdl.TournamentJson
-	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 
 	participantFieldsToKeep := []string{"Id", "Username", "Alias"}
 	participantsJSON := make([]mdl.UserJson, len(participants))
@@ -199,10 +199,10 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 
-	imageURL := helpers.TournamentImageURL(tournament.Name, tournament.Id)
+	imageURL := helpers.TournamentImageURL(tournament.Name, tournament.ID)
 
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Joined        bool
 		Participants  []mdl.UserJson
 		Teams         []mdl.TeamJSON
@@ -212,7 +212,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		RemainingDays int64
 		ImageURL      string
 	}{
-		tournamentJSON,
+		TournamentJSON,
 		tournament.Joined(c, u),
 		participantsJSON,
 		teamsJSON,
@@ -246,14 +246,14 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTournamentAdmin(c, tournament.Id, u.Id) {
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 	}
 
 	// delete all tournament-user relationships
 	for _, participant := range tournament.Participants(c) {
-		if err := participant.RemoveTournamentId(c, tournament.Id); err != nil {
+		if err := participant.RemoveTournamentId(c, tournament.ID); err != nil {
 			log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
 		} else if u.Id == participant.Id {
 			// Be sure that current user has the latest data,
@@ -321,7 +321,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if !mdl.IsTournamentAdmin(c, tournament.Id, u.Id) {
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
 	}
@@ -365,13 +365,13 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// return the updated tournament
 	fieldsToKeep := []string{"Id", "Name"}
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
@@ -427,12 +427,12 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	ts := make([]tournament, len(tournaments))
 	for i, t := range tournaments {
-		ts[i].ID = t.Id
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].ParticipantsCount = len(t.UserIds)
 		ts[i].TeamsCount = len(t.TeamIds)
 		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 
 	// we should not directly return an array. so we add an extra layer.
@@ -552,7 +552,7 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	if err = t.Reset(c); err != nil {
-		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, t.Id, err)
+		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, t.ID, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 

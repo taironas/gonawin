@@ -72,7 +72,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		log.Errorf(c, "%s unable to extract match from data, %v", desc, err)
 	}
 
-	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
+	log.Infof(c, "%s value of tournament id: %v", desc, t.ID)
 	log.Infof(c, "%s value of match id: %v", desc, m.ID)
 
 	users := t.Participants(c)
@@ -83,7 +83,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	var userIds []int64
 	var userIdsToPublish []int64
 	var userIdsToCreateSE []int64
-	tournamentID := t.Id
+	tournamentID := t.ID
 
 	for _, u := range users {
 		var score int64
@@ -359,7 +359,7 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 
 	log.Infof(c, "%s value of user ids: %v", desc, userIds)
 	log.Infof(c, "%s value of scores: %v", desc, scores)
-	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
+	log.Infof(c, "%s value of tournament id: %d", desc, t.ID)
 
 	log.Infof(c, "%s crunching data...", desc)
 	users := make([]*mdl.User, len(userIds))
@@ -367,7 +367,7 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s get users", desc)
 	for i, id := range userIds {
 		if u, err := mdl.UserById(c, id); err != nil {
-			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+			log.Errorf(c, "%s cannot find user with id=%d", desc, id)
 		} else {
 			users[i] = u
 		}

@@ -305,12 +305,12 @@ type showTournamentViewModel struct {
 func buildShowTournamentViewModel(c appengine.Context, tournaments []*mdl.Tournament) []showTournamentViewModel {
 	tvm := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tvm[i].Id = t.Id
+		tvm[i].Id = t.ID
 		tvm[i].Name = t.Name
 		tvm[i].ParticipantsCount = len(t.UserIds)
 		tvm[i].TeamsCount = len(t.TeamIds)
 		tvm[i].Progress = t.Progress(c)
-		tvm[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		tvm[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 
 	return tvm
@@ -435,7 +435,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	for _, player := range players {
-		if err := player.RemoveTeamId(c, team.ID); err != nil {
+		if err := player.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 		} else if u.Id == player.Id {
 			// Be sure that current user has the latest data,
@@ -447,7 +447,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// delete all tournament-team relationships
 	for _, tournament := range team.Tournaments(c) {
-		if err := tournament.RemoveTeamId(c, team.ID); err != nil {
+		if err := tournament.RemoveTeamID(c, team.ID); err != nil {
 			log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 		}
 	}

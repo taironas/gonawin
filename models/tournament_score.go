@@ -101,12 +101,12 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 			}
 
 			var acc1 *Accuracy
-			if acc1, err = CreateAccuracy(c, team.ID, t.Id, oldmatches); err != nil {
+			if acc1, err = CreateAccuracy(c, team.ID, t.ID, oldmatches); err != nil {
 				log.Errorf(c, "%s unable to create accuracy", desc)
 				return err
 			}
 
-			team.AddTournamentAccuracy(c, acc1.Id, t.Id)
+			team.AddTournamentAccuracy(c, acc1.Id, t.ID)
 			if computedAcc, err = acc1.Add(c, newAcc); err != nil {
 				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
 			}
@@ -118,7 +118,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		}
 
 		// ToDo: update team overall accuracy.
-		if err = team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
+		if err = team.UpdateAccuracy(c, t.ID, computedAcc); err != nil {
 			log.Errorf(c, "%s unable to update global accuracy for team %d: %v", desc, team.ID, err)
 		}
 	}

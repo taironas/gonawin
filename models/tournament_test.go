@@ -87,7 +87,7 @@ func TestTournamentDestroy(t *testing.T) {
 
 	// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
 	dummy := Tournament{}
-	key := TournamentKeyById(c, tournament.Id)
+	key := TournamentKeyByID(c, tournament.Id)
 	if err := datastore.Get(c, key, &dummy); err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestTournamentDestroy(t *testing.T) {
 	}
 
 	// make a query on datastore to be sure it is not there.
-	if got, err1 := TournamentById(c, tournament.Id); err1 == nil {
+	if got, err1 := TournamentByID(c, tournament.Id); err1 == nil {
 		t.Errorf("TestDestroyTournament(%q): got %v wanted %v", test.name, got, test.want)
 	}
 }
@@ -186,7 +186,7 @@ func TestFindTournaments(t *testing.T) {
 			} else {
 				// perform a get query so that the results of the unapplied write are visible to subsequent global queries.
 				dummy := Tournament{}
-				key := TournamentKeyById(c, got.Id)
+				key := TournamentKeyByID(c, got.Id)
 				if err := datastore.Get(c, key, &dummy); err != nil {
 					t.Fatal(err)
 				}

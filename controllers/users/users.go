@@ -218,12 +218,12 @@ func buildShowTournamentStatsViewModel(c appengine.Context, tournaments []*mdl.T
 
 	stats := make([]showTournamentStatsViewModel, len(tournaments))
 	for i, t := range tournaments {
-		stats[i].ID = t.Id
+		stats[i].ID = t.ID
 		stats[i].Name = t.Name
 		stats[i].ParticipantsCount = len(t.UserIds)
 		stats[i].TeamsCount = len(t.TeamIds)
 		stats[i].Progress = t.Progress(c)
-		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 	return stats
 }
@@ -240,10 +240,10 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 
 	tournaments2 := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tournaments2[i].ID = t.Id
+		tournaments2[i].ID = t.ID
 		tournaments2[i].UserIds = t.UserIds
 		tournaments2[i].TeamIds = t.TeamIds
-		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 	return tournaments2
 }
@@ -436,7 +436,7 @@ func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUs
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
 			}
 		} else {
-			if err = requestUser.RemoveTeamId(c, teamID); err != nil {
+			if err = requestUser.RemoveTeamID(c, teamID); err != nil {
 				log.Errorf(c, "%s error when trying to destroy team relationship: %v", desc, err)
 			}
 		}
@@ -452,7 +452,7 @@ func removeTournameUserRels(c appengine.Context, desc string, requestUser, curre
 	for _, tournamentID := range requestUser.TournamentIds {
 		if mdl.IsTournamentAdmin(c, tournamentID, currentUser.Id) {
 			var tournament *mdl.Tournament
-			if tournament, err = mdl.TournamentById(c, tournamentID); err != nil {
+			if tournament, err = mdl.TournamentByID(c, tournamentID); err != nil {
 				log.Errorf(c, "%s tournament %d not found", desc, tournamentID)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
@@ -561,12 +561,12 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type tournamentsUserViewModel struct {
-	Tournaments []mdl.TournamentJson `json:",omitempty"`
+	Tournaments []mdl.TournamentJSON `json:",omitempty"`
 }
 
 func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUserViewModel {
 	fieldsToKeep := []string{"Id", "Name"}
-	json := make([]mdl.TournamentJson, len(tournaments))
+	json := make([]mdl.TournamentJSON, len(tournaments))
 	helpers.TransformFromArrayOfPointers(&tournaments, &json, fieldsToKeep)
 
 	return tournamentsUserViewModel{json}

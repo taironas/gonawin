@@ -259,7 +259,7 @@ func TeamsKeysByIDs(c appengine.Context, IDs []int64) []*datastore.Key {
 //
 func (t *Team) Joined(c appengine.Context, u *User) bool {
 
-	hasTeam, _ := u.ContainsTeamId(t.ID)
+	hasTeam, _ := u.ContainsTeamID(t.ID)
 	return hasTeam
 }
 
@@ -269,7 +269,7 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 // UserId is added to all current tournaments joined by the team entity.
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
-	if err := u.AddTeamId(c, t.ID); err != nil {
+	if err := u.AddTeamID(c, t.ID); err != nil {
 		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
 	}
 
@@ -287,7 +287,7 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 // Todo: Should we check that the user is indeed a member of the team?
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
-	if err := u.RemoveTeamId(c, t.ID); err != nil {
+	if err := u.RemoveTeamID(c, t.ID); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
 	}
 	if err := t.RemoveUserID(c, u.Id); err != nil {
@@ -555,15 +555,15 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 	}
 
 	for _, tID := range t.TournamentIDs {
-		if tournament, err := TournamentById(c, tID); err != nil {
+		if tournament, err := TournamentByID(c, tID); err != nil {
 			log.Errorf(c, "Cannot find tournament with Id=%d", tID)
 		} else if time.Now().Before(tournament.End) {
 
-			if err := tournament.AddUserId(c, uID); err != nil {
+			if err := tournament.AddUserID(c, uID); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
-			if err = u.AddTournamentId(c, tournament.Id); err != nil {
+			if err = u.AddTournamentId(c, tournament.ID); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}
@@ -685,7 +685,7 @@ func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accura
 func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
 	for _, acc := range t.TournamentAccuracies {
-		if acc.TournamentID == tournament.Id {
+		if acc.TournamentID == tournament.ID {
 			return AccuracyById(c, acc.AccuracyID)
 		}
 	}
@@ -848,7 +848,7 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 //
 func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
 	for _, aot := range t.TournamentAccuracies {
-		if aot.TournamentID != tour.Id {
+		if aot.TournamentID != tour.ID {
 			continue
 		}
 		if acc, err := AccuracyById(c, aot.AccuracyID); err != nil {

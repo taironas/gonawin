@@ -71,8 +71,8 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 
 	// tournament
 	fieldsToKeep := []string{"Id", "Name", "Description"}
-	var tournamentJSON mdl.TournamentJson
-	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 	// formatted start and end
 	const layout = "2 January 2006"
 	start := tournament.Start.Format(layout)
@@ -81,12 +81,12 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 	// data
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Start         string
 		End           string
 		RemainingDays int64
 	}{
-		tournamentJSON,
+		TournamentJSON,
 		start,
 		end,
 		remainingDays,
