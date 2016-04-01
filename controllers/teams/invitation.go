@@ -124,7 +124,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	urs := mdl.FindUserRequests(c, "TeamId", teamID)
 	var ids []int64
 	for _, ur := range urs {
-		ids = append(ids, ur.UserId)
+		ids = append(ids, ur.UserID)
 	}
 
 	var users []*mdl.User

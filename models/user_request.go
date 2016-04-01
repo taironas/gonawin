@@ -25,22 +25,27 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// UserRequest represents the user request entity.
+//
 type UserRequest struct {
-	Id      int64
-	TeamId  int64
-	UserId  int64
+	ID      int64
+	TeamID  int64
+	UserID  int64
 	Created time.Time
 }
 
-type UserRequestJson struct {
-	Id      *int64     `json:",omitempty"`
-	TeamId  *int64     `json:",omitempty"`
-	UserId  *int64     `json:",omitempty"`
+// UserRequestJSON is JSON representation of the UserRequest structure.
+//
+type UserRequestJSON struct {
+	ID      *int64     `json:"Id,omitempty"`
+	TeamID  *int64     `json:"TeamId,omitempty"`
+	UserID  *int64     `json:"UserId,omitempty"`
 	Created *time.Time `json:",omitempty"`
 }
 
-// Create a user request with params teamid and userid
-func CreateUserRequest(c appengine.Context, teamId int64, userId int64) (*UserRequest, error) {
+// CreateUserRequest creates a user request with params teamid and userid
+//
+func CreateUserRequest(c appengine.Context, teamID int64, userID int64) (*UserRequest, error) {
 	// create new team request
 	id, _, err := datastore.AllocateIDs(c, "UserRequest", nil, 1)
 	if err != nil {
@@ -49,7 +54,7 @@ func CreateUserRequest(c appengine.Context, teamId int64, userId int64) (*UserRe
 
 	key := datastore.NewKey(c, "UserRequest", "", id, nil)
 
-	ur := &UserRequest{id, teamId, userId, time.Now()}
+	ur := &UserRequest{id, teamID, userID, time.Now()}
 
 	_, err = datastore.Put(c, key, ur)
 	if err != nil {
@@ -59,13 +64,15 @@ func CreateUserRequest(c appengine.Context, teamId int64, userId int64) (*UserRe
 	return ur, nil
 }
 
-// destroy a user request given a teamrequestid
+// Destroy a user request given a teamrequestid.
+//
 func (ur *UserRequest) Destroy(c appengine.Context) error {
-	key := datastore.NewKey(c, "UserRequest", "", ur.Id, nil)
+	key := datastore.NewKey(c, "UserRequest", "", ur.ID, nil)
 	return datastore.Delete(c, key)
 }
 
-// Search for all TeamRequest entities with respect of a filter and a value.
+// FindUserRequests searches for all TeamRequest entities with respect of a filter and a value.
+//
 func FindUserRequests(c appengine.Context, filter string, value interface{}) []*UserRequest {
 
 	q := datastore.NewQuery("UserRequest").Filter(filter+" =", value)
@@ -78,10 +85,11 @@ func FindUserRequests(c appengine.Context, filter string, value interface{}) []*
 	return userRequests
 }
 
-// search a request by team id and user id pair
-func FindUserRequestByTeamAndUser(c appengine.Context, teamId int64, userId int64) *UserRequest {
+// FindUserRequestByTeamAndUser searches a request by team id and user id pair.
+//
+func FindUserRequestByTeamAndUser(c appengine.Context, teamID int64, userID int64) *UserRequest {
 
-	q := datastore.NewQuery("UserRequest").Filter("TeamId =", teamId).Filter("UserId =", userId).Limit(1)
+	q := datastore.NewQuery("UserRequest").Filter("TeamId =", teamID).Filter("UserId =", userID).Limit(1)
 
 	var userRequests []*UserRequest
 
@@ -95,8 +103,9 @@ func FindUserRequestByTeamAndUser(c appengine.Context, teamId int64, userId int6
 	return nil
 }
 
-// return a user request if it exist given a user request id.
-func UserRequestById(c appengine.Context, id int64) (*UserRequest, error) {
+// UserRequestByID returns a user request if it exist given a user request id.
+//
+func UserRequestByID(c appengine.Context, id int64) (*UserRequest, error) {
 
 	var ur UserRequest
 	key := datastore.NewKey(c, "UserRequest", "", id, nil)

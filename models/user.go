@@ -649,7 +649,7 @@ func (u *User) Invitations(c appengine.Context) []*Team {
 	urs := FindUserRequests(c, "UserId", u.Id)
 	var ids []int64
 	for _, ur := range urs {
-		ids = append(ids, ur.TeamId)
+		ids = append(ids, ur.TeamID)
 	}
 
 	var teams []*Team
