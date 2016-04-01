@@ -35,7 +35,7 @@ const (
 	cMatchLocation = 4
 )
 
-// ChampionsLeagueTournament represetns the Champions League tournament.
+// ChampionsLeagueTournament represents the Champions League tournament.
 //
 type ChampionsLeagueTournament struct{}
 
@@ -75,7 +75,7 @@ func (clt ChampionsLeagueTournament) MapOfGroupMatches() map[string][][]string {
 	return mapGroupMatches
 }
 
-// MapOf2ndRoundMatches returns the Map of 2nd round matches, of the world cup tournament.
+// MapOf2ndRoundMatches returns the Map of 2nd round matches, of the Champions League tournament.
 // key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
 //
 // Example:
