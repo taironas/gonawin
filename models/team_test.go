@@ -295,8 +295,7 @@ func TestTeamUpdate(t *testing.T) {
 
 	tTeam := testTeam{"my team", "description", 10, false}
 
-	var newTeam *Team
-	if newTeam, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
+	if _, err = CreateTeam(c, tTeam.name, tTeam.description, tTeam.adminID, tTeam.private); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
