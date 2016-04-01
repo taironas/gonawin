@@ -72,7 +72,7 @@ func Groups(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		groupsJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Format a TGroup array into a GroupJSON array.

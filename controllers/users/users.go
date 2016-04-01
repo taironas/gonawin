@@ -49,7 +49,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildIndexUsersViewModel(users)
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJson {
@@ -91,7 +91,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	shvm := buildShowViewModel(c, user, teams, tournaments, teamRequests, invitations)
 
-	return templateshlp.RenderJson(w, c, shvm)
+	return templateshlp.RenderJSON(w, c, shvm)
 }
 
 type showViewModel struct {
@@ -321,7 +321,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	uvm := buildUpdateViewModel(u)
 
-	return templateshlp.RenderJson(w, c, uvm)
+	return templateshlp.RenderJSON(w, c, uvm)
 }
 
 type updateViewModel struct {
@@ -374,7 +374,7 @@ func nothingToUpdate(c appengine.Context, w http.ResponseWriter) error {
 	}{
 		"Nothing to update.",
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }
 
@@ -408,7 +408,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	user.Destroy(c)
 
 	dvm := buildDestroyUserViewModel(user)
-	return templateshlp.RenderJson(w, c, dvm)
+	return templateshlp.RenderJSON(w, c, dvm)
 }
 
 type destroyUserViewModel struct {
@@ -518,7 +518,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	teams = user.TeamsByPage(c, count, page)
 
 	tvm := buildTeamsUserViewModel(teams)
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type teamsUserViewModel struct {
@@ -557,7 +557,7 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tvm := buildTournamentsUserViewModel(tournaments)
 
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type tournamentsUserViewModel struct {
@@ -614,7 +614,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 
 	vm := buildAllowInvitationUserViewModel(team)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type allowInvitationUserViewModel struct {
@@ -663,7 +663,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildDenyInvitationUserViewModel(team.Name)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type denyInvitationUserViewModel struct {

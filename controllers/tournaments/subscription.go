@@ -81,7 +81,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // JoinAsTeam makes all members of a team join the tournament.
@@ -145,7 +145,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // LeaveAsTeam makes the team leave the tournament.
@@ -205,5 +205,5 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

@@ -72,7 +72,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildTeamJoinViewModel(team)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 // TeamJoinViewModel is the view model for Team Join handler.
@@ -142,5 +142,5 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

@@ -47,7 +47,7 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
 
-	return templateshlp.RenderJson(w, c, tournament)
+	return templateshlp.RenderJSON(w, c, tournament)
 }
 
 // GetChampionsLeague returns the json data of the champions league tournament.
@@ -92,6 +92,6 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 		remainingDays,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }

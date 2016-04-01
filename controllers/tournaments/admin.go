@@ -81,7 +81,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // RemoveAdmin handler lets you remove an admin from a tournament.
@@ -133,7 +133,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		msg,
 		tJSON,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // ActivatePhase handler let you  activate phase of tournament.

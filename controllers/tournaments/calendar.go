@@ -108,7 +108,7 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			days,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 
 	} else if groupby == "phase" {
 		matchesJson := buildMatchesFromTournament(c, t, u)
@@ -118,7 +118,7 @@ func Calendar(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			phases,
 		}
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -175,7 +175,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 
 	if groupby == "day" {
 		vm := buildTournamentCalendarViewModel(c, t, u, predictsByPlayer, players)
-		return templateshlp.RenderJson(w, c, vm)
+		return templateshlp.RenderJSON(w, c, vm)
 
 	} else if groupby == "phase" {
 		// @taironas: right now not supported.

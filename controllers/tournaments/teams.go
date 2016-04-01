@@ -81,7 +81,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			teamsByPhases,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -186,5 +186,5 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}{
 		teamsByPhases,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

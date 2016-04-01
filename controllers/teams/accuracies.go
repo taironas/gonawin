@@ -52,7 +52,7 @@ func Accuracies(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildTeamAccuraciesViewModel(c, t)
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type teamAccuraciesViewModel struct {
@@ -91,7 +91,7 @@ func AccuracyByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	}
 
 	vm := buildAccuracyByTournamentViewModel(c, t, tour)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type accuracyByTournamentViewModel struct {

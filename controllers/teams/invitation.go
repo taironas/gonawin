@@ -60,7 +60,7 @@ func RequestInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// return status message
-	return templateshlp.RenderJson(w, c, "team request was created")
+	return templateshlp.RenderJSON(w, c, "team request was created")
 }
 
 // SendInvite handler, use it to send an invitation to gonawin.
@@ -98,7 +98,7 @@ func SendInvite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// publish new activity
 	user.Publish(c, "invitation", "has been invited to join team ", team.Entity(), mdl.ActivityEntity{})
 
-	return templateshlp.RenderJson(w, c, "user request was created")
+	return templateshlp.RenderJSON(w, c, "user request was created")
 }
 
 // Invited handler, use it to get all the users who were invited to a team.
@@ -134,7 +134,7 @@ func Invited(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	ivm := buildTeamInvitedViewModel(users)
 
-	return templateshlp.RenderJson(w, c, ivm)
+	return templateshlp.RenderJSON(w, c, ivm)
 }
 
 type teamInvitedViewModel struct {
@@ -200,7 +200,7 @@ func AllowRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// request is no more needed so clear it from datastore
 	teamRequest.Destroy(c)
 
-	return templateshlp.RenderJson(w, c, "team request was handled")
+	return templateshlp.RenderJSON(w, c, "team request was handled")
 }
 
 // DenyRequest handler, use it to not allow a user to join a team.
@@ -228,5 +228,5 @@ func DenyRequest(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// request is no more needed so clear it from datastore
 	teamRequest.Destroy(c)
 
-	return templateshlp.RenderJson(w, c, "team request was handled")
+	return templateshlp.RenderJSON(w, c, "team request was handled")
 }

@@ -54,7 +54,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildIndexActivitiesViewModel(activities, count, page, int64(lastPage))
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type indexActivitiesViewModel struct {

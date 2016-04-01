@@ -94,7 +94,7 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		matchesJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // UpdateMatchResult is the handler allowing to update match of tournament with results information.
@@ -181,7 +181,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 	tournament.Publish(c, "match", verb, object, target)
 
-	return templateshlp.RenderJson(w, c, mjson)
+	return templateshlp.RenderJSON(w, c, mjson)
 }
 
 // BlockMatchPrediction is the handler allowing to block the prediction for match of tournament.
@@ -238,7 +238,7 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 	mjson.Result1 = match.Result1
 	mjson.Result2 = match.Result2
 
-	return templateshlp.RenderJson(w, c, mjson)
+	return templateshlp.RenderJSON(w, c, mjson)
 }
 
 // From a tournament entity return an array of MatchJSON data structure.

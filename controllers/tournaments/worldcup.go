@@ -43,7 +43,7 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
-		return templateshlp.RenderJson(w, c, tournament)
+		return templateshlp.RenderJSON(w, c, tournament)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
@@ -86,7 +86,7 @@ func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			remainingDays,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

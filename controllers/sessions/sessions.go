@@ -104,7 +104,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 		imageURL,
 	}
 
-	return templateshlp.RenderJson(w, c, userData)
+	return templateshlp.RenderJSON(w, c, userData)
 }
 
 // TwitterAuth handler, use it to authenticate via twitter.
@@ -145,7 +145,7 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 		credentials.Token,
 	}
 
-	return templateshlp.RenderJson(w, c, oAuthToken)
+	return templateshlp.RenderJSON(w, c, oAuthToken)
 }
 
 // TwitterAuthCallback handler, use it to make a callback for Twitter Authentication.
@@ -234,7 +234,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		imageURL,
 	}
 
-	return templateshlp.RenderJson(w, c, userData)
+	return templateshlp.RenderJSON(w, c, userData)
 }
 
 // GoogleAccountsLoginURL handler, use it to get Google accounts login URL.
@@ -260,7 +260,7 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 		url,
 	}
 
-	return templateshlp.RenderJson(w, c, loginData)
+	return templateshlp.RenderJSON(w, c, loginData)
 }
 
 // GoogleAuthCallback handler, use it to make a callback for Google Authentication.
@@ -320,7 +320,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		imageURL,
 	}
 
-	return templateshlp.RenderJson(w, c, userData)
+	return templateshlp.RenderJSON(w, c, userData)
 }
 
 // GoogleDeleteCookie handler, use it to delete cookie created by Google account.
@@ -338,7 +338,7 @@ func GoogleDeleteCookie(w http.ResponseWriter, r *http.Request) error {
 	cookie := http.Cookie{Name: cookieName, Path: "/", MaxAge: -1}
 	http.SetCookie(w, &cookie)
 
-	return templateshlp.RenderJson(w, c, "Google user has been logged out")
+	return templateshlp.RenderJSON(w, c, "Google user has been logged out")
 }
 
 // AuthServiceIds handler, use it to get the identifiers of Gonawin
@@ -355,5 +355,5 @@ func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
 		config.GooglePlus.ClientID,
 		config.Facebook.AppID,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

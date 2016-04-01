@@ -107,7 +107,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		}{
 			phasesJSON[phaseID],
 		}
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 }

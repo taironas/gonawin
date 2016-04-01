@@ -74,7 +74,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}{
 		uvm,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 func buildSearchUserViewModel(users []*mdl.User) []searchUserViewModel {
@@ -96,7 +96,7 @@ func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error
 	}{
 		msg,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
@@ -106,5 +106,5 @@ func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc stri
 	}{
 		"Oops! something went wrong, we are unable to perform search query.",
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

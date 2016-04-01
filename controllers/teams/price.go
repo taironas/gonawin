@@ -57,7 +57,7 @@ func Prices(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	pvm := buildTeamPricesViewModel(prices)
 
-	return templateshlp.RenderJson(w, c, pvm)
+	return templateshlp.RenderJSON(w, c, pvm)
 }
 
 type teamPricesViewModel struct {
@@ -98,7 +98,7 @@ func PriceByTournament(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 	pvm := buildTeamPriceViewModel(p)
 
-	return templateshlp.RenderJson(w, c, pvm)
+	return templateshlp.RenderJSON(w, c, pvm)
 }
 
 // UpdatePrice handler, use it to update the price of a team for a specific tournament.
@@ -155,7 +155,7 @@ func UpdatePrice(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	pvm := buildTeamPriceViewModel(p)
 
-	return templateshlp.RenderJson(w, c, pvm)
+	return templateshlp.RenderJSON(w, c, pvm)
 }
 
 type teamPriceViewModel struct {

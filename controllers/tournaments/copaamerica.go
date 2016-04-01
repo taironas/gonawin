@@ -47,7 +47,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
 
-	return templateshlp.RenderJson(w, c, tournament)
+	return templateshlp.RenderJSON(w, c, tournament)
 }
 
 // GetCopaAmerica returns the json data of the current Copa America tournament.
@@ -92,6 +92,6 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		remainingDays,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }

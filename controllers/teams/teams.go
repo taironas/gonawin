@@ -106,7 +106,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tvm := buildIndexTeamsViewModel(teams)
 
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type indexTeamViewModel struct {
@@ -189,7 +189,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// return the newly created team
 	tvm := buildNewTeamsViewModel(team)
 
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type newTeamViewModel struct {
@@ -240,7 +240,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	svm := buildShowViewModel(c, team, u, players, tournaments)
 
-	return templateshlp.RenderJson(w, c, svm)
+	return templateshlp.RenderJSON(w, c, svm)
 
 }
 
@@ -383,7 +383,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tvm := buildUpdateTeamsViewModel(team)
 
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type updateTeamViewModel struct {
@@ -460,7 +460,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	tvm := buildDestroyTeamsViewModel(team)
 
 	// return destroyed status
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type destroyTeamViewModel struct {
@@ -503,7 +503,7 @@ func Members(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	mvm := buildMembersViewModel(c, members)
 
-	return templateshlp.RenderJson(w, c, mvm)
+	return templateshlp.RenderJSON(w, c, mvm)
 }
 
 type memberViewModel struct {

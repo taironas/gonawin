@@ -87,7 +87,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			usersJSON,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 
 	} else if rankby == "teams" {
 		log.Infof(c, "%s ready to build team array", desc)
@@ -102,7 +102,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			teamsJSON,
 		}
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
