@@ -30,7 +30,8 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// Json new world cup tournament handler.
+// NewWorldCup is the new world cup tournament handler.
+//
 func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "New World Cup Handler:"
@@ -47,7 +48,8 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json new world cup tournament handler.
+// GetWorldCup is the get world cup tournament handler.
+//
 func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Get World Cup Handler:"
