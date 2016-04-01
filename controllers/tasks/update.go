@@ -72,18 +72,18 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		log.Errorf(c, "%s unable to extract match from data, %v", desc, err)
 	}
 
-	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
-	log.Infof(c, "%s value of match id: %v", desc, m.Id)
+	log.Infof(c, "%s value of tournament id: %v", desc, t.ID)
+	log.Infof(c, "%s value of match id: %v", desc, m.ID)
 
 	users := t.Participants(c)
 
 	log.Infof(c, "%s preparing data...", desc)
 
-	scores := make([]int64, 0)
-	userIds := make([]int64, 0)
-	userIdsToPublish := make([]int64, 0)
-	userIdsToCreateSE := make([]int64, 0)
-	tournamentId := t.Id
+	var scores []int64
+	var userIds []int64
+	var userIdsToPublish []int64
+	var userIdsToCreateSE []int64
+	tournamentID := t.ID
 
 	for _, u := range users {
 		var score int64
@@ -105,7 +105,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	// task queue for updating scores of users.
 	log.Infof(c, "%s task queue for updating scores of users: -->", desc)
 
-	var bscores, buserIds, btournamentId []byte
+	var bscores, buserIds, btournamentID []byte
 
 	if bscores, err = json.Marshal(scores); err != nil {
 		log.Errorf(c, "%s Error marshaling", desc, err)
@@ -115,14 +115,14 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 		log.Errorf(c, "%s Error marshaling", desc, err)
 	}
 
-	if btournamentId, err = json.Marshal(tournamentId); err != nil {
+	if btournamentID, err = json.Marshal(tournamentID); err != nil {
 		log.Errorf(c, "%s Error marshaling", desc, err)
 	}
 
 	task1 := taskqueue.NewPOSTTask("/a/update/users/scores/", url.Values{
 		"userIds":      []string{string(buserIds)},
 		"scores":       []string{string(bscores)},
-		"tournamentId": []string{string(btournamentId)},
+		"tournamentId": []string{string(btournamentID)},
 	})
 
 	if _, err = taskqueue.Add(c, task1, "gw-queue"); err != nil {
@@ -148,7 +148,7 @@ func UpdateScores(w http.ResponseWriter, r *http.Request /*, u *mdl.User*/) erro
 	task2 := taskqueue.NewPOSTTask("/a/create/scoreentities/", url.Values{
 		"userIds":      []string{string(buserIdsToCreateSE)},
 		"scores":       []string{string(bscores)},
-		"tournamentId": []string{string(btournamentId)},
+		"tournamentId": []string{string(btournamentID)},
 	})
 
 	if _, err = taskqueue.Add(c, task2, "gw-queue"); err != nil {
@@ -238,7 +238,7 @@ func UpdateUsersScores(w http.ResponseWriter, r *http.Request) error {
 
 	log.Infof(c, "%s crunching data...", desc)
 	log.Infof(c, "%s get users", desc)
-	usersToUpdate := make([]*mdl.User, 0)
+	var usersToUpdate []*mdl.User
 	for i, id := range userIds {
 		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
@@ -270,7 +270,7 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s preparing data", desc)
 
 	userIdsBlob := []byte(r.FormValue("userIds"))
-	tournamentIdBlob := []byte(r.FormValue("tournamentId"))
+	tournamentIDBlob := []byte(r.FormValue("tournamentId"))
 
 	var userIds []int64
 	errjson := json.Unmarshal(userIdsBlob, &userIds)
@@ -278,24 +278,24 @@ func CreateScoreEntities(w http.ResponseWriter, r *http.Request) error {
 		log.Errorf(c, "%s unable to extract userIds from data, %v", desc, errjson)
 	}
 
-	var tournamentId int64
-	errjson = json.Unmarshal(tournamentIdBlob, &tournamentId)
+	var tournamentID int64
+	errjson = json.Unmarshal(tournamentIDBlob, &tournamentID)
 	if errjson != nil {
 		log.Errorf(c, "%s unable to extract tournamentId from data, %v", desc, errjson)
 	}
 
 	log.Infof(c, "%s value of user ids: %v", desc, userIds)
-	log.Infof(c, "%s value of tournamentId: %v", desc, tournamentId)
+	log.Infof(c, "%s value of tournamentId: %v", desc, tournamentID)
 
 	log.Infof(c, "%s crunching data...", desc)
 
-	users := make([]*mdl.User, 0)
+	var users []*mdl.User
 	var scores []*mdl.Score
 	var keyScores []*datastore.Key
 
 	var err2 error
 	log.Infof(c, "%s create score entities as it does not exist", desc)
-	if scores, keyScores, err2 = mdl.CreateScores(c, userIds, tournamentId); err2 != nil {
+	if scores, keyScores, err2 = mdl.CreateScores(c, userIds, tournamentID); err2 != nil {
 		log.Errorf(c, "%s unable to create score entities. %v", desc, err2)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
@@ -359,22 +359,27 @@ func AddScoreToScoreEntities(w http.ResponseWriter, r *http.Request) error {
 
 	log.Infof(c, "%s value of user ids: %v", desc, userIds)
 	log.Infof(c, "%s value of scores: %v", desc, scores)
-	log.Infof(c, "%s value of tournament id: %v", desc, t.Id)
+	log.Infof(c, "%s value of tournament id: %d", desc, t.ID)
 
 	log.Infof(c, "%s crunching data...", desc)
 	users := make([]*mdl.User, len(userIds))
 	tournamentScores := make([]*mdl.Score, len(userIds))
 	log.Infof(c, "%s get users", desc)
 	for i, id := range userIds {
+<<<<<<< HEAD
+		if u, err := mdl.UserById(c, id); err != nil {
+			log.Errorf(c, "%s cannot find user with id=%d", desc, id)
+=======
 		if u, err := mdl.UserByID(c, id); err != nil {
 			log.Errorf(c, "%s cannot find user with id=%v", desc, id)
+>>>>>>> master
 		} else {
 			users[i] = u
 		}
 	}
 
 	log.Infof(c, "%s get tournament score entities", desc)
-	for i, _ := range users {
+	for i := range users {
 		if users[i] != nil {
 			if se, err1 := users[i].TournamentScore(c, &t); se == nil {
 				log.Errorf(c, "%s score entity does not exist. %v", desc, err1)
@@ -445,7 +450,7 @@ func PublishUsersScoreActivities(w http.ResponseWriter, r *http.Request) error {
 	log.Infof(c, "%s add activity ids", desc)
 	for i := range activities {
 		if activities[i] != nil && users[i] != nil {
-			activities[i].AddNewActivityId(c, users[i])
+			activities[i].AddNewActivityID(c, users[i])
 		}
 	}
 

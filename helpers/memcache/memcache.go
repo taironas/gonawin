@@ -27,7 +27,8 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// set a key value pair to memcache
+// Set sets a key value pair to memcache.
+//
 func Set(c appengine.Context, key string, value interface{}) error {
 
 	var bytes []byte
@@ -51,7 +52,8 @@ func Set(c appengine.Context, key string, value interface{}) error {
 	return nil
 }
 
-// get value from memcache with respect to a key string
+// Get gets a value from memcache with respect to a key string.
+//
 func Get(c appengine.Context, key string) (interface{}, error) {
 	// Get the item from the memcache
 	item, err := memcache.Get(c, key)
@@ -64,7 +66,8 @@ func Get(c appengine.Context, key string) (interface{}, error) {
 	return item.Value, err
 }
 
-// delete key from memcache
+// Delete deletes a key from memcache.
+//
 func Delete(c appengine.Context, key string) error {
 	return memcache.Delete(c, key)
 }

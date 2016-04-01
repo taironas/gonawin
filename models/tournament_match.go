@@ -28,12 +28,14 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tmatch represents a tournament match.
+//
 type Tmatch struct {
-	Id         int64     // datastore match id
-	IdNumber   int64     // id of match in tournament
+	ID         int64     `json:"Id"`       // datastore match id
+	IDNumber   int64     `json:"IdNumber"` // id of match in tournament
 	Date       time.Time // date of match
-	TeamId1    int64     // id of 1st team
-	TeamId2    int64     // id of 2nd team
+	TeamID1    int64     `json:"TeamID1"` // id of 1st team
+	TeamID2    int64     `json:"TeamID2"` // id of 2nd team
 	Location   string    // match location
 	Rule       string    // we use this field to store a specific match rule.
 	Result1    int64     // result of 1st team
@@ -43,10 +45,11 @@ type Tmatch struct {
 	CanPredict bool      // can user make a prediction (used to block predictions when match has started).
 }
 
-// Get a Tmatch entity by id.
-func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
+// MatchByID gets a Tmatch entity by id.
+//
+func MatchByID(c appengine.Context, matchID int64) (*Tmatch, error) {
 	var m Tmatch
-	key := datastore.NewKey(c, "Tmatch", "", matchId, nil)
+	key := datastore.NewKey(c, "Tmatch", "", matchID, nil)
 
 	if err := datastore.Get(c, key, &m); err != nil {
 		log.Errorf(c, "match not found : %v", err)
@@ -55,13 +58,14 @@ func MatchById(c appengine.Context, matchId int64) (*Tmatch, error) {
 	return &m, nil
 }
 
-// From an array of ids return the corresponding array of matches.
+// Matches returns the corresponding array of matches from an array of ids.
+//
 func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 	var matches []*Tmatch
-	for _, matchId := range matchIds {
-		m, err := MatchById(c, matchId)
+	for _, matchID := range matchIds {
+		m, err := MatchByID(c, matchID)
 		if err != nil {
-			log.Errorf(c, " Matches, cannot find match with ID=%", matchId)
+			log.Errorf(c, " Matches, cannot find match with ID=%", matchID)
 		} else {
 			matches = append(matches, m)
 		}
@@ -69,32 +73,35 @@ func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 	return matches
 }
 
-// Get match entity by idNumber.
-func GetMatchByIdNumber(c appengine.Context, tournament Tournament, matchInternalId int64) *Tmatch {
+// GetMatchByIDNumber gets match entity by iDNumber.
+//
+func GetMatchByIDNumber(c appengine.Context, tournament Tournament, matchInternalID int64) *Tmatch {
 	matches1stStage := Matches(c, tournament.Matches1stStage)
 	for _, m := range matches1stStage {
-		if m.IdNumber == matchInternalId {
+		if m.IDNumber == matchInternalID {
 			return m
 		}
 	}
 	matches2ndStage := Matches(c, tournament.Matches2ndStage)
 	for _, m := range matches2ndStage {
-		if m.IdNumber == matchInternalId {
+		if m.IDNumber == matchInternalID {
 			return m
 		}
 	}
 	return nil
 }
 
-// Return a pointer to a match key given a match id.
-func MatchKeyById(c appengine.Context, id int64) *datastore.Key {
+// MatchKeyByID returns a pointer to a match key given a match id.
+//
+func MatchKeyByID(c appengine.Context, id int64) *datastore.Key {
 	key := datastore.NewKey(c, "Tmatch", "", id, nil)
 	return key
 }
 
-// Update a match.
+// UpdateMatch updates a match.
+//
 func UpdateMatch(c appengine.Context, m *Tmatch) error {
-	k := MatchKeyById(c, m.Id)
+	k := MatchKeyByID(c, m.ID)
 	oldMatch := new(Tmatch)
 	if err := datastore.Get(c, k, oldMatch); err == nil {
 		if _, err = datastore.Put(c, k, m); err != nil {
@@ -104,11 +111,12 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 	return nil
 }
 
-// Update an array of matches.
+// UpdateMatches updates an array of matches.
+//
 func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 	keys := make([]*datastore.Key, len(matches))
-	for i, _ := range keys {
-		keys[i] = MatchKeyById(c, matches[i].Id)
+	for i := range keys {
+		keys[i] = MatchKeyByID(c, matches[i].ID)
 	}
 	if _, err := datastore.PutMulti(c, keys, matches); err != nil {
 		return err
@@ -116,11 +124,12 @@ func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 	return nil
 }
 
-// Destroy an array of matches.
+// DestroyMatches destroys an array of matches.
+//
 func DestroyMatches(c appengine.Context, matchIds []int64) error {
 	keys := make([]*datastore.Key, len(matchIds))
-	for i, _ := range keys {
-		keys[i] = MatchKeyById(c, matchIds[i])
+	for i := range keys {
+		keys[i] = MatchKeyByID(c, matchIds[i])
 	}
 	if err := datastore.DeleteMulti(c, keys); err != nil {
 		return err
@@ -139,7 +148,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 
 	for i, m := range matches {
 		if results1[i] < 0 || results2[i] < 0 {
-			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id)
+			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.ID)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		m.Result1 = results1[i]
@@ -156,11 +165,11 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 	phases := MatchesGroupByPhase(t, allMatches)
 
 	for _, m := range matches {
-		log.Infof(c, "%s Trigger current match: %v", desc, m.Id)
+		log.Infof(c, "%s Trigger current match: %v", desc, m.ID)
 
 		if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 			if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
+				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IDNumber, err)
 				return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 			}
 			if err := UpdateGroup(c, g); err != nil {
@@ -168,16 +177,16 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 				return err
 			}
 		}
-		if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
+		if isLast, phaseID := lastMatchOfPhase(c, m, &phases); isLast == true {
 			log.Infof(c, "%s -------------------------------------------------->", desc)
-			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseID+1)
 			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
-			if int(phaseId+1) < len(phases) {
-				UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
+			if int(phaseID+1) < len(phases) {
+				UpdateNextPhase(c, t, &phases[phaseID], &phases[phaseID+1])
 			}
 			log.Infof(c, "%s -------------------------------------------------->", desc)
 			// update flag first phase complete.
-			if phaseId == 0 {
+			if phaseID == 0 {
 				t.IsFirstStageComplete = true
 				t.Update(c)
 			}
@@ -195,29 +204,31 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 
 	desc := "Set Result:"
 	if result1 < 0 || result2 < 0 {
-		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.Id)
+		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.ID)
 		return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 	}
 	m.Result1 = result1
 	m.Result2 = result2
 	m.Finished = true
 
-	if err := UpdateMatch(c, m); err != nil {
-		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id, err)
+	var err error
+	if err = UpdateMatch(c, m); err != nil {
+		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.ID, err)
 		return err
-	} else {
-		// update score for all users.
-		if err1 := t.UpdateUsersScore(c, m); err1 != nil {
-			log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.Id, err)
-		}
-		// update score for all teams.
-		if err1 := t.UpdateTeamsAccuracy(c, m); err1 != nil {
-			log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.Id, err)
-		}
 	}
+
+	// update score for all users.
+	if err1 := t.UpdateUsersScore(c, m); err1 != nil {
+		log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.ID, err)
+	}
+	// update score for all teams.
+	if err1 := t.UpdateTeamsAccuracy(c, m); err1 != nil {
+		log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.ID, err)
+	}
+
 	if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
+			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IDNumber, err)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		UpdateGroup(c, g)
@@ -226,16 +237,16 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	if t.TwoLegged == false {
 		allMatches := GetAllMatchesFromTournament(c, t)
 		phases := MatchesGroupByPhase(t, allMatches)
-		if isLast, phaseId := lastMatchOfPhase(c, m, &phases); isLast == true {
+		if isLast, phaseID := lastMatchOfPhase(c, m, &phases); isLast == true {
 			log.Infof(c, "%s -------------------------------------------------->", desc)
-			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseId+1)
+			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, phaseID+1)
 			log.Infof(c, "%s Trigger update of next phase here: next phase: %v", desc, m)
-			if int(phaseId+1) < len(phases) {
-				UpdateNextPhase(c, t, &phases[phaseId], &phases[phaseId+1])
+			if int(phaseID+1) < len(phases) {
+				UpdateNextPhase(c, t, &phases[phaseID], &phases[phaseID+1])
 			}
 			log.Infof(c, "%s -------------------------------------------------->", desc)
 			// update flag first phase complete.
-			if phaseId == 0 {
+			if phaseID == 0 {
 				t.IsFirstStageComplete = true
 				t.Update(c)
 			}
@@ -245,7 +256,8 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 	return nil
 }
 
-// Get an array of all matches of a tournament.
+// GetAllMatchesFromTournament gets an array of all matches of a tournament.
+//
 func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []*Tmatch {
 
 	matches := Matches(c, tournament.Matches1stStage)
@@ -259,7 +271,8 @@ func GetAllMatchesFromTournament(c appengine.Context, tournament *Tournament) []
 	return matches
 }
 
-// Get all matches of a specific phase.
+// GetMatchesByPhase gets all matches of a specific phase.
+//
 func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*Tmatch {
 
 	var tb TournamentBuilder
@@ -275,14 +288,15 @@ func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*
 
 	var filteredMatches []*Tmatch
 	for i, v := range matches {
-		if v.IdNumber >= low && v.IdNumber <= high {
+		if v.IDNumber >= low && v.IDNumber <= high {
 			filteredMatches = append(filteredMatches, matches[i])
 		}
 	}
 	return filteredMatches
 }
 
-// Get all matches grouped by phases. Returns an array of phases.
+// MatchesGroupByPhase gets all matches grouped by phases. Returns an array of phases.
+//
 func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
 
 	var tb TournamentBuilder
@@ -294,14 +308,14 @@ func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
 	phaseNames := tb.ArrayOfPhases()
 
 	phases := make([]Tphase, len(limits))
-	for i, _ := range phases {
+	for i := range phases {
 		phases[i].Name = phaseNames[i]
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
 
 		var filteredMatches []Tmatch
 		for _, v := range matches {
-			if v.IdNumber >= low && v.IdNumber <= high {
+			if v.IDNumber >= low && v.IDNumber <= high {
 				filteredMatches = append(filteredMatches, *v)
 			}
 		}
@@ -310,7 +324,8 @@ func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
 	return phases
 }
 
-// Get all matches grouped by days. Returns an array of days.
+// MatchesGroupByDay gets all matches grouped by days. Returns an array of days.
+//
 func MatchesGroupByDay(matches []Tmatch) []Tday {
 
 	mapOfDays := make(map[string][]Tmatch)
@@ -340,7 +355,8 @@ func MatchesGroupByDay(matches []Tmatch) []Tday {
 	return days
 }
 
-// Get the number of matches in a tournament that are finished.
+// OldMatches gets the number of matches in a tournament that are finished.
+//
 func (t *Tournament) OldMatches(c appengine.Context) int {
 	matches := GetAllMatchesFromTournament(c, t)
 	old := 0

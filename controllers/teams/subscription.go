@@ -72,9 +72,11 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildTeamJoinViewModel(team)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
+// TeamJoinViewModel is the view model for Team Join handler.
+//
 type TeamJoinViewModel struct {
 	MessageInfo string `json:",omitempty"`
 	Team        mdl.TeamJSON
@@ -119,10 +121,10 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	var tJson mdl.TeamJSON
-	helpers.CopyToPointerStructure(team, &tJson)
+	var tJSON mdl.TeamJSON
+	helpers.CopyToPointerStructure(team, &tJSON)
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
-	helpers.KeepFields(&tJson, fieldsToKeep)
+	helpers.KeepFields(&tJSON, fieldsToKeep)
 
 	// publish new activity
 	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
@@ -137,8 +139,8 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Team        mdl.TeamJSON
 	}{
 		msg,
-		tJson,
+		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

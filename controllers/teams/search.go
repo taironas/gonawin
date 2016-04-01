@@ -70,7 +70,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	svm := buildTeamSearchViewModel(teams)
 
-	return templateshlp.RenderJson(w, c, svm)
+	return templateshlp.RenderJSON(w, c, svm)
 }
 
 type teamSearchViewModel struct {
@@ -78,7 +78,7 @@ type teamSearchViewModel struct {
 }
 
 type teamSearchTeamViewModel struct {
-	Id           int64
+	ID           int64 `json:"Id"`
 	Name         string
 	AdminIds     []int64
 	Private      bool
@@ -90,7 +90,7 @@ type teamSearchTeamViewModel struct {
 func buildTeamSearchViewModel(teams []*mdl.Team) teamSearchViewModel {
 	tvm := make([]teamSearchTeamViewModel, len(teams))
 	for i, t := range teams {
-		tvm[i].Id = t.ID
+		tvm[i].ID = t.ID
 		tvm[i].Name = t.Name
 		tvm[i].AdminIds = t.AdminIDs
 		tvm[i].Private = t.Private
@@ -108,7 +108,7 @@ func notFound(c appengine.Context, w http.ResponseWriter, keywords string) error
 	}{
 		msg,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc string, err error) error {
@@ -118,5 +118,5 @@ func unableToPerformSearch(c appengine.Context, w http.ResponseWriter, desc stri
 	}{
 		"Oops! something went wrong, we are unable to perform search query.",
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

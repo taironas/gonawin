@@ -21,7 +21,8 @@ import (
 	"net/http"
 )
 
-// writes a 404 not found in ResponseWriter
+// Error404 writes a 404 not found in ResponseWriter.
+//
 func Error404(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNotFound)
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")

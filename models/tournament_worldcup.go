@@ -36,10 +36,14 @@ const (
 	cFinals        = "Finals"
 )
 
+// WorldCupTournament represents a World Cup tournament.
+//
 type WorldCupTournament struct {
 }
 
-// Map of groups, key: group name, value: string array of teams.
+// MapOfGroups is a map containing the groups of a tournament.
+// key: group name, value: string array of teams.
+//
 func (wct WorldCupTournament) MapOfGroups() map[string][]string {
 	var mapWCGroups map[string][]string
 	mapWCGroups = make(map[string][]string)
@@ -55,7 +59,10 @@ func (wct WorldCupTournament) MapOfGroups() map[string][]string {
 	return mapWCGroups
 }
 
-// Map of country codes, key: team name, value: ISO code
+// MapOfTeamCodes is map containing the team codes.
+// key: team name, value: code
+// example: Paris Saint-Germain: PSG
+//
 // example: Brazil: BR
 func (wct WorldCupTournament) MapOfTeamCodes() map[string]string {
 
@@ -98,11 +105,12 @@ func (wct WorldCupTournament) MapOfTeamCodes() map[string]string {
 	return codes
 }
 
-// Map of group matches, key: group name, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
+// MapOfGroupMatches is a map containing the matches accessible by group.
 //
 // Example:
 //
 // 	Group A:[{"1", "Jun/12/2014", "Brazil", "Croatia", "Arena de São Paulo, São Paulo"}, ...]
+//
 func (wct WorldCupTournament) MapOfGroupMatches() map[string][][]string {
 
 	mapGroupMatches := make(map[string][][]string)
@@ -201,7 +209,7 @@ func (wct WorldCupTournament) MapOfGroupMatches() map[string][][]string {
 	return mapGroupMatches
 }
 
-// Returns the Map of 2nd round matches, of the world cup tournament.
+// MapOf2ndRoundMatches returns the Map of 2nd round matches, of the world cup tournament.
 // key: round number, value: array of array of strings with match information ( MatchId, MatchDate, MatchTeam1, MatchTeam2, MatchLocation)
 //
 // Example:
@@ -254,12 +262,13 @@ func (wct WorldCupTournament) MapOf2ndRoundMatches() map[string][][]string {
 	return mapMatches2ndRound
 }
 
-// Return an array of the phases names of world cup tournament: (FirstStage, RoundOf16, QuarterFinals, SemiFinals, ThirdPlace, Finals)
+// ArrayOfPhases returns an array of the phases names of champions league tournament: (QuarterFinals, SemiFinals, Finals).
+//
 func (wct WorldCupTournament) ArrayOfPhases() []string {
 	return []string{cFirstStage, cRoundOf16, cQuarterFinals, cSemiFinals, cThirdPlace, cFinals}
 }
 
-// Build a map with key the corresponding phase in the world cup tournament
+// MapOfPhaseIntervals builds a map with key the corresponding phase in the world cup tournament
 // at value a tuple that represent the match number interval in which the phase take place:
 // first stage: matches 1 to 48
 // Round of 16: matches 49 to 56
@@ -267,6 +276,7 @@ func (wct WorldCupTournament) ArrayOfPhases() []string {
 // Semi-finals: matches 61 to 62
 // Third Place: match 63
 // Finals: match 64
+//
 func (wct WorldCupTournament) MapOfPhaseIntervals() map[string][]int64 {
 
 	limits := make(map[string][]int64)
@@ -279,8 +289,9 @@ func (wct WorldCupTournament) MapOfPhaseIntervals() map[string][]int64 {
 	return limits
 }
 
-// Create world cup tournament entity 2014.
-func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
+// CreateWorldCup creates world cup tournament entity 2014.
+//
+func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 	// create new tournament
 	log.Infof(c, "World Cup: start")
 
@@ -288,7 +299,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	mapWCGroups := wct.MapOfGroups()
 	mapCountryCodes := wct.MapOfTeamCodes()
-	mapTeamId := make(map[string]int64)
+	mapTeamID := make(map[string]int64)
 
 	// mapGroupMatches is a map where the key is a string which represent the group
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
@@ -350,7 +361,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			}
 			log.Infof(c, "World Cup: team: %v put in datastore ok", teamName)
 			group.Teams[i] = *team
-			mapTeamId[teamName] = teamID
+			mapTeamID[teamName] = teamID
 		}
 
 		// build group matches:
@@ -373,15 +384,19 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			log.Infof(c, "World Cup: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 			emptyrule := ""
 			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
-				int64(matchInternalId),
+				int64(matchInternalID),
 				matchTime,
-				mapTeamId[matchData[cMatchTeam1]],
-				mapTeamId[matchData[cMatchTeam2]],
+				mapTeamID[matchData[cMatchTeam1]],
+				mapTeamID[matchData[cMatchTeam2]],
 				matchData[cMatchLocation],
 				emptyrule,
 				emptyresult,
@@ -400,7 +415,7 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			group.Matches[matchIndex] = *match
 
 			// save in an array of int64 all the allocate IDs to store them in the tournament for easy retreival later on.
-			matches1stStageIds[int64(matchInternalId)-1] = matchID
+			matches1stStageIds[int64(matchInternalID)-1] = matchID
 		}
 
 		groupID, _, err1 := datastore.AllocateIDs(c, "Tgroup", nil, 1)
@@ -424,16 +439,16 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 
 	// build array of group ids
 	groupIds := make([]int64, 8)
-	for i, _ := range groupIds {
+	for i := range groupIds {
 		groupIds[i] = groups[i].ID
 	}
 
 	log.Infof(c, "World Cup: build of groups ids complete: %v", groupIds)
 
 	// matches 2nd stage
-	matches2ndStageIds := make([]int64, 0)
-	userIds := make([]int64, 0)
-	teamIds := make([]int64, 0)
+	var matches2ndStageIds []int64
+	var userIds []int64
+	var teamIds []int64
 	// mapMatches2ndRound  is a map where the key is a string which represent the rounds
 	// the key is a two dimensional string array. each element in the array represent a specific field in the match
 	// mapMatches2ndRound is a map[string][][]string
@@ -457,13 +472,17 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 			log.Infof(c, "World Cup: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
+			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+=======
 			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
 			match := &Tmatch{
 				matchID,
-				int64(matchInternalId),
+				int64(matchInternalID),
 				matchTime,
 				0, // second round matches start with ids at 0
 				0, // second round matches start with ids at 0
@@ -490,12 +509,12 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	tstart, _ := time.Parse(shortForm, "Jun/12/2014")
 	tend, _ := time.Parse(shortForm, "Jul/13/2014")
 	adminIds := make([]int64, 1)
-	adminIds[0] = adminId
+	adminIds[0] = adminID
 	name := "2014 FIFA World Cup"
 	description := "Brazil"
 	var tournament *Tournament
 	var err error
-	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminId); err != nil {
+	if tournament, err = CreateTournament(c, name, description, tstart, tend, adminID); err != nil {
 		log.Infof(c, "World Cup: something went wrong when creating tournament.")
 	} else {
 		tournament.GroupIds = groupIds
@@ -514,7 +533,12 @@ func CreateWorldCup(c appengine.Context, adminId int64) (*Tournament, error) {
 	return tournament, nil
 }
 
+<<<<<<< HEAD
+// MapOfIDTeams builds a map of teams from tournament entity.
+//
+=======
 // From tournament entity build map of teams.
+>>>>>>> master
 func (wct WorldCupTournament) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)

@@ -31,6 +31,7 @@ func (a arrayOfStrings) Contains(s string) bool {
 	return false
 }
 
+// CopyToPointerStructure copies structure fields to structure pointer fields.
 // from two structures source and destination.
 // structures defined as follows:
 // both structures have the same fields
@@ -59,8 +60,9 @@ func CopyToPointerStructure(tSrc interface{}, tDest interface{}) {
 	}
 }
 
-// Set to nil all fields of t structure not present in array
-// we suppose that t is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
+// KeepFields sets to nil all fields of t structure not present in array.
+// We suppose that t is a structure of pointer types and fieldsToKeep is an array of the fields you wish to keep.
+//
 func KeepFields(t interface{}, fieldsToKeep arrayOfStrings) {
 	s := reflect.ValueOf(t).Elem()
 	typeOfT := s.Type()
@@ -72,6 +74,7 @@ func KeepFields(t interface{}, fieldsToKeep arrayOfStrings) {
 	}
 }
 
+// InitPointerStructure initializes structure with pointer fields
 // from two structures, source and destination.
 // structures defined as follows:
 // both structures have the same fields
@@ -106,8 +109,9 @@ func InitPointerStructure(pSrc interface{}, pDest interface{}, fieldsToKeep arra
 	}
 }
 
-// works like InitPointerStructure but for arrays
-// source array has values
+// TransformFromArrayOfPointers works like InitPointerStructure but for arrays.
+// source array has values.
+//
 func TransformFromArrayOfPointers(pArraySrc interface{}, pArrayDest interface{}, fieldsToKeep arrayOfStrings) {
 	arraySrc := reflect.ValueOf(pArraySrc).Elem()
 	arrayDest := reflect.ValueOf(pArrayDest).Elem()
@@ -128,8 +132,9 @@ func TransformFromArrayOfPointers(pArraySrc interface{}, pArrayDest interface{},
 	}
 }
 
-// works like InitPointerStructure but for arrays
-// source array has pointers
+// TransformFromArrayOfValues works like InitPointerStructure but for arrays.
+// source array has pointers.
+//
 func TransformFromArrayOfValues(pArraySrc interface{}, pArrayDest interface{}, fieldsToKeep arrayOfStrings) {
 	arraySrc := reflect.ValueOf(pArraySrc).Elem()
 	arrayDest := reflect.ValueOf(pArrayDest).Elem()

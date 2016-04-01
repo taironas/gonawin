@@ -48,7 +48,7 @@ func Score(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildScoreUserViewModel(scores)
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type scoreUserViewModel struct {

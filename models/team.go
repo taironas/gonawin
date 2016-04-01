@@ -270,7 +270,11 @@ func (t *Team) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Team) Join(c appengine.Context, u *User) error {
 	if err := u.AddTeamID(c, t.ID); err != nil {
+<<<<<<< HEAD
+		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.Id, err)
+=======
 		return fmt.Errorf(" Team.Join, error joining team for user:%d Error: %v", u.ID, err)
+>>>>>>> master
 	}
 
 	if err := t.AddUserID(c, u.ID); err != nil {
@@ -288,7 +292,11 @@ func (t *Team) Join(c appengine.Context, u *User) error {
 //
 func (t *Team) Leave(c appengine.Context, u *User) error {
 	if err := u.RemoveTeamID(c, t.ID); err != nil {
+<<<<<<< HEAD
+		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.Id, err)
+=======
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
+>>>>>>> master
 	}
 	if err := t.RemoveUserID(c, u.ID); err != nil {
 		return fmt.Errorf(" Team.Leave, error leaving team for user:%v Error: %v", u.ID, err)
@@ -454,9 +462,9 @@ func (t *Team) removePriceID(c appengine.Context, pID int64) error {
 //
 func (t *Team) RemovePriceByTournamentID(c appengine.Context, tID int64) error {
 	for _, pID := range t.PriceIDs {
-		if p, err := PriceById(c, pID); err == nil {
-			if p.TeamId == t.ID && p.TournamentId == tID {
-				if err1 := t.removePriceID(c, p.Id); err1 != nil {
+		if p, err := PriceByID(c, pID); err == nil {
+			if p.TeamID == t.ID && p.TournamentID == tID {
+				if err1 := t.removePriceID(c, p.ID); err1 != nil {
 					return err1
 				}
 				if err1 := p.Destroy(c); err1 != nil {
@@ -555,15 +563,19 @@ func (t *Team) AddUserToTournaments(c appengine.Context, uID int64) error {
 	}
 
 	for _, tID := range t.TournamentIDs {
-		if tournament, err := TournamentById(c, tID); err != nil {
+		if tournament, err := TournamentByID(c, tID); err != nil {
 			log.Errorf(c, "Cannot find tournament with Id=%d", tID)
 		} else if time.Now().Before(tournament.End) {
 
-			if err := tournament.AddUserId(c, uID); err != nil {
+			if err := tournament.AddUserID(c, uID); err != nil {
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add user:%d to tournament:%d", uID, tID)
 			}
 
+<<<<<<< HEAD
+			if err = u.AddTournamentId(c, tournament.ID); err != nil {
+=======
 			if err = u.AddTournamentID(c, tournament.Id); err != nil {
+>>>>>>> master
 				log.Errorf(c, "Team.AddUserToTournaments: unable to add tournament id:%d to user:%d, %v", tID, uID, err)
 			}
 		}
@@ -685,8 +697,13 @@ func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accura
 func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
 	for _, acc := range t.TournamentAccuracies {
+<<<<<<< HEAD
+		if acc.TournamentID == tournament.ID {
+			return AccuracyById(c, acc.AccuracyID)
+=======
 		if acc.TournamentID == tournament.Id {
 			return AccuracyByID(c, acc.AccuracyID)
+>>>>>>> master
 		}
 	}
 	return nil, errors.New("model/team: accuracy not found")
@@ -789,8 +806,8 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 	}
 
 	for _, p := range players {
-		if err := activity.AddNewActivityId(c, p); err != nil {
-			log.Errorf(c, "model/team, Publish: error occurred during addNewActivityId call: %v", err)
+		if err := activity.AddNewActivityID(c, p); err != nil {
+			log.Errorf(c, "model/team, Publish: error occurred during AddNewActivityID call: %v", err)
 		} else {
 			if err1 := p.Update(c); err1 != nil {
 				log.Errorf(c, "model/team, Publish: error occurred during update call: %v", err1)
@@ -804,7 +821,7 @@ func (t *Team) Publish(c appengine.Context, activityType string, verb string, ob
 // Entity is the Activity entity representation of a team
 //
 func (t *Team) Entity() ActivityEntity {
-	return ActivityEntity{Id: t.ID, Type: "team", DisplayName: t.Name}
+	return ActivityEntity{ID: t.ID, Type: "team", DisplayName: t.Name}
 }
 
 // AccuraciesGroupByTournament gets an array of type accuracyOverall
@@ -848,7 +865,7 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 //
 func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
 	for _, aot := range t.TournamentAccuracies {
-		if aot.TournamentID != tour.Id {
+		if aot.TournamentID != tour.ID {
 			continue
 		}
 		if acc, err := AccuracyByID(c, aot.AccuracyID); err != nil {
@@ -881,7 +898,7 @@ func (t *Team) Prices(c appengine.Context) []*Price {
 	prices := make([]*Price, len(t.PriceIDs))
 
 	for i, pid := range t.PriceIDs {
-		if p, err := PriceById(c, pid); err == nil {
+		if p, err := PriceByID(c, pid); err == nil {
 			prices[i] = p
 		}
 	}
@@ -891,8 +908,8 @@ func (t *Team) Prices(c appengine.Context) []*Price {
 //PriceByTournament get the price of a tournament
 func (t *Team) PriceByTournament(c appengine.Context, tid int64) *Price {
 	for _, pid := range t.PriceIDs {
-		if p, err := PriceById(c, pid); err == nil {
-			if p.TournamentId == tid {
+		if p, err := PriceByID(c, pid); err == nil {
+			if p.TournamentID == tid {
 				return p
 			}
 		}

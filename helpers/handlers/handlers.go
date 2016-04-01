@@ -33,9 +33,12 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
+// ErrorHandlerFunc is a handler returning an error.
+//
 type ErrorHandlerFunc func(http.ResponseWriter, *http.Request) error
 
-// Error handler returns the proper error handler function with respecto to the error rised by the function called.
+// ErrorHandler returns the proper error handler function with respecto to the error rised by the function called.
+//
 func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := f(w, r)
@@ -63,6 +66,7 @@ func ErrorHandler(f func(w http.ResponseWriter, r *http.Request) error) http.Han
 
 // Authorized runs the function pass by parameter and checks authentication data prior to any call.
 // Will rise a bad request error handler if authentication fails.
+//
 func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var user *mdl.User
@@ -74,14 +78,15 @@ func Authorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 
 		if user == nil {
 			return &helpers.BadRequest{Err: errors.New("Bad Authentication data")}
-		} else {
-			return f(w, r, user)
 		}
+
+		return f(w, r, user)
 	}
 }
 
-// Admin Authorized runs the function pass by parameter and checks authentication data prior to any call.
+// AdminAuthorized runs the function pass by parameter and checks authentication data prior to any call.
 // Will rise a bad request error handler if authentication fails. User should be a gonawin admin .
+//
 func AdminAuthorized(f func(w http.ResponseWriter, r *http.Request, u *mdl.User) error) ErrorHandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) error {
 		var user *mdl.User

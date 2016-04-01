@@ -49,7 +49,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildIndexUsersViewModel(users)
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJSON {
@@ -91,13 +91,13 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	shvm := buildShowViewModel(c, user, teams, tournaments, teamRequests, invitations)
 
-	return templateshlp.RenderJson(w, c, shvm)
+	return templateshlp.RenderJSON(w, c, shvm)
 }
 
 type showViewModel struct {
 	User            mdl.UserJSON                   `json:",omitempty"`
 	Teams           []showTeamViewModel            `json:",omitempty"`
-	TeamRequests    []mdl.TeamRequestJson          `json:",omitempty"`
+	TeamRequests    []mdl.TeamRequestJSON          `json:",omitempty"`
 	Tournaments     []showTournamentViewModel      `json:",omitempty"`
 	TournamentStats []showTournamentStatsViewModel `json:",omitempty"`
 	Invitations     []mdl.TeamJSON                 `json:",omitempty"`
@@ -218,12 +218,12 @@ func buildShowTournamentStatsViewModel(c appengine.Context, tournaments []*mdl.T
 
 	stats := make([]showTournamentStatsViewModel, len(tournaments))
 	for i, t := range tournaments {
-		stats[i].ID = t.Id
+		stats[i].ID = t.ID
 		stats[i].Name = t.Name
 		stats[i].ParticipantsCount = len(t.UserIds)
 		stats[i].TeamsCount = len(t.TeamIds)
 		stats[i].Progress = t.Progress(c)
-		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 	return stats
 }
@@ -240,18 +240,18 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 
 	tournaments2 := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tournaments2[i].ID = t.Id
+		tournaments2[i].ID = t.ID
 		tournaments2[i].UserIds = t.UserIds
 		tournaments2[i].TeamIds = t.TeamIds
-		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 	return tournaments2
 }
 
-func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJson {
+func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJSON {
 
 	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
-	trs := make([]mdl.TeamRequestJson, len(teamRequests))
+	trs := make([]mdl.TeamRequestJSON, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
 	return trs
 }
@@ -321,7 +321,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	uvm := buildUpdateViewModel(u)
 
-	return templateshlp.RenderJson(w, c, uvm)
+	return templateshlp.RenderJSON(w, c, uvm)
 }
 
 type updateViewModel struct {
@@ -374,7 +374,7 @@ func nothingToUpdate(c appengine.Context, w http.ResponseWriter) error {
 	}{
 		"Nothing to update.",
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }
 
@@ -408,7 +408,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	user.Destroy(c)
 
 	dvm := buildDestroyUserViewModel(user)
-	return templateshlp.RenderJson(w, c, dvm)
+	return templateshlp.RenderJSON(w, c, dvm)
 }
 
 type destroyUserViewModel struct {
@@ -452,7 +452,7 @@ func removeTournameUserRels(c appengine.Context, desc string, requestUser, curre
 	for _, tournamentID := range requestUser.TournamentIds {
 		if mdl.IsTournamentAdmin(c, tournamentID, currentUser.ID) {
 			var tournament *mdl.Tournament
-			if tournament, err = mdl.TournamentById(c, tournamentID); err != nil {
+			if tournament, err = mdl.TournamentByID(c, tournamentID); err != nil {
 				log.Errorf(c, "%s tournament %d not found", desc, tournamentID)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
@@ -518,7 +518,7 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	teams = user.TeamsByPage(c, count, page)
 
 	tvm := buildTeamsUserViewModel(teams)
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type teamsUserViewModel struct {
@@ -557,16 +557,16 @@ func Tournaments(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tvm := buildTournamentsUserViewModel(tournaments)
 
-	return templateshlp.RenderJson(w, c, tvm)
+	return templateshlp.RenderJSON(w, c, tvm)
 }
 
 type tournamentsUserViewModel struct {
-	Tournaments []mdl.TournamentJson `json:",omitempty"`
+	Tournaments []mdl.TournamentJSON `json:",omitempty"`
 }
 
 func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUserViewModel {
 	fieldsToKeep := []string{"Id", "Name"}
-	json := make([]mdl.TournamentJson, len(tournaments))
+	json := make([]mdl.TournamentJSON, len(tournaments))
 	helpers.TransformFromArrayOfPointers(&tournaments, &json, fieldsToKeep)
 
 	return tournamentsUserViewModel{json}
@@ -614,7 +614,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 
 	vm := buildAllowInvitationUserViewModel(team)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type allowInvitationUserViewModel struct {
@@ -663,7 +663,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildDenyInvitationUserViewModel(team.Name)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type denyInvitationUserViewModel struct {

@@ -21,33 +21,43 @@ import (
 	"strings"
 )
 
+// UsernameRegExp is the regexp for username.
+//
+var UsernameRegExp = regexp.MustCompile(`^[\sa-zA-Z0-9_-]{3,20}$`)
+
 // IsUsernameValid returns true is username is a string between 3 and 20 characters.
 // note: added \s just temporary until user name is splited with name and last name
 // username should not have whitespaces
-var USERNAME_RE = regexp.MustCompile(`^[\sa-zA-Z0-9_-]{3,20}$`)
-
+//
 func IsUsernameValid(username string) bool {
 
-	return USERNAME_RE.MatchString(username)
+	return UsernameRegExp.MatchString(username)
 }
+
+// PasswordRegexp is the regexp for password.
+//
+var PasswordRegexp = regexp.MustCompile(`^.{3,20}$`)
 
 // IsPasswordValid returns true for all passwords that are between 3 and 20 characters.
-var PASSWORD_RE = regexp.MustCompile(`^.{3,20}$`)
-
+//
 func IsPasswordValid(password string) bool {
 
-	return PASSWORD_RE.MatchString(password)
+	return PasswordRegexp.MatchString(password)
 }
+
+// emailRegexp is the regexp for email.
+//
+var emailRegexp = regexp.MustCompile(`^[\S]+@[\S]+\.[\S]+$`)
 
 // IsEmailValid returns true if string email has the form a@b.c
-var EMAIL_RE = regexp.MustCompile(`^[\S]+@[\S]+\.[\S]+$`)
-
+//
 func IsEmailValid(email string) bool {
 
-	return EMAIL_RE.MatchString(email)
+	return emailRegexp.MatchString(email)
 }
 
-// checks if an array of emails is valid
+// AreEmailsValid checks if an array of emails is valid.
+//
 func AreEmailsValid(emails []string) bool {
 	for _, email := range emails {
 		if !IsEmailValid(strings.TrimSpace(email)) {

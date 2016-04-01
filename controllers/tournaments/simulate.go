@@ -71,7 +71,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 				results1 = append(results1, r1)
 				results2 = append(results2, r2)
 				matches = append(matches, &d.Matches[j])
-				log.Infof(c, "Tournament Simulate Matches: Match#%v: %v - %v | %v - %v", m.Id, mapIDTeams[m.TeamId1], mapIDTeams[m.TeamId2], r1, r2)
+				log.Infof(c, "Tournament Simulate Matches: Match#%v: %v - %v | %v - %v", m.ID, mapIDTeams[m.TeamID1], mapIDTeams[m.TeamID2], r1, r2)
 			}
 		}
 		// phase done we and not break
@@ -84,8 +84,8 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// publish activities:
 	for i, match := range matches {
-		object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIDTeams[match.TeamId1]}
-		target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIDTeams[match.TeamId2]}
+		object := mdl.ActivityEntity{ID: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
+		target := mdl.ActivityEntity{ID: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
 		verb := ""
 		if results1[i] > results2[i] {
 			verb = fmt.Sprintf("won %d-%d against", results1[i], results2[i])
@@ -107,7 +107,7 @@ func SimulateMatches(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 		}{
 			phasesJSON[phaseID],
 		}
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 }

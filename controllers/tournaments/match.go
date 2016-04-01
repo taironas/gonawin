@@ -94,7 +94,7 @@ func Matches(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		matchesJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // UpdateMatchResult is the handler allowing to update match of tournament with results information.
@@ -139,13 +139,13 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 
 	if err = mdl.SetResult(c, match, int64(r1), int64(r2), tournament); err != nil {
-		log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IdNumber, err)
+		log.Errorf(c, "%s unable to set result for match with id:%v error: %v", desc, match.IDNumber, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 	}
 
 	// return the updated match
 	var mjson MatchJSON
-	mjson.IDNumber = match.IdNumber
+	mjson.IDNumber = match.IDNumber
 	mjson.Date = match.Date
 	rule := strings.Split(match.Rule, " ")
 
@@ -160,8 +160,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 		mjson.Team1 = rule[0]
 		mjson.Team2 = rule[1]
 	} else {
-		mjson.Team1 = mapIDTeams[match.TeamId1]
-		mjson.Team2 = mapIDTeams[match.TeamId2]
+		mjson.Team1 = mapIDTeams[match.TeamID1]
+		mjson.Team2 = mapIDTeams[match.TeamID2]
 	}
 	mjson.Location = match.Location
 
@@ -169,8 +169,8 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	mjson.Result2 = match.Result2
 
 	// publish new activity
-	object := mdl.ActivityEntity{Id: match.TeamId1, Type: "tteam", DisplayName: mapIDTeams[match.TeamId1]}
-	target := mdl.ActivityEntity{Id: match.TeamId2, Type: "tteam", DisplayName: mapIDTeams[match.TeamId2]}
+	object := mdl.ActivityEntity{ID: match.TeamID1, Type: "tteam", DisplayName: mapIDTeams[match.TeamID1]}
+	target := mdl.ActivityEntity{ID: match.TeamID2, Type: "tteam", DisplayName: mapIDTeams[match.TeamID2]}
 	verb := ""
 	if match.Result1 > match.Result2 {
 		verb = fmt.Sprintf("won %d-%d against", match.Result1, match.Result2)
@@ -181,7 +181,7 @@ func UpdateMatchResult(w http.ResponseWriter, r *http.Request, u *mdl.User) erro
 	}
 	tournament.Publish(c, "match", verb, object, target)
 
-	return templateshlp.RenderJson(w, c, mjson)
+	return templateshlp.RenderJSON(w, c, mjson)
 }
 
 // BlockMatchPrediction is the handler allowing to block the prediction for match of tournament.
@@ -208,12 +208,12 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 
 	match.CanPredict = false
 	if err := mdl.UpdateMatch(c, match); err != nil {
-		log.Errorf(c, "%s unable to update match with id :%v", desc, match.IdNumber)
+		log.Errorf(c, "%s unable to update match with id :%v", desc, match.IDNumber)
 	}
 
 	// return the updated match
 	var mjson MatchJSON
-	mjson.IDNumber = match.IdNumber
+	mjson.IDNumber = match.IDNumber
 	mjson.Date = match.Date
 	rule := strings.Split(match.Rule, " ")
 
@@ -230,15 +230,15 @@ func BlockMatchPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User) e
 		mjson.Team1 = rule[0]
 		mjson.Team2 = rule[1]
 	} else {
-		mjson.Team1 = mapIDTeams[match.TeamId1]
-		mjson.Team2 = mapIDTeams[match.TeamId2]
+		mjson.Team1 = mapIDTeams[match.TeamID1]
+		mjson.Team2 = mapIDTeams[match.TeamID2]
 	}
 	mjson.Location = match.Location
 
 	mjson.Result1 = match.Result1
 	mjson.Result2 = match.Result2
 
-	return templateshlp.RenderJson(w, c, mjson)
+	return templateshlp.RenderJSON(w, c, mjson)
 }
 
 // From a tournament entity return an array of MatchJSON data structure.
@@ -274,11 +274,11 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 
 	matchesJSON := make([]MatchJSON, len(matches))
 	for i, m := range matches {
-		matchesJSON[i].ID = m.Id
-		matchesJSON[i].IDNumber = m.IdNumber
+		matchesJSON[i].ID = m.ID
+		matchesJSON[i].IDNumber = m.IDNumber
 		matchesJSON[i].Date = m.Date
-		matchesJSON[i].Team1 = mapIDTeams[m.TeamId1]
-		matchesJSON[i].Team2 = mapIDTeams[m.TeamId2]
+		matchesJSON[i].Team1 = mapIDTeams[m.TeamID1]
+		matchesJSON[i].Team2 = mapIDTeams[m.TeamID2]
 		matchesJSON[i].Iso1 = mapTeamCodes[matchesJSON[i].Team1]
 		matchesJSON[i].Iso2 = mapTeamCodes[matchesJSON[i].Team2]
 
@@ -288,7 +288,7 @@ func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User)
 		matchesJSON[i].Finished = m.Finished
 		matchesJSON[i].Ready = m.Ready
 		matchesJSON[i].CanPredict = m.CanPredict
-		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchID(m.ID); hasMatch == true {
 			matchesJSON[i].HasPredict = true
 			matchesJSON[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {
@@ -323,8 +323,8 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 
 	// append 2nd round to first one
 	for i, m := range matches2ndPhase {
-		matchesJSON[i].ID = m.Id
-		matchesJSON[i].IDNumber = m.IdNumber
+		matchesJSON[i].ID = m.ID
+		matchesJSON[i].IDNumber = m.IDNumber
 		matchesJSON[i].Date = m.Date
 		rule := strings.Split(m.Rule, " ")
 		if len(rule) == 2 {
@@ -337,20 +337,20 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 				matchesJSON[i].Iso2 = mapTeamCodes[rule[1]]
 			}
 		} else {
-			if m.TeamId1 > 0 {
-				matchesJSON[i].Team1 = mapIDTeams[m.TeamId1]
+			if m.TeamID1 > 0 {
+				matchesJSON[i].Team1 = mapIDTeams[m.TeamID1]
 			} else {
 				matchesJSON[i].Team1 = rule[0]
 			}
 
-			if m.TeamId2 > 0 {
-				matchesJSON[i].Team2 = mapIDTeams[m.TeamId2]
+			if m.TeamID2 > 0 {
+				matchesJSON[i].Team2 = mapIDTeams[m.TeamID2]
 			} else {
 				matchesJSON[i].Team2 = rule[len(rule)-1]
 			}
 
-			matchesJSON[i].Iso1 = mapTeamCodes[mapIDTeams[m.TeamId1]]
-			matchesJSON[i].Iso2 = mapTeamCodes[mapIDTeams[m.TeamId2]]
+			matchesJSON[i].Iso1 = mapTeamCodes[mapIDTeams[m.TeamID1]]
+			matchesJSON[i].Iso2 = mapTeamCodes[mapIDTeams[m.TeamID2]]
 
 		}
 
@@ -361,7 +361,7 @@ func buildSecondPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User
 		matchesJSON[i].Ready = m.Ready
 		matchesJSON[i].CanPredict = m.CanPredict
 
-		if hasMatch, j := predicts.ContainsMatchID(m.Id); hasMatch == true {
+		if hasMatch, j := predicts.ContainsMatchID(m.ID); hasMatch == true {
 			matchesJSON[i].HasPredict = true
 			matchesJSON[i].Predict = fmt.Sprintf("%v - %v", predicts[j].Result1, predicts[j].Result2)
 		} else {

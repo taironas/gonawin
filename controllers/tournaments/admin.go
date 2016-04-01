@@ -68,20 +68,20 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// send response
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // RemoveAdmin handler lets you remove an admin from a tournament.
@@ -121,19 +121,19 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // ActivatePhase handler let you  activate phase of tournament.

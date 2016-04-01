@@ -47,7 +47,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
 
-	return templateshlp.RenderJson(w, c, tournament)
+	return templateshlp.RenderJSON(w, c, tournament)
 }
 
 // GetCopaAmerica returns the json data of the current Copa America tournament.
@@ -71,8 +71,13 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// tournament
 	fieldsToKeep := []string{"Id", "Name", "Description"}
+<<<<<<< HEAD
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
+=======
 	var tournamentJSON mdl.TournamentJson
 	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
+>>>>>>> master
 	// formatted start and end
 	const layout = "2 January 2006"
 	start := tournament.Start.Format(layout)
@@ -81,17 +86,21 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 	// data
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Start         string
 		End           string
 		RemainingDays int64
 	}{
+<<<<<<< HEAD
+		TournamentJSON,
+=======
 		tournamentJSON,
+>>>>>>> master
 		start,
 		end,
 		remainingDays,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }

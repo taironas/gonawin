@@ -53,7 +53,7 @@ func Ranking(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildTeamRankingViewModel(users)
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type teamRankingViewModel struct {

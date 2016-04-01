@@ -30,7 +30,8 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// Json new world cup tournament handler.
+// NewWorldCup is the new world cup tournament handler.
+//
 func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "New World Cup Handler:"
@@ -42,12 +43,13 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 		}
 
-		return templateshlp.RenderJson(w, c, tournament)
+		return templateshlp.RenderJSON(w, c, tournament)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
-// Json new world cup tournament handler.
+// GetWorldCup is the get world cup tournament handler.
+//
 func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "Get World Cup Handler:"
@@ -63,8 +65,8 @@ func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 		// tournament
 		fieldsToKeep := []string{"Id", "Name", "Description"}
-		var tournamentJson mdl.TournamentJson
-		helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
+		var TournamentJSON mdl.TournamentJSON
+		helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 		// formatted start and end
 		const layout = "2 January 2006"
 		start := tournament.Start.Format(layout)
@@ -73,18 +75,18 @@ func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 		// data
 		data := struct {
-			Tournament    mdl.TournamentJson
+			Tournament    mdl.TournamentJSON
 			Start         string
 			End           string
 			RemainingDays int64
 		}{
-			tournamentJson,
+			TournamentJSON,
 			start,
 			end,
 			remainingDays,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }

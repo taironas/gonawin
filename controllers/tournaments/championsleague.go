@@ -47,7 +47,7 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
 
-	return templateshlp.RenderJson(w, c, tournament)
+	return templateshlp.RenderJSON(w, c, tournament)
 }
 
 // GetChampionsLeague returns the json data of the champions league tournament.
@@ -71,8 +71,8 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 
 	// tournament
 	fieldsToKeep := []string{"Id", "Name", "Description"}
-	var tournamentJson mdl.TournamentJson
-	helpers.InitPointerStructure(tournament, &tournamentJson, fieldsToKeep)
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 	// formatted start and end
 	const layout = "2 January 2006"
 	start := tournament.Start.Format(layout)
@@ -81,17 +81,17 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 	// data
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Start         string
 		End           string
 		RemainingDays int64
 	}{
-		tournamentJson,
+		TournamentJSON,
 		start,
 		end,
 		remainingDays,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }

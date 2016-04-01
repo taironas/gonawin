@@ -27,11 +27,15 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
+// Tday represents a tournament day. It holds the date of the day and the array of matches.
+//
 type Tday struct {
 	Date    time.Time
 	Matches []Tmatch
 }
 
+// Tphase represents a tournament phase. It holds the name of the phase and the array of Tday.
+//
 type Tphase struct {
 	Name string
 	Days []Tday
@@ -53,7 +57,7 @@ func lastMatchOfPhase(c appengine.Context, m *Tmatch, phases *[]Tphase) (bool, i
 			lastDay := ph.Days[n-1]
 			if n = len(lastDay.Matches); n >= 1 {
 				lastMatch := lastDay.Matches[n-1]
-				if lastMatch.IdNumber == m.IdNumber {
+				if lastMatch.IDNumber == m.IDNumber {
 					return true, int64(i)
 				}
 			}
@@ -100,14 +104,14 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			for _, m := range currentmatches {
 				// ToDo: handle penalties
 				if m.Result1 >= m.Result2 {
-					team1, _ := TTeamByID(c, m.TeamId1)
-					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team1
-					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+					team1, _ := TTeamByID(c, m.TeamID1)
+					mapOfTeams["W"+strconv.Itoa(int(m.IDNumber))] = team1
+					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IDNumber)), team1.Name)
 
 				} else if m.Result1 < m.Result2 {
-					team2, _ := TTeamByID(c, m.TeamId2)
-					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team2
-					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+					team2, _ := TTeamByID(c, m.TeamID2)
+					mapOfTeams["W"+strconv.Itoa(int(m.IDNumber))] = team2
+					log.Infof(c, "Not SemiFinals Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IDNumber)), team2.Name)
 				}
 			}
 		} else {
@@ -119,20 +123,20 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 			for _, m := range currentmatches {
 				// ToDo: handle penalties
 				if m.Result1 >= m.Result2 {
-					team1, _ := TTeamByID(c, m.TeamId1)
-					team2, _ := TTeamByID(c, m.TeamId2)
-					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team1
-					mapOfTeams["L"+strconv.Itoa(int(m.IdNumber))] = team2
-					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
-					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
+					team1, _ := TTeamByID(c, m.TeamID1)
+					team2, _ := TTeamByID(c, m.TeamID2)
+					mapOfTeams["W"+strconv.Itoa(int(m.IDNumber))] = team1
+					mapOfTeams["L"+strconv.Itoa(int(m.IDNumber))] = team2
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IDNumber)), team1.Name)
+					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IDNumber)), team2.Name)
 
 				} else if m.Result1 < m.Result2 {
-					team2, _ := TTeamByID(c, m.TeamId2)
-					team1, _ := TTeamByID(c, m.TeamId1)
-					mapOfTeams["W"+strconv.Itoa(int(m.IdNumber))] = team2
-					mapOfTeams["L"+strconv.Itoa(int(m.IdNumber))] = team1
-					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IdNumber)), team2.Name)
-					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IdNumber)), team1.Name)
+					team2, _ := TTeamByID(c, m.TeamID2)
+					team1, _ := TTeamByID(c, m.TeamID1)
+					mapOfTeams["W"+strconv.Itoa(int(m.IDNumber))] = team2
+					mapOfTeams["L"+strconv.Itoa(int(m.IDNumber))] = team1
+					log.Infof(c, "Update Next phase: rule: W%v teams: %v", strconv.Itoa(int(m.IDNumber)), team2.Name)
+					log.Infof(c, "Update Next phase: rule: L%v teams: %v", strconv.Itoa(int(m.IDNumber)), team1.Name)
 				}
 			}
 
@@ -151,15 +155,15 @@ func UpdateNextPhase(c appengine.Context, t *Tournament, currentphase *Tphase, n
 
 			if val, ok := mapOfTeams[rule[0]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
-				matches[i].TeamId1 = val.ID
+				matches[i].TeamID1 = val.ID
 			} else {
-				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.ID)
 			}
 			if val, ok := mapOfTeams[rule[1]]; ok {
 				log.Infof(c, "Update Next phase: match found: %v", val.Name)
-				matches[i].TeamId2 = val.ID
+				matches[i].TeamID2 = val.ID
 			} else {
-				return fmt.Errorf("Cannot parse rule in tournament =%d", t.Id)
+				return fmt.Errorf("Cannot parse rule in tournament =%d", t.ID)
 			}
 			matches[i].Rule = ""
 			matches[i].Ready = true

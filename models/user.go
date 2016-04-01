@@ -450,11 +450,18 @@ func (u *User) Tournaments(c appengine.Context) []*Tournament {
 	return tournaments
 }
 
+<<<<<<< HEAD
+// Adds a team Id in the TeamId array.
+func (u *User) AddTeamID(c appengine.Context, tId int64) error {
+
+	if hasTeam, _ := u.ContainsTeamID(tId); hasTeam {
+=======
 // AddTeamID adds a team Id in the TeamId array.
 //
 func (u *User) AddTeamID(c appengine.Context, tID int64) error {
 
 	if hasTeam, _ := u.ContainsTeamID(tID); hasTeam {
+>>>>>>> master
 		return fmt.Errorf("AddTeamID, allready a member")
 	}
 
@@ -465,6 +472,18 @@ func (u *User) AddTeamID(c appengine.Context, tID int64) error {
 	return nil
 }
 
+<<<<<<< HEAD
+// Removes a team Id in the TeamId array.
+func (u *User) RemoveTeamID(c appengine.Context, tId int64) error {
+
+	if hasTeam, i := u.ContainsTeamID(tId); !hasTeam {
+		return fmt.Errorf("RemoveTeamID, not a member")
+	} else {
+		// as the order of index in teamsId is not important,
+		// replace elem at index i with last element and resize slice.
+		u.TeamIds[i] = u.TeamIds[len(u.TeamIds)-1]
+		u.TeamIds = u.TeamIds[0 : len(u.TeamIds)-1]
+=======
 // RemoveTeamID removes a team Id in the TeamId array.
 //
 func (u *User) RemoveTeamID(c appengine.Context, tID int64) error {
@@ -474,6 +493,7 @@ func (u *User) RemoveTeamID(c appengine.Context, tID int64) error {
 
 	if hasTeam, i = u.ContainsTeamID(tID); !hasTeam {
 		return fmt.Errorf("RemoveTeamID, not a member")
+>>>>>>> master
 	}
 
 	// as the order of index in teamsId is not important,
@@ -488,8 +508,11 @@ func (u *User) RemoveTeamID(c appengine.Context, tID int64) error {
 	return nil
 }
 
+<<<<<<< HEAD
+=======
 // ContainsTeamID checks if a given team id exists in the TeamID array if a user.
 //
+>>>>>>> master
 func (u *User) ContainsTeamID(id int64) (bool, int) {
 
 	for i, tID := range u.TeamIds {
@@ -535,12 +558,17 @@ func (u *User) PredictFromMatchID(c appengine.Context, mID int64) (*Predict, err
 //
 func (u *User) ScoreForMatch(c appengine.Context, m *Tmatch) (int64, error) {
 	desc := "Score for match:"
-	log.Infof(c, "%s teamA: %v - teamB: %v", desc, m.TeamId1, m.TeamId2)
+	log.Infof(c, "%s teamA: %v - teamB: %v", desc, m.TeamID1, m.TeamID2)
 	log.Infof(c, "%s result: %v - %v", desc, m.Result1, m.Result2)
 	var p *Predict
 	var err1 error
+<<<<<<< HEAD
+	if p, err1 = u.PredictFromMatchId(c, m.ID); err1 == nil && p == nil {
+		log.Infof(c, "%s no predict for match %v was found in user %v account", desc, m.ID, u.Id)
+=======
 	if p, err1 = u.PredictFromMatchID(c, m.Id); err1 == nil && p == nil {
 		log.Infof(c, "%s no predict for match %v was found in user %v account", desc, m.Id, u.ID)
+>>>>>>> master
 		return 0, nil
 	} else if err1 != nil {
 		log.Errorf(c, "%s unable to get predict for current user %v: %v", desc, u.ID, err1)
@@ -567,7 +595,7 @@ func (u *User) Publish(c appengine.Context, activityType string, verb string, ob
 		return err
 	}
 	// add new activity id in user activity table
-	activity.AddNewActivityId(c, u)
+	activity.AddNewActivityID(c, u)
 
 	return u.Update(c)
 }
@@ -588,14 +616,18 @@ func (u *User) BuildActivity(c appengine.Context, activityType string, verb stri
 		log.Errorf(c, " BuildActivity: error occurred during AllocateIDs call: %v", err1)
 		return nil
 	}
-	activity.Id = id
+	activity.ID = id
 	return &activity
 }
 
 // Entity is the Activity entity representation of an user.
 //
 func (u *User) Entity() ActivityEntity {
+<<<<<<< HEAD
+	return ActivityEntity{ID: u.Id, Type: "user", DisplayName: u.Username}
+=======
 	return ActivityEntity{Id: u.ID, Type: "user", DisplayName: u.Username}
+>>>>>>> master
 }
 
 //TournamentScore return user's score for a given tournament.
@@ -603,7 +635,11 @@ func (u *User) Entity() ActivityEntity {
 func (u *User) TournamentScore(c appengine.Context, tournament *Tournament) (*Score, error) {
 	//query score
 	for _, s := range u.ScoreOfTournaments {
+<<<<<<< HEAD
+		if s.TournamentId == tournament.ID {
+=======
 		if s.TournamentID == tournament.Id {
+>>>>>>> master
 			log.Infof(c, "User.TournamentScore tournament found in ScoreOfTournaments array")
 			return ScoreByID(c, s.ScoreID)
 		}
@@ -705,7 +741,7 @@ func (u *User) Invitations(c appengine.Context) []*Team {
 	urs := FindUserRequests(c, "UserId", u.ID)
 	var ids []int64
 	for _, ur := range urs {
-		ids = append(ids, ur.TeamId)
+		ids = append(ids, ur.TeamID)
 	}
 
 	var teams []*Team

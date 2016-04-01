@@ -78,7 +78,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	tournaments := mdl.FindAllTournaments(c, count, page)
 	if len(tournaments) == 0 {
-		return templateshlp.RenderEmptyJsonArray(w, c)
+		return templateshlp.RenderEmptyJSONArray(w, c)
 	}
 
 	type tournament struct {
@@ -91,15 +91,15 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	ts := make([]tournament, len(tournaments))
 	for i, t := range tournaments {
-		ts[i].ID = t.Id
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].ParticipantsCount = len(t.UserIds)
 		ts[i].TeamsCount = len(t.TeamIds)
 		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 
-	return templateshlp.RenderJson(w, c, ts)
+	return templateshlp.RenderJSON(w, c, ts)
 }
 
 // New handler, use it to create a new tournament.
@@ -141,7 +141,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	// return the newly created tournament
 	fieldsToKeep := []string{"Id", "Name"}
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	u.Publish(c, "tournament", "created a tournament", tournament.Entity(), mdl.ActivityEntity{})
@@ -149,13 +149,13 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	msg := fmt.Sprintf("The tournament %s was correctly created!", tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }
 
@@ -180,8 +180,8 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	teams := tournament.Teams(c)
 
 	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
-	var tournamentJSON mdl.TournamentJson
-	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
+	var TournamentJSON mdl.TournamentJSON
+	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 
 	participantFieldsToKeep := []string{"Id", "Username", "Alias"}
 	participantsJSON := make([]mdl.UserJSON, len(participants))
@@ -199,10 +199,10 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	remainingDays := int64(tournament.Start.Sub(time.Now()).Hours() / 24)
 
-	imageURL := helpers.TournamentImageURL(tournament.Name, tournament.Id)
+	imageURL := helpers.TournamentImageURL(tournament.Name, tournament.ID)
 
 	data := struct {
-		Tournament    mdl.TournamentJson
+		Tournament    mdl.TournamentJSON
 		Joined        bool
 		Participants  []mdl.UserJSON
 		Teams         []mdl.TeamJSON
@@ -212,7 +212,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		RemainingDays int64
 		ImageURL      string
 	}{
-		tournamentJSON,
+		TournamentJSON,
 		tournament.Joined(c, u),
 		participantsJSON,
 		teamsJSON,
@@ -223,7 +223,7 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		imageURL,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 
 }
 
@@ -246,14 +246,22 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
+<<<<<<< HEAD
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
+=======
 	if !mdl.IsTournamentAdmin(c, tournament.Id, u.ID) {
+>>>>>>> master
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentDeleteForbiden)}
 	}
 
 	// delete all tournament-user relationships
 	for _, participant := range tournament.Participants(c) {
+<<<<<<< HEAD
+		if err := participant.RemoveTournamentId(c, tournament.ID); err != nil {
+=======
 		if err := participant.RemoveTournamentID(c, tournament.Id); err != nil {
+>>>>>>> master
 			log.Errorf(c, " %s error when trying to remove tournament id from user: %v", desc, err)
 		} else if u.ID == participant.ID {
 			// Be sure that current user has the latest data,
@@ -299,7 +307,7 @@ func Destroy(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// return destroyed status
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Update is the hanlder allowing to update a tournament.
@@ -321,7 +329,11 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
+<<<<<<< HEAD
+	if !mdl.IsTournamentAdmin(c, tournament.ID, u.Id) {
+=======
 	if !mdl.IsTournamentAdmin(c, tournament.Id, u.ID) {
+>>>>>>> master
 		log.Errorf(c, "%s user is not admin", desc)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentUpdateForbiden)}
 	}
@@ -365,19 +377,19 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// return the updated tournament
 	fieldsToKeep := []string{"Id", "Name"}
-	var tJSON mdl.TournamentJson
+	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The tournament %s was correctly updated!", tournament.Name)
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Tournament  mdl.TournamentJson
+		Tournament  mdl.TournamentJSON
 	}{
 		msg,
 		tJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Search is the handler allowing to get all the tournaments that match the query.
@@ -414,7 +426,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}{
 			msg,
 		}
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 
 	type tournament struct {
@@ -427,12 +439,12 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	ts := make([]tournament, len(tournaments))
 	for i, t := range tournaments {
-		ts[i].ID = t.Id
+		ts[i].ID = t.ID
 		ts[i].Name = t.Name
 		ts[i].ParticipantsCount = len(t.UserIds)
 		ts[i].TeamsCount = len(t.TeamIds)
 		ts[i].Progress = t.Progress(c)
-		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
+		ts[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
 	}
 
 	// we should not directly return an array. so we add an extra layer.
@@ -441,7 +453,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}{
 		ts,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // CandidateTeams handler, use it to get the list of teams that you can add to a tournament.
@@ -498,7 +510,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}{
 		candidatesData,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Participants handler, use it to get the participants to a tournament.
@@ -531,7 +543,7 @@ func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		participantsJSON,
 	}
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Reset handler, use it to reset points and goals of a tournament.
@@ -552,22 +564,22 @@ func Reset(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	if err = t.Reset(c); err != nil {
-		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, t.Id, err)
+		log.Errorf(c, "%s unable to reset tournament: %v error:", desc, t.ID, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	groups := mdl.Groups(c, t.GroupIds)
-	groupsJSON := formatGroupsJson(groups)
+	groupsJSON := formatGroupsJSON(groups)
 
 	msg := fmt.Sprintf("Tournament is now reset.")
 	data := struct {
 		MessageInfo string `json:",omitempty"`
-		Groups      []GroupJson
+		Groups      []GroupJSON
 	}{
 		msg,
 		groupsJSON,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }
 
 // Predict handler, use it to set the predictions of a match to the current user.
@@ -610,7 +622,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
 	}
 
-	match := mdl.GetMatchByIdNumber(c, *tournament, matchIDNumber)
+	match := mdl.GetMatchByIDNumber(c, *tournament, matchIDNumber)
 	if match == nil {
 		log.Errorf(c, "%s unable to get match with id number :%v", desc, matchIDNumber)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotSetPrediction)}
@@ -634,13 +646,22 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 	mapIDTeams := tb.MapOfIDTeams(c, tournament)
 	var p *mdl.Predict
+<<<<<<< HEAD
+	if p = mdl.FindPredictByUserMatch(c, u.Id, match.ID); p == nil {
+=======
 	if p = mdl.FindPredictByUserMatch(c, u.ID, match.Id); p == nil {
+>>>>>>> master
 
 		var predict *mdl.Predict
 		var err1 error
 
+<<<<<<< HEAD
+		if predict, err1 = mdl.CreatePredict(c, u.Id, int64(r1), int64(r2), match.ID); err1 != nil {
+			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.ID, err1)
+=======
 		if predict, err1 = mdl.CreatePredict(c, u.ID, int64(r1), int64(r2), match.Id); err1 != nil {
 			log.Errorf(c, "%s unable to create Predict for match with id:%v error: %v", desc, match.Id, err1)
+>>>>>>> master
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
 
@@ -651,7 +672,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		}
 		p = predict
 
-		msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIDTeams[match.TeamId1], p.Result1, p.Result2, mapIDTeams[match.TeamId2])
+		msg = fmt.Sprintf("You set a prediction: %s %d:%d %s.", mapIDTeams[match.TeamID1], p.Result1, p.Result2, mapIDTeams[match.TeamID2])
 
 	} else {
 		// predict already exist so just update resulst.
@@ -661,7 +682,7 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			log.Errorf(c, "%s unable to edit predict entity. %v", desc, err)
 			return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeCannotSetPrediction)}
 		}
-		msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIDTeams[match.TeamId1], p.Result1, p.Result2, mapIDTeams[match.TeamId2])
+		msg = fmt.Sprintf("Your prediction is now updated: %s %d:%d %s.", mapIDTeams[match.TeamID1], p.Result1, p.Result2, mapIDTeams[match.TeamID2])
 	}
 
 	data := struct {
@@ -674,8 +695,8 @@ func Predict(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// publish activity
 	verb := fmt.Sprintf("predicted %d-%d for", p.Result1, p.Result2)
-	object := mdl.ActivityEntity{Id: match.Id, Type: "match", DisplayName: mapIDTeams[match.TeamId1] + "-" + mapIDTeams[match.TeamId2]}
+	object := mdl.ActivityEntity{ID: match.ID, Type: "match", DisplayName: mapIDTeams[match.TeamID1] + "-" + mapIDTeams[match.TeamID2]}
 	u.Publish(c, "predict", verb, object, tournament.Entity())
 
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

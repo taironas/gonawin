@@ -30,8 +30,9 @@ import (
 //
 // An activity can be published as long as a type, a verb and an actor
 // has been specified.
+//
 type Activity struct {
-	Id        int64
+	ID        int64
 	Type      string         // Type of the activity (welcome, team, tournament, match, accuracy, predict, score)
 	Verb      string         // Describes the action
 	Actor     ActivityEntity // The one who/which performs the action
@@ -41,15 +42,18 @@ type Activity struct {
 	CreatorID int64
 }
 
-// Activity Entity
+// ActivityEntity represents the entity of an activity.
+//
 type ActivityEntity struct {
-	Id          int64
+	ID          int64 `json:"Id,omitempty"`
 	Type        string
 	DisplayName string // Name which will be displayed in the view
 }
 
-type ActivityJson struct {
-	Id        *int64          `json:",omitempty"`
+// ActivityJSON is the JSON representation of an activity.
+//
+type ActivityJSON struct {
+	ID        *int64          `json:"Id,omitempty"`
 	Type      *string         `json:",omitempty"`
 	Verb      *string         `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
@@ -65,7 +69,8 @@ type Publisher interface {
 	Entity() ActivityEntity
 }
 
-// Returns activities for a specific user.
+// FindActivities return activities for a specific user.
+//
 func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Activity {
 	var activities []*Activity
 
@@ -87,7 +92,7 @@ func FindActivities(c appengine.Context, u *User, count int64, page int64) []*Ac
 	return activities
 }
 
-// Deletes activities in array.
+// DestroyActivities deletes activities in array.
 //
 func DestroyActivities(c appengine.Context, activityIds []int64) error {
 	var keys []*datastore.Key
@@ -98,13 +103,14 @@ func DestroyActivities(c appengine.Context, activityIds []int64) error {
 	return datastore.DeleteMulti(c, keys)
 }
 
-// Update an array of users.
+// SaveActivities updates an array of users.
+//
 func SaveActivities(c appengine.Context, activities []*Activity) error {
 	var keys []*datastore.Key // := make([]*datastore.Key, len(activities))
 	var acts []*Activity
-	for i, _ := range activities {
+	for i := range activities {
 		if activities[i] != nil {
-			key := datastore.NewKey(c, "Activity", "", activities[i].Id, nil)
+			key := datastore.NewKey(c, "Activity", "", activities[i].ID, nil)
 			keys = append(keys, key)
 			acts = append(acts, activities[i])
 		}
@@ -116,7 +122,8 @@ func SaveActivities(c appengine.Context, activities []*Activity) error {
 }
 
 // save an activity entity in datastore
-// returns the id of the newly saved activity
+// returns the id of the newly saved activity.
+//
 func (a *Activity) save(c appengine.Context) error {
 	// create new activity
 	id, _, err1 := datastore.AllocateIDs(c, "Activity", nil, 1)
@@ -125,7 +132,7 @@ func (a *Activity) save(c appengine.Context) error {
 		return errors.New("Activity.save: unable to allocate an identifier for Activity")
 	}
 	key := datastore.NewKey(c, "Activity", "", id, nil)
-	a.Id = id
+	a.ID = id
 	if _, err := datastore.Put(c, key, a); err != nil {
 		log.Errorf(c, " Activity.save: error occurred during Put call: %v", err)
 		return errors.New("Activity.save: unable to put Activity in Datastore")
@@ -133,10 +140,11 @@ func (a *Activity) save(c appengine.Context) error {
 	return nil
 }
 
-// add new activity id for a specific user
-func (a *Activity) AddNewActivityId(c appengine.Context, u *User) error {
+// AddNewActivityID adds new activity id for a specific user.
+//
+func (a *Activity) AddNewActivityID(c appengine.Context, u *User) error {
 	// add new activity id to user activities
-	u.ActivityIds = append(u.ActivityIds, a.Id)
+	u.ActivityIds = append(u.ActivityIds, a.ID)
 	return nil
 	// // update user with new activity id
 	// return u.Update(c)

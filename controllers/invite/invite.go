@@ -65,7 +65,7 @@ func Invite(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	vm := buildInviteViewModel()
 
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 func processEmails(c appengine.Context, desc string, emails []string, body string, u *mdl.User) error {
@@ -103,7 +103,7 @@ func buildInviteViewModel() inviteViewModel {
 //
 func parseEmails(emailsList string) []string {
 	rawEmails := strings.Split(emailsList, ",")
-	emails := make([]string, 0)
+	var emails []string
 	for _, e := range rawEmails {
 		emails = append(emails, strings.Trim(e, " "))
 	}

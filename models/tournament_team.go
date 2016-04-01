@@ -86,11 +86,11 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 
 			if rule[0] == oldName {
 				rule[0] = newName
-				m.TeamId1 = newTeamID
+				m.TeamID1 = newTeamID
 				updateMatch = true
 			} else if rule[len(rule)-1] == oldName {
 				rule[len(rule)-1] = newName
-				m.TeamId2 = newTeamID
+				m.TeamID2 = newTeamID
 				updateMatch = true
 			}
 
@@ -107,18 +107,18 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		// low limit, all matches above this limit should be updated.
 		low := limits[phaseName][0]
 		for _, m := range matches2ndPhase {
-			if m.IdNumber < low {
+			if m.IDNumber < low {
 				continue
 			}
 			updateMatch := false
 			// update teams
-			if m.TeamId1 == oldTeamID {
+			if m.TeamID1 == oldTeamID {
 				updateMatch = true
-				m.TeamId1 = newTeamID
+				m.TeamID1 = newTeamID
 			}
-			if m.TeamId2 == oldTeamID {
+			if m.TeamID2 == oldTeamID {
 				updateMatch = true
-				m.TeamId2 = newTeamID
+				m.TeamID2 = newTeamID
 			}
 			// update rules if needed.
 			rule := strings.Split(m.Rule, " ")

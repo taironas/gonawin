@@ -289,7 +289,11 @@ func CreateCopaAmerica(c appengine.Context, adminID int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+=======
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 			emptyrule := ""
 			emptyresult := int64(0)
 			match := &Tmatch{
@@ -375,7 +379,11 @@ func CreateCopaAmerica(c appengine.Context, adminID int64) (*Tournament, error) 
 			log.Infof(c, "%s: match: new key ok", desc)
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
+<<<<<<< HEAD
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
+=======
 			matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
+>>>>>>> master
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)

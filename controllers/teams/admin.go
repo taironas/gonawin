@@ -63,7 +63,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildTeamAddAdminViewModel(team, newAdmin)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type teamAddAdminViewModel struct {
@@ -114,7 +114,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	vm := buildTeamRemoveAdminViewModel(team, oldAdmin)
-	return templateshlp.RenderJson(w, c, vm)
+	return templateshlp.RenderJSON(w, c, vm)
 }
 
 type teamRemoveAdminViewModel struct {

@@ -144,7 +144,7 @@ func (c Context) TeamRequest() (*mdl.TeamRequest, error) {
 	}
 
 	var teamRequest *mdl.TeamRequest
-	if teamRequest, err = mdl.TeamRequestById(c.c, requestID); err != nil {
+	if teamRequest, err = mdl.TeamRequestByID(c.c, requestID); err != nil {
 		log.Errorf(c.c, "%s teams.DenyRequest, team request not found: %v", c.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTeamRequestNotFound)}
 	}
@@ -181,7 +181,7 @@ func (c Context) Tournament() (*mdl.Tournament, error) {
 	}
 
 	var tournament *mdl.Tournament
-	if tournament, err = mdl.TournamentById(c.c, tournamentID); err != nil {
+	if tournament, err = mdl.TournamentByID(c.c, tournamentID); err != nil {
 		log.Errorf(c.c, "%s tournament not found: %v", c.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
@@ -205,7 +205,7 @@ func (c Context) Match(tournament *mdl.Tournament) (*mdl.Tmatch, error) {
 		return nil, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeMatchCannotUpdate)}
 	}
 
-	match := mdl.GetMatchByIdNumber(c.c, *tournament, matchIDNumber)
+	match := mdl.GetMatchByIDNumber(c.c, *tournament, matchIDNumber)
 	if match == nil {
 		log.Errorf(c.c, "%s unable to get match with id number :%v", c.desc, matchIDNumber)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeMatchNotFoundCannotUpdate)}

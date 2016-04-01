@@ -36,12 +36,13 @@ type teamsByPhase struct {
 }
 
 // A teamJSON is a variable to hold of team information.
+//
 type teamJSON struct {
 	Name string
 	Iso  string
 }
 
-// Tournament teams handler:
+// Teams is the Tournament teams handler:
 // Use this handler to get the teams of a tournament.
 // Returns an array of teams,
 // You can specify the groupby parameter to be "phase".
@@ -71,8 +72,8 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		groupby = "phase"
 	} else if groupby == "phase" {
 		log.Infof(c, "%s ready to build a team array", desc)
-		matchesJson := buildMatchesFromTournament(c, t, u)
-		teamsByPhases := teamsGroupByPhase(t, matchesJson)
+		matchesJSON := buildMatchesFromTournament(c, t, u)
+		teamsByPhases := teamsGroupByPhase(t, matchesJSON)
 
 		data := struct {
 			Phases []teamsByPhase
@@ -80,13 +81,14 @@ func Teams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 			teamsByPhases,
 		}
 
-		return templateshlp.RenderJson(w, c, data)
+		return templateshlp.RenderJSON(w, c, data)
 	}
 	return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 }
 
 // From an array of Matches, create an array of Phases where the teams are grouped in.
 // We use the Phases intervals and the IdNumber of each match to do this operation.
+//
 func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 	var tb mdl.TournamentBuilder
 	if tb = mdl.GetTournamentBuilder(t); tb == nil {
@@ -97,7 +99,7 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 	phaseNames := tb.ArrayOfPhases()
 
 	phases := make([]teamsByPhase, len(limits))
-	for i, _ := range phases {
+	for i := range phases {
 		phases[i].Name = phaseNames[i]
 		low := limits[phases[i].Name][0]
 		high := limits[phases[i].Name][1]
@@ -108,7 +110,7 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
-		teams := make([]teamJSON, 0)
+		var teams []teamJSON
 		for _, m := range filteredMatches {
 			if !teamContains(teams, m.Team1) {
 				t := teamJSON{Name: m.Team1, Iso: m.Iso1}
@@ -133,7 +135,8 @@ func teamContains(teams []teamJSON, name string) bool {
 	return false
 }
 
-// Update team handler. replaces a team for the second phase of the tournament.
+// UpdateTeam is the Update team handler. replaces a team for the second phase of the tournament.
+//
 func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -171,17 +174,17 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 	if err := t.UpdateTournamentTeam(c, phaseName, oldName, newName); err != nil {
-		log.Errorf(c, "%s something when wrong while updating a team in the tournament %v. %v", desc, t.Id, err)
+		log.Errorf(c, "%s something when wrong while updating a team in the tournament %d. %v", desc, t.ID, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	matchesJson := buildMatchesFromTournament(c, t, u)
-	teamsByPhases := teamsGroupByPhase(t, matchesJson)
+	matchesJSON := buildMatchesFromTournament(c, t, u)
+	teamsByPhases := teamsGroupByPhase(t, matchesJSON)
 
 	data := struct {
 		Phases []teamsByPhase
 	}{
 		teamsByPhases,
 	}
-	return templateshlp.RenderJson(w, c, data)
+	return templateshlp.RenderJSON(w, c, data)
 }

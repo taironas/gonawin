@@ -65,8 +65,8 @@ func TestTeamDestroy(t *testing.T) {
 	tests := []struct {
 		title      string
 		team       testTeam
-		overrideId bool
-		newId      int64
+		overrideID bool
+		newID      int64
 		err        string
 	}{
 		{
@@ -76,8 +76,8 @@ func TestTeamDestroy(t *testing.T) {
 		{
 			title:      "cannot destroy team",
 			team:       testTeam{"my team other team", "description", 10, false},
-			overrideId: true,
-			newId:      11,
+			overrideID: true,
+			newID:      11,
 			err:        "Cannot find team with Id",
 		},
 	}
@@ -218,18 +218,18 @@ func TestTeamByID(t *testing.T) {
 
 	tests := []struct {
 		title  string
-		Id     int64
+		ID     int64
 		wanted testTeam
 		err    string
 	}{
 		{
 			title:  "can get team by Id",
-			Id:     team.ID,
+			ID:     team.ID,
 			wanted: testTeam{team.Name, team.Description, team.AdminIds[0], team.Private},
 		},
 		{
 			title: "cannot get team by Id",
-			Id:    -1,
+			ID:    -1,
 			err:   "no such entity",
 		},
 	}
@@ -304,8 +304,8 @@ func TestTeamUpdate(t *testing.T) {
 		title      string
 		id         int64
 		updateTeam testTeam
-		overrideId bool
-		newId      int64
+		overrideID bool
+		newID      int64
 		err        string
 	}{
 		{
@@ -317,8 +317,8 @@ func TestTeamUpdate(t *testing.T) {
 			title:      "cannot update, team not found",
 			id:         newteam.ID,
 			updateTeam: testTeam{name: "updated team 2", description: "updated description 2"},
-			overrideId: true,
-			newId:      -1,
+			overrideID: true,
+			newID:      -1,
 			err:        "no such entity",
 		},
 	}
@@ -659,8 +659,13 @@ func TestTeamJoin(t *testing.T) {
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
+<<<<<<< HEAD
+			if ok, _ := team.ContainsUserID(user.Id); !ok {
+				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.Id)
+=======
 			if ok, _ := team.ContainsUserId(user.ID); !ok {
 				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.ID)
+>>>>>>> master
 			}
 		}
 	}
@@ -729,8 +734,13 @@ func TestTeamLeave(t *testing.T) {
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
+<<<<<<< HEAD
+			if ok, _ := team.ContainsUserID(user.Id); ok {
+				t.Errorf("test %v - user Id %v is part of team userIds", i, user.Id)
+=======
 			if ok, _ := team.ContainsUserId(user.ID); ok {
 				t.Errorf("test %v - user Id %v is part of team userIds", i, user.ID)
+>>>>>>> master
 			}
 		}
 	}
