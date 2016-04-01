@@ -964,11 +964,7 @@ func TestUserTournaments(t *testing.T) {
 	}
 
 	testTournaments := createTestTournaments(3)
-<<<<<<< HEAD
-	AddUserIDToTournaments(&testTournaments, user.Id)
-=======
 	addUserIDToTournaments(&testTournaments, user.ID)
->>>>>>> master
 
 	createAndJoinTournaments(t, c, testTournaments, user)
 
