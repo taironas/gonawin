@@ -659,13 +659,8 @@ func TestTeamJoin(t *testing.T) {
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
-<<<<<<< HEAD
 			if ok, _ := team.ContainsUserID(user.Id); !ok {
-				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.Id)
-=======
-			if ok, _ := team.ContainsUserId(user.ID); !ok {
 				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.ID)
->>>>>>> master
 			}
 		}
 	}
@@ -734,13 +729,8 @@ func TestTeamLeave(t *testing.T) {
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
-<<<<<<< HEAD
-			if ok, _ := team.ContainsUserID(user.Id); ok {
-				t.Errorf("test %v - user Id %v is part of team userIds", i, user.Id)
-=======
-			if ok, _ := team.ContainsUserId(user.ID); ok {
+			if ok, _ := team.ContainsUserID(user.ID); ok {
 				t.Errorf("test %v - user Id %v is part of team userIds", i, user.ID)
->>>>>>> master
 			}
 		}
 	}
