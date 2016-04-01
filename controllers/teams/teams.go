@@ -298,7 +298,7 @@ func buildPlayersViewModel(c appengine.Context, players []*mdl.User) []playerVie
 }
 
 type showTournamentViewModel struct {
-	ID                int64 `json:"Id`
+	ID                int64 `json:"Id"`
 	Name              string
 	ParticipantsCount int
 	TeamsCount        int
