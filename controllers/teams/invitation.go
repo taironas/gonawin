@@ -142,7 +142,7 @@ type teamInvitedViewModel struct {
 }
 
 type teamInvitedUserViewModel struct {
-	ID       int64 `json:Id",omitempty"`
+	ID       int64 `json:"Id,omitempty"`
 	Username string
 	Alias    string
 	Score    int64

@@ -58,18 +58,18 @@ type Team struct {
 // TeamJSON is the JSON version of the Team struct.
 //
 type TeamJSON struct {
-	ID            *int64                `json:Id",omitempty"`
+	ID            *int64                `json:"Id,omitempty"`
 	KeyName       *string               `json:",omitempty"`
 	Name          *string               `json:",omitempty"`
 	Description   *string               `json:",omitempty"`
 	AdminIds      *[]int64              `json:",omitempty"`
 	Private       *bool                 `json:",omitempty"`
 	Created       *time.Time            `json:",omitempty"`
-	UserIDs       *[]int64              `json:UserIds",omitempty"`
-	TournamentIDs *[]int64              `json:TournamentIds",omitempty"`
+	UserIDs       *[]int64              `json:"UserIds,omitempty"`
+	TournamentIDs *[]int64              `json:"TournamentIds,omitempty"`
 	Accuracy      *float64              `json:",omitempty"`
-	AccuracyIDs   *[]TournamentAccuracy `json:AccuracyIds",omitempty"`
-	PriceIDs      *[]int64              `json:PriceIds",omitempty"`
+	AccuracyIDs   *[]TournamentAccuracy `json:"AccuracyIds,omitempty"`
+	PriceIDs      *[]int64              `json:"PriceIds,omitempty"`
 	MembersCount  *int64                `json:",omitempty"`
 }
 

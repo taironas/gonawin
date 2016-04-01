@@ -82,7 +82,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	type tournament struct {
-		ID                int64  `json:Id",omitempty"`
+		ID                int64  `json:"Id,omitempty"`
 		Name              string `json:",omitempty"`
 		ParticipantsCount int
 		TeamsCount        int
@@ -418,7 +418,7 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	type tournament struct {
-		ID                int64  `json:Id",omitempty"`
+		ID                int64  `json:"Id,omitempty"`
 		Name              string `json:",omitempty"`
 		ParticipantsCount int
 		TeamsCount        int

@@ -526,7 +526,7 @@ type teamsUserViewModel struct {
 }
 
 func buildTeamsUserViewModel(teams []*mdl.Team) teamsUserViewModel {
-	teamsFieldsToKeep := []string{"Id", "Name"}
+	teamsFieldsToKeep := []string{"ID", "Name"}
 	teamsJSON := make([]mdl.TeamJSON, len(teams))
 	helpers.TransformFromArrayOfPointers(&teams, &teamsJSON, teamsFieldsToKeep)
 
