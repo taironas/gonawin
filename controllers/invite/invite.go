@@ -103,7 +103,7 @@ func buildInviteViewModel() inviteViewModel {
 //
 func parseEmails(emailsList string) []string {
 	rawEmails := strings.Split(emailsList, ",")
-	emails := make([]string, 0)
+	var emails []string
 	for _, e := range rawEmails {
 		emails = append(emails, strings.Trim(e, " "))
 	}
