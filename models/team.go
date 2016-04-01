@@ -578,7 +578,7 @@ func (t *Team) AddAdmin(c appengine.Context, id int64) error {
 
 	if isMember, _ := t.ContainsUserID(id); isMember {
 		if isAdmin, _ := t.ContainsAdminID(id); isAdmin {
-			return fmt.Errorf("User with %s is already an admin of team", id)
+			return fmt.Errorf("User with %d is already an admin of team", id)
 		}
 		t.AdminIDs = append(t.AdminIDs, id)
 		if err := t.Update(c); err != nil {
