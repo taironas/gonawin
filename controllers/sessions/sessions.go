@@ -124,12 +124,12 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 
 	if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
 		// store secret in datastore
-		secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
+		secretID, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
 		if err != nil {
 			log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
 		}
 
-		key := datastore.NewKey(c, "Secret", "", secretId, nil)
+		key := datastore.NewKey(c, "Secret", "", secretID, nil)
 
 		_, err = datastore.Put(c, key, credentials.Secret)
 		if err != nil {
@@ -255,7 +255,7 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	loginData := struct {
-		Url string
+		URL string
 	}{
 		url,
 	}
