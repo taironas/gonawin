@@ -8,9 +8,10 @@ import (
 	"os"
 )
 
-// configuration structure to hold the JSON unmarshalled data.
+// GwConfig is configuration structure to hold the JSON unmarshalled data.
+//
 type GwConfig struct {
-	ApiVersion  string     `json:"apiVersion"`
+	APIVersion  string     `json:"apiVersion"`
 	OfflineMode bool       `json:"offlineMode"`
 	OfflineUser User       `json:"offlineUser"`
 	DevUsers    []User     `json:"devUsers"`
@@ -19,26 +20,35 @@ type GwConfig struct {
 	GooglePlus  GooglePlus `json:"googlePlus"`
 }
 
+// User is the user sturcture used for authentication.
+//
 type User struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Name     string `json:"name"`
 }
 
+// Twitter holds data needed for Twitter authentication.
+//
 type Twitter struct {
 	Token  string `json:"token"`
 	Secret string `json:"secret"`
 }
 
+// Facebook holds data needed for Facebook authentication.
+//
 type Facebook struct {
-	AppId string `json:"appId"`
+	AppID string `json:"appId"`
 }
 
+// GooglePlus holds data needed for GooglePlus authentication.
+//
 type GooglePlus struct {
-	ClientId string `json:"clientId"`
+	ClientID string `json:"clientId"`
 }
 
-// Read configuration file and return it.
+// ReadConfig reads configuration file and return it.
+//
 func ReadConfig(filename string) (*GwConfig, error) {
 
 	c := &GwConfig{}

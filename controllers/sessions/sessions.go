@@ -349,11 +349,11 @@ func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	data := struct {
-		GooglePlusClientId string
-		FacebookAppId      string
+		GooglePlusClientID string
+		FacebookAppID      string
 	}{
-		config.GooglePlus.ClientId,
-		config.Facebook.AppId,
+		config.GooglePlus.ClientID,
+		config.Facebook.AppID,
 	}
 	return templateshlp.RenderJson(w, c, data)
 }
