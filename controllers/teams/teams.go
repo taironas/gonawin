@@ -203,7 +203,7 @@ type newTeamViewModel struct {
 
 func buildNewTeamsViewModel(team *mdl.Team) newTeamViewModel {
 	var tJSON mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly created!", team.Name)
@@ -260,7 +260,7 @@ type showViewModel struct {
 func buildShowViewModel(c appengine.Context, t *mdl.Team, u *mdl.User, players []*mdl.User, tournaments []*mdl.Tournament) showViewModel {
 	// build team json
 	var tJSON mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
+	fieldsToKeep := []string{"ID", "Name", "Description", "AdminIds", "Private", "TournamentIds", "Accuracy"}
 	helpers.InitPointerStructure(t, &tJSON, fieldsToKeep)
 
 	pvm := buildPlayersViewModel(c, players)
@@ -397,7 +397,7 @@ type updateTeamViewModel struct {
 
 func buildUpdateTeamsViewModel(team *mdl.Team) updateTeamViewModel {
 	var tJSON mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("The team %s was correctly updated!", team.Name)

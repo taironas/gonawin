@@ -140,7 +140,7 @@ func New(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
 	}
 	// return the newly created tournament
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
@@ -179,11 +179,11 @@ func Show(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	participants := tournament.Participants(c)
 	teams := tournament.Teams(c)
 
-	fieldsToKeep := []string{"Id", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
+	fieldsToKeep := []string{"ID", "Name", "Description", "AdminIds", "IsFirstStageComplete"}
 	var TournamentJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 
-	participantFieldsToKeep := []string{"Id", "Username", "Alias"}
+	participantFieldsToKeep := []string{"ID", "Username", "Alias"}
 	participantsJSON := make([]mdl.UserJSON, len(participants))
 	helpers.TransformFromArrayOfPointers(&participants, &participantsJSON, participantFieldsToKeep)
 
@@ -364,7 +364,7 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	u.Publish(c, "tournament", "updated tournament", tournament.Entity(), mdl.ActivityEntity{})
 
 	// return the updated tournament
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	var tJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
@@ -480,7 +480,7 @@ func CandidateTeams(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		Joined bool
 	}
 
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	candidatesData := make([]canditateType, len(teams))
 
 	for counterCandidate, team := range teams {
@@ -521,7 +521,7 @@ func Participants(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	participants := tournament.Participants(c)
 
-	participantFieldsToKeep := []string{"Id", "Username", "Alias"}
+	participantFieldsToKeep := []string{"ID", "Username", "Alias"}
 	participantsJSON := make([]mdl.UserJSON, len(participants))
 	helpers.TransformFromArrayOfPointers(&participants, &participantsJSON, participantFieldsToKeep)
 

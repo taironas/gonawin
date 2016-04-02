@@ -84,7 +84,7 @@ type TeamJoinViewModel struct {
 
 func buildTeamJoinViewModel(team *mdl.Team) TeamJoinViewModel {
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You joined team %s.", team.Name)
@@ -123,7 +123,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var tJSON mdl.TeamJSON
 	helpers.CopyToPointerStructure(team, &tJSON)
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.KeepFields(&tJSON, fieldsToKeep)
 
 	// publish new activity

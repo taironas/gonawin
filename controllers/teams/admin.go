@@ -74,7 +74,7 @@ type teamAddAdminViewModel struct {
 func buildTeamAddAdminViewModel(team *mdl.Team, newAdmin *mdl.User) teamAddAdminViewModel {
 
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of team %s.", newAdmin.Name, team.Name)
@@ -124,7 +124,7 @@ type teamRemoveAdminViewModel struct {
 
 func buildTeamRemoveAdminViewModel(team *mdl.Team, oldAdmin *mdl.User) teamRemoveAdminViewModel {
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of team %s.", oldAdmin.Name, team.Name)

@@ -61,7 +61,7 @@ type teamRankingViewModel struct {
 }
 
 func buildTeamRankingViewModel(users []*mdl.User) teamRankingViewModel {
-	fieldsToKeep := []string{"Id", "Username", "Alias", "Score"}
+	fieldsToKeep := []string{"ID", "Username", "Alias", "Score"}
 	u := make([]mdl.UserJSON, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &u, fieldsToKeep)
 

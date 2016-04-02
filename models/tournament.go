@@ -33,7 +33,7 @@ import (
 // Tournament holds tournament entity data.
 //
 type Tournament struct {
-	ID                   int64
+	ID                   int64 `json:"Id"`
 	KeyName              string
 	Name                 string
 	Description          string

@@ -63,7 +63,7 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	var updatedUser *mdl.User
@@ -125,7 +125,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity
@@ -184,7 +184,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// return the left tournament
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity

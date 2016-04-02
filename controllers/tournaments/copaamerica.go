@@ -70,7 +70,7 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	tournament := tournaments[0]
 
 	// tournament
-	fieldsToKeep := []string{"Id", "Name", "Description"}
+	fieldsToKeep := []string{"ID", "Name", "Description"}
 	var tournamentJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
 	// formatted start and end

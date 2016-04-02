@@ -89,7 +89,7 @@ func (clt ChampionsLeagueTournament) MapOf2ndRoundMatches() map[string][][]strin
 	m2nd2 := []string{"2", "Apr/05/2016", "FC Barcelona", "Club Athletico de Madrid", "Camp Nou, Barcelona"}
 	m2nd3 := []string{"3", "Apr/06/2016", "Paris Saint-Germain", "Manchester City FC", "Parc des Princes, Paris"}
 	m2nd4 := []string{"4", "Apr/06/2016", "Vfl Wolfsburg", "Real Madrid CF", "Volkswagen-Arena, Wolfsburg"}
-	m2nd5 := []string{"5", "Apr/12/2016", "Real Madrid CF", "Vfl Worlfsburg", "Estadio Santiago Bernabéu, Madrid"}
+	m2nd5 := []string{"5", "Apr/12/2016", "Real Madrid CF", "Vfl Wolfsburg", "Estadio Santiago Bernabéu, Madrid"}
 	m2nd6 := []string{"6", "Apr/12/2016", "Manchester City FC", "Paris Saint-Germain", "Etihad Stadium, Manchester"}
 	m2nd7 := []string{"7", "Apr/13/2016", "Benfica", "FC Bayern Munchen", "Estadio da Luz, Lisbon"}
 	m2nd8 := []string{"8", "Apr/13/2016", "Club Athletico de Madrid", "FC Barcelona", "Estadio Vicente Calderon, Madrid"}

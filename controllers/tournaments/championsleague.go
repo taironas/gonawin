@@ -70,7 +70,7 @@ func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	tournament := tournaments[0]
 
 	// tournament
-	fieldsToKeep := []string{"Id", "Name", "Description"}
+	fieldsToKeep := []string{"ID", "Name", "Description"}
 	var TournamentJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 	// formatted start and end

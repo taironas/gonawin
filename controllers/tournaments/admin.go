@@ -69,7 +69,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	// send response
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
@@ -122,7 +122,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)

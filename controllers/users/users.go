@@ -53,7 +53,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJSON {
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
+	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email", "Created"}
 	usersJSON := make([]mdl.UserJSON, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJSON, fieldsToKeep)
 	return usersJSON
@@ -128,7 +128,7 @@ func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tou
 }
 
 func buildShowUserViewModel(user *mdl.User) (u mdl.UserJSON) {
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 
 	helpers.InitPointerStructure(user, &u, fieldsToKeep)
 	return
@@ -250,7 +250,7 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 
 func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJSON {
 
-	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
+	fieldsToKeep := []string{"ID", "TeamId", "TeamName", "UserId", "UserName"}
 	trs := make([]mdl.TeamRequestJSON, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
 	return trs
@@ -258,7 +258,7 @@ func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamR
 
 func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJSON {
 
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	inv := make([]mdl.TeamJSON, len(invitations))
 	helpers.TransformFromArrayOfPointers(&invitations, &inv, fieldsToKeep)
 	return inv
@@ -331,7 +331,7 @@ type updateViewModel struct {
 
 func buildUpdateViewModel(u *mdl.User) updateViewModel {
 
-	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
+	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email"}
 	var uJSON mdl.UserJSON
 	helpers.InitPointerStructure(u, &uJSON, fieldsToKeep)
 
@@ -565,7 +565,7 @@ type tournamentsUserViewModel struct {
 }
 
 func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUserViewModel {
-	fieldsToKeep := []string{"Id", "Name"}
+	fieldsToKeep := []string{"ID", "Name"}
 	json := make([]mdl.TournamentJSON, len(tournaments))
 	helpers.TransformFromArrayOfPointers(&tournaments, &json, fieldsToKeep)
 
@@ -625,7 +625,7 @@ type allowInvitationUserViewModel struct {
 func buildAllowInvitationUserViewModel(team *mdl.Team) allowInvitationUserViewModel {
 
 	var json mdl.TeamJSON
-	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &json, fieldsToKeep)
 
 	msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
