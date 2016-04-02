@@ -35,14 +35,14 @@ import (
 // ScoreOfTournament holds the user's score for a tournament.
 //
 type ScoreOfTournament struct {
-	ScoreID      int64 `json:"Id"`           // id of score entity
+	ScoreID      int64 `json:"ScoreId"`           // id of score entity
 	TournamentID int64 `json:"TournamentId"` // id of tournament
 }
 
 // User represents the User entity.
 //
 type User struct {
-	ID                    int64
+	ID                    int64 `json:"Id"`
 	Email                 string
 	Username              string
 	Name                  string

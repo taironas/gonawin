@@ -238,6 +238,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 // GoogleAccountsLoginURL handler, use it to get Google accounts login URL.
+//
 func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
@@ -255,7 +256,7 @@ func GoogleAccountsLoginURL(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	loginData := struct {
-		URL string
+		URL string `json:"Url"`
 	}{
 		url,
 	}
@@ -349,8 +350,8 @@ func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	data := struct {
-		GooglePlusClientID string
-		FacebookAppID      string
+		GooglePlusClientID string `json:"GooglePlusClientId"`
+		FacebookAppID      string `json:"FacebookAppId"`
 	}{
 		config.GooglePlus.ClientID,
 		config.Facebook.AppID,
