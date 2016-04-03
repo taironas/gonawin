@@ -16,8 +16,6 @@
 
 package helpers
 
-import ()
-
 // ArgMaxInt64 returns the index and the max value.
 //
 func ArgMaxInt64(arr []int64) (index int, max int64) {
