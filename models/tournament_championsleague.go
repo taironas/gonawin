@@ -205,7 +205,7 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 		matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
 		matchInternalID, _ := strconv.Atoi(matchData[cMatchID])
 
-		rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
+		emptyrule := ""
 		emptyresult := int64(0)
 		match := &Tmatch{
 			matchID,
@@ -214,7 +214,7 @@ func CreateChampionsLeague(c appengine.Context, adminID int64) (*Tournament, err
 			mapTeamID[matchData[cMatchTeam1]],
 			mapTeamID[matchData[cMatchTeam2]],
 			matchData[cMatchLocation],
-			rule,
+			emptyrule,
 			emptyresult,
 			emptyresult,
 			false,
