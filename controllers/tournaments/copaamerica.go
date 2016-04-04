@@ -63,7 +63,7 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	tournaments := mdl.FindTournaments(c, "Name", "2015 Copa America")
 	if tournaments == nil {
-		log.Errorf(c, "%s Champions League tournament was not found.", desc)
+		log.Errorf(c, "%s Copa America tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
