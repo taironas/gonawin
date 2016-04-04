@@ -38,7 +38,7 @@
                                 <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-arrow-up"></span></button>
                               </div>
                               <div class="col-xs-1">
-                        			  <button class="btn btn-warning btn-xs" type="button" ng-class="{disabled: !m.CanPredict}" ng-click="blockPrediction(m, $index, $parent.$index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-ban-circle"></span></button>
+                        			  <button class="btn btn-warning btn-xs" type="button" ng-class="{disabled: !m.CanPredict} || m.Finished" ng-click="blockPrediction(m, $index, $parent.$index, $parent.$parent.$index)"><span class="glyphicon glyphicon glyphicon-ban-circle"></span></button>
                         			</div>
                             </div>
                           </form>

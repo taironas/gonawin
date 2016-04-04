@@ -640,6 +640,9 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	} else if t.Name == "2014-2015 UEFA Champions League" {
 		clt := ChampionsLeagueTournament{}
 		tb = clt
+	} else if t.Name == "2015-2016 UEFA Champions League" {
+		clt := ChampionsLeagueTournament20152016{}
+		tb = clt
 	} else if t.Name == "2015 Copa America" {
 		cat := CopaAmericaTournament{}
 		tb = cat
