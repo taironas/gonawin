@@ -41,7 +41,7 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	c := appengine.NewContext(r)
 	desc := "New Champions League Handler:"
 
-	tournament, err := mdl.CreateChampionsLeague(c, u.ID)
+	tournament, err := mdl.CreateChampionsLeague20152016(c, u.Id)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
