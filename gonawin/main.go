@@ -120,9 +120,13 @@ func init() {
 	r.HandleFunc("/j/tournaments/newcl", checkErrors(adminAuthorized(tournamentsctrl.NewChampionsLeague)))
 	r.HandleFunc("/j/tournaments/getcl", checkErrors(authorized(tournamentsctrl.GetChampionsLeague)))
 
-	// tournament champions league
+	// tournament copa america
 	r.HandleFunc("/j/tournaments/newca", checkErrors(adminAuthorized(tournamentsctrl.NewCopaAmerica)))
 	r.HandleFunc("/j/tournaments/getca", checkErrors(authorized(tournamentsctrl.GetCopaAmerica)))
+
+	// tournament euro
+	r.HandleFunc("/j/tournaments/neweuro", checkErrors(adminAuthorized(tournamentsctrl.NewEuro)))
+	r.HandleFunc("/j/tournaments/geteuro", checkErrors(authorized(tournamentsctrl.GetEuro)))
 
 	// tournament
 	r.HandleFunc("/j/tournaments/:tournamentId/groups", checkErrors(authorized(tournamentsctrl.Groups)))

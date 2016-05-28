@@ -80,7 +80,17 @@ tournamentControllers.controller('TournamentListCtrl', ['$scope', '$rootScope', 
       });
     };
 
-
+    // start euro create action
+    $scope.createEuro = function() {
+      console.log('Creating euro');
+      Tournament.saveEuro($scope.tournament, function(tournament) {
+        console.log('Euro Tournament: ', tournament);
+        $location.path('/tournaments/' + tournament.Id);
+      }, function(err) {
+        console.log('save failed: ', err.data);
+        $scope.messageDanger = err.data;
+      });
+    };
 }]);
 
 // TournamentCardCtrl: handles team card
