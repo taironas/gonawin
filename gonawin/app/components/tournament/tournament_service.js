@@ -55,5 +55,7 @@ tournamentService.factory('Tournament', function($http, $resource, $cookieStore)
        getChampionsLeague: {method: 'GET', url: 'j/tournaments/getcl', cache : true},
        saveCopaAmerica: {method: 'POST', url: 'j/tournaments/newca'},
        getCopaAmerica: {method: 'GET', url: 'j/tournaments/getca', cache : true},
+       saveEuro: {method: 'POST', url: 'j/tournaments/neweuro'},
+       getEuro: {method: 'GET', url: 'j/tournaments/geteuro', cache : true},
      });
 });

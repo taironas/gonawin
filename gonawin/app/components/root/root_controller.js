@@ -13,5 +13,5 @@ rootControllers.controller('RootCtrl', ['$rootScope', '$scope', '$location', 'To
   $rootScope.messageInfo = undefined;
 
   // fetch ChampionsLeague tournament
-  $scope.tournamentData =  Tournament.getChampionsLeague();
+  $scope.tournamentData =  Tournament.getEuro();
 }]);

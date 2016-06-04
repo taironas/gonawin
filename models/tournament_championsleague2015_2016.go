@@ -184,7 +184,7 @@ func CreateChampionsLeague20152016(c appengine.Context, adminId int64) (*Tournam
 		log.Infof(c, "Champions League: match: new key ok")
 
 		matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-		matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+		matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
 
 		emptyrule := ""
 		emptyresult := int64(0)
@@ -232,7 +232,7 @@ func CreateChampionsLeague20152016(c appengine.Context, adminId int64) (*Tournam
 			log.Infof(c, "Champions League: match: new key ok")
 
 			matchTime, _ := time.Parse(shortForm, matchData[cMatchDate])
-			matchInternalId, _ := strconv.Atoi(matchData[cMatchId])
+			matchInternalId, _ := strconv.Atoi(matchData[cMatchID])
 
 			rule := fmt.Sprintf("%s %s", matchData[cMatchTeam1], matchData[cMatchTeam2])
 			emptyresult := int64(0)
@@ -292,7 +292,7 @@ func CreateChampionsLeague20152016(c appengine.Context, adminId int64) (*Tournam
 }
 
 // From tournament entity build map of teams.
-func (clt ChampionsLeagueTournament20152016) MapOfIdTeams(c appengine.Context, tournament *Tournament) map[int64]string {
+func (clt ChampionsLeagueTournament20152016) MapOfIDTeams(c appengine.Context, tournament *Tournament) map[int64]string {
 
 	mapIDTeams := make(map[int64]string)
 
@@ -301,22 +301,22 @@ func (clt ChampionsLeagueTournament20152016) MapOfIdTeams(c appengine.Context, t
 	for i := 0; i < 4; i++ {
 		matchID := matches2ndStage[i]
 
-		m, err := MatchById(c, matchID)
+		m, err := MatchByID(c, matchID)
 		if err != nil {
 			log.Errorf(c, " MapOfIdTeams, cannot find match with ID=%", matchID)
 		} else {
-			t1, err1 := TTeamById(c, m.TeamId1)
+			t1, err1 := TTeamByID(c, m.TeamID1)
 			if err1 != nil {
-				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId1)
+				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamID1)
 			} else {
-				mapIDTeams[t1.Id] = t1.Name
+				mapIDTeams[t1.ID] = t1.Name
 			}
 
-			t2, err2 := TTeamById(c, m.TeamId2)
+			t2, err2 := TTeamByID(c, m.TeamID2)
 			if err2 != nil {
-				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamId2)
+				log.Errorf(c, " MapOfIdTeams, cannot find tteam with ID=%", m.TeamID2)
 			} else {
-				mapIDTeams[t2.Id] = t2.Name
+				mapIDTeams[t2.ID] = t2.Name
 			}
 		}
 	}
