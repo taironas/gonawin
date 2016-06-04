@@ -253,7 +253,7 @@ func buildMatchesFromTournament(c appengine.Context, t *mdl.Tournament, u *mdl.U
 
 // From a tournament entity return an array of first phase MatchJSON data structure.
 func buildFirstPhaseMatches(c appengine.Context, t *mdl.Tournament, u *mdl.User) []MatchJSON {
-	desc := "buildMatchesFromTournament"
+	desc := "buildFirstPhaseMatches"
 
 	matches := mdl.Matches(c, t.Matches1stStage)
 	var predicts mdl.Predicts

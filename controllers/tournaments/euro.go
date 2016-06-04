@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Santiago Arias | Remy Jourde
+ * Copyright (c) 2016 Santiago Arias | Remy Jourde
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -30,18 +30,18 @@ import (
 	mdl "github.com/taironas/gonawin/models"
 )
 
-// NewChampionsLeague creates a champions league tournament.
+// NewEuro creates a euro tournament.
 //
-func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func NewEuro(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "POST" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "New Champions League Handler:"
+	desc := "New Euro Handler:"
 
-	tournament, err := mdl.CreateChampionsLeague20152016(c, u.ID)
+	tournament, err := mdl.CreateEuro2016(c, u.ID)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -50,20 +50,20 @@ func NewChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) err
 	return templateshlp.RenderJSON(w, c, tournament)
 }
 
-// GetChampionsLeague returns the json data of the champions league tournament.
+// GetEuro returns the json data of the Euro tournament.
 //
-func GetChampionsLeague(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
+func GetEuro(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	if r.Method != "GET" {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
 	c := appengine.NewContext(r)
-	desc := "Get Champions League Handler:"
+	desc := "Get Euro Handler:"
 
-	tournaments := mdl.FindTournaments(c, "Name", "2015-2016 UEFA Champions League")
+	tournaments := mdl.FindTournaments(c, "Name", "2016 UEFA Euro")
 	if tournaments == nil {
-		log.Errorf(c, "%s Champions League tournament was not found.", desc)
+		log.Errorf(c, "%s Euro tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
