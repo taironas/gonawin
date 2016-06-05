@@ -31,11 +31,11 @@ import (
 // Tmatch represents a tournament match.
 //
 type Tmatch struct {
-	ID         int64     `json:"Id"`       // datastore match id
-	IDNumber   int64     `json:"IdNumber"` // id of match in tournament
+	Id         int64     // datastore match id
+	IdNumber   int64     // id of match in tournament
 	Date       time.Time // date of match
-	TeamID1    int64     `json:"TeamID1"` // id of 1st team
-	TeamID2    int64     `json:"TeamID2"` // id of 2nd team
+	TeamId1    int64     // id of 1st team
+	TeamId2    int64     // id of 2nd team
 	Location   string    // match location
 	Rule       string    // we use this field to store a specific match rule.
 	Result1    int64     // result of 1st team
@@ -65,7 +65,7 @@ func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 	for _, matchID := range matchIds {
 		m, err := MatchByID(c, matchID)
 		if err != nil {
-			log.Errorf(c, " Matches, cannot find match with ID=%", matchID)
+			log.Errorf(c, " Matches, cannot find match with Id=%", matchID)
 		} else {
 			matches = append(matches, m)
 		}
@@ -78,13 +78,13 @@ func Matches(c appengine.Context, matchIds []int64) []*Tmatch {
 func GetMatchByIDNumber(c appengine.Context, tournament Tournament, matchInternalID int64) *Tmatch {
 	matches1stStage := Matches(c, tournament.Matches1stStage)
 	for _, m := range matches1stStage {
-		if m.IDNumber == matchInternalID {
+		if m.IdNumber == matchInternalID {
 			return m
 		}
 	}
 	matches2ndStage := Matches(c, tournament.Matches2ndStage)
 	for _, m := range matches2ndStage {
-		if m.IDNumber == matchInternalID {
+		if m.IdNumber == matchInternalID {
 			return m
 		}
 	}
@@ -101,7 +101,7 @@ func MatchKeyByID(c appengine.Context, id int64) *datastore.Key {
 // UpdateMatch updates a match.
 //
 func UpdateMatch(c appengine.Context, m *Tmatch) error {
-	k := MatchKeyByID(c, m.ID)
+	k := MatchKeyByID(c, m.Id)
 	oldMatch := new(Tmatch)
 	if err := datastore.Get(c, k, oldMatch); err == nil {
 		if _, err = datastore.Put(c, k, m); err != nil {
@@ -116,7 +116,7 @@ func UpdateMatch(c appengine.Context, m *Tmatch) error {
 func UpdateMatches(c appengine.Context, matches []*Tmatch) error {
 	keys := make([]*datastore.Key, len(matches))
 	for i := range keys {
-		keys[i] = MatchKeyByID(c, matches[i].ID)
+		keys[i] = MatchKeyByID(c, matches[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, matches); err != nil {
 		return err
@@ -148,7 +148,7 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 
 	for i, m := range matches {
 		if results1[i] < 0 || results2[i] < 0 {
-			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.ID)
+			log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		m.Result1 = results1[i]
@@ -165,11 +165,11 @@ func SetResults(c appengine.Context, matches []*Tmatch, results1 []int64, result
 	phases := MatchesGroupByPhase(t, allMatches)
 
 	for _, m := range matches {
-		log.Infof(c, "%s Trigger current match: %v", desc, m.ID)
+		log.Infof(c, "%s Trigger current match: %v", desc, m.Id)
 
 		if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 			if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IDNumber, err)
+				log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 				return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 			}
 			if err := UpdateGroup(c, g); err != nil {
@@ -204,7 +204,7 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 
 	desc := "Set Result:"
 	if result1 < 0 || result2 < 0 {
-		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.ID)
+		log.Errorf(c, "%s unable to set result on match with id: %v", desc, m.Id)
 		return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 	}
 	m.Result1 = result1
@@ -213,22 +213,22 @@ func SetResult(c appengine.Context, m *Tmatch, result1 int64, result2 int64, t *
 
 	var err error
 	if err = UpdateMatch(c, m); err != nil {
-		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.ID, err)
+		log.Errorf(c, "%s unable to set result on match with id: %v, %v", desc, m.Id, err)
 		return err
 	}
 
 	// update score for all users.
 	if err1 := t.UpdateUsersScore(c, m); err1 != nil {
-		log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.ID, err)
+		log.Errorf(c, "%s unable to update users score on match with id: %v, %v", desc, m.Id, err)
 	}
 	// update score for all teams.
 	if err1 := t.UpdateTeamsAccuracy(c, m); err1 != nil {
-		log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.ID, err)
+		log.Errorf(c, "%s unable to update teams score on match with id: %v, %v", desc, m.Id, err)
 	}
 
 	if ismatch, g := t.IsMatchInGroup(c, m); ismatch == true {
 		if err := UpdatePointsAndGoals(c, g, m, t); err != nil {
-			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IDNumber, err)
+			log.Errorf(c, "%s Update Points and Goals: unable to update points and goals for group for match with id:%v error: %v", desc, m.IdNumber, err)
 			return errors.New(helpers.ErrorCodeMatchCannotUpdate)
 		}
 		UpdateGroup(c, g)
@@ -288,7 +288,7 @@ func GetMatchesByPhase(c appengine.Context, t *Tournament, phaseName string) []*
 
 	var filteredMatches []*Tmatch
 	for i, v := range matches {
-		if v.IDNumber >= low && v.IDNumber <= high {
+		if v.IdNumber >= low && v.IdNumber <= high {
 			filteredMatches = append(filteredMatches, matches[i])
 		}
 	}
@@ -315,7 +315,7 @@ func MatchesGroupByPhase(t *Tournament, matches []*Tmatch) []Tphase {
 
 		var filteredMatches []Tmatch
 		for _, v := range matches {
-			if v.IDNumber >= low && v.IDNumber <= high {
+			if v.IdNumber >= low && v.IdNumber <= high {
 				filteredMatches = append(filteredMatches, *v)
 			}
 		}

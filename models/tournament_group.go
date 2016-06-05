@@ -29,7 +29,7 @@ import (
 // Tgroup represents the group of teams of a tournament
 //
 type Tgroup struct {
-	ID      int64
+	Id      int64
 	Name    string
 	Teams   []Tteam
 	Matches []Tmatch
@@ -61,7 +61,7 @@ func Groups(c appengine.Context, groupIDs []int64) []*Tgroup {
 
 		g, err := GroupByID(c, groupID)
 		if err != nil {
-			log.Errorf(c, " Groups, cannot find group with ID=%", groupID)
+			log.Errorf(c, " Groups, cannot find group with Id=%", groupID)
 		} else {
 			groups = append(groups, g)
 		}
@@ -71,9 +71,9 @@ func Groups(c appengine.Context, groupIDs []int64) []*Tgroup {
 
 // GroupKeyByID gets pointer to a group key given a group id.
 //
-func GroupKeyByID(c appengine.Context, ID int64) *datastore.Key {
+func GroupKeyByID(c appengine.Context, Id int64) *datastore.Key {
 
-	key := datastore.NewKey(c, "Tgroup", "", ID, nil)
+	key := datastore.NewKey(c, "Tgroup", "", Id, nil)
 	return key
 }
 
@@ -82,7 +82,7 @@ func GroupKeyByID(c appengine.Context, ID int64) *datastore.Key {
 func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 	keys := make([]*datastore.Key, len(groups))
 	for i := range keys {
-		keys[i] = GroupKeyByID(c, groups[i].ID)
+		keys[i] = GroupKeyByID(c, groups[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, groups); err != nil {
 		return err
@@ -93,7 +93,7 @@ func UpdateGroups(c appengine.Context, groups []*Tgroup) error {
 // UpdateGroup updates a group.
 //
 func UpdateGroup(c appengine.Context, g *Tgroup) error {
-	k := GroupKeyByID(c, g.ID)
+	k := GroupKeyByID(c, g.Id)
 	oldGroup := new(Tgroup)
 	if err := datastore.Get(c, k, oldGroup); err == nil {
 		if _, err = datastore.Put(c, k, g); err != nil {
@@ -120,7 +120,7 @@ func DestroyGroups(c appengine.Context, groupIDs []int64) error {
 //
 func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament *Tournament) error {
 	for i, t := range g.Teams {
-		if t.ID == m.TeamID1 {
+		if t.Id == m.TeamId1 {
 			if m.Result1 > m.Result2 {
 				g.Points[i] += 3
 			} else if m.Result1 == m.Result2 {
@@ -128,7 +128,7 @@ func UpdatePointsAndGoals(c appengine.Context, g *Tgroup, m *Tmatch, tournament 
 			}
 			g.GoalsF[i] += m.Result1
 			g.GoalsA[i] += m.Result2
-		} else if t.ID == m.TeamID2 {
+		} else if t.Id == m.TeamId2 {
 			if m.Result2 > m.Result1 {
 				g.Points[i] += 3
 			} else if m.Result2 == m.Result1 {
@@ -147,7 +147,7 @@ func (t *Tournament) IsMatchInGroup(c appengine.Context, m *Tmatch) (bool, *Tgro
 	groups := Groups(c, t.GroupIds)
 	for i, g := range groups {
 		for _, match := range g.Matches {
-			if m.ID == match.ID {
+			if m.Id == match.Id {
 				return true, groups[i]
 			}
 		}

@@ -75,7 +75,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	c := appengine.NewContext(r)
 
-	userInfo := authhlp.UserInfo{ID: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
+	userInfo := authhlp.UserInfo{Id: r.FormValue("id"), Email: r.FormValue("email"), Name: r.FormValue("name")}
 
 	var verifyURL string
 	if r.FormValue("provider") == "google" {
@@ -94,7 +94,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.ID)
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
 
 	userData := struct {
 		User     *mdl.User
@@ -124,12 +124,12 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 
 	if err = memcache.Set(c, "secret", credentials.Secret); err != nil {
 		// store secret in datastore
-		secretID, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
+		secretId, _, err := datastore.AllocateIDs(c, "Secret", nil, 1)
 		if err != nil {
-			log.Errorf(c, "%s Cannot allocate ID for secret. %v", desc, err)
+			log.Errorf(c, "%s Cannot allocate Id for secret. %v", desc, err)
 		}
 
-		key := datastore.NewKey(c, "Secret", "", secretID, nil)
+		key := datastore.NewKey(c, "Secret", "", secretId, nil)
 
 		_, err = datastore.Put(c, key, credentials.Secret)
 		if err != nil {
@@ -224,7 +224,7 @@ func TwitterUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.ID)
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
 
 	userData := struct {
 		User     *mdl.User
@@ -299,7 +299,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if u.ID != r.FormValue("auth_token") {
-		log.Errorf(c, "%s Auth token doesn't match user ID", desc)
+		log.Errorf(c, "%s Auth token doesn't match user Id", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsAccessTokenNotValid)}
 	}
 
@@ -311,7 +311,7 @@ func GoogleUser(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
-	imageURL := helpers.UserImageURL(user.Username, user.ID)
+	imageURL := helpers.UserImageURL(user.Username, user.Id)
 
 	userData := struct {
 		User     *mdl.User
@@ -350,11 +350,11 @@ func AuthServiceIds(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 
 	data := struct {
-		GooglePlusClientID string `json:"GooglePlusClientId"`
-		FacebookAppID      string `json:"FacebookAppId"`
+		GooglePlusClientId string `json:"GooglePlusClientId"`
+		FacebookAppId      string `json:"FacebookAppId"`
 	}{
-		config.GooglePlus.ClientID,
-		config.Facebook.AppID,
+		config.GooglePlus.ClientId,
+		config.Facebook.AppId,
 	}
 	return templateshlp.RenderJSON(w, c, data)
 }

@@ -32,7 +32,7 @@ import (
 // has been specified.
 //
 type Activity struct {
-	ID        int64
+	Id        int64
 	Type      string         // Type of the activity (welcome, team, tournament, match, accuracy, predict, score)
 	Verb      string         // Describes the action
 	Actor     ActivityEntity // The one who/which performs the action
@@ -45,7 +45,7 @@ type Activity struct {
 // ActivityEntity represents the entity of an activity.
 //
 type ActivityEntity struct {
-	ID          int64 `json:"Id,omitempty"`
+	Id          int64 `json:"Id,omitempty"`
 	Type        string
 	DisplayName string // Name which will be displayed in the view
 }
@@ -53,7 +53,7 @@ type ActivityEntity struct {
 // ActivityJSON is the JSON representation of an activity.
 //
 type ActivityJSON struct {
-	ID        *int64          `json:"Id,omitempty"`
+	Id        *int64          `json:",omitempty"`
 	Type      *string         `json:",omitempty"`
 	Verb      *string         `json:",omitempty"`
 	Actor     *ActivityEntity `json:",omitempty"`
@@ -110,7 +110,7 @@ func SaveActivities(c appengine.Context, activities []*Activity) error {
 	var acts []*Activity
 	for i := range activities {
 		if activities[i] != nil {
-			key := datastore.NewKey(c, "Activity", "", activities[i].ID, nil)
+			key := datastore.NewKey(c, "Activity", "", activities[i].Id, nil)
 			keys = append(keys, key)
 			acts = append(acts, activities[i])
 		}
@@ -132,7 +132,7 @@ func (a *Activity) save(c appengine.Context) error {
 		return errors.New("Activity.save: unable to allocate an identifier for Activity")
 	}
 	key := datastore.NewKey(c, "Activity", "", id, nil)
-	a.ID = id
+	a.Id = id
 	if _, err := datastore.Put(c, key, a); err != nil {
 		log.Errorf(c, " Activity.save: error occurred during Put call: %v", err)
 		return errors.New("Activity.save: unable to put Activity in Datastore")
@@ -144,7 +144,7 @@ func (a *Activity) save(c appengine.Context) error {
 //
 func (a *Activity) AddNewActivityID(c appengine.Context, u *User) error {
 	// add new activity id to user activities
-	u.ActivityIds = append(u.ActivityIds, a.ID)
+	u.ActivityIds = append(u.ActivityIds, a.Id)
 	return nil
 	// // update user with new activity id
 	// return u.Update(c)

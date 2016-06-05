@@ -65,8 +65,8 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// publish new activity
-	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
-		log.Errorf(c, "%s  User not found %v", desc, u.ID)
+	if updatedUser, err := mdl.UserByID(c, u.Id); err != nil {
+		log.Errorf(c, "%s  User not found %v", desc, u.Id)
 	} else {
 		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
@@ -84,7 +84,7 @@ type TeamJoinViewModel struct {
 
 func buildTeamJoinViewModel(team *mdl.Team) TeamJoinViewModel {
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You joined team %s.", team.Name)
@@ -111,7 +111,7 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if mdl.IsTeamAdmin(c, team.ID, u.ID) {
+	if mdl.IsTeamAdmin(c, team.Id, u.Id) {
 		log.Errorf(c, "%s Team administrator cannot leave the team", desc)
 		return &helpers.Forbidden{Err: errors.New(helpers.ErrorCodeTeamAdminCannotLeave)}
 	}
@@ -123,12 +123,12 @@ func Leave(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 
 	var tJSON mdl.TeamJSON
 	helpers.CopyToPointerStructure(team, &tJSON)
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.KeepFields(&tJSON, fieldsToKeep)
 
 	// publish new activity
-	if updatedUser, err := mdl.UserByID(c, u.ID); err != nil {
-		log.Errorf(c, "User not found %v", u.ID)
+	if updatedUser, err := mdl.UserByID(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
 	} else {
 		updatedUser.Publish(c, "team", "left team", team.Entity(), mdl.ActivityEntity{})
 	}

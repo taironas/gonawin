@@ -32,17 +32,17 @@ import (
 //
 // If some participants arrive later to the tournament, previous accuracies count as 0, and this does not impact previous teams accuracy.
 type Accuracy struct {
-	ID           int64
-	TeamID       int64
-	TournamentID int64
+	Id           int64
+	TeamId       int64
+	TournamentId int64
 	Accuracies   []float64
 }
 
 // AccuracyOverall represents the accuracy for a tournament and its progression.
 //
 type AccuracyOverall struct {
-	ID           int64
-	TournamentID int64
+	Id           int64
+	TournamentId int64
 	Accuracy     float64       // overall accuracy
 	Progression  []Progression // progression of accuracies of team in tournament. (right now the last 5 accuracy logs)
 }
@@ -56,22 +56,22 @@ type Progression struct {
 // AccuracyJSON is the JSON representation of the Accuracy entity.
 //
 type AccuracyJSON struct {
-	ID           *int64     `json:"Id,omitempty"`
-	TeamID       *int64     `json:"TeamId,omitempty"`
-	TournamentID *int64     `json:"TournamentId,omitempty"`
+	Id           *int64     `json:"Id,omitempty"`
+	TeamId       *int64     `json:"TeamId,omitempty"`
+	TournamentId *int64     `json:"TournamentId,omitempty"`
 	Accuracies   *[]float64 `json:",omitempty"`
 }
 
 // CreateAccuracy creates an Accuracy entity.
 //
-func CreateAccuracy(c appengine.Context, teamID int64, tournamentID int64, oldmatches int) (*Accuracy, error) {
+func CreateAccuracy(c appengine.Context, teamID int64, tournamentId int64, oldmatches int) (*Accuracy, error) {
 	accuracyID, _, err := datastore.AllocateIDs(c, "Accuracy", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Accuracy", "", accuracyID, nil)
 	accuracies := make([]float64, oldmatches)
-	a := &Accuracy{accuracyID, teamID, tournamentID, accuracies}
+	a := &Accuracy{accuracyID, teamID, tournamentId, accuracies}
 	if _, err = datastore.Put(c, key, a); err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (a *Accuracy) Add(c appengine.Context, acc float64) (float64, error) {
 // Update a team given an id and a team pointer.
 //
 func (a *Accuracy) Update(c appengine.Context) error {
-	k := AccuracyKeyByID(c, a.ID)
+	k := AccuracyKeyByID(c, a.Id)
 	oldAcc := new(Accuracy)
 	if err := datastore.Get(c, k, oldAcc); err == nil {
 		if _, err = datastore.Put(c, k, a); err != nil {

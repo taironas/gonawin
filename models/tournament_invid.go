@@ -31,7 +31,7 @@ import (
 // TournamentInvertedIndex represents the indexing date for tournament.
 //
 type TournamentInvertedIndex struct {
-	ID            int64
+	Id            int64
 	KeyName       string
 	TournamentIds []byte
 }
@@ -39,7 +39,7 @@ type TournamentInvertedIndex struct {
 // TournamentInvertedIndexJSON is the JSON representation of the TournamentInvertedIndex struct.
 //
 type TournamentInvertedIndexJSON struct {
-	ID            *int64  `json:"Id,omitempty"`
+	Id            *int64  `json:",omitempty"`
 	KeyName       *string `json:",omitempty"`
 	TournamentIds *[]byte `json:",omitempty"`
 }
@@ -104,7 +104,7 @@ func AddToTournamentInvertedIndex(c appengine.Context, name string, id int64) er
 			log.Infof(c, " update row with new info")
 			log.Infof(c, " current info: keyname: %v", invID.KeyName)
 			log.Infof(c, " current info: teamIDs: %v", string(invID.TournamentIds))
-			k := TournamentInvertedIndexKeyByID(c, invID.ID)
+			k := TournamentInvertedIndexKeyByID(c, invID.Id)
 
 			if newIds := helpers.MergeIds(invID.TournamentIds, id); len(newIds) > 0 {
 				log.Infof(c, " current info: new team ids: %v", newIds)
@@ -174,7 +174,7 @@ func tournamentInvertedIndexrRemoveWord(c appengine.Context, w string, id int64)
 		log.Infof(c, " word %v does not exist in Tournament InvertedIndex so nothing to remove", w)
 	} else {
 		// update row with new info
-		k := TournamentInvertedIndexKeyByID(c, invID.ID)
+		k := TournamentInvertedIndexKeyByID(c, invID.Id)
 
 		if newIds, err1 := helpers.RemovefromIds(invID.TournamentIds, id); err1 == nil {
 			log.Infof(c, " new tournament ids after removal: %v", newIds)

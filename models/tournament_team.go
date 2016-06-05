@@ -29,7 +29,7 @@ import (
 // Tteam represents a tournament team.
 //
 type Tteam struct {
-	ID   int64
+	Id   int64
 	Name string
 	Iso  string
 }
@@ -86,11 +86,11 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 
 			if rule[0] == oldName {
 				rule[0] = newName
-				m.TeamID1 = newTeamID
+				m.TeamId1 = newTeamID
 				updateMatch = true
 			} else if rule[len(rule)-1] == oldName {
 				rule[len(rule)-1] = newName
-				m.TeamID2 = newTeamID
+				m.TeamId2 = newTeamID
 				updateMatch = true
 			}
 
@@ -107,18 +107,18 @@ func (t *Tournament) UpdateTournamentTeam(c appengine.Context, phaseName, oldNam
 		// low limit, all matches above this limit should be updated.
 		low := limits[phaseName][0]
 		for _, m := range matches2ndPhase {
-			if m.IDNumber < low {
+			if m.IdNumber < low {
 				continue
 			}
 			updateMatch := false
 			// update teams
-			if m.TeamID1 == oldTeamID {
+			if m.TeamId1 == oldTeamID {
 				updateMatch = true
-				m.TeamID1 = newTeamID
+				m.TeamId1 = newTeamID
 			}
-			if m.TeamID2 == oldTeamID {
+			if m.TeamId2 == oldTeamID {
 				updateMatch = true
-				m.TeamID2 = newTeamID
+				m.TeamId2 = newTeamID
 			}
 			// update rules if needed.
 			rule := strings.Split(m.Rule, " ")

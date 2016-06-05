@@ -38,13 +38,13 @@ type Twitter struct {
 // Facebook holds data needed for Facebook authentication.
 //
 type Facebook struct {
-	AppID string `json:"appId"`
+	AppId string `json:"appId"`
 }
 
 // GooglePlus holds data needed for GooglePlus authentication.
 //
 type GooglePlus struct {
-	ClientID string `json:"clientId"`
+	ClientId string `json:"clientId"`
 }
 
 // ReadConfig reads configuration file and return it.

@@ -28,18 +28,18 @@ import (
 // UserRequest represents the user request entity.
 //
 type UserRequest struct {
-	ID      int64
-	TeamID  int64
-	UserID  int64
+	Id      int64
+	TeamId  int64
+	UserId  int64
 	Created time.Time
 }
 
 // UserRequestJSON is JSON representation of the UserRequest structure.
 //
 type UserRequestJSON struct {
-	ID      *int64     `json:"Id,omitempty"`
-	TeamID  *int64     `json:"TeamId,omitempty"`
-	UserID  *int64     `json:"UserId,omitempty"`
+	Id      *int64     `json:",omitempty"`
+	TeamId  *int64     `json:",omitempty"`
+	UserId  *int64     `json:",omitempty"`
 	Created *time.Time `json:",omitempty"`
 }
 
@@ -67,7 +67,7 @@ func CreateUserRequest(c appengine.Context, teamID int64, userID int64) (*UserRe
 // Destroy a user request given a teamrequestid.
 //
 func (ur *UserRequest) Destroy(c appengine.Context) error {
-	key := datastore.NewKey(c, "UserRequest", "", ur.ID, nil)
+	key := datastore.NewKey(c, "UserRequest", "", ur.Id, nil)
 	return datastore.Delete(c, key)
 }
 

@@ -59,7 +59,7 @@ type MatchWithPredictionJSON struct {
 // UserPredictionJSON is a variable to hold user data and a prediction.
 //
 type UserPredictionJSON struct {
-	ID       int64 `json:"Id,omitempty"`
+	Id       int64 `json:"Id,omitempty"`
 	Username string
 	Alias    string
 	Predict  string
@@ -171,7 +171,7 @@ func CalendarWithPrediction(w http.ResponseWriter, r *http.Request, u *mdl.User)
 	for i, p := range players {
 		var predicts []*mdl.Predict
 		if predicts, err = mdl.PredictsByIds(c, p.PredictIds); err != nil {
-			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.ID, err)
+			log.Infof(c, "%v something failed when calling PredictsByIds for player %v : %v", desc, p.Id, err)
 			continue
 		}
 		predictsByPlayer[i] = predicts
@@ -229,11 +229,11 @@ func matchParticipants(m MatchJSON, players []*mdl.User, predictsByPlayer []mdl.
 
 	participants := make([]UserPredictionJSON, len(players))
 	for i, p := range players {
-		participants[i].ID = p.ID
+		participants[i].Id = p.Id
 		participants[i].Username = p.Username
 		participants[i].Alias = p.Alias
 		prediction := "-"
-		if ok, index := predictsByPlayer[i].ContainsMatchID(m.ID); ok {
+		if ok, index := predictsByPlayer[i].ContainsMatchID(m.Id); ok {
 			prediction = fmt.Sprintf("%v - %v", predictsByPlayer[i][index].Result1, predictsByPlayer[i][index].Result2)
 		}
 		participants[i].Predict = prediction
@@ -261,7 +261,7 @@ func matchesGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []PhaseJSON {
 
 		var filteredMatches []MatchJSON
 		for _, v := range matches {
-			if v.IDNumber >= low && v.IDNumber <= high {
+			if v.IdNumber >= low && v.IdNumber <= high {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}

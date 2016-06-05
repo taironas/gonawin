@@ -106,7 +106,7 @@ func teamsGroupByPhase(t *mdl.Tournament, matches []MatchJSON) []teamsByPhase {
 
 		var filteredMatches []MatchJSON
 		for _, v := range matches {
-			if v.IDNumber >= low && v.IDNumber <= high {
+			if v.IdNumber >= low && v.IdNumber <= high {
 				filteredMatches = append(filteredMatches, v)
 			}
 		}
@@ -174,7 +174,7 @@ func UpdateTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 	if err := t.UpdateTournamentTeam(c, phaseName, oldName, newName); err != nil {
-		log.Errorf(c, "%s something when wrong while updating a team in the tournament %d. %v", desc, t.ID, err)
+		log.Errorf(c, "%s something when wrong while updating a team in the tournament %d. %v", desc, t.Id, err)
 		return &helpers.NotFound{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 

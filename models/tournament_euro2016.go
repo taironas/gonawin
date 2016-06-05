@@ -373,12 +373,12 @@ func CreateEuro2016(c appengine.Context, adminID int64) (*Tournament, error) {
 			return nil, err1
 		}
 
-		log.Infof(c, "Euro: Group: %v allocate ID ok", groupName)
+		log.Infof(c, "Euro: Group: %v allocate Id ok", groupName)
 
 		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
 		log.Infof(c, "Euro: Group: %v New Key ok", groupName)
 
-		group.ID = groupID
+		group.Id = groupID
 		groups[groupIndex] = group
 		_, err := datastore.Put(c, groupkey, &group)
 		if err != nil {
@@ -390,7 +390,7 @@ func CreateEuro2016(c appengine.Context, adminID int64) (*Tournament, error) {
 	// build array of group ids
 	groupIds := make([]int64, 6)
 	for i := range groupIds {
-		groupIds[i] = groups[i].ID
+		groupIds[i] = groups[i].Id
 	}
 
 	log.Infof(c, "Euro: build of groups ids complete: %v", groupIds)
@@ -488,7 +488,7 @@ func (et EuroTournament2016) MapOfIDTeams(c appengine.Context, tournament *Tourn
 	groups := Groups(c, tournament.GroupIds)
 	for _, g := range groups {
 		for _, t := range g.Teams {
-			mapIDTeams[t.ID] = t.Name
+			mapIDTeams[t.Id] = t.Name
 		}
 	}
 	return mapIDTeams

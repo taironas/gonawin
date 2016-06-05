@@ -419,12 +419,12 @@ func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 			return nil, err1
 		}
 
-		log.Infof(c, "World Cup: Group: %v allocate ID ok", groupName)
+		log.Infof(c, "World Cup: Group: %v allocate Id ok", groupName)
 
 		groupkey := datastore.NewKey(c, "Tgroup", "", groupID, nil)
 		log.Infof(c, "World Cup: Group: %v New Key ok", groupName)
 
-		group.ID = groupID
+		group.Id = groupID
 		groups[groupIndex] = group
 		_, err := datastore.Put(c, groupkey, &group)
 		if err != nil {
@@ -436,7 +436,7 @@ func CreateWorldCup(c appengine.Context, adminID int64) (*Tournament, error) {
 	// build array of group ids
 	groupIds := make([]int64, 8)
 	for i := range groupIds {
-		groupIds[i] = groups[i].ID
+		groupIds[i] = groups[i].Id
 	}
 
 	log.Infof(c, "World Cup: build of groups ids complete: %v", groupIds)
@@ -534,7 +534,7 @@ func (wct WorldCupTournament) MapOfIDTeams(c appengine.Context, tournament *Tour
 	groups := Groups(c, tournament.GroupIds)
 	for _, g := range groups {
 		for _, t := range g.Teams {
-			mapIDTeams[t.ID] = t.Name
+			mapIDTeams[t.Id] = t.Name
 		}
 	}
 	return mapIDTeams

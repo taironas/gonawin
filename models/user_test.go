@@ -45,7 +45,7 @@ func TestUserCreateUser(t *testing.T) {
 	}
 }
 
-// TestUserByID tests that you can get a user by its ID.
+// TestUserByID tests that you can get a user by its Id.
 //
 func TestUserByID(t *testing.T) {
 	var c aetest.Context
@@ -68,8 +68,8 @@ func TestUserByID(t *testing.T) {
 		user   testUser
 		err    string
 	}{
-		{"can get user by ID", u.ID, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
-		{"non existing user for given ID", u.ID + 50, testUser{}, "datastore: no such entity"},
+		{"can get user by Id", u.Id, testUser{"foo@bar.com", "john.snow", "john snow", "crow", false, ""}, ""},
+		{"non existing user for given Id", u.Id + 50, testUser{}, "datastore: no such entity"},
 	}
 
 	for _, test := range tests {
@@ -103,7 +103,7 @@ func TestUsersByIds(t *testing.T) {
 	}
 	defer c.Close()
 
-	// Test data: good user ID
+	// Test data: good user Id
 	testUsers := []testUser{
 		{"foo@bar.com", "john.snow", "john snow", "crow", false, ""},
 		{"foo@bar.com", "robb.stark", "robb stark", "king in the north", false, ""},
@@ -121,7 +121,7 @@ func TestUsersByIds(t *testing.T) {
 		gotIDs = append(gotIDs, got.Id)
 	}
 
-	// Test data: only one bad user ID
+	// Test data: only one bad user Id
 	userIDsWithOneBadID := make([]int64, len(gotIDs))
 	copy(userIDsWithOneBadID, gotIDs)
 	userIDsWithOneBadID[0] = userIDsWithOneBadID[0] + 50
@@ -185,7 +185,7 @@ func TestUsersByIds(t *testing.T) {
 	}
 }
 
-// TestUserKeyByID tests that you can get a user key by its ID.
+// TestUserKeyByID tests that you can get a user key by its Id.
 //
 func TestUserKeyByID(t *testing.T) {
 	var c aetest.Context
@@ -201,7 +201,7 @@ func TestUserKeyByID(t *testing.T) {
 		title  string
 		userID int64
 	}{
-		{"can get user key by ID", 15},
+		{"can get user key by Id", 15},
 	}
 
 	for _, test := range tests {
@@ -210,7 +210,7 @@ func TestUserKeyByID(t *testing.T) {
 		key := UserKeyByID(c, test.userID)
 
 		if key.IntID() != test.userID {
-			t.Errorf("Error: want key ID: %v, got: %v", test.userID, key.IntID())
+			t.Errorf("Error: want key Id: %v, got: %v", test.userID, key.IntID())
 		}
 	}
 }
@@ -248,7 +248,7 @@ func TestUserKeysByIds(t *testing.T) {
 
 		for i, userID := range test.userIDs {
 			if keys[i].IntID() != userID {
-				t.Errorf("Error: want key ID: %d, got: %d", userID, keys[i].IntID())
+				t.Errorf("Error: want key Id: %d, got: %d", userID, keys[i].IntID())
 			}
 		}
 	}
@@ -538,7 +538,7 @@ func TestUserTeams(t *testing.T) {
 		}
 
 		if test.missingTeam {
-			if err = user.AddTeamID(c, 666 /*extra team ID*/); err != nil {
+			if err = user.AddTeamID(c, 666 /*extra team Id*/); err != nil {
 				t.Errorf("Error: %v", err)
 			}
 		}
@@ -715,8 +715,8 @@ func TestUserTournamentsByPage(t *testing.T) {
 					t.Errorf("test %v Error: %v", ti, err)
 				}
 				// need to upate userIds in test structure.
-				// cannot go this before as we need to user.ID.
-				test.paginatedTournaments[pti][tsi].userIDs = []int64{user.ID}
+				// cannot go this before as we need to user.Id.
+				test.paginatedTournaments[pti][tsi].userIDs = []int64{user.Id}
 			}
 		}
 
@@ -750,7 +750,7 @@ func TestUserTournamentsByPage(t *testing.T) {
 	}
 }
 
-// TestUserAddPredictID tests that predict ID is well added to a user entity.
+// TestUserAddPredictID tests that predict Id is well added to a user entity.
 //
 func TestUserAddPredictID(t *testing.T) {
 
@@ -769,7 +769,7 @@ func TestUserAddPredictID(t *testing.T) {
 		err       string
 	}{
 		{
-			"can add predict ID to user",
+			"can add predict Id to user",
 			42,
 			"",
 		},
@@ -788,12 +788,12 @@ func TestUserAddPredictID(t *testing.T) {
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
 		} else if test.err == "" && user.PredictIds[0] != test.predictID {
-			t.Errorf("Error: a predict ID should have been retrieved from the user")
+			t.Errorf("Error: a predict Id should have been retrieved from the user")
 		}
 	}
 }
 
-// TestUserAddTournamentID tests that tournament ID is well added to a user entity.
+// TestUserAddTournamentID tests that tournament Id is well added to a user entity.
 //
 func TestUserAddTournamentID(t *testing.T) {
 	var c aetest.Context
@@ -807,16 +807,16 @@ func TestUserAddTournamentID(t *testing.T) {
 
 	tests := []struct {
 		title        string
-		tournamentID int64
+		tournamentId int64
 		err          string
 	}{
 		{
-			"can add tournament ID to user",
+			"can add tournament Id to user",
 			42,
 			"",
 		},
 		{
-			"cannot add twice same tournament ID to user",
+			"cannot add twice same tournament Id to user",
 			42,
 			"AddTournamentID, allready a member",
 		},
@@ -829,17 +829,17 @@ func TestUserAddTournamentID(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test.title)
-		err = user.AddTournamentID(c, test.tournamentID)
+		err = user.AddTournamentID(c, test.tournamentId)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
-		} else if test.err == "" && user.TournamentIds[0] != test.tournamentID {
-			t.Errorf("Error: a tournament ID should have been retrieved from the user")
+		} else if test.err == "" && user.TournamentIds[0] != test.tournamentId {
+			t.Errorf("Error: a tournament Id should have been retrieved from the user")
 		}
 	}
 }
 
-// TestUserContainsTournamentID tests if a tournament ID exists for a user entity.
+// TestUserContainsTournamentID tests if a tournament Id exists for a user entity.
 //
 func TestUserContainsTournamentID(t *testing.T) {
 	var c aetest.Context
@@ -853,18 +853,18 @@ func TestUserContainsTournamentID(t *testing.T) {
 
 	tests := []struct {
 		title        string
-		tournamentID int64
+		tournamentId int64
 		contains     bool
 		index        int
 	}{
 		{
-			"contains tournament ID from user",
+			"contains tournament Id from user",
 			42,
 			true,
 			0,
 		},
 		{
-			"does not contain tournament ID from user",
+			"does not contain tournament Id from user",
 			54,
 			false,
 			-1,
@@ -876,14 +876,14 @@ func TestUserContainsTournamentID(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	if err = user.AddTournamentID(c, tests[0].tournamentID); err != nil {
+	if err = user.AddTournamentID(c, tests[0].tournamentId); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
 	for _, test := range tests {
 		t.Log(test.title)
 
-		contains, index := user.ContainsTournamentID(test.tournamentID)
+		contains, index := user.ContainsTournamentID(test.tournamentId)
 
 		if contains != test.contains {
 			t.Errorf("Error: want contains: %t, got: %t", test.contains, contains)
@@ -893,7 +893,7 @@ func TestUserContainsTournamentID(t *testing.T) {
 	}
 }
 
-// TestUserRemoveTournamentID tests that tournament ID is well removed from a user entity.
+// TestUserRemoveTournamentID tests that tournament Id is well removed from a user entity.
 //
 func TestUserRemoveTournamentID(t *testing.T) {
 	var c aetest.Context
@@ -907,16 +907,16 @@ func TestUserRemoveTournamentID(t *testing.T) {
 
 	tests := []struct {
 		title        string
-		tournamentID int64
+		tournamentId int64
 		err          string
 	}{
 		{
-			"can remove tournament ID from user",
+			"can remove tournament Id from user",
 			42,
 			"",
 		},
 		{
-			"cannot remove tournament ID from user",
+			"cannot remove tournament Id from user",
 			54,
 			"RemoveTournamentID, not a member",
 		},
@@ -927,16 +927,16 @@ func TestUserRemoveTournamentID(t *testing.T) {
 		t.Errorf("Error: %v", err)
 	}
 
-	if err = user.AddTournamentID(c, tests[0].tournamentID); err != nil {
+	if err = user.AddTournamentID(c, tests[0].tournamentId); err != nil {
 		t.Errorf("Error: %v", err)
 	}
 
 	for _, test := range tests {
 		t.Log(test.title)
 
-		err = user.RemoveTournamentID(c, test.tournamentID)
+		err = user.RemoveTournamentID(c, test.tournamentId)
 
-		contains, _ := user.ContainsTournamentID(test.tournamentID)
+		contains, _ := user.ContainsTournamentID(test.tournamentId)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("Error: want err: %s, got: %q", test.err, err)
@@ -964,7 +964,7 @@ func TestUserTournaments(t *testing.T) {
 	}
 
 	testTournaments := createTestTournaments(3)
-	addUserIDToTournaments(&testTournaments, user.ID)
+	addUserIDToTournaments(&testTournaments, user.Id)
 
 	createAndJoinTournaments(t, c, testTournaments, user)
 
@@ -1010,7 +1010,7 @@ func TestUserTournaments(t *testing.T) {
 	}
 }
 
-// TestUserAddTeamID tests that team ID is well added to a user entity.
+// TestUserAddTeamID tests that team Id is well added to a user entity.
 //
 func TestUserAddTeamID(t *testing.T) {
 
@@ -1029,12 +1029,12 @@ func TestUserAddTeamID(t *testing.T) {
 		err    string
 	}{
 		{
-			"can add team ID to user",
+			"can add team Id to user",
 			42,
 			"",
 		},
 		{
-			"cannot add twice same team ID to user",
+			"cannot add twice same team Id to user",
 			42,
 			"AddTeamID, allready a member",
 		},
@@ -1047,17 +1047,17 @@ func TestUserAddTeamID(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		err = user.AddTeamID(c, test.teamID)
+		err = user.AddTeamID(c, test.teamId)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
-		} else if test.err == "" && user.TeamIds[0] != test.teamID {
-			t.Errorf("test %d - Error: a team ID should have been retrieved from the user", i)
+		} else if test.err == "" && user.TeamIds[0] != test.teamId {
+			t.Errorf("test %d - Error: a team Id should have been retrieved from the user", i)
 		}
 	}
 }
 
-// TestUserRemoveTeamID tests that team ID is well removed from a user entity.
+// TestUserRemoveTeamID tests that team Id is well removed from a user entity.
 //
 func TestUserRemoveTeamID(t *testing.T) {
 
@@ -1076,12 +1076,12 @@ func TestUserRemoveTeamID(t *testing.T) {
 		err    string
 	}{
 		{
-			"can remove team ID from user",
+			"can remove team Id from user",
 			42,
 			"",
 		},
 		{
-			"cannot remove team ID from user",
+			"cannot remove team Id from user",
 			54,
 			"RemoveTeamID, not a member",
 		},
@@ -1099,9 +1099,9 @@ func TestUserRemoveTeamID(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		err = user.RemoveTeamID(c, test.teamID)
+		err = user.RemoveTeamID(c, test.teamId)
 
-		contains, _ := user.ContainsTeamID(test.teamID)
+		contains, _ := user.ContainsTeamID(test.teamId)
 
 		if !strings.Contains(gonawintest.ErrorString(err), test.err) {
 			t.Errorf("test %d - Error: want err: %s, got: %q", i, test.err, err)
@@ -1111,7 +1111,7 @@ func TestUserRemoveTeamID(t *testing.T) {
 	}
 }
 
-// TestUserContainsTeamID tests if a team ID exists for a user entity.
+// TestUserContainsTeamID tests if a team Id exists for a user entity.
 //
 func TestUserContainsTeamID(t *testing.T) {
 	var c aetest.Context
@@ -1130,13 +1130,13 @@ func TestUserContainsTeamID(t *testing.T) {
 		index    int
 	}{
 		{
-			"contains team ID from user",
+			"contains team Id from user",
 			42,
 			true,
 			0,
 		},
 		{
-			"does not contain team ID from user",
+			"does not contain team Id from user",
 			54,
 			false,
 			-1,
@@ -1155,7 +1155,7 @@ func TestUserContainsTeamID(t *testing.T) {
 	for i, test := range tests {
 		t.Log(test.title)
 
-		contains, index := user.ContainsTeamID(test.teamID)
+		contains, index := user.ContainsTeamID(test.teamId)
 
 		if contains != test.contains {
 			t.Errorf("test %d - Error: want contains: %t, got: %t", i, test.contains, contains)

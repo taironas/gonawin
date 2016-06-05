@@ -63,12 +63,12 @@ func Join(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"ID", "Name"}
+	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	var updatedUser *mdl.User
-	if updatedUser, err = mdl.UserByID(c, u.ID); err != nil {
-		log.Errorf(c, "User not found %v", u.ID)
+	if updatedUser, err = mdl.UserByID(c, u.Id); err != nil {
+		log.Errorf(c, "User not found %v", u.Id)
 	} else {
 		updatedUser.Publish(c, "tournament", "joined tournament", tournament.Entity(), mdl.ActivityEntity{})
 	}
@@ -109,7 +109,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var teamID int64
-	if teamID, err = extract.TeamID(); err != nil {
+	if teamID, err = extract.TeamId(); err != nil {
 		return err
 	}
 
@@ -125,7 +125,7 @@ func JoinAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"ID", "Name"}
+	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity
@@ -167,7 +167,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var teamID int64
-	if teamID, err = extract.TeamID(); err != nil {
+	if teamID, err = extract.TeamId(); err != nil {
 		return err
 	}
 
@@ -184,7 +184,7 @@ func LeaveAsTeam(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	// return the left tournament
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"ID", "Name"}
+	fieldsToKeep := []string{"Id", "Name"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	// publish new activity

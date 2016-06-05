@@ -29,11 +29,11 @@ import (
 // Predict is an entity defined by the result of a Match: Result1 and Result2 a match id and a user id.
 //
 type Predict struct {
-	ID      int64     `json:"Id"`     // predict id
-	UserID  int64     `json:"UserId"` // user id, a prediction is binded to a single user.
+	Id      int64     // predict id
+	UserId  int64     // user id, a prediction is binded to a single user.
 	Result1 int64     // result of first team
 	Result2 int64     // result of second team
-	MatchID int64     `json:"MatchId"` // match id in tournament
+	MatchId int64     // match id in tournament
 	Created time.Time // date of creation
 }
 
@@ -57,11 +57,11 @@ func CreatePredict(c appengine.Context, userID, result1, result2, matchID int64)
 //
 func (p *Predict) Destroy(c appengine.Context) error {
 
-	if _, err := PredictByID(c, p.ID); err != nil {
-		return fmt.Errorf("Cannot find predict with Id=%d", p.ID)
+	if _, err := PredictByID(c, p.Id); err != nil {
+		return fmt.Errorf("Cannot find predict with Id=%d", p.Id)
 	}
 
-	key := datastore.NewKey(c, "Predict", "", p.ID, nil)
+	key := datastore.NewKey(c, "Predict", "", p.Id, nil)
 
 	return datastore.Delete(c, key)
 }
@@ -145,7 +145,7 @@ func PredictKeyByID(c appengine.Context, id int64) *datastore.Key {
 // Update a Predict entity.
 //
 func (p *Predict) Update(c appengine.Context) error {
-	k := PredictKeyByID(c, p.ID)
+	k := PredictKeyByID(c, p.Id)
 	old := new(Predict)
 	if err := datastore.Get(c, k, old); err == nil {
 		if _, err = datastore.Put(c, k, p); err != nil {
@@ -217,7 +217,7 @@ type Predicts []*Predict
 //
 func (a Predicts) ContainsMatchID(id int64) (bool, int) {
 	for i, e := range a {
-		if e.MatchID == id {
+		if e.MatchId == id {
 			return true, i
 		}
 	}

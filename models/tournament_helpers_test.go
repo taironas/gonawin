@@ -56,7 +56,7 @@ func createTestTournaments(n int) (testTournaments []*testTournament) {
 }
 
 // createTournaments stores tournaments from test tournaments into the dastore
-func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTournament) (tournamentIDs []int64) {
+func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTournament) (tournamentIds []int64) {
 	var err error
 	for i, tournament := range testTournaments {
 		var got *Tournament
@@ -64,13 +64,13 @@ func createTournaments(t *testing.T, c aetest.Context, testTournaments []testTou
 			t.Errorf("tournament %v error: %v", i, err)
 		}
 
-		tournamentIDs = append(tournamentIDs, got.Id)
+		tournamentIds = append(tournamentIds, got.Id)
 	}
 	return
 }
 
 // createAndJoinTournaments stores tournaments from test tournaments into the dastore and join a given user
-func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []*testTournament, user *User) (tournamentIDs []int64) {
+func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []*testTournament, user *User) (tournamentIds []int64) {
 	var err error
 	for i, tournament := range testTournaments {
 		var got *Tournament
@@ -82,7 +82,7 @@ func createAndJoinTournaments(t *testing.T, c aetest.Context, testTournaments []
 			t.Errorf("tournament %v error: %v", i, err)
 		}
 
-		tournamentIDs = append(tournamentIDs, got.Id)
+		tournamentIds = append(tournamentIds, got.Id)
 	}
 	return
 }

@@ -53,7 +53,7 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 func buildIndexUsersViewModel(users []*mdl.User) []mdl.UserJSON {
-	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email", "Created"}
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created"}
 	usersJSON := make([]mdl.UserJSON, len(users))
 	helpers.TransformFromArrayOfPointers(&users, &usersJSON, fieldsToKeep)
 	return usersJSON
@@ -114,7 +114,7 @@ func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tou
 	ivm := buildShowInvitationsViewModel(invs)
 
 	// imageURL
-	imageURL := helpers.UserImageURL(u.Username, u.ID)
+	imageURL := helpers.UserImageURL(u.Username, u.Id)
 
 	return showViewModel{
 		uvm,
@@ -128,7 +128,7 @@ func buildShowViewModel(c appengine.Context, u *mdl.User, teams []*mdl.Team, tou
 }
 
 func buildShowUserViewModel(user *mdl.User) (u mdl.UserJSON) {
-	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email", "Created", "IsAdmin", "Auth", "TeamIds", "TournamentIds", "Score"}
 
 	helpers.InitPointerStructure(user, &u, fieldsToKeep)
 	return
@@ -185,7 +185,7 @@ func extractInvitations(c appengine.Context, user *mdl.User, params []string) (i
 }
 
 type showTeamViewModel struct {
-	ID           int64 `json:"Id"`
+	Id           int64 `json:"Id"`
 	Name         string
 	Accuracy     float64
 	MembersCount int64
@@ -196,17 +196,17 @@ type showTeamViewModel struct {
 func buildShowTeamViewModel(teams []*mdl.Team) []showTeamViewModel {
 	ts := make([]showTeamViewModel, len(teams))
 	for i, t := range teams {
-		ts[i].ID = t.ID
+		ts[i].Id = t.Id
 		ts[i].Name = t.Name
 		ts[i].MembersCount = t.MembersCount
 		ts[i].Private = t.Private
-		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.ID)
+		ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
 	return ts
 }
 
 type showTournamentStatsViewModel struct {
-	ID                int64 `json:"Id"`
+	Id                int64 `json:"Id"`
 	Name              string
 	ParticipantsCount int
 	TeamsCount        int
@@ -218,18 +218,18 @@ func buildShowTournamentStatsViewModel(c appengine.Context, tournaments []*mdl.T
 
 	stats := make([]showTournamentStatsViewModel, len(tournaments))
 	for i, t := range tournaments {
-		stats[i].ID = t.ID
+		stats[i].Id = t.Id
 		stats[i].Name = t.Name
 		stats[i].ParticipantsCount = len(t.UserIds)
 		stats[i].TeamsCount = len(t.TeamIds)
 		stats[i].Progress = t.Progress(c)
-		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
+		stats[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
 	return stats
 }
 
 type showTournamentViewModel struct {
-	ID       int64 `json:"Id"`
+	Id       int64 `json:"Id"`
 	Name     string
 	UserIds  []int64
 	TeamIds  []int64
@@ -240,17 +240,17 @@ func buildShowTournamentViewModel(tournaments []*mdl.Tournament) []showTournamen
 
 	tournaments2 := make([]showTournamentViewModel, len(tournaments))
 	for i, t := range tournaments {
-		tournaments2[i].ID = t.ID
+		tournaments2[i].Id = t.Id
 		tournaments2[i].UserIds = t.UserIds
 		tournaments2[i].TeamIds = t.TeamIds
-		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.ID)
+		tournaments2[i].ImageURL = helpers.TournamentImageURL(t.Name, t.Id)
 	}
 	return tournaments2
 }
 
 func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamRequestJSON {
 
-	fieldsToKeep := []string{"ID", "TeamId", "TeamName", "UserId", "UserName"}
+	fieldsToKeep := []string{"Id", "TeamId", "TeamName", "UserId", "UserName"}
 	trs := make([]mdl.TeamRequestJSON, len(teamRequests))
 	helpers.TransformFromArrayOfPointers(&teamRequests, &trs, fieldsToKeep)
 	return trs
@@ -258,7 +258,7 @@ func buildShowTeamRequestsViewModel(teamRequests []*mdl.TeamRequest) []mdl.TeamR
 
 func buildShowInvitationsViewModel(invitations []*mdl.Team) []mdl.TeamJSON {
 
-	fieldsToKeep := []string{"ID", "Name"}
+	fieldsToKeep := []string{"Id", "Name"}
 	inv := make([]mdl.TeamJSON, len(invitations))
 	helpers.TransformFromArrayOfPointers(&invitations, &inv, fieldsToKeep)
 	return inv
@@ -288,10 +288,10 @@ func Update(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	var userID int64
 	var err error
 
-	if userID, err = extract.UserID(); err != nil {
+	if userID, err = extract.UserId(); err != nil {
 		return err
-	} else if userID != u.ID {
-		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userID, u.ID)
+	} else if userID != u.Id {
+		log.Errorf(c, "%s error user ids do not match. url id:%s user id: %s", desc, userID, u.Id)
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeUserCannotUpdate)}
 	}
 
@@ -331,7 +331,7 @@ type updateViewModel struct {
 
 func buildUpdateViewModel(u *mdl.User) updateViewModel {
 
-	fieldsToKeep := []string{"ID", "Username", "Name", "Alias", "Email"}
+	fieldsToKeep := []string{"Id", "Username", "Name", "Alias", "Email"}
 	var uJSON mdl.UserJSON
 	helpers.InitPointerStructure(u, &uJSON, fieldsToKeep)
 
@@ -425,13 +425,13 @@ func buildDestroyUserViewModel(user *mdl.User) destroyUserViewModel {
 func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
 	var err error
 	for _, teamID := range requestUser.TeamIds {
-		if mdl.IsTeamAdmin(c, teamID, currentUser.ID) {
+		if mdl.IsTeamAdmin(c, teamID, currentUser.Id) {
 			var team *mdl.Team
 			if team, err = mdl.TeamByID(c, teamID); err != nil {
 				log.Errorf(c, "%s team %d not found", desc, teamID)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTeamNotFound)}
 			}
-			if err = team.RemoveAdmin(c, requestUser.ID); err != nil {
+			if err = team.RemoveAdmin(c, requestUser.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTeamAdminCannotDelete)}
 			}
@@ -449,19 +449,19 @@ func removeTeamUserRels(c appengine.Context, desc string, requestUser, currentUs
 func removeTournameUserRels(c appengine.Context, desc string, requestUser, currentUser *mdl.User) error {
 
 	var err error
-	for _, tournamentID := range requestUser.TournamentIds {
-		if mdl.IsTournamentAdmin(c, tournamentID, currentUser.ID) {
+	for _, tournamentId := range requestUser.TournamentIds {
+		if mdl.IsTournamentAdmin(c, tournamentId, currentUser.Id) {
 			var tournament *mdl.Tournament
-			if tournament, err = mdl.TournamentByID(c, tournamentID); err != nil {
-				log.Errorf(c, "%s tournament %d not found", desc, tournamentID)
+			if tournament, err = mdl.TournamentByID(c, tournamentId); err != nil {
+				log.Errorf(c, "%s tournament %d not found", desc, tournamentId)
 				return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 			}
-			if err = tournament.RemoveAdmin(c, requestUser.ID); err != nil {
+			if err = tournament.RemoveAdmin(c, requestUser.Id); err != nil {
 				log.Infof(c, "%s error occurred during admin deletion: %v", desc, err)
 				return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeUserIsTournamentAdminCannotDelete)}
 			}
 		} else {
-			if err := requestUser.RemoveTournamentID(c, tournamentID); err != nil {
+			if err := requestUser.RemoveTournamentID(c, tournamentId); err != nil {
 				log.Errorf(c, "%s error when trying to destroy tournament relationship: %v", desc, err)
 			}
 		}
@@ -526,7 +526,7 @@ type teamsUserViewModel struct {
 }
 
 func buildTeamsUserViewModel(teams []*mdl.Team) teamsUserViewModel {
-	teamsFieldsToKeep := []string{"ID", "Name"}
+	teamsFieldsToKeep := []string{"Id", "Name"}
 	teamsJSON := make([]mdl.TeamJSON, len(teams))
 	helpers.TransformFromArrayOfPointers(&teams, &teamsJSON, teamsFieldsToKeep)
 
@@ -565,7 +565,7 @@ type tournamentsUserViewModel struct {
 }
 
 func buildTournamentsUserViewModel(tournaments []*mdl.Tournament) tournamentsUserViewModel {
-	fieldsToKeep := []string{"ID", "Name"}
+	fieldsToKeep := []string{"Id", "Name"}
 	json := make([]mdl.TournamentJSON, len(tournaments))
 	helpers.TransformFromArrayOfPointers(&tournaments, &json, fieldsToKeep)
 
@@ -592,7 +592,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 
 	// find user request
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.ID); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
@@ -609,7 +609,7 @@ func AllowInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error 
 	}
 
 	// publish activity
-	if updatedUser, err := mdl.UserByID(c, u.ID); err == nil && updatedUser != nil {
+	if updatedUser, err := mdl.UserByID(c, u.Id); err == nil && updatedUser != nil {
 		updatedUser.Publish(c, "team", "joined team", team.Entity(), mdl.ActivityEntity{})
 	}
 
@@ -625,7 +625,7 @@ type allowInvitationUserViewModel struct {
 func buildAllowInvitationUserViewModel(team *mdl.Team) allowInvitationUserViewModel {
 
 	var json mdl.TeamJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &json, fieldsToKeep)
 
 	msg := fmt.Sprintf("You accepted invitation to team %s.", team.Name)
@@ -653,7 +653,7 @@ func DenyInvitation(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var ur *mdl.UserRequest
-	if ur = mdl.FindUserRequestByTeamAndUser(c, team.ID, u.ID); ur == nil {
+	if ur = mdl.FindUserRequestByTeamAndUser(c, team.Id, u.Id); ur == nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 

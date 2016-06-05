@@ -29,10 +29,10 @@ import (
 // TeamRequest represents a request to join a team.
 //
 type TeamRequest struct {
-	ID       int64
-	TeamID   int64
+	Id       int64
+	TeamId   int64
 	TeamName string
-	UserID   int64
+	UserId   int64
 	UserName string
 	Created  time.Time
 }
@@ -40,10 +40,10 @@ type TeamRequest struct {
 // TeamRequestJSON is JSON representation of the TeamRequest entity.
 //
 type TeamRequestJSON struct {
-	ID       *int64     `json:"Id,omitempty"`
-	TeamID   *int64     `json:"TeamId,omitempty"`
+	Id       *int64     `json:",omitempty"`
+	TeamId   *int64     `json:",omitempty"`
 	TeamName *string    `json:",omitempty"`
-	UserID   *int64     `json:"UserId,omitempty"`
+	UserId   *int64     `json:",omitempty"`
 	UserName *string    `json:",omitempty"`
 	Created  *time.Time `json:",omitempty"`
 }
@@ -76,11 +76,11 @@ func (tr *TeamRequest) Destroy(c appengine.Context) error {
 	var teamRequest *TeamRequest
 	var err error
 
-	if teamRequest, err = TeamRequestByID(c, tr.ID); err != nil {
-		return fmt.Errorf("Cannot find team request with teamRequestId=%d", tr.ID)
+	if teamRequest, err = TeamRequestByID(c, tr.Id); err != nil {
+		return fmt.Errorf("Cannot find team request with teamRequestId=%d", tr.Id)
 	}
 
-	key := datastore.NewKey(c, "TeamRequest", "", teamRequest.ID, nil)
+	key := datastore.NewKey(c, "TeamRequest", "", teamRequest.Id, nil)
 
 	return datastore.Delete(c, key)
 }
@@ -143,7 +143,7 @@ func WasTeamRequestSent(c appengine.Context, teamID int64, userID int64) bool {
 func TeamsRequests(c appengine.Context, teams []*Team) []*TeamRequest {
 	var teamRequests []*TeamRequest
 	for _, team := range teams {
-		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.ID)...)
+		teamRequests = append(teamRequests, FindTeamRequest(c, "TeamId", team.Id)...)
 	}
 	return teamRequests
 }

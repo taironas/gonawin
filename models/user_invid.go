@@ -31,7 +31,7 @@ import (
 // UserInvertedIndex holds informations needed for User indexing.
 //
 type UserInvertedIndex struct {
-	ID      int64
+	Id      int64
 	KeyName string
 	UserIds []byte
 }
@@ -39,7 +39,7 @@ type UserInvertedIndex struct {
 // UserInvertedIndexJSON is the JSON representation of UserInvertedIndex.
 //
 type UserInvertedIndexJSON struct {
-	ID      *int64  `json:"Id,omitempty"`
+	Id      *int64  `json:",omitempty"`
 	KeyName *string `json:",omitempty"`
 	UserIds *[]byte `json:",omitempty"`
 }
@@ -97,7 +97,7 @@ func AddToUserInvertedIndex(c appengine.Context, name string, id int64) error {
 			CreateUserInvertedIndex(c, w, strconv.FormatInt(id, 10))
 		} else {
 			// update row with new info
-			k := UserInvertedIndexKeyByID(c, invID.ID)
+			k := UserInvertedIndexKeyByID(c, invID.Id)
 
 			if newIds := helpers.MergeIds(invID.UserIds, id); len(newIds) > 0 {
 				invID.UserIds = []byte(newIds)
@@ -160,7 +160,7 @@ func userInvertedIndexRemoveWord(c appengine.Context, w string, id int64) error 
 		return fmt.Errorf(" userinvid.removeWord, unable to find KeyName=%s: %v", w, err)
 	} else if invID != nil {
 		// update row with new info
-		k := UserInvertedIndexKeyByID(c, invID.ID)
+		k := UserInvertedIndexKeyByID(c, invID.Id)
 
 		if newIds, err := helpers.RemovefromIds(invID.UserIds, id); err == nil {
 			if len(newIds) == 0 {

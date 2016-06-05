@@ -95,7 +95,7 @@ func TeamScore(c appengine.Context, query string, ids []int64) []int64 {
 		if invID, err := FindTeamInvertedIndex(c, "KeyName", w); err != nil {
 			log.Errorf(c, " search.TeamScore, unable to find KeyName=%s: %v", w, err)
 		} else if invID != nil {
-			dft = len(strings.Split(string(invID.TeamIDs), " "))
+			dft = len(strings.Split(string(invID.TeamIds), " "))
 		}
 		q[i] = math.Log10(1+float64(helpers.CountTerm(words, w))) * math.Log10(float64(nbTeamWords+1)/float64(dft+1))
 	}

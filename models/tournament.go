@@ -33,7 +33,7 @@ import (
 // Tournament holds tournament entity data.
 //
 type Tournament struct {
-	ID                   int64 `json:"Id"`
+	Id                   int64
 	KeyName              string
 	Name                 string
 	Description          string
@@ -54,7 +54,7 @@ type Tournament struct {
 // TournamentJSON is the JSON version of the Tournament struct.
 //
 type TournamentJSON struct {
-	ID                   *int64     `json:"Id,omitempty"`
+	Id                   *int64     `json:",omitempty"`
 	KeyName              *string    `json:",omitempty"`
 	Name                 *string    `json:",omitempty"`
 	Description          *string    `json:",omitempty"`
@@ -88,12 +88,12 @@ type TournamentBuilder interface {
 //
 func CreateTournament(c appengine.Context, name string, description string, start time.Time, end time.Time, adminID int64) (*Tournament, error) {
 
-	tournamentID, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
+	tournamentId, _, err := datastore.AllocateIDs(c, "Tournament", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 
-	key := datastore.NewKey(c, "Tournament", "", tournamentID, nil)
+	key := datastore.NewKey(c, "Tournament", "", tournamentId, nil)
 
 	// empty groups and tournaments for now
 	var emptyArray []int64
@@ -102,14 +102,14 @@ func CreateTournament(c appengine.Context, name string, description string, star
 	twoLegged := false
 	official := false
 
-	tournament := &Tournament{tournamentID, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, twoLegged, false, official}
+	tournament := &Tournament{tournamentId, helpers.TrimLower(name), name, description, start, end, admins, time.Now(), emptyArray, emptyArray, emptyArray, emptyArray, emptyArray, twoLegged, false, official}
 
 	_, err = datastore.Put(c, key, tournament)
 	if err != nil {
 		return nil, err
 	}
 
-	AddToTournamentInvertedIndex(c, helpers.TrimLower(name), tournamentID)
+	AddToTournamentInvertedIndex(c, helpers.TrimLower(name), tournamentId)
 	return tournament, nil
 }
 
@@ -117,17 +117,17 @@ func CreateTournament(c appengine.Context, name string, description string, star
 //
 func (t *Tournament) Destroy(c appengine.Context) error {
 
-	if _, err := TournamentByID(c, t.ID); err != nil {
-		return fmt.Errorf("Cannot find tournament with Id=%d", t.ID)
+	if _, err := TournamentByID(c, t.Id); err != nil {
+		return fmt.Errorf("Cannot find tournament with Id=%d", t.Id)
 	}
 
-	key := datastore.NewKey(c, "Tournament", "", t.ID, nil)
+	key := datastore.NewKey(c, "Tournament", "", t.Id, nil)
 	if errd := datastore.Delete(c, key); errd != nil {
 		return errd
 	}
 
 	// remove key name.
-	return UpdateTournamentInvertedIndex(c, t.KeyName, "", t.ID)
+	return UpdateTournamentInvertedIndex(c, t.KeyName, "", t.Id)
 }
 
 // FindTournaments finds all entity tournaments with respect of a filter and value.
@@ -171,14 +171,14 @@ func (t *Tournament) Update(c appengine.Context) error {
 
 	// update key name
 	t.KeyName = helpers.TrimLower(t.Name)
-	k := TournamentKeyByID(c, t.ID)
+	k := TournamentKeyByID(c, t.Id)
 	oldTournament := new(Tournament)
 	if err := datastore.Get(c, k, oldTournament); err == nil {
 		if _, err = datastore.Put(c, k, t); err != nil {
 			return err
 		}
 		// use name with trim lower as tournament inverted index stores lower key names.
-		UpdateTournamentInvertedIndex(c, oldTournament.KeyName, t.KeyName, t.ID)
+		UpdateTournamentInvertedIndex(c, oldTournament.KeyName, t.KeyName, t.Id)
 	}
 	return nil
 }
@@ -253,7 +253,7 @@ func TournamentKeysByIds(c appengine.Context, ids []int64) []*datastore.Key {
 //
 func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 	// change in contains
-	hasTournament, _ := u.ContainsTournamentID(t.ID)
+	hasTournament, _ := u.ContainsTournamentID(t.Id)
 	return hasTournament
 }
 
@@ -261,11 +261,11 @@ func (t *Tournament) Joined(c appengine.Context, u *User) bool {
 //
 func (t *Tournament) Join(c appengine.Context, u *User) error {
 	// add
-	if err := u.AddTournamentID(c, t.ID); err != nil {
-		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.ID, err)
+	if err := u.AddTournamentID(c, t.Id); err != nil {
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
-	if err := t.AddUserID(c, u.ID); err != nil {
-		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.ID, err)
+	if err := t.AddUserID(c, u.Id); err != nil {
+		return fmt.Errorf(" Tournament.Join, error joining tournament for user:%v Error: %v", u.Id, err)
 	}
 
 	return nil
@@ -273,8 +273,8 @@ func (t *Tournament) Join(c appengine.Context, u *User) error {
 
 // IsTournamentAdmin checks if user is admin of tournament with id 'tournamentId'.
 //
-func IsTournamentAdmin(c appengine.Context, tournamentID int64, userID int64) bool {
-	if tournament, err := TournamentByID(c, tournamentID); err == nil {
+func IsTournamentAdmin(c appengine.Context, tournamentId int64, userID int64) bool {
+	if tournament, err := TournamentByID(c, tournamentId); err == nil {
 		for _, aid := range tournament.AdminIds {
 			if aid == userID {
 				return true
@@ -348,7 +348,7 @@ func (t *Tournament) ContainsAdminID(id int64) (bool, int) {
 //
 func (t *Tournament) TeamJoined(c appengine.Context, team *Team) bool {
 	// change in contains
-	hasTournament, _ := team.ContainsTournamentID(t.ID)
+	hasTournament, _ := team.ContainsTournamentID(t.Id)
 	return hasTournament
 }
 
@@ -358,23 +358,23 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 	var err error
 
 	// add
-	if err = team.AddTournamentID(c, t.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%d Error: %v", team.ID, err)
+	if err = team.AddTournamentID(c, t.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding tournament id to team entity:%d Error: %v", team.Id, err)
 	}
-	if err = t.AddTeamID(c, team.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%d Error: %v", t.ID, err)
+	if err = t.AddTeamID(c, team.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding team id to tournament entity:%d Error: %v", t.Id, err)
 	}
-	if err = t.AddUserIDs(c, team.UserIDs); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding user ids to tournament entity:%d Error: %v", t.ID, err)
+	if err = t.AddUserIDs(c, team.UserIds); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding user ids to tournament entity:%d Error: %v", t.Id, err)
 	}
 
 	var price *Price
-	if price, err = CreatePrice(c, team.ID, t.ID, t.Name, ""); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%d Error: %v", t.ID, err)
+	if price, err = CreatePrice(c, team.Id, t.Id, t.Name, ""); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error creating price for team entity:%d Error: %v", t.Id, err)
 	}
 
-	if err = team.AddPriceID(c, price.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%d Error: %v", team.ID, err)
+	if err = team.AddPriceID(c, price.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error adding price id to team entity:%d Error: %v", team.Id, err)
 	}
 
 	return nil
@@ -384,14 +384,14 @@ func (t *Tournament) TeamJoin(c appengine.Context, team *Team) error {
 //
 func (t *Tournament) TeamLeave(c appengine.Context, team *Team) error {
 	// find and remove
-	if err := team.RemoveTournamentID(c, t.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.ID, err)
+	if err := team.RemoveTournamentID(c, t.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamLeave, error leaving tournament for team:%v Error: %v", team.Id, err)
 	}
-	if err := t.RemoveTeamID(c, team.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.ID, err)
+	if err := t.RemoveTeamID(c, team.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamLeave, error removing team from tournament. For team:%v Error: %v", team.Id, err)
 	}
-	if err := team.RemovePriceByTournamentID(c, t.ID); err != nil {
-		return fmt.Errorf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.ID, err)
+	if err := team.RemovePriceByTournamentID(c, t.Id); err != nil {
+		return fmt.Errorf(" Tournament.TeamJoin, error removing price for team entity:%v Error: %v", team.Id, err)
 	}
 	return nil
 }
@@ -468,7 +468,7 @@ func (t *Tournament) Participants(c appengine.Context) []*User {
 	for _, uID := range t.UserIds {
 		user, err := UserByID(c, uID)
 		if err != nil {
-			log.Errorf(c, " Participants, cannot find user with ID=%d", uID)
+			log.Errorf(c, " Participants, cannot find user with Id=%d", uID)
 		} else {
 			users = append(users, user)
 		}
@@ -485,7 +485,7 @@ func (t *Tournament) Teams(c appengine.Context) []*Team {
 	for _, tID := range t.TeamIds {
 		team, err := TeamByID(c, tID)
 		if err != nil {
-			log.Errorf(c, " Teams, cannot find team with ID=%", tID)
+			log.Errorf(c, " Teams, cannot find team with Id=%", tID)
 		} else {
 			teams = append(teams, team)
 		}
@@ -612,7 +612,7 @@ func (t *Tournament) RankingByUser(c appengine.Context, limit int) []*User {
 	users := t.Participants(c)
 	// set score of user to score of tournament without persisting it.
 	for i, u := range users {
-		users[i].Score = u.ScoreByTournament(c, t.ID)
+		users[i].Score = u.ScoreByTournament(c, t.Id)
 	}
 
 	sort.Sort(UserByScore(users))
@@ -648,7 +648,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 	activity.Object = object
 	activity.Target = target
 	activity.Published = time.Now()
-	activity.CreatorID = t.ID
+	activity.CreatorID = t.Id
 
 	if err := activity.save(c); err != nil {
 		return err
@@ -671,7 +671,7 @@ func (t *Tournament) Publish(c appengine.Context, activityType string, verb stri
 // Entity is the Activity entity representation of a tournament.
 //
 func (t *Tournament) Entity() ActivityEntity {
-	return ActivityEntity{ID: t.ID, Type: "tournament", DisplayName: t.Name}
+	return ActivityEntity{Id: t.Id, Type: "tournament", DisplayName: t.Name}
 }
 
 // Progress is the progression of the tournament.

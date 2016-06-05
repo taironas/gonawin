@@ -78,7 +78,7 @@ type teamSearchViewModel struct {
 }
 
 type teamSearchTeamViewModel struct {
-	ID           int64 `json:"Id"`
+	Id           int64 `json:"Id"`
 	Name         string
 	AdminIds     []int64
 	Private      bool
@@ -90,13 +90,13 @@ type teamSearchTeamViewModel struct {
 func buildTeamSearchViewModel(teams []*mdl.Team) teamSearchViewModel {
 	tvm := make([]teamSearchTeamViewModel, len(teams))
 	for i, t := range teams {
-		tvm[i].ID = t.ID
+		tvm[i].Id = t.Id
 		tvm[i].Name = t.Name
-		tvm[i].AdminIds = t.AdminIDs
+		tvm[i].AdminIds = t.AdminIds
 		tvm[i].Private = t.Private
 		tvm[i].Accuracy = t.Accuracy
 		tvm[i].MembersCount = t.MembersCount
-		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.ID)
+		tvm[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
 	}
 	return teamSearchViewModel{Teams: tvm}
 }

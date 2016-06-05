@@ -52,7 +52,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var userID int64
-	if userID, err = extract.UserID(); err != nil {
+	if userID, err = extract.UserId(); err != nil {
 		return err
 	}
 
@@ -62,14 +62,14 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	// add admin to tournament
-	if err = tournament.AddAdmin(c, newAdmin.ID); err != nil {
+	if err = tournament.AddAdmin(c, newAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
 	// send response
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of tournament %s.", newAdmin.Name, tournament.Name)
@@ -107,7 +107,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	}
 
 	var userID int64
-	if userID, err = extract.UserID(); err != nil {
+	if userID, err = extract.UserId(); err != nil {
 		return err
 	}
 
@@ -116,13 +116,13 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return err
 	}
 
-	if err = tournament.RemoveAdmin(c, oldAdmin.ID); err != nil {
+	if err = tournament.RemoveAdmin(c, oldAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on RemoveAdmin to tournament: %v.", desc, err)
 		return &helpers.InternalServerError{Err: err}
 	}
 
 	var tJSON mdl.TournamentJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(tournament, &tJSON, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of tournament %s.", oldAdmin.Name, tournament.Name)

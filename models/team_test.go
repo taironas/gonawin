@@ -218,18 +218,18 @@ func TestTeamByID(t *testing.T) {
 
 	tests := []struct {
 		title  string
-		ID     int64
+		Id     int64
 		wanted testTeam
 		err    string
 	}{
 		{
 			title:  "can get team by Id",
-			ID:     team.ID,
+			Id:     team.Id,
 			wanted: testTeam{team.Name, team.Description, team.AdminIds[0], team.Private},
 		},
 		{
 			title: "cannot get team by Id",
-			ID:    -1,
+			Id:    -1,
 			err:   "no such entity",
 		},
 	}
@@ -309,12 +309,12 @@ func TestTeamUpdate(t *testing.T) {
 	}{
 		{
 			title:      "can update team",
-			id:         newteam.ID,
+			id:         newteam.Id,
 			updateTeam: testTeam{name: "updated team 1", description: "updated description 1"},
 		},
 		{
 			title:      "cannot update, team not found",
-			id:         newteam.ID,
+			id:         newteam.Id,
 			updateTeam: testTeam{name: "updated team 2", description: "updated description 2"},
 			overrideID: true,
 			newID:      -1,
@@ -335,7 +335,7 @@ func TestTeamUpdate(t *testing.T) {
 		team.Private = test.updateTeam.private
 
 		if test.overrideId {
-			team.ID = test.newId
+			team.Id = test.newId
 		}
 
 		if err = team.Update(c); err != nil {
@@ -348,7 +348,7 @@ func TestTeamUpdate(t *testing.T) {
 		}
 
 		var got *Team
-		if got, err = TeamByID(c, team.ID); err != nil {
+		if got, err = TeamByID(c, team.Id); err != nil {
 			t.Errorf("test %v - Error: %v", i, err)
 		}
 		if err = checkTeam(got, test.updateTeam); err != nil {
@@ -375,7 +375,7 @@ func TestTeamsByIDs(t *testing.T) {
 	testTeams := createTestTeams(3)
 	teamIDs := createTeamsFromTestTeams(t, c, testTeams)
 
-	// Test data: only one bad team ID
+	// Test data: only one bad team Id
 	teamIDsWithOneBadID := make([]int64, len(teamIDs))
 	copy(teamIDsWithOneBadID, teamIDs)
 	teamIDsWithOneBadID[0] = teamIDsWithOneBadID[0] + 50
@@ -520,8 +520,8 @@ func TestGetNotJoinedTeams(t *testing.T) {
 		// check no team in notJoinedTeams is in user teams collection
 		for _, team := range notJoinedTeams {
 			for _, id := range test.userTeamIDs {
-				if teamIDs[id] == team.ID {
-					t.Errorf("test %d - team %d is in both collections: NotJoined and UserTeams", i, team.ID)
+				if teamIDs[id] == team.Id {
+					t.Errorf("test %d - team %d is in both collections: NotJoined and UserTeams", i, team.Id)
 				}
 			}
 		}
@@ -659,7 +659,7 @@ func TestTeamJoin(t *testing.T) {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
 			if ok, _ := team.ContainsUserID(user.Id); !ok {
-				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.ID)
+				t.Errorf("test %v - user Id %v is not part of team userIds", i, user.Id)
 			}
 		}
 	}
@@ -728,8 +728,8 @@ func TestTeamLeave(t *testing.T) {
 			if team, err = TeamByID(c, teamIDs[id]); err != nil {
 				t.Errorf("test %v - team not found - %v", i, err)
 			}
-			if ok, _ := team.ContainsUserID(user.ID); ok {
-				t.Errorf("test %v - user Id %v is part of team userIds", i, user.ID)
+			if ok, _ := team.ContainsUserID(user.Id); ok {
+				t.Errorf("test %v - user Id %v is part of team userIds", i, user.Id)
 			}
 		}
 	}
@@ -753,7 +753,7 @@ func TestIsTeamAdmin(t *testing.T) {
 	}
 
 	testTeams := createTestTeams(1)
-	testTeams[0].adminID = user.ID
+	testTeams[0].adminID = user.Id
 	teamID := createTeamsFromTestTeams(t, c, testTeams)[0]
 
 	tests := []struct {
@@ -765,7 +765,7 @@ func TestIsTeamAdmin(t *testing.T) {
 		{
 			title:    "user is admin",
 			teamID:   teamID,
-			userID:   user.ID,
+			userID:   user.Id,
 			expected: true,
 		},
 		{
@@ -777,14 +777,14 @@ func TestIsTeamAdmin(t *testing.T) {
 		{
 			title:    "team does not exist",
 			teamID:   -1,
-			userID:   user.ID,
+			userID:   user.Id,
 			expected: false,
 		},
 	}
 
 	for i, test := range tests {
 		t.Log(test.title)
-		if got := IsTeamAdmin(c, test.teamID, test.userID); got != test.expected {
+		if got := IsTeamAdmin(c, test.teamId, test.userID); got != test.expected {
 			t.Errorf("test %v - isTeamAdmin got %v want %v", i, got, test.expected)
 		}
 	}
@@ -834,8 +834,8 @@ func TestGetWordFrequencyForTeam(t *testing.T) {
 
 	for i, test := range tests {
 		t.Log(test.title)
-		if got := GetWordFrequencyForTeam(c, test.teamID, test.word); got != test.expected {
-			t.Errorf("test %v - GetWordFrequencyForTeam(%v,%v) got %v want %v", i, test.teamID, test.word, got, test.expected)
+		if got := GetWordFrequencyForTeam(c, test.teamId, test.word); got != test.expected {
+			t.Errorf("test %v - GetWordFrequencyForTeam(%v,%v) got %v want %v", i, test.teamId, test.word, got, test.expected)
 		}
 	}
 }

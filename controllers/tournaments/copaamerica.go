@@ -41,7 +41,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "NewCopaAmetrica Handler:"
 
-	tournament, err := mdl.CreateCopaAmerica(c, u.ID)
+	tournament, err := mdl.CreateCopaAmerica(c, u.Id)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -70,7 +70,7 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	tournament := tournaments[0]
 
 	// tournament
-	fieldsToKeep := []string{"ID", "Name", "Description"}
+	fieldsToKeep := []string{"Id", "Name", "Description"}
 	var tournamentJSON mdl.TournamentJSON
 	helpers.InitPointerStructure(tournament, &tournamentJSON, fieldsToKeep)
 	// formatted start and end

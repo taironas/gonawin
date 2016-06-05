@@ -37,7 +37,7 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "New World Cup Handler:"
 
 	if r.Method == "POST" {
-		tournament, err := mdl.CreateWorldCup(c, u.ID)
+		tournament, err := mdl.CreateWorldCup(c, u.Id)
 		if err != nil {
 			log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -64,7 +64,7 @@ func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		tournament := tournaments[0]
 
 		// tournament
-		fieldsToKeep := []string{"ID", "Name", "Description"}
+		fieldsToKeep := []string{"Id", "Name", "Description"}
 		var TournamentJSON mdl.TournamentJSON
 		helpers.InitPointerStructure(tournament, &TournamentJSON, fieldsToKeep)
 		// formatted start and end

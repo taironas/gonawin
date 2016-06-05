@@ -27,10 +27,10 @@ func NewContext(c appengine.Context, desc string, r *http.Request) Context {
 	return Context{c, desc, r}
 }
 
-// UserID returns a userId.
+// UserId returns a userId.
 // It gets the 'userId' from the request and parses it to int64
 //
-func (c Context) UserID() (int64, error) {
+func (c Context) UserId() (int64, error) {
 
 	strUserID, err := route.Context.Get(c.r, "userId")
 	if err != nil {
@@ -51,7 +51,7 @@ func (c Context) UserID() (int64, error) {
 //
 func (c Context) User() (*mdl.User, error) {
 
-	userID, err := c.UserID()
+	userID, err := c.UserId()
 	if err != nil {
 		return nil, err
 	}
@@ -78,10 +78,10 @@ func (c Context) Admin(userID int64) (*mdl.User, error) {
 	return a, nil
 }
 
-// TeamID returns the team identifier.
+// TeamId returns the team identifier.
 // It gets the 'teamID' from the request and parses it to int64
 //
-func (c Context) TeamID() (int64, error) {
+func (c Context) TeamId() (int64, error) {
 	strTeamID, err := route.Context.Get(c.r, "teamId")
 	if err != nil {
 		log.Errorf(c.c, "%s error getting team id, err:%v", c.desc, err)
@@ -101,7 +101,7 @@ func (c Context) TeamID() (int64, error) {
 //
 func (c Context) Team() (*mdl.Team, error) {
 
-	teamID, err := c.TeamID()
+	teamID, err := c.TeamId()
 	if err != nil {
 		return nil, err
 	}
@@ -151,22 +151,22 @@ func (c Context) TeamRequest() (*mdl.TeamRequest, error) {
 	return teamRequest, nil
 }
 
-// TournamentID returns the ID of the tournament that the request holds.
+// TournamentId returns the Id of the tournament that the request holds.
 //
-func (c Context) TournamentID() (int64, error) {
+func (c Context) TournamentId() (int64, error) {
 	strTournamentID, err := route.Context.Get(c.r, "tournamentId")
 	if err != nil {
 		log.Errorf(c.c, "%s error getting tournament id, err:%v", c.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
 
-	var tournamentID int64
-	tournamentID, err = strconv.ParseInt(strTournamentID, 0, 64)
+	var tournamentId int64
+	tournamentId, err = strconv.ParseInt(strTournamentID, 0, 64)
 	if err != nil {
 		log.Errorf(c.c, "%s error converting tournament id from string to int64, err:%v", c.desc, err)
 		return 0, &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}
-	return tournamentID, nil
+	return tournamentId, nil
 }
 
 // Tournament returns a tournament instance.
@@ -175,13 +175,13 @@ func (c Context) TournamentID() (int64, error) {
 //
 func (c Context) Tournament() (*mdl.Tournament, error) {
 
-	tournamentID, err := c.TournamentID()
+	tournamentId, err := c.TournamentId()
 	if err != nil {
 		return nil, err
 	}
 
 	var tournament *mdl.Tournament
-	if tournament, err = mdl.TournamentByID(c.c, tournamentID); err != nil {
+	if tournament, err = mdl.TournamentByID(c.c, tournamentId); err != nil {
 		log.Errorf(c.c, "%s tournament not found: %v", c.desc, err)
 		return nil, &helpers.NotFound{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
 	}

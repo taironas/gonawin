@@ -57,7 +57,7 @@ func AddAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
 
-	if err = team.AddAdmin(c, newAdmin.ID); err != nil {
+	if err = team.AddAdmin(c, newAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on AddAdmin to team: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeInternal)}
 	}
@@ -74,7 +74,7 @@ type teamAddAdminViewModel struct {
 func buildTeamAddAdminViewModel(team *mdl.Team, newAdmin *mdl.User) teamAddAdminViewModel {
 
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You added %s as admin of team %s.", newAdmin.Name, team.Name)
@@ -108,7 +108,7 @@ func RemoveAdmin(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 		return &helpers.InternalServerError{Err: err}
 	}
 
-	if err = team.RemoveAdmin(c, oldAdmin.ID); err != nil {
+	if err = team.RemoveAdmin(c, oldAdmin.Id); err != nil {
 		log.Errorf(c, "%s error on RemoveAdmin to team: %v.", desc, err)
 		return &helpers.InternalServerError{Err: err}
 	}
@@ -124,7 +124,7 @@ type teamRemoveAdminViewModel struct {
 
 func buildTeamRemoveAdminViewModel(team *mdl.Team, oldAdmin *mdl.User) teamRemoveAdminViewModel {
 	var t mdl.TeamJSON
-	fieldsToKeep := []string{"ID", "Name", "AdminIds", "Private"}
+	fieldsToKeep := []string{"Id", "Name", "AdminIds", "Private"}
 	helpers.InitPointerStructure(team, &t, fieldsToKeep)
 
 	msg := fmt.Sprintf("You removed %s as admin of team %s.", oldAdmin.Name, team.Name)

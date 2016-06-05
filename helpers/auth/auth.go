@@ -54,7 +54,7 @@ func init() {
 // UserInfo represents the user infor needed for authentication.
 //
 type UserInfo struct {
-	ID    string
+	Id    string
 	Email string
 	Name  string
 }
@@ -62,7 +62,7 @@ type UserInfo struct {
 // TwitterUserInfo represents the twitter data needed for authentication.
 //
 type TwitterUserInfo struct {
-	ID         int64 `json:"id,omitempty"`
+	Id         int64 `json:"id,omitempty"`
 	Name       string
 	ScreenName string `json:"screen_name,omitempty"`
 }
@@ -140,11 +140,11 @@ func CurrentOfflineUser(r *http.Request, c appengine.Context) *mdl.User {
 
 // GetUserGoogleInfo returns user information from Google Accounts user.
 // If on development server only email (example@example.com) will be present.
-// So ID and Name will be added.
+// So Id and Name will be added.
 //
 func GetUserGoogleInfo(u *user.User) UserInfo {
 	if appengine.IsDevAppServer() {
-		return UserInfo{ID: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
+		return UserInfo{Id: fmt.Sprintf("%d", rand.Int63()), Email: u.Email, Name: "John Smith"}
 	}
-	return UserInfo{ID: u.ID, Email: u.Email, Name: u.String()}
+	return UserInfo{Id: u.ID, Email: u.Email, Name: u.String()}
 }

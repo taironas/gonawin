@@ -34,18 +34,18 @@ import (
 //        If the prediction does not match the match result you get +0.
 //
 type Score struct {
-	ID           int64
-	UserID       int64
-	TournamentID int64
+	Id           int64
+	UserId       int64
+	TournamentId int64
 	Scores       []int64
 }
 
 // ScoreOverall is a placeholder for the overall score of a user in different tournaments.
 //
 type ScoreOverall struct {
-	ID              int64
-	UserID          int64
-	TournamentID    int64
+	Id              int64
+	UserId          int64
+	TournamentId    int64
 	Score           int64
 	LastProgression int64
 }
@@ -53,22 +53,22 @@ type ScoreOverall struct {
 // ScoreJSON is the Json version of the Score struct
 //
 type ScoreJSON struct {
-	ID           *int64   `json:"Id,omitempty"`
-	UserID       *int64   `json:"UserId,omitempty"`
-	TournamentID *int64   `json:"TournamentId,omitempty"`
-	Scores       *[]int64 `json:"Scores,omitempty"`
+	Id           *int64   `json:",omitempty"`
+	UserId       *int64   `json:",omitempty"`
+	TournamentId *int64   `json:",omitempty"`
+	Scores       *[]int64 `json:",omitempty"`
 }
 
 // CreateScore creates a Score entity.
 //
-func CreateScore(c appengine.Context, userID int64, tournamentID int64) (*Score, error) {
+func CreateScore(c appengine.Context, userID int64, tournamentId int64) (*Score, error) {
 	sID, _, err := datastore.AllocateIDs(c, "Score", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Score", "", sID, nil)
 	var scores []int64
-	s := &Score{sID, userID, tournamentID, scores}
+	s := &Score{sID, userID, tournamentId, scores}
 	if _, err = datastore.Put(c, key, s); err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func CreateScore(c appengine.Context, userID int64, tournamentID int64) (*Score,
 
 // CreateScores creates a Score entity.
 //
-func CreateScores(c appengine.Context, userIDs []int64, tournamentID int64) ([]*Score, []*datastore.Key, error) {
+func CreateScores(c appengine.Context, userIDs []int64, tournamentId int64) ([]*Score, []*datastore.Key, error) {
 	var keys []*datastore.Key
 	var scoreEntities []*Score
 
@@ -90,7 +90,7 @@ func CreateScores(c appengine.Context, userIDs []int64, tournamentID int64) ([]*
 		keys = append(keys, k)
 
 		var scores []int64
-		s := &Score{sID, id, tournamentID, scores}
+		s := &Score{sID, id, tournamentId, scores}
 		scoreEntities = append(scoreEntities, s)
 	}
 
@@ -135,7 +135,7 @@ func AddScores(c appengine.Context, tournamentScores []*Score, scores []int64) e
 func UpdateScores(c appengine.Context, scores []*Score) error {
 	keys := make([]*datastore.Key, len(scores))
 	for i := range keys {
-		keys[i] = ScoreKeyByID(c, scores[i].ID)
+		keys[i] = ScoreKeyByID(c, scores[i].Id)
 	}
 	if _, err := datastore.PutMulti(c, keys, scores); err != nil {
 		return err
@@ -146,7 +146,7 @@ func UpdateScores(c appengine.Context, scores []*Score) error {
 // Update updates a score given an id and a score pointer.
 //
 func (s *Score) Update(c appengine.Context) error {
-	k := ScoreKeyByID(c, s.ID)
+	k := ScoreKeyByID(c, s.Id)
 	oldScore := new(Score)
 	if err := datastore.Get(c, k, oldScore); err == nil {
 		if _, err = datastore.Put(c, k, s); err != nil {
@@ -166,11 +166,11 @@ func ScoreKeyByID(c appengine.Context, id int64) *datastore.Key {
 
 // ScoreByUserTournament gets an array of scores for a user, tournament pair.
 //
-func ScoreByUserTournament(c appengine.Context, userID interface{}, tournamentID interface{}) []*Score {
+func ScoreByUserTournament(c appengine.Context, userID interface{}, tournamentId interface{}) []*Score {
 
 	q := datastore.NewQuery("Score").
 		Filter("UserId"+" =", userID).
-		Filter("TournamentId"+" =", tournamentID)
+		Filter("TournamentId"+" =", tournamentId)
 
 	var scores []*Score
 

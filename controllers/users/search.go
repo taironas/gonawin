@@ -30,7 +30,7 @@ import (
 )
 
 type searchUserViewModel struct {
-	ID       int64 `json:"Id"`
+	Id       int64 `json:"Id"`
 	Username string
 	Alias    string
 	Score    int64
@@ -80,11 +80,11 @@ func Search(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 func buildSearchUserViewModel(users []*mdl.User) []searchUserViewModel {
 	uvm := make([]searchUserViewModel, len(users))
 	for i, u := range users {
-		uvm[i].ID = u.ID
+		uvm[i].Id = u.Id
 		uvm[i].Username = u.Username
 		uvm[i].Alias = u.Alias
 		uvm[i].Score = u.Score
-		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.ID)
+		uvm[i].ImageURL = helpers.UserImageURL(u.Name, u.Id)
 	}
 	return uvm
 }

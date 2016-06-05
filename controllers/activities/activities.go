@@ -88,7 +88,7 @@ func buildActivitiesViewModel(activities []*mdl.Activity, perPage, currentPage, 
 }
 
 func buildJSONActivities(activities []*mdl.Activity) []mdl.ActivityJSON {
-	fieldsToKeep := []string{"ID", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserID"}
+	fieldsToKeep := []string{"Id", "Type", "Verb", "Actor", "Object", "Target", "Published", "UserId"}
 	json := make([]mdl.ActivityJSON, len(activities))
 	helpers.TransformFromArrayOfPointers(&activities, &json, fieldsToKeep)
 	return json

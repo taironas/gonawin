@@ -29,9 +29,9 @@ import (
 // A Price entity is defined by a description of the price that the winner gets for a specific tournament.
 //
 type Price struct {
-	ID             int64     `json:"Id"`           // price id
-	TeamID         int64     `json:"TeamId"`       // team id, a price is binded to a single team.
-	TournamentID   int64     `json:"TournamentId"` // tournament id, a price is binded to a single team.
+	Id             int64     // price id
+	TeamId         int64     // team id, a price is binded to a single team.
+	TournamentId   int64     // tournament id, a price is binded to a single team.
 	TournamentName string    // tournament name.
 	Description    string    // the description of the price
 	Created        time.Time // date of creation
@@ -39,14 +39,14 @@ type Price struct {
 
 // CreatePrice creates a Price entity given a description, a team id and a tournament id.
 //
-func CreatePrice(c appengine.Context, teamID, tournamentID int64, tournamentName string, description string) (*Price, error) {
+func CreatePrice(c appengine.Context, teamID, tournamentId int64, tournamentName string, description string) (*Price, error) {
 
 	pID, _, err := datastore.AllocateIDs(c, "Price", nil, 1)
 	if err != nil {
 		return nil, err
 	}
 	key := datastore.NewKey(c, "Price", "", pID, nil)
-	p := &Price{pID, teamID, tournamentID, tournamentName, description, time.Now()}
+	p := &Price{pID, teamID, tournamentId, tournamentName, description, time.Now()}
 	if _, err = datastore.Put(c, key, p); err != nil {
 		return nil, err
 	}
@@ -57,11 +57,11 @@ func CreatePrice(c appengine.Context, teamID, tournamentID int64, tournamentName
 //
 func (p *Price) Destroy(c appengine.Context) error {
 
-	if _, err := PriceByID(c, p.ID); err != nil {
-		return fmt.Errorf("Cannot find price with Id=%d", p.ID)
+	if _, err := PriceByID(c, p.Id); err != nil {
+		return fmt.Errorf("Cannot find price with Id=%d", p.Id)
 	}
 
-	key := datastore.NewKey(c, "Price", "", p.ID, nil)
+	key := datastore.NewKey(c, "Price", "", p.Id, nil)
 
 	return datastore.Delete(c, key)
 }
@@ -113,7 +113,7 @@ func PriceKeyByID(c appengine.Context, id int64) *datastore.Key {
 // Update a Predict entity.
 //
 func (p *Price) Update(c appengine.Context) error {
-	k := PriceKeyByID(c, p.ID)
+	k := PriceKeyByID(c, p.Id)
 	old := new(Price)
 	if err := datastore.Get(c, k, old); err == nil {
 		if _, err = datastore.Put(c, k, p); err != nil {

@@ -85,7 +85,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		max := 3 * len(players) // maximum score for team in current match.
 		for _, u := range players {
 			if score, err := u.ScoreForMatch(c, m); err != nil {
-				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.ID, err)
+				log.Errorf(c, "%s unable udpate user %v score: %v", desc, u.Id, err)
 			} else {
 				sumScore += score
 			}
@@ -101,25 +101,25 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 			}
 
 			var acc1 *Accuracy
-			if acc1, err = CreateAccuracy(c, team.ID, t.ID, oldmatches); err != nil {
+			if acc1, err = CreateAccuracy(c, team.Id, t.Id, oldmatches); err != nil {
 				log.Errorf(c, "%s unable to create accuracy", desc)
 				return err
 			}
 
-			team.AddTournamentAccuracy(c, acc1.ID, t.ID)
+			team.AddTournamentAccuracy(c, acc1.Id, t.Id)
 			if computedAcc, err = acc1.Add(c, newAcc); err != nil {
-				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
+				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.Id, err)
 			}
 
 		} else {
 			if computedAcc, err = acc.Add(c, newAcc); err != nil {
-				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.ID, err)
+				log.Errorf(c, "%s unable to add accuracy of team %d: %v, ", desc, team.Id, err)
 			}
 		}
 
 		// ToDo: update team overall accuracy.
-		if err = team.UpdateAccuracy(c, t.ID, computedAcc); err != nil {
-			log.Errorf(c, "%s unable to update global accuracy for team %d: %v", desc, team.ID, err)
+		if err = team.UpdateAccuracy(c, t.Id, computedAcc); err != nil {
+			log.Errorf(c, "%s unable to update global accuracy for team %d: %v", desc, team.Id, err)
 		}
 	}
 	if err = UpdateTeams(c, teamsToUpdate); err != nil {
