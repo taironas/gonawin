@@ -30,9 +30,9 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// TournamentAccuracy holds a tournament id and an accuracy id.
+// AccOfTournaments holds a tournament id and an accuracy id.
 //
-type TournamentAccuracy struct {
+type AccOfTournaments struct {
 	AccuracyId   int64 // id of accuracy entity
 	TournamentId int64 // id of tournament
 }
@@ -50,7 +50,7 @@ type Team struct {
 	UserIds              []int64              // ids of Users <=> members of the team.
 	TournamentIds        []int64              // ids of Tournaments <=> Tournaments the team subscribed.
 	Accuracy             float64              // Overall Team accuracy.
-	TournamentAccuracies []TournamentAccuracy // ids of Accuracies for each tournament the team is participating on .
+	AccOfTournaments 		 []AccOfTournaments // ids of Accuracies for each tournament the team is participating on .
 	PriceIds             []int64              // ids of Prices <=> prices defined for each tournament the team participates.
 	MembersCount         int64                // number of members in team
 }
@@ -68,7 +68,7 @@ type TeamJSON struct {
 	UserIds       *[]int64              `json:",omitempty"`
 	TournamentIds *[]int64              `json:",omitempty"`
 	Accuracy      *float64              `json:",omitempty"`
-	AccuracyIds   *[]TournamentAccuracy `json:",omitempty"`
+	AccOfTournaments   *[]AccOfTournaments `json:",omitempty"`
 	PriceIds      *[]int64              `json:",omitempty"`
 	MembersCount  *int64                `json:",omitempty"`
 }
@@ -86,7 +86,7 @@ func CreateTeam(c appengine.Context, name string, description string, adminID in
 	admins := make([]int64, 1)
 	admins[0] = adminID
 	var emptyArray []int64
-	var emtpyArrayOfAccOfTournament []TournamentAccuracy
+	var emtpyArrayOfAccOfTournament []AccOfTournaments
 	team := &Team{teamID, helpers.TrimLower(name), name, description, admins, private, time.Now(), emptyArray, emptyArray, float64(0), emtpyArrayOfAccOfTournament, emptyArray, 0}
 
 	_, err = datastore.Put(c, key, team)
@@ -489,7 +489,7 @@ func (t *Team) Accuracies(c appengine.Context) []*Accuracy {
 
 	var accs []*Accuracy
 
-	for _, acc := range t.TournamentAccuracies {
+	for _, acc := range t.AccOfTournaments {
 		a, err := AccuracyByID(c, acc.AccuracyId)
 		if err != nil {
 			log.Errorf(c, " Accuracies, cannot find accuracy with Id=%", acc.AccuracyId)
@@ -680,11 +680,11 @@ func (a TeamByAccuracy) Len() int           { return len(a) }
 func (a TeamByAccuracy) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a TeamByAccuracy) Less(i, j int) bool { return a[i].Accuracy < a[j].Accuracy }
 
-// TournamentAccuracy returns the accury of a given team and for a given tournament.
+// TournamentAcc returns the accury of a given team and for a given tournament.
 //
-func (t *Team) TournamentAccuracy(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
+func (t *Team) TournamentAcc(c appengine.Context, tournament *Tournament) (*Accuracy, error) {
 	//query accuracy
-	for _, acc := range t.TournamentAccuracies {
+	for _, acc := range t.AccOfTournaments {
 		if acc.TournamentId == tournament.Id {
 			return AccuracyByID(c, acc.AccuracyId)
 		}
@@ -707,7 +707,7 @@ func (t *Team) AddTournamentAccuracy(c appengine.Context, accuracyID int64, tour
 		return errors.New("model/team: not member of tournament")
 	}
 	accExist := false
-	for _, acc := range t.TournamentAccuracies {
+	for _, acc := range t.AccOfTournaments {
 		if acc.AccuracyId == accuracyID {
 			accExist = true
 			break
@@ -717,10 +717,10 @@ func (t *Team) AddTournamentAccuracy(c appengine.Context, accuracyID int64, tour
 		return errors.New("model/team: accuracy allready present")
 	}
 
-	var a TournamentAccuracy
+	var a AccOfTournaments
 	a.AccuracyId = accuracyID
 	a.TournamentId = tournamentId
-	t.TournamentAccuracies = append(t.TournamentAccuracies, a)
+	t.AccOfTournaments = append(t.AccOfTournaments, a)
 	if err := t.Update(c); err != nil {
 		return err
 	}
@@ -735,7 +735,7 @@ func (t *Team) UpdateAccuracy(c appengine.Context, tID int64, newAccuracy float6
 
 	sum := float64(0)
 	counter := 0
-	for _, tournamentAccuracy := range t.TournamentAccuracies {
+	for _, tournamentAccuracy := range t.AccOfTournaments {
 		if tournamentAccuracy.TournamentId == tID {
 			sum += newAccuracy
 			counter++
@@ -812,7 +812,7 @@ func (t *Team) Entity() ActivityEntity {
 //
 func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]AccuracyOverall {
 	var accs []AccuracyOverall
-	for _, aot := range t.TournamentAccuracies {
+	for _, aot := range t.AccOfTournaments {
 		if acc, err := AccuracyByID(c, aot.AccuracyId); err != nil {
 			log.Errorf(c, "Team.AccuraciesByTournament: Unable to retrieve accuracy entity from id, ", err)
 		} else {
@@ -847,7 +847,7 @@ func (t *Team) AccuraciesGroupByTournament(c appengine.Context, limit int) *[]Ac
 // the progression of accuracies is in reverse order to have the most reset accuracy as first element.
 //
 func (t *Team) AccuracyByTournament(c appengine.Context, tour *Tournament) *AccuracyOverall {
-	for _, aot := range t.TournamentAccuracies {
+	for _, aot := range t.AccOfTournaments {
 		if aot.TournamentId != tour.Id {
 			continue
 		}

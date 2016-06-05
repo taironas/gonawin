@@ -94,7 +94,7 @@ func (t *Tournament) UpdateTeamsAccuracy(c appengine.Context, m *Tmatch) error {
 		// compute current accuracy, get accuracy entity , add accuracy to entity.
 		newAcc := float64(sumScore) / float64(max)
 		computedAcc := float64(0)
-		if acc, _ := team.TournamentAccuracy(c, t); acc == nil {
+		if acc, _ := team.TournamentAcc(c, t); acc == nil {
 			oldmatches := t.OldMatches(c)
 			if oldmatches > 0 {
 				oldmatches = oldmatches - 1 // do not take into account the match that triggers the update accuracy.
