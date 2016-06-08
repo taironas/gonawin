@@ -83,7 +83,7 @@ func (wct WorldCupTournament) MapOfTeamCodes() map[string]string {
 	codes["Japan"] = "jp"
 	codes["Uruguay"] = "uy"
 	codes["Costa Rica"] = "cr"
-	codes["England"] = "gb"
+	codes["England"] = "gb-eng"
 	codes["Italy"] = "it"
 	codes["Switzerland"] = "ch"
 	codes["Ecuador"] = "ec"
