@@ -42,6 +42,7 @@ This is a baby-gophers project because `The young are born blind and helpless` -
 * set up the appengine [environement](https://developers.google.com/appengine/docs/go/gettingstarted/devenvironment)
 *   `go get github.com/garyburd/go-oauth/oauth`
 *   `go get github.com/taironas/gonawin`
+*   `go get github.com/taironas/route`
 *   `cd $GOPATH/src/github.com/taironas/gonawin/gonawin`
 *   `cp example-config.json config.json`
 *   add your email to the `config.json` in the `admins` section
