@@ -69,7 +69,7 @@ func (cat CopaAmericaTournament2016) MapOfTeamCodes() map[string]string {
 	codes["Jamaica"] = "jm"
 
 	codes["Argentina"] = "ar"
-	codes["Chile"] = "ch"
+	codes["Chile"] = "cl"
 	codes["Panama"] = "pa"
 	codes["Bolivia"] = "bo"
 
