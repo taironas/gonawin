@@ -711,8 +711,10 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	} else if t.Name == "2016 UEFA Euro" {
 		et := EuroTournament2016{}
 		tb = et
+	} else if t.Name == "2016 Copa America" {
+		cat := CopaAmericaTournament2016{}
+		tb = cat
 	}
-
 	return tb
 }
 

@@ -41,7 +41,7 @@ func NewCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "NewCopaAmetrica Handler:"
 
-	tournament, err := mdl.CreateCopaAmerica(c, u.Id)
+	tournament, err := mdl.CreateCopaAmerica2016(c, u.Id)
 	if err != nil {
 		log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -61,7 +61,7 @@ func GetCopaAmerica(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	c := appengine.NewContext(r)
 	desc := "GetCopaAmerica Handler:"
 
-	tournaments := mdl.FindTournaments(c, "Name", "2015 Copa America")
+	tournaments := mdl.FindTournaments(c, "Name", "2016 Copa America")
 	if tournaments == nil {
 		log.Errorf(c, "%s Copa America tournament was not found.", desc)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}
