@@ -53,7 +53,7 @@ func (cat CopaAmericaTournament2016) MapOfTeamCodes() map[string]string {
 	var codes map[string]string
 	codes = make(map[string]string)
 
-	codes["United State"] = "us"
+	codes["United States"] = "us"
 	codes["Colombia"] = "co"
 	codes["Costa Rica"] = "cr"
 	codes["Paraguay"] = "py"
@@ -97,14 +97,14 @@ func (cat CopaAmericaTournament2016) MapOfGroupMatches() map[string][][]string {
 	)
 
 	mA1 := []string{"1", "Jun/03/2016", "United States", "Colombia", "Levi's Stadium, Santa Clara"}
-	mA2 := []string{"2", "Jun/04/2016", "Costa Rica", "Colombia", "Camping World Stadium, Orlando"}
+	mA2 := []string{"2", "Jun/04/2016", "Costa Rica", "Paraguay", "Camping World Stadium, Orlando"}
 	mA3 := []string{"9", "Jun/07/2016", "United States", "Costa Rica", "Soldier Field, Chicago"}
 	mA4 := []string{"10", "Jun/07/2016", "Colombia", "Paraguay", "Rose Bowl, Pasadena"}
 	mA5 := []string{"17", "Jun/11/2016", "United States", "Paraguay", "Lincoln Financial Field, Philadelphia"}
 	mA6 := []string{"18", "Jun/11/2016", "Colombia", "Costa Rica", "NRG Stadium, Houston"}
 
 	mB1 := []string{"3", "Jun/04/2016", "Haiti", "Peru", "CenturyLink Field, Seattle"}
-	mB2 := []string{"4", "Jun/04/2016", "Brazi", "Ecuador", "Rose Bowl, Pasadena"}
+	mB2 := []string{"4", "Jun/04/2016", "Brazil", "Ecuador", "Rose Bowl, Pasadena"}
 	mB3 := []string{"11", "Jun/08/2016", "Brazil", "Haiti", "Camping World Stadium, Orlando"}
 	mB4 := []string{"12", "Jun/08/2016", "Ecuador", "Peru", "University of Phoenix Stadium, Glendale"}
 	mB5 := []string{"19", "Jun/12/2016", "Ecuador", "Haiti", "MetLife Stadium, East Rutherford"}
@@ -137,7 +137,7 @@ func (cat CopaAmericaTournament2016) MapOfGroupMatches() map[string][][]string {
 	mapGroupMatches["A"] = matchesA
 	mapGroupMatches["B"] = matchesB
 	mapGroupMatches["C"] = matchesC
-	mapGroupMatches["D"] = matchesC
+	mapGroupMatches["D"] = matchesD
 
 	return mapGroupMatches
 }
