@@ -27,7 +27,7 @@ import (
 	"github.com/taironas/gonawin/helpers/log"
 )
 
-// CopaAmericaTournament is a placeholder for the Copa America Tournament.
+// CopaAmericaTournament2016 is a placeholder for the Copa America Tournament.
 //
 type CopaAmericaTournament2016 struct {
 }
@@ -153,10 +153,10 @@ func (cat CopaAmericaTournament2016) MapOfGroupMatches() map[string][][]string {
 func (cat CopaAmericaTournament2016) MapOf2ndRoundMatches() map[string][][]string {
 
 	// 17 Quarter-finals
-	m2nd1 := []string{"25", "Jun/16/2015", "1A", "2B", "CenturyLink Field, Seattle"}
-	m2nd2 := []string{"26", "Jun/17/2015", "1B", "2A", "MetLife Stadium, East Rutherford"}
-	m2nd3 := []string{"27", "Jun/18/2015", "1D", "2C", "Gillette Stadium, Foxborough"}
-	m2nd4 := []string{"28", "Jun/18/2015", "1C", "2D", "Levi's Stadium, Santa Clara"}
+	m2nd1 := []string{"25", "Jun/16/2016", "1A", "2B", "CenturyLink Field, Seattle"}
+	m2nd2 := []string{"26", "Jun/17/2016", "1B", "2A", "MetLife Stadium, East Rutherford"}
+	m2nd3 := []string{"27", "Jun/18/2016", "1D", "2C", "Gillette Stadium, Foxborough"}
+	m2nd4 := []string{"28", "Jun/18/2016", "1C", "2D", "Levi's Stadium, Santa Clara"}
 	// 18 Semi-finals
 	m2nd5 := []string{"29", "Jun/21/2016", "W25", "W27", "NRG Stadium, Houston"}
 	m2nd6 := []string{"30", "Jun/22/2016", "W26", "W28", "Soldier Field, Chicago"}
