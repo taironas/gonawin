@@ -40,37 +40,37 @@ type AccOfTournaments struct {
 // Team holds tournament entity data.
 //
 type Team struct {
-	Id                   int64
-	KeyName              string
-	Name                 string
-	Description          string
-	AdminIds             []int64 // ids of User that are admins of the team
-	Private              bool
-	Created              time.Time
-	UserIds              []int64              // ids of Users <=> members of the team.
-	TournamentIds        []int64              // ids of Tournaments <=> Tournaments the team subscribed.
-	Accuracy             float64              // Overall Team accuracy.
-	AccOfTournaments 		 []AccOfTournaments // ids of Accuracies for each tournament the team is participating on .
-	PriceIds             []int64              // ids of Prices <=> prices defined for each tournament the team participates.
-	MembersCount         int64                // number of members in team
+	Id               int64
+	KeyName          string
+	Name             string
+	Description      string
+	AdminIds         []int64 // ids of User that are admins of the team
+	Private          bool
+	Created          time.Time
+	UserIds          []int64            // ids of Users <=> members of the team.
+	TournamentIds    []int64            // ids of Tournaments <=> Tournaments the team subscribed.
+	Accuracy         float64            // Overall Team accuracy.
+	AccOfTournaments []AccOfTournaments // ids of Accuracies for each tournament the team is participating on .
+	PriceIds         []int64            // ids of Prices <=> prices defined for each tournament the team participates.
+	MembersCount     int64              // number of members in team
 }
 
 // TeamJSON is the JSON version of the Team struct.
 //
 type TeamJSON struct {
-	Id            *int64                `json:",omitempty"`
-	KeyName       *string               `json:",omitempty"`
-	Name          *string               `json:",omitempty"`
-	Description   *string               `json:",omitempty"`
-	AdminIds      *[]int64              `json:",omitempty"`
-	Private       *bool                 `json:",omitempty"`
-	Created       *time.Time            `json:",omitempty"`
-	UserIds       *[]int64              `json:",omitempty"`
-	TournamentIds *[]int64              `json:",omitempty"`
-	Accuracy      *float64              `json:",omitempty"`
-	AccOfTournaments   *[]AccOfTournaments `json:",omitempty"`
-	PriceIds      *[]int64              `json:",omitempty"`
-	MembersCount  *int64                `json:",omitempty"`
+	Id               *int64              `json:",omitempty"`
+	KeyName          *string             `json:",omitempty"`
+	Name             *string             `json:",omitempty"`
+	Description      *string             `json:",omitempty"`
+	AdminIds         *[]int64            `json:",omitempty"`
+	Private          *bool               `json:",omitempty"`
+	Created          *time.Time          `json:",omitempty"`
+	UserIds          *[]int64            `json:",omitempty"`
+	TournamentIds    *[]int64            `json:",omitempty"`
+	Accuracy         *float64            `json:",omitempty"`
+	AccOfTournaments *[]AccOfTournaments `json:",omitempty"`
+	PriceIds         *[]int64            `json:",omitempty"`
+	MembersCount     *int64              `json:",omitempty"`
 }
 
 // CreateTeam creates a team given a name, description, an admin id and a private mode.
