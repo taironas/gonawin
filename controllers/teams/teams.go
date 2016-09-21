@@ -114,15 +114,24 @@ func Index(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 }
 
 type indexTeamViewModel struct {
-	Teams []mdl.TeamJSON `json:",omitempty"`
+	Id           int64 `json:"Id"`
+ 	Name         string
+ 	MembersCount int64
+	Private      bool
+ 	ImageURL     string
 }
 
-func buildIndexTeamsViewModel(teams []*mdl.Team) indexTeamViewModel {
-	teamsFieldsToKeep := []string{"Id", "Name", "MembersCount", "Private", "ImageURL"}
-	teamsJSON := make([]mdl.TeamJSON, len(teams))
-	helpers.TransformFromArrayOfPointers(&teams, &teamsJSON, teamsFieldsToKeep)
+func buildIndexTeamsViewModel(teams []*mdl.Team) []indexTeamViewModel {
+	ts := make([]indexTeamViewModel, len(teams))
+	for i, t := range teams {
+		ts[i].Id = t.Id
+	 	ts[i].Name = t.Name
+	 	ts[i].MembersCount = t.MembersCount
+		ts[i].Private = t.Private
+	 	ts[i].ImageURL = helpers.TeamImageURL(t.Name, t.Id)
+	}
 
-	return indexTeamViewModel{teamsJSON}
+	return ts
 }
 
 // New handler, use it to create a new team.
