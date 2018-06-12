@@ -42,12 +42,16 @@ We believe that todays betting platforms are full of adds that polute the game i
 
 ## Run App
 
-    > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
-    > goapp serve
+```bash
+cd $GOPATH/src/github.com/taironas/gonawin/gonawin
+dev_appserver.py app.yaml
+```
 
 ## Test App
 
-    > goapp test ./...
+```bash
+goapp test ./...
+```
 
 test models (in ./models):
 

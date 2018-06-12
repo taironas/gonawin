@@ -7,30 +7,39 @@ handlers:
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt
+  secure: always
 
 - url: /
   static_files: app/index.html
   upload: app/index.html
+  secure: always
 
 - url: /app
   static_dir: app
+  secure: always
 
 - url: /assets
   static_dir: app/assets
+  secure: always
 
 - url: /components
   static_dir: app/components
+  secure: always
 
 - url: /shared
   static_dir: app/shared
+  secure: always
 
 - url: /a/.*
   script: _go_app
   login: admin
+  secure: always
 
 - url: /_ah/remote_api
   script: _go_app
   login: admin
+  secure: always
 
 - url: /.*
   script: _go_app
+  secure: always
