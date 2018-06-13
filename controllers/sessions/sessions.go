@@ -90,7 +90,7 @@ func Authenticate(w http.ResponseWriter, r *http.Request) error {
 
 	var user *mdl.User
 	var err error
-	if user, err = mdl.SigninUser(c, "Email", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
+	if user, err = mdl.SigninUser(c, "Username", userInfo.Email, userInfo.Name, userInfo.Name); err != nil {
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsUnableToSignin)}
 	}
 
