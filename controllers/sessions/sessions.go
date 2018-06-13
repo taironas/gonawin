@@ -279,7 +279,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 	}
 
-	http.Redirect(w, r, "https://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
+	http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
 	return nil
 }
 
