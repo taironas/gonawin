@@ -35,8 +35,8 @@ import (
 // ScoreOfTournament holds the user's score for a tournament.
 //
 type ScoreOfTournament struct {
-	ScoreId      int64	// id of score entity
-	TournamentId int64	// id of tournament
+	ScoreId      int64 // id of score entity
+	TournamentId int64 // id of tournament
 }
 
 // User represents the User entity.
