@@ -182,7 +182,7 @@ teamControllers.controller('TeamNewCtrl', ['$rootScope', '$scope', 'Team', '$loc
     Team.save($scope.team,
 	      function(response) {
 		// set message information in root scope to retrieve it in team show controller.
-		// http://stackoverflow.com/questions/13740885/angularjs-location-scope
+		// https://stackoverflow.com/questions/13740885/angularjs-location-scope
 		$rootScope.messageInfo = response.MessageInfo;
 		$location.path('/teams/' + response.Team.Id);
 	      },
@@ -281,7 +281,7 @@ teamControllers.controller('TeamShowCtrl', ['$scope', '$routeParams', 'Team', '$
   });
 
   // set tournament ids with "values" so that angular understands:
-  // http://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
+  // https://stackoverflow.com/questions/15488342/binding-inputs-to-an-array-of-primitives-using-ngrepeat-uneditable-inputs
   $scope.teamData.$promise.then(function(teamresp){
     var len = 0;
     if(teamresp.Team.TournamentIds){

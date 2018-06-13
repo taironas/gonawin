@@ -116,7 +116,7 @@ func TwitterAuth(w http.ResponseWriter, r *http.Request) error {
 	c := appengine.NewContext(r)
 	desc := "Twitter Auth handler:"
 
-	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "http://"+r.Host+twitterCallbackURL, nil)
+	credentials, err := twitterConfig.RequestTemporaryCredentials(urlfetch.Client(c), "https://"+r.Host+twitterCallbackURL, nil)
 	if err != nil {
 		c.Errorf("JsonTwitterAuth, error = %v", err)
 		return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeSessionsCannotGetTempCredentials)}
@@ -154,7 +154,7 @@ func TwitterAuthCallback(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.BadRequest{Err: errors.New(helpers.ErrorCodeNotSupported)}
 	}
 
-	http.Redirect(w, r, "http://"+r.Host+"/#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
+	http.Redirect(w, r, "https://"+r.Host+"/#/auth/twitter/callback?oauth_token="+r.FormValue("oauth_token")+"&oauth_verifier="+r.FormValue("oauth_verifier"), http.StatusFound)
 	return nil
 }
 
@@ -279,7 +279,7 @@ func GoogleAuthCallback(w http.ResponseWriter, r *http.Request) error {
 		return &helpers.InternalServerError{Err: errors.New("user cannot be nil")}
 	}
 
-	http.Redirect(w, r, "http://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
+	http.Redirect(w, r, "https://"+r.Host+"/#/auth/google/callback?auth_token="+u.ID, http.StatusFound)
 	return nil
 }
 

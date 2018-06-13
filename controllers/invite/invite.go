@@ -134,6 +134,6 @@ Your friends @ Gonawin
 `
 
 func buildEmailBody(r *http.Request) string {
-	currenturl := fmt.Sprintf("http://%s/#", r.Host)
+	currenturl := fmt.Sprintf("https://%s/#", r.Host)
 	return fmt.Sprintf(inviteMessage, currenturl)
 }
