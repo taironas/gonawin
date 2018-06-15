@@ -100,7 +100,7 @@ angular.module('gonawingApp').run(['$rootScope', '$location', '$window', '$cooki
       $rootScope.serviceIds.$promise.then(function(response){
           FB.init({
         appId: response.FacebookAppId,
-        channelUrl: 'app/shared/channel.html',
+        // channelUrl: 'app/shared/channel.html',
         status: true, /*Set if you want to check the authentication status at the start up of the app */
         cookie: true,
         xfbml: true

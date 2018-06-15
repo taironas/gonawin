@@ -12,6 +12,6 @@ rootControllers.controller('RootCtrl', ['$rootScope', '$scope', '$location', 'To
   // reset to nil var message info in root scope.
   $rootScope.messageInfo = undefined;
 
-  // fetch Copa America tournament
-  $scope.tournamentData =  Tournament.getCopaAmerica();
+  // fetch World Cup tournament
+  $scope.tournamentData =  Tournament.getWorldCup();;
 }]);

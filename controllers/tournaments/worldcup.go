@@ -37,7 +37,7 @@ func NewWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "New World Cup Handler:"
 
 	if r.Method == "POST" {
-		tournament, err := mdl.CreateWorldCup(c, u.Id)
+		tournament, err := mdl.CreateWorldCup2018(c, u.Id)
 		if err != nil {
 			log.Errorf(c, "%s error when trying to create a tournament: %v", desc, err)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentCannotCreate)}
@@ -55,7 +55,7 @@ func GetWorldCup(w http.ResponseWriter, r *http.Request, u *mdl.User) error {
 	desc := "Get World Cup Handler:"
 
 	if r.Method == "GET" {
-		tournaments := mdl.FindTournaments(c, "Name", "2014 FIFA World Cup")
+		tournaments := mdl.FindTournaments(c, "Name", "2018 FIFA World Cup")
 		if tournaments == nil {
 			log.Errorf(c, "%s World Cup tournament was not found.", desc)
 			return &helpers.InternalServerError{Err: errors.New(helpers.ErrorCodeTournamentNotFound)}

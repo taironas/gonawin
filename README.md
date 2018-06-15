@@ -4,25 +4,17 @@ A social web application to make "friendly bets" on sport games with your friend
 
 We believe that todays betting platforms are full of adds that polute the game itself. We want to create a platform that people can use to bet/play with there friends and family or anyone they want without anything in between. There is no money involved.
 
+## Contributors
 
-##### Notes:
-
-As we are in early stages data might flight away from here :-) .
-
-[![baby-gopher](https://raw.github.com/drnic/babygopher-site/gh-pages/images/babygopher-badge.png)](http://www.babygopher.org)
-
-This is a baby-gophers project because `The young are born blind and helpless` - [Wikipedia](http://en.wikipedia.org/wiki/Gopher_(animal)#Pocket_gopher) and [babygopher.org](http://www.babygopher.org/) ^^
-
-
-#### Contributors :
 * [Santiago](https://github.com/santiaago)
 * [Remy](https://github.com/rjourde)
 
-#### Third Parties Installation
+## Third Parties Installation
 
     go get github.com/garyburd/go-oauth/oauth
 
-#### Third Parties
+## Third Parties
+
 * [Google App Engine for Go](https://developers.google.com/appengine/docs/go/)
 * [Boostrap v3](http://getbootstrap.com/)
 * [Angularjs](http://angularjs.org/)
@@ -34,36 +26,39 @@ This is a baby-gophers project because `The young are born blind and helpless` -
   * [font-awesome](http://fortawesome.github.io/Font-Awesome/icons/)
   * [glyphicons](http://glyphicons.com/)
 
-#### Installation
+## Installation
 
 * install [go](http://golang.org/doc/install)
 * set up your [environement](http://golang.org/doc/code.html)
 * install the [go appengine sdk](https://developers.google.com/appengine/downloads)
 * set up the appengine [environement](https://developers.google.com/appengine/docs/go/gettingstarted/devenvironment)
-*   `go get github.com/garyburd/go-oauth/oauth`
-*   `go get github.com/taironas/gonawin`
-*   `go get github.com/taironas/route`
-*   `cd $GOPATH/src/github.com/taironas/gonawin/gonawin`
-*   `cp example-config.json config.json`
-*   add your email to the `config.json` in the `admins` section
-*   `goapp serve`
+* `go get github.com/garyburd/go-oauth/oauth`
+* `go get github.com/taironas/gonawin`
+* `go get github.com/taironas/route`
+* `cd $GOPATH/src/github.com/taironas/gonawin/gonawin`
+* `cp example-config.json config.json`
+* add your email to the `config.json` in the `admins` section
+* `goapp serve`
 
-#### Run App
+## Run App
 
-    > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
-    > goapp serve
+```bash
+cd $GOPATH/src/github.com/taironas/gonawin/gonawin
+dev_appserver.py app.yaml
+```
 
-#### Test App
+## Test App
 
-    > goapp test ./...
-
+```bash
+goapp test ./...
+```
 
 test models (in ./models):
 
     > goapp test -v -run=^*Team$
     > goapp test -v -run=^*User$
 
-#### Run App with production datastore backup
+## Run App with production datastore backup
 
 Create datastore backup
 
@@ -78,12 +73,12 @@ Connect datastore backup to the local server
 
     > go_appengine\appcfg.py upload_data --url=http://localhost:8080/_ah/remote_api --filename=bck_gonawin_mmddyyyy
 
-### Run App with clean data store:
+## Run App with clean data store
 
     > cd $GOPATH/src/github.com/taironas/gonawin/gonawin
     > dev_appserver.py --clear_datastore=yes .
 
-#### Access app from smartphone
+## Access app from smartphone
 
 Get your ip in this case `192.168.1.X`
 
@@ -103,26 +98,24 @@ Run the app with the `-host` parameter
 
 access from your smartphone on `http://192.168.1.X:8080/ng`
 
-#### Formatting
+## Formatting
 
     go fmt ..\gonawin\...
 
-#### Deployment
+### Deployment
 
     goapp deploy
 
-
 __Note:__ If deployment hangs rollback it by doing:
 
-#####On OSX:
+### On OSX
 
     appcfg rollback ..
 
-#####On Windows:
+#### On Windows
 
     python appcfg.py rollback $GOPATH\src\github.com\taironas\gonawin\gonawin
 
-
-#### Documentation
+## Documentation
 
     godoc -http=:6060

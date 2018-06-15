@@ -699,6 +699,9 @@ func GetTournamentBuilder(t *Tournament) TournamentBuilder {
 	if t.Name == "2014 FIFA World Cup" {
 		wct := WorldCupTournament{}
 		tb = wct
+	} else if t.Name == "2018 FIFA World Cup" {
+		wct := WorldCupTournament2018{}
+		tb = wct
 	} else if t.Name == "2015-2016 UEFA Champions League" {
 		clt := ChampionsLeagueTournament{}
 		tb = clt
