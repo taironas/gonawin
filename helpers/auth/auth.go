@@ -47,8 +47,10 @@ func init() {
 	var err error
 	if config, err = gwconfig.ReadConfig(""); err != nil {
 		golog.Printf("Error: unable to read config file; %v", err)
+		KOfflineMode = true
+	} else {
+		KOfflineMode = config.OfflineMode
 	}
-	KOfflineMode = config.OfflineMode
 }
 
 // UserInfo represents the user infor needed for authentication.
